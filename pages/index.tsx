@@ -12,6 +12,7 @@ export default function Home() {
       <h1 className="text-3xl mb-4">Aditya{count}</h1>
       <h1 className="text-3xl mb-4">Ravi{count}</h1>
       <h1 className="text-3xl mb-4">Chaitanya{count}</h1>
+      <hr />
       <h1 className="text-3xl mb-4">Counter: {count}</h1>
       <div className="space-x-4">
         <button onClick={() => dispatch(increment())} className="px-4 py-2 bg-green-500 text-white rounded">
