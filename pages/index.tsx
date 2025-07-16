@@ -26,7 +26,7 @@ export default function Home() {
           site_name: 'Plutonium',
         }}
         twitter={{
-          handle: '@saurishhh',
+          handle: '@urstrulymahesh',
           site: 'https://plutonium.vercel.app/',
           cardType: 'summary_large_image',
         }}
