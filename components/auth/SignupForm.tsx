@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import { setLoading, setError, setSignupStep, setUser } from '@/store/slices/authSlice'
 import { authService, SignupData } from '@/services/authService'
+import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
 interface SignupFormProps {
   onClose: () => void
@@ -21,6 +22,9 @@ export default function SignupForm({ onClose }: SignupFormProps) {
     password: '',
   })
   
+  const [countryCode, setCountryCode] = useState('+91') // Default to India
+  const [mobileNumber, setMobileNumber] = useState('')
+  
   const [confirmPassword, setConfirmPassword] = useState('')
   const [formErrors, setFormErrors] = useState<Partial<SignupData & { confirmPassword: string }>>({})
 
@@ -32,8 +36,8 @@ export default function SignupForm({ onClose }: SignupFormProps) {
     if (!formData.username.trim()) errors.username = 'Username is required'
     if (!formData.email.trim()) errors.email = 'Email is required'
     else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid'
-    if (!formData.mobile.trim()) errors.mobile = 'Mobile number is required'
-    else if (!/^\+?[\d\s-()]{10,}$/.test(formData.mobile)) errors.mobile = 'Mobile number is invalid'
+    if (!mobileNumber.trim()) errors.mobile = 'Mobile number is required'
+    else if (!/^\d{7,15}$/.test(mobileNumber.replace(/\s/g, ''))) errors.mobile = 'Please enter a valid mobile number'
     if (!formData.password) errors.password = 'Password is required'
     else if (formData.password.length < 6) errors.password = 'Password must be at least 6 characters'
     if (formData.password !== confirmPassword) errors.confirmPassword = 'Passwords do not match'
@@ -51,7 +55,10 @@ export default function SignupForm({ onClose }: SignupFormProps) {
     dispatch(setError(null))
     
     try {
-      const { user } = await authService.signup(formData)
+      const fullMobile = countryCode + mobileNumber
+      const signupData = { ...formData, mobile: fullMobile }
+      
+      const { user } = await authService.signup(signupData)
       dispatch(setUser(user))
       dispatch(setSignupStep('email-otp'))
       
@@ -181,17 +188,35 @@ export default function SignupForm({ onClose }: SignupFormProps) {
             <label htmlFor="mobile" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Mobile Number *
             </label>
-            <input
-              type="tel"
-              id="mobile"
-              name="mobile"
-              value={formData.mobile}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                formErrors.mobile ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="+1234567890"
-            />
+            <div className="flex space-x-2">
+              <div className="w-36">
+                <CountryCodeDropdown
+                  value={countryCode}
+                  onChange={setCountryCode}
+                  className={formErrors.mobile ? 'border-red-500' : ''}
+                />
+              </div>
+              <div className="flex-1">
+                <input
+                  type="tel"
+                  id="mobile"
+                  value={mobileNumber}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '') // Only allow digits
+                    setMobileNumber(value)
+                    // Clear error when user starts typing
+                    if (formErrors.mobile) {
+                      setFormErrors(prev => ({ ...prev, mobile: undefined }))
+                    }
+                  }}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    formErrors.mobile ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="1234567890"
+                  maxLength={15}
+                />
+              </div>
+            </div>
             {formErrors.mobile && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formErrors.mobile}</p>
             )}

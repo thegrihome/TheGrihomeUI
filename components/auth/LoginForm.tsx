@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import { setLoading, setError, setUser, setLoginMethod } from '@/store/slices/authSlice'
 import { authService } from '@/services/authService'
+import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
 interface LoginFormProps {
   onClose: () => void
@@ -12,19 +13,22 @@ export default function LoginForm({ onClose }: LoginFormProps) {
   const dispatch = useDispatch()
   const { isLoading, error, loginMethod } = useSelector((state: RootState) => state.auth)
   
-  const [activeTab, setActiveTab] = useState<'email-password' | 'email-otp' | 'mobile-otp'>('email-password')
+  const [activeTab, setActiveTab] = useState<'email-password' | 'email-otp' | 'mobile-otp'>('mobile-otp')
   const [formData, setFormData] = useState({
     email: '',
     mobile: '',
     password: '',
     otp: '',
   })
+  const [countryCode, setCountryCode] = useState('+91') // Default to India
+  const [mobileNumber, setMobileNumber] = useState('')
   const [otpSent, setOtpSent] = useState(false)
   const [timeLeft, setTimeLeft] = useState(0)
 
   const handleTabChange = (tab: 'email-password' | 'email-otp' | 'mobile-otp') => {
     setActiveTab(tab)
     setFormData({ email: '', mobile: '', password: '', otp: '' })
+    setMobileNumber('')
     setOtpSent(false)
     setTimeLeft(0)
     dispatch(setError(null))
@@ -36,10 +40,10 @@ export default function LoginForm({ onClose }: LoginFormProps) {
   }
 
   const handleSendOTP = async (type: 'email' | 'mobile') => {
-    const contact = type === 'email' ? formData.email : formData.mobile
+    const contact = type === 'email' ? formData.email : countryCode + mobileNumber
     
-    if (!contact) {
-      dispatch(setError(`Please enter your ${type}`))
+    if (!contact || (type === 'mobile' && !mobileNumber)) {
+      dispatch(setError(`Please enter your ${type === 'mobile' ? 'mobile number' : type}`))
       return
     }
     
@@ -145,14 +149,14 @@ export default function LoginForm({ onClose }: LoginFormProps) {
         {/* Tabs */}
         <div className="flex border-b border-gray-200 dark:border-gray-600 mb-6">
           <button
-            onClick={() => handleTabChange('email-password')}
+            onClick={() => handleTabChange('mobile-otp')}
             className={`flex-1 py-2 px-4 text-sm font-medium ${
-              activeTab === 'email-password'
+              activeTab === 'mobile-otp'
                 ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            Email & Password
+            Mobile OTP
           </button>
           <button
             onClick={() => handleTabChange('email-otp')}
@@ -165,14 +169,14 @@ export default function LoginForm({ onClose }: LoginFormProps) {
             Email OTP
           </button>
           <button
-            onClick={() => handleTabChange('mobile-otp')}
+            onClick={() => handleTabChange('email-password')}
             className={`flex-1 py-2 px-4 text-sm font-medium ${
-              activeTab === 'mobile-otp'
+              activeTab === 'email-password'
                 ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            Mobile OTP
+            Email & Password
           </button>
         </div>
 
@@ -269,20 +273,29 @@ export default function LoginForm({ onClose }: LoginFormProps) {
                   Mobile Number
                 </label>
                 <div className="flex gap-2">
+                  <div className="w-36">
+                    <CountryCodeDropdown
+                      value={countryCode}
+                      onChange={setCountryCode}
+                    />
+                  </div>
                   <input
                     type="tel"
                     id="mobile"
-                    name="mobile"
-                    value={formData.mobile}
-                    onChange={handleInputChange}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    placeholder="+1234567890"
+                    value={mobileNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '') // Only allow digits
+                      setMobileNumber(value)
+                    }}
+                    className="flex-1 px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                    placeholder="1234567890"
+                    maxLength={15}
                   />
                   <button
                     type="button"
                     onClick={() => handleSendOTP('mobile')}
                     disabled={isLoading || (otpSent && timeLeft > 0)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-md transition-colors"
+                    className="px-2 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs font-medium rounded-md transition-colors whitespace-nowrap"
                   >
                     {otpSent && timeLeft > 0 ? formatTime(timeLeft) : 'Send OTP'}
                   </button>

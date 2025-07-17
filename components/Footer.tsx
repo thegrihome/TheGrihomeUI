@@ -12,10 +12,8 @@ const Footer: NextPage = () => {
   return (
     <footer className="text-black dark:text-gray-300 body-font">
       <div className="container flex flex-col items-center px-10 pb-8 mx-auto border-t border-purple-600 dark:border-purple-300 sm:flex-row">
-        <Link href="/" passHref>
-          <a className="flex items-center justify-center mt-3 text-xl font-medium title-font md:ml-3 md:justify-start">
-            PLUTONIUM
-          </a>
+        <Link href="/" className="flex items-center justify-center mt-3 text-xl font-medium title-font md:ml-3 md:justify-start">
+          PLUTONIUM
         </Link>
 
         <div className="invisible h-5 mt-3 ml-4 border-l border-black md:visible dark:border-gray-300" />

@@ -62,13 +62,8 @@ export default function Home() {
                 <span className="flex justify-center">GitHub Link</span>
               </a>
               <br className="sm:hidden" />
-              <Link href="404">
-                <a
-                  className="inline-flex items-center px-5 py-3 mt-2 ml-0 text-sm font-medium text-gray-700 transition duration-300 border rounded shadow dark:hover:border-gray-500 hover:shadow-md md:ml-2 dark:text-gray-300"
-                  aria-label="learn more"
-                >
-                  <span className="flex justify-center">See a Demo</span>
-                </a>
+              <Link href="404" className="inline-flex items-center px-5 py-3 mt-2 ml-0 text-sm font-medium text-gray-700 transition duration-300 border rounded shadow dark:hover:border-gray-500 hover:shadow-md md:ml-2 dark:text-gray-300" aria-label="learn more">
+                <span className="flex justify-center">See a Demo</span>
               </Link>
             </div>
           </div>
