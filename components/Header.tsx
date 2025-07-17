@@ -132,12 +132,13 @@ const Header: NextPage = () => {
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="invisible md:visible flex items-center space-x-2 text-black dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition duration-300"
+                className="flex items-center space-x-2 text-black dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition duration-300"
               >
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
                   {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                 </div>
-                <span className="font-medium">Welcome {user.firstName} {user.lastName}</span>
+                <span className="font-medium hidden md:block">Welcome {user.firstName} {user.lastName}</span>
+                <span className="font-medium md:hidden">{user.firstName}</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -161,14 +162,16 @@ const Header: NextPage = () => {
           ) : (
             <>
               <button
+                id="signin-button"
                 onClick={handleSignIn}
-                className="invisible dark:hover:border-gray-500 hover:shadow-md transition duration-300 mr-4 text-black border px-3 py-1.5 rounded dark:text-gray-300 md:visible"
+                className="dark:hover:border-gray-500 hover:shadow-md transition duration-300 mr-2 md:mr-4 text-black border px-2 md:px-3 py-1.5 rounded dark:text-gray-300 text-sm"
               >
                 Sign in
               </button>
               <button
+                id="signup-button"
                 onClick={handleSignUp}
-                className="invisible md:visible px-3 py-1.5 transition-colors hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black bg-black dark:bg-white rounded"
+                className="px-2 md:px-3 py-1.5 transition-colors hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black bg-black dark:bg-white rounded text-sm"
               >
                 Sign up
               </button>
