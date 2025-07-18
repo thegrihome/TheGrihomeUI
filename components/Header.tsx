@@ -151,12 +151,20 @@ const Header: NextPage = () => {
             )}
           </div>
         </div>
-
-        {/* Mobile Navigation Modal */}
-        {navbarOpen && (
-          <div className="fixed inset-0 z-[9999] md:hidden">
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998]" onClick={() => setNavbarOpen(false)} />
-            <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-[9999]">
+      </div>
+      
+      {/* Mobile Navigation Modal - Outside header container */}
+      {navbarOpen && (
+        <div className="fixed inset-0 z-[99999] md:hidden" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50" 
+            onClick={() => setNavbarOpen(false)}
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99998 }}
+          />
+          <div 
+            className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out"
+            style={{ position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 99999 }}
+          >
               <div className="flex flex-col p-6 space-y-6">
                 <div className="flex justify-between items-center pb-4 border-b border-gray-200">
                   <Link href="/" className="text-xl font-medium text-black">
@@ -252,7 +260,6 @@ const Header: NextPage = () => {
             </div>
           </div>
         )}
-      </div>
       
       <AuthModal
         isOpen={authModalOpen}
