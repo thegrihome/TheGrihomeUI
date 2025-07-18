@@ -154,9 +154,9 @@ const Header: NextPage = () => {
 
         {/* Mobile Navigation Modal */}
         {navbarOpen && (
-          <div className="fixed inset-0 z-50 md:hidden">
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setNavbarOpen(false)} />
-            <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out">
+          <div className="fixed inset-0 z-[9999] md:hidden">
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998]" onClick={() => setNavbarOpen(false)} />
+            <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-[9999]">
               <div className="flex flex-col p-6 space-y-6">
                 <div className="flex justify-between items-center pb-4 border-b border-gray-200">
                   <Link href="/" className="text-xl font-medium text-black">
