@@ -3,9 +3,6 @@ import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Sponsors from '@/components/Sponsors'
-import Features from '@/components/Features'
-import Pricing from '@/components/Pricing'
 
 export default function Home() {
   return (
@@ -37,18 +34,16 @@ export default function Home() {
 
       <Header />
 
-      <section className="relative flex-1 flex items-start justify-center pt-16">
+      <section className="relative flex-1 flex items-start justify-center pt-8">
         <div className="px-4 mx-auto max-w-7xl">
           <div className="w-full mx-auto text-center md:w-11/12">
-            <h1 className="mb-3 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+            <h1 className="mb-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-gray-100 leading-tight">
               <span className="whitespace-nowrap block">Redefining Real Estate</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r dark:bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 dark:from-pink-500 dark:via-purple-400 dark:to-indigo-500 block">with you.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r dark:bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 dark:from-pink-500 dark:via-purple-400 dark:to-indigo-500 block pb-1">with you.</span>
             </h1>
-            <p className="max-w-xl pt-5 mx-auto text-lg text-gray-600 dark:text-gray-400 md:text-lg">
-              Grihome is a next-generation real estate platform that empowers realtors, buyers, and companies to connect seamlessly without boundaries
-            </p>
             
-            <div className="flex flex-wrap justify-center items-center gap-6 mt-8 mb-8">
+            
+            <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 lg:gap-10 mt-8 mb-8 max-w-4xl mx-auto">
               <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
                 <div className="text-3xl mb-2">🏛️</div>
                 <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Hyderabad</span>
@@ -75,7 +70,7 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="relative max-w-2xl mx-auto mt-8">
+            <div className="relative max-w-4xl mx-auto mt-8">
               <div className="flex items-center">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
