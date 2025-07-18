@@ -42,14 +42,14 @@ const Header: NextPage = () => {
   if (!mounted) return null
 
   return (
-    <header className="w-full sticky-nav">
-      <div className="flex flex-col flex-wrap max-w-5xl p-2.5 mx-auto md:flex-row">
-        <div className="flex flex-row items-center justify-between p-2 md:p-1">
-          <Link href="/" className="mb-4 text-2xl font-medium text-black transition duration-300 hover:text-gray-600 md:mb-0">
+    <header className="header sticky-nav">
+      <div className="header-container">
+        <div className="header-top">
+          <Link href="/" className="header-logo">
             GRIHOME
           </Link>
           <button
-            className="px-3 py-1 pb-4 ml-auto text-black outline-none md:hidden"
+            className="mobile-menu-button"
             type="button"
             aria-label="Toggle Menu"
             onClick={() => setNavbarOpen(!navbarOpen)}
@@ -73,40 +73,31 @@ const Header: NextPage = () => {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex flex-grow items-center">
-          <div className="flex flex-wrap items-center justify-center pt-1 pl-2 ml-1 space-x-6 md:space-x-12 md:mx-auto md:pl-14">
-            <a
-              href="/#agents"
-              className="text-black transition duration-300 hover:text-gray-600"
-            >
+        <div className="desktop-nav">
+          <div className="desktop-nav-links">
+            <a href="/#agents" className="desktop-nav-link">
               Agents
             </a>
-            <a
-              href="/#builders"
-              className="text-black transition duration-300 hover:text-gray-600"
-            >
+            <a href="/#builders" className="desktop-nav-link">
               Builders
             </a>
-            <a
-              href="/#forum"
-              className="text-black transition duration-300 hover:text-gray-600"
-            >
+            <a href="/#forum" className="desktop-nav-link">
               Forum
             </a>
-            <Link href="/#contact" className="text-black transition duration-300 hover:text-gray-600">
+            <Link href="/#contact" className="desktop-nav-link">
               Contact Us
             </Link>
           </div>
 
 
-          <div className="hidden md:flex items-center">
+          <div className="auth-section">
             {isAuthenticated && user ? (
-              <div className="relative">
+              <div className="user-menu">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 text-black hover:text-gray-700 transition duration-300"
+                  className="user-menu-button"
                 >
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                  <div className="user-avatar">
                     {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                   </div>
                   <span className="font-medium hidden md:block">Welcome {user.firstName} {user.lastName}</span>
@@ -117,14 +108,14 @@ const Header: NextPage = () => {
                 </button>
                 
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-10 border border-gray-200">
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
-                      <p className="font-medium">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs text-gray-500">@{user.username}</p>
+                  <div className="user-menu-dropdown">
+                    <div className="user-info">
+                      <p className="user-name">{user.firstName} {user.lastName}</p>
+                      <p className="username">@{user.username}</p>
                     </div>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      className="logout-button"
                     >
                       Sign out
                     </button>
@@ -136,14 +127,14 @@ const Header: NextPage = () => {
                 <button
                   id="signin-button"
                   onClick={handleSignIn}
-                  className="hover:shadow-md transition duration-300 mr-2 md:mr-4 text-black border border-gray-300 px-2 md:px-3 py-1.5 rounded text-sm hover:bg-gray-50"
+                  className="signin-button"
                 >
                   Sign in
                 </button>
                 <button
                   id="signup-button"
                   onClick={handleSignUp}
-                  className="px-2 md:px-3 py-1.5 transition-colors hover:bg-gray-800 text-white bg-black rounded text-sm"
+                  className="signup-button"
                 >
                   Sign up
                 </button>
@@ -155,111 +146,104 @@ const Header: NextPage = () => {
       
       {/* Mobile Navigation Modal - Outside header container */}
       {navbarOpen && (
-        <div className="fixed inset-0 z-[99999] md:hidden" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50" 
-            onClick={() => setNavbarOpen(false)}
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99998 }}
-          />
-          <div 
-            className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out"
-            style={{ position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 99999 }}
-          >
-              <div className="flex flex-col p-6 space-y-6">
-                <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-                  <Link href="/" className="text-xl font-medium text-black">
-                    GRIHOME
-                  </Link>
-                  <button
-                    onClick={() => setNavbarOpen(false)}
-                    className="text-black"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                
-                <nav className="flex flex-col space-y-4">
-                  <a
-                    href="/#agents"
-                    className="text-black hover:text-gray-600 transition duration-300 py-2 text-lg"
-                    onClick={() => setNavbarOpen(false)}
-                  >
-                    Agents
-                  </a>
-                  <a
-                    href="/#builders"
-                    className="text-black hover:text-gray-600 transition duration-300 py-2 text-lg"
-                    onClick={() => setNavbarOpen(false)}
-                  >
-                    Builders
-                  </a>
-                  <a
-                    href="/#forum"
-                    className="text-black hover:text-gray-600 transition duration-300 py-2 text-lg"
-                    onClick={() => setNavbarOpen(false)}
-                  >
-                    Forum
-                  </a>
-                  <Link
-                    href="/#contact"
-                    className="text-black hover:text-gray-600 transition duration-300 py-2 text-lg"
-                    onClick={() => setNavbarOpen(false)}
-                  >
-                    Contact Us
-                  </Link>
-                </nav>
+        <div className="mobile-modal-overlay">
+          <div className="mobile-modal-backdrop" onClick={() => setNavbarOpen(false)} />
+          <div className="mobile-modal-panel">
+            <div className="mobile-modal-content">
+              <div className="mobile-modal-header">
+                <Link href="/" className="mobile-modal-logo">
+                  GRIHOME
+                </Link>
+                <button
+                  onClick={() => setNavbarOpen(false)}
+                  className="mobile-modal-close"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <nav className="mobile-nav-links">
+                <a
+                  href="/#agents"
+                  className="mobile-nav-link"
+                  onClick={() => setNavbarOpen(false)}
+                >
+                  Agents
+                </a>
+                <a
+                  href="/#builders"
+                  className="mobile-nav-link"
+                  onClick={() => setNavbarOpen(false)}
+                >
+                  Builders
+                </a>
+                <a
+                  href="/#forum"
+                  className="mobile-nav-link"
+                  onClick={() => setNavbarOpen(false)}
+                >
+                  Forum
+                </a>
+                <Link
+                  href="/#contact"
+                  className="mobile-nav-link"
+                  onClick={() => setNavbarOpen(false)}
+                >
+                  Contact Us
+                </Link>
+              </nav>
 
-                <div className="pt-6 border-t border-gray-200">
-                  {isAuthenticated && user ? (
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
-                          {user.firstName.charAt(0)}{user.lastName.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-black">{user.firstName} {user.lastName}</p>
-                          <p className="text-sm text-gray-500">@{user.username}</p>
-                        </div>
+              <div className="mobile-auth-section">
+                {isAuthenticated && user ? (
+                  <div>
+                    <div className="mobile-user-info">
+                      <div className="mobile-user-avatar">
+                        {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                       </div>
-                      <button
-                        onClick={() => {
-                          handleLogout()
-                          setNavbarOpen(false)
-                        }}
-                        className="w-full text-left py-2 text-red-600 hover:text-red-700 transition-colors"
-                      >
-                        Sign out
-                      </button>
+                      <div className="mobile-user-details">
+                        <p className="user-name">{user.firstName} {user.lastName}</p>
+                        <p className="username">@{user.username}</p>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <button
-                        onClick={() => {
-                          handleSignIn()
-                          setNavbarOpen(false)
-                        }}
-                        className="w-full py-2 px-4 text-black border border-gray-300 rounded hover:bg-gray-50 transition duration-300"
-                      >
-                        Sign in
-                      </button>
-                      <button
-                        onClick={() => {
-                          handleSignUp()
-                          setNavbarOpen(false)
-                        }}
-                        className="w-full py-2 px-4 text-white bg-black rounded hover:bg-gray-800 transition duration-300"
-                      >
-                        Sign up
-                      </button>
-                    </div>
-                  )}
-                </div>
+                    <button
+                      onClick={() => {
+                        handleLogout()
+                        setNavbarOpen(false)
+                      }}
+                      className="mobile-logout-button"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mobile-auth-buttons">
+                    <button
+                      onClick={() => {
+                        handleSignIn()
+                        setNavbarOpen(false)
+                      }}
+                      className="mobile-signin-button"
+                    >
+                      Sign in
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleSignUp()
+                        setNavbarOpen(false)
+                      }}
+                      className="mobile-signup-button"
+                    >
+                      Sign up
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
       
       <AuthModal
         isOpen={authModalOpen}

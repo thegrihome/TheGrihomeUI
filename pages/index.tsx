@@ -6,7 +6,7 @@ import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
-    <div className="bg-white min-h-screen flex flex-col">
+    <div className="home-container">
       <NextSeo
         title="Grihome"
         description="Grihome — Redefining Real Estate with you."
@@ -34,53 +34,52 @@ export default function Home() {
 
       <Header />
 
-      <section className="relative flex-1 flex items-start justify-center pt-8">
-        <div className="px-4 mx-auto max-w-7xl">
-          <div className="w-full mx-auto text-center">
-            <div className="max-w-4xl mx-auto">
-              <h1 className="mb-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight">
-                <span className="whitespace-nowrap block">Redefining Real Estate</span>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 block pb-1">with you.</span>
+      <section className="home-main-section">
+        <div className="home-content-wrapper">
+          <div className="home-content-container">
+            <div className="home-content-max-width">
+              <h1 className="home-title">
+                <span className="home-title-line">Redefining Real Estate</span>
+                <span className="home-title-gradient">with you.</span>
               </h1>
               
-              
-              <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 lg:gap-10 mt-8 mb-8">
-                <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="text-3xl mb-2">🏛️</div>
-                  <span className="text-sm text-gray-600 font-medium">Hyderabad</span>
+              <div className="home-cities-container">
+                <div className="home-city-item">
+                  <div className="home-city-icon">🏛️</div>
+                  <span className="home-city-name">Hyderabad</span>
                 </div>
-                <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="text-3xl mb-2">🏖️</div>
-                  <span className="text-sm text-gray-600 font-medium">Chennai</span>
+                <div className="home-city-item">
+                  <div className="home-city-icon">🏖️</div>
+                  <span className="home-city-name">Chennai</span>
                 </div>
-                <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="text-3xl mb-2">🌆</div>
-                  <span className="text-sm text-gray-600 font-medium">Bengaluru</span>
+                <div className="home-city-item">
+                  <div className="home-city-icon">🌆</div>
+                  <span className="home-city-name">Bengaluru</span>
                 </div>
-                <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="text-3xl mb-2">🏙️</div>
-                  <span className="text-sm text-gray-600 font-medium">Mumbai</span>
+                <div className="home-city-item">
+                  <div className="home-city-icon">🏙️</div>
+                  <span className="home-city-name">Mumbai</span>
                 </div>
-                <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="text-3xl mb-2">🏛️</div>
-                  <span className="text-sm text-gray-600 font-medium">Delhi</span>
+                <div className="home-city-item">
+                  <div className="home-city-icon">🏛️</div>
+                  <span className="home-city-name">Delhi</span>
                 </div>
-                <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="text-3xl mb-2">🌉</div>
-                  <span className="text-sm text-gray-600 font-medium">Kolkata</span>
+                <div className="home-city-item">
+                  <div className="home-city-icon">🌉</div>
+                  <span className="home-city-name">Kolkata</span>
                 </div>
               </div>
               
-              <div className="relative mt-8">
-                <div className="flex items-center">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="home-search-container">
+                <div className="home-search-wrapper">
+                  <div className="home-search-icon-container">
+                    <svg className="home-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
                   <input
                     type="text"
-                    className="w-full pl-10 pr-4 py-3 text-gray-900 bg-white border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-500"
+                    className="home-search-input"
                     placeholder="Enter a property, locality or zip code"
                   />
                 </div>

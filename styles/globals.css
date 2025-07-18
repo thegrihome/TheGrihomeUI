@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Component Styles */
+@import './header.css';
+@import './footer.css';
+@import './home.css';
+
 html {
   min-width: 360px;
   scroll-behavior: smooth;
