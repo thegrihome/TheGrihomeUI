@@ -3,7 +3,15 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { RootState } from '@/store/store'
-import { resetSignupForm, setLoading, setError, setSignupStep, setUser, verifyEmail, verifyMobile } from '@/store/slices/authSlice'
+import {
+  resetSignupForm,
+  setLoading,
+  setError,
+  setSignupStep,
+  setUser,
+  verifyEmail,
+  verifyMobile,
+} from '@/store/slices/authSlice'
 import { authService, SignupData } from '@/services/authService'
 import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
@@ -12,7 +20,9 @@ export default function SignupPage() {
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const dispatch = useDispatch()
-  const { signupStep, isAuthenticated, user, isLoading, error } = useSelector((state: RootState) => state.auth)
+  const { signupStep, isAuthenticated, user, isLoading, error } = useSelector(
+    (state: RootState) => state.auth
+  )
 
   // Form state
   const [formData, setFormData] = useState<SignupData>({
@@ -23,11 +33,13 @@ export default function SignupPage() {
     mobile: '',
     password: '',
   })
-  
+
   const [countryCode, setCountryCode] = useState('+91')
   const [mobileNumber, setMobileNumber] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [formErrors, setFormErrors] = useState<Partial<SignupData & { confirmPassword: string }>>({})
+  const [formErrors, setFormErrors] = useState<Partial<SignupData & { confirmPassword: string }>>(
+    {}
+  )
 
   // OTP state
   const [otp, setOtp] = useState('')
@@ -73,40 +85,42 @@ export default function SignupPage() {
 
   const validateForm = (): boolean => {
     const errors: Partial<SignupData & { confirmPassword: string }> = {}
-    
+
     if (!formData.firstName.trim()) errors.firstName = 'First name is required'
     if (!formData.lastName.trim()) errors.lastName = 'Last name is required'
     if (!formData.username.trim()) errors.username = 'Username is required'
     if (!formData.email.trim()) errors.email = 'Email is required'
     else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid'
     if (!mobileNumber.trim()) errors.mobile = 'Mobile number is required'
-    else if (!/^\d{7,15}$/.test(mobileNumber.replace(/\s/g, ''))) errors.mobile = 'Please enter a valid mobile number'
+    else if (!/^\d{7,15}$/.test(mobileNumber.replace(/\s/g, '')))
+      errors.mobile = 'Please enter a valid mobile number'
     if (!formData.password) errors.password = 'Password is required'
-    else if (formData.password.length < 6) errors.password = 'Password must be at least 6 characters'
+    else if (formData.password.length < 6)
+      errors.password = 'Password must be at least 6 characters'
     if (formData.password !== confirmPassword) errors.confirmPassword = 'Passwords do not match'
-    
+
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) return
-    
+
     dispatch(setLoading(true))
     dispatch(setError(null))
-    
+
     try {
       const fullMobile = countryCode + mobileNumber
       const signupData = { ...formData, mobile: fullMobile }
-      
+
       const { user } = await authService.signup(signupData)
       dispatch(setUser(user))
       dispatch(setSignupStep('email-otp'))
       setTimeLeft(300)
       setCanResend(false)
-      
+
       await authService.sendEmailOTP(formData.email)
     } catch (err) {
       dispatch(setError(err instanceof Error ? err.message : 'Signup failed'))
@@ -117,12 +131,12 @@ export default function SignupPage() {
 
   const handleOTPSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!otp || !user) return
-    
+
     dispatch(setLoading(true))
     dispatch(setError(null))
-    
+
     try {
       if (signupStep === 'email-otp') {
         const isValid = await authService.verifyEmailOTP({ email: user.email, otp })
@@ -153,10 +167,10 @@ export default function SignupPage() {
 
   const handleResendOTP = async () => {
     if (!user || !canResend) return
-    
+
     dispatch(setLoading(true))
     dispatch(setError(null))
-    
+
     try {
       if (signupStep === 'email-otp') {
         await authService.sendEmailOTP(user.email)
@@ -175,7 +189,7 @@ export default function SignupPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-    
+
     if (formErrors[name as keyof typeof formErrors]) {
       setFormErrors(prev => {
         const newErrors = { ...prev }
@@ -202,10 +216,7 @@ export default function SignupPage() {
             <Link href="/" className="text-xl font-bold text-gray-900">
               GRIHOME
             </Link>
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-gray-900 font-medium"
-            >
+            <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium">
               ← Back to Home
             </Link>
           </div>
@@ -218,21 +229,19 @@ export default function SignupPage() {
           {/* Form Header */}
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900">
-              {signupStep === 'form' 
-                ? (activeTab === 'agent' ? 'Sign up as Agent' : 'Create your account')
-                : signupStep === 'email-otp' 
-                ? 'Verify your email' 
-                : signupStep === 'mobile-otp'
-                ? 'Verify your mobile'
-                : 'Welcome to GRIHOME!'
-              }
+              {signupStep === 'form'
+                ? activeTab === 'agent'
+                  ? 'Sign up as Agent'
+                  : 'Create your account'
+                : signupStep === 'email-otp'
+                  ? 'Verify your email'
+                  : signupStep === 'mobile-otp'
+                    ? 'Verify your mobile'
+                    : 'Welcome to GRIHOME!'}
             </h1>
             {signupStep === 'form' && (
               <p className="mt-2 text-sm text-gray-600">
-                {activeTab === 'agent' 
-                  ? 'Join as a real estate agent'
-                  : 'Join GRIHOME today'
-                }
+                {activeTab === 'agent' ? 'Join as a real estate agent' : 'Join GRIHOME today'}
               </p>
             )}
           </div>
@@ -381,7 +390,7 @@ export default function SignupPage() {
                         type="tel"
                         id="mobile"
                         value={mobileNumber}
-                        onChange={(e) => {
+                        onChange={e => {
                           const value = e.target.value.replace(/\D/g, '')
                           setMobileNumber(value)
                           if (formErrors.mobile) {
@@ -425,14 +434,17 @@ export default function SignupPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Confirm Password *
                   </label>
                   <input
                     type="password"
                     id="confirmPassword"
                     value={confirmPassword}
-                    onChange={(e) => {
+                    onChange={e => {
                       setConfirmPassword(e.target.value)
                       if (formErrors.confirmPassword) {
                         setFormErrors(prev => {
@@ -474,8 +486,18 @@ export default function SignupPage() {
                   }}
                   className="flex items-center text-sm text-gray-600 hover:text-gray-900"
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                   Back
                 </button>
@@ -484,18 +506,36 @@ export default function SignupPage() {
                 <div className="text-center">
                   <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     {signupStep === 'email-otp' ? (
-                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <svg
+                        className="w-8 h-8 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
                       </svg>
                     ) : (
-                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      <svg
+                        className="w-8 h-8 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+                        />
                       </svg>
                     )}
                   </div>
-                  <p className="text-gray-600">
-                    We've sent a verification code to
-                  </p>
+                  <p className="text-gray-600">We&apos;ve sent a verification code to</p>
                   <p className="font-semibold text-gray-900">
                     {signupStep === 'email-otp' ? user?.email : user?.mobile}
                   </p>
@@ -510,7 +550,7 @@ export default function SignupPage() {
                       type="text"
                       id="otp"
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-center text-lg tracking-widest"
                       placeholder="123456"
                       maxLength={6}
@@ -546,8 +586,18 @@ export default function SignupPage() {
             {signupStep === 'completed' && (
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-8 h-8 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-gray-900">Account created successfully!</h3>

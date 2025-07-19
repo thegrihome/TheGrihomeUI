@@ -10,7 +10,7 @@ export const countryCodes: Country[] = [
   // Priority countries at top
   { code: 'IN', code3: 'IND', name: 'India', dialCode: '+91', flag: '🇮🇳' },
   { code: 'US', code3: 'USA', name: 'United States of America', dialCode: '+1', flag: '🇺🇸' },
-  
+
   // Rest in alphabetical order
   { code: 'AF', code3: 'AFG', name: 'Afghanistan', dialCode: '+93', flag: '🇦🇫' },
   { code: 'AL', code3: 'ALB', name: 'Albania', dialCode: '+355', flag: '🇦🇱' },
@@ -192,5 +192,5 @@ export const countryCodes: Country[] = [
   { code: 'VN', code3: 'VNM', name: 'Vietnam', dialCode: '+84', flag: '🇻🇳' },
   { code: 'YE', code3: 'YEM', name: 'Yemen', dialCode: '+967', flag: '🇾🇪' },
   { code: 'ZM', code3: 'ZMB', name: 'Zambia', dialCode: '+260', flag: '🇿🇲' },
-  { code: 'ZW', code3: 'ZWE', name: 'Zimbabwe', dialCode: '+263', flag: '🇿🇼' }
+  { code: 'ZW', code3: 'ZWE', name: 'Zimbabwe', dialCode: '+263', flag: '🇿🇼' },
 ]

@@ -9,7 +9,7 @@ const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
-  
+
   const dispatch = useDispatch()
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
 
@@ -58,48 +58,51 @@ const Header: NextPage = () => {
         {/* Desktop Navigation */}
         <div className="desktop-nav">
           <div className="desktop-nav-links">
-            <a href="/#agents" className="desktop-nav-link">
+            <Link href="/#agents" className="desktop-nav-link">
               Agents
-            </a>
-            <a href="/#builders" className="desktop-nav-link">
+            </Link>
+            <Link href="/#builders" className="desktop-nav-link">
               Builders
-            </a>
-            <a href="/#forum" className="desktop-nav-link">
+            </Link>
+            <Link href="/#forum" className="desktop-nav-link">
               Forum
-            </a>
+            </Link>
             <Link href="/#contact" className="desktop-nav-link">
               Contact Us
             </Link>
           </div>
 
-
           <div className="auth-section">
             {isAuthenticated && user ? (
               <div className="user-menu">
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="user-menu-button"
-                >
+                <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="user-menu-button">
                   <div className="user-avatar">
-                    {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                    {user.firstName.charAt(0)}
+                    {user.lastName.charAt(0)}
                   </div>
-                  <span className="font-medium hidden md:block">Welcome {user.firstName} {user.lastName}</span>
+                  <span className="font-medium hidden md:block">
+                    Welcome {user.firstName} {user.lastName}
+                  </span>
                   <span className="font-medium md:hidden">{user.firstName}</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
-                
+
                 {userMenuOpen && (
                   <div className="user-menu-dropdown">
                     <div className="user-info">
-                      <p className="user-name">{user.firstName} {user.lastName}</p>
+                      <p className="user-name">
+                        {user.firstName} {user.lastName}
+                      </p>
                       <p className="username">@{user.username}</p>
                     </div>
-                    <button
-                      onClick={handleLogout}
-                      className="logout-button"
-                    >
+                    <button onClick={handleLogout} className="logout-button">
                       Sign out
                     </button>
                   </div>
@@ -107,16 +110,10 @@ const Header: NextPage = () => {
               </div>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="signin-button"
-                >
+                <Link href="/login" className="signin-button">
                   Sign in
                 </Link>
-                <Link
-                  href="/signup"
-                  className="signup-button"
-                >
+                <Link href="/signup" className="signup-button">
                   Sign up
                 </Link>
               </>
@@ -124,49 +121,51 @@ const Header: NextPage = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Mobile Navigation Modal - Outside header container */}
       {navbarOpen && (
         <div className="mobile-modal-overlay" onClick={() => setNavbarOpen(false)}>
           <div className="mobile-modal-backdrop" onClick={() => setNavbarOpen(false)} />
-          <div className="mobile-modal-panel" onClick={(e) => e.stopPropagation()}>
+          <div className="mobile-modal-panel" onClick={e => e.stopPropagation()}>
             <div className="mobile-modal-content">
               <div className="mobile-modal-header">
                 <Link href="/" className="mobile-modal-logo">
                   GRIHOME
                 </Link>
-                <button
-                  onClick={() => setNavbarOpen(false)}
-                  className="mobile-modal-close"
-                >
+                <button onClick={() => setNavbarOpen(false)} className="mobile-modal-close">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
-              
+
               <nav className="mobile-nav-links">
-                <a
+                <Link
                   href="/#agents"
                   className="mobile-nav-link"
                   onClick={() => setNavbarOpen(false)}
                 >
                   Agents
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/#builders"
                   className="mobile-nav-link"
                   onClick={() => setNavbarOpen(false)}
                 >
                   Builders
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/#forum"
                   className="mobile-nav-link"
                   onClick={() => setNavbarOpen(false)}
                 >
                   Forum
-                </a>
+                </Link>
                 <Link
                   href="/#contact"
                   className="mobile-nav-link"
@@ -181,10 +180,13 @@ const Header: NextPage = () => {
                   <div>
                     <div className="mobile-user-info">
                       <div className="mobile-user-avatar">
-                        {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                        {user.firstName.charAt(0)}
+                        {user.lastName.charAt(0)}
                       </div>
                       <div className="mobile-user-details">
-                        <p className="user-name">{user.firstName} {user.lastName}</p>
+                        <p className="user-name">
+                          {user.firstName} {user.lastName}
+                        </p>
                         <p className="username">@{user.username}</p>
                       </div>
                     </div>

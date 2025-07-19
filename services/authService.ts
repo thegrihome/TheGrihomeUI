@@ -26,7 +26,7 @@ export const authService = {
   signup: async (data: SignupData): Promise<{ user: User; tempId: string }> => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     const user: User = {
       id: Math.random().toString(36).substr(2, 9),
       firstName: data.firstName,
@@ -37,7 +37,7 @@ export const authService = {
       isEmailVerified: false,
       isMobileVerified: false,
     }
-    
+
     return { user, tempId: 'temp-' + user.id }
   },
 
@@ -70,7 +70,7 @@ export const authService = {
   loginWithEmailPassword: async (data: LoginData): Promise<User> => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     // Mock user data - replace with actual API response
     return {
       id: Math.random().toString(36).substr(2, 9),
@@ -87,11 +87,11 @@ export const authService = {
   loginWithEmailOTP: async (data: OTPData): Promise<User> => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     if (data.otp !== '123456') {
       throw new Error('Invalid OTP')
     }
-    
+
     return {
       id: Math.random().toString(36).substr(2, 9),
       firstName: 'John',
@@ -107,11 +107,11 @@ export const authService = {
   loginWithMobileOTP: async (data: OTPData): Promise<User> => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     if (data.otp !== '123456') {
       throw new Error('Invalid OTP')
     }
-    
+
     return {
       id: Math.random().toString(36).substr(2, 9),
       firstName: 'John',

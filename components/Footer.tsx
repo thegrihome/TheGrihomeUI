@@ -12,9 +12,7 @@ const Footer: NextPage = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
-        <div className="footer-copyright">
-          Copyright: © Grihome. All rights reserved
-        </div>
+        <div className="footer-copyright">Copyright: © Grihome. All rights reserved</div>
 
         <div className="footer-social-links">
           <a

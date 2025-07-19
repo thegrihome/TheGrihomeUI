@@ -62,12 +62,12 @@ const authSlice = createSlice({
     setSignupFormData: (state, action: PayloadAction<AuthState['signupFormData']>) => {
       state.signupFormData = action.payload
     },
-    resetSignupForm: (state) => {
+    resetSignupForm: state => {
       state.signupStep = 'form'
       state.signupFormData = null
       state.error = null
     },
-    logout: (state) => {
+    logout: state => {
       state.user = null
       state.isAuthenticated = false
       state.signupStep = 'form'
@@ -75,12 +75,12 @@ const authSlice = createSlice({
       state.signupFormData = null
       state.error = null
     },
-    verifyEmail: (state) => {
+    verifyEmail: state => {
       if (state.user) {
         state.user.isEmailVerified = true
       }
     },
-    verifyMobile: (state) => {
+    verifyMobile: state => {
       if (state.user) {
         state.user.isMobileVerified = true
       }

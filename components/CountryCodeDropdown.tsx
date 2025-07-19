@@ -7,19 +7,25 @@ interface CountryCodeDropdownProps {
   className?: string
 }
 
-export default function CountryCodeDropdown({ value, onChange, className = '' }: CountryCodeDropdownProps) {
+export default function CountryCodeDropdown({
+  value,
+  onChange,
+  className = '',
+}: CountryCodeDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  const selectedCountry = countryCodes.find(country => country.dialCode === value) || countryCodes[0]
+  const selectedCountry =
+    countryCodes.find(country => country.dialCode === value) || countryCodes[0]
 
-  const filteredCountries = countryCodes.filter(country =>
-    country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    country.dialCode.includes(searchTerm) ||
-    country.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    country.code3.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCountries = countryCodes.filter(
+    country =>
+      country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      country.dialCode.includes(searchTerm) ||
+      country.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      country.code3.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   useEffect(() => {
@@ -64,9 +70,7 @@ export default function CountryCodeDropdown({ value, onChange, className = '' }:
             <span className="text-sm font-medium text-gray-900 flex-shrink-0">
               {selectedCountry.dialCode}
             </span>
-            <span className="text-sm text-gray-600 flex-shrink-0">
-              {selectedCountry.code3}
-            </span>
+            <span className="text-sm text-gray-600 flex-shrink-0">{selectedCountry.code3}</span>
           </div>
           <svg
             className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-1 ${isOpen ? 'rotate-180' : ''}`}
@@ -77,7 +81,7 @@ export default function CountryCodeDropdown({ value, onChange, className = '' }:
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-        
+
         {/* Tooltip */}
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap z-50 shadow-lg">
           {selectedCountry.name}
@@ -94,7 +98,7 @@ export default function CountryCodeDropdown({ value, onChange, className = '' }:
               type="text"
               placeholder="Search countries..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
             />
           </div>
@@ -102,7 +106,7 @@ export default function CountryCodeDropdown({ value, onChange, className = '' }:
           {/* Country list */}
           <div className="max-h-48 overflow-y-auto overflow-x-visible">
             {filteredCountries.length > 0 ? (
-              filteredCountries.map((country) => (
+              filteredCountries.map(country => (
                 <div key={country.code} className="relative group">
                   <button
                     type="button"
@@ -117,17 +121,13 @@ export default function CountryCodeDropdown({ value, onChange, className = '' }:
                       <span className="text-sm font-medium text-gray-900 flex-shrink-0">
                         {country.dialCode}
                       </span>
-                      <span className="text-sm text-gray-600 flex-shrink-0">
-                        {country.code3}
-                      </span>
+                      <span className="text-sm text-gray-600 flex-shrink-0">{country.code3}</span>
                     </div>
                   </button>
                 </div>
               ))
             ) : (
-              <div className="px-3 py-2 text-sm text-gray-500">
-                No countries found
-              </div>
+              <div className="px-3 py-2 text-sm text-gray-500">No countries found</div>
             )}
           </div>
         </div>

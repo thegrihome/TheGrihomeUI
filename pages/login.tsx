@@ -9,8 +9,10 @@ import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
 export default function LoginPage() {
   const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'mobile-otp' | 'email-otp' | 'email-password'>('mobile-otp')
-  
+  const [activeTab, setActiveTab] = useState<'mobile-otp' | 'email-otp' | 'email-password'>(
+    'mobile-otp'
+  )
+
   const router = useRouter()
   const dispatch = useDispatch()
   const { isAuthenticated, isLoading, error } = useSelector((state: RootState) => state.auth)
@@ -24,7 +26,7 @@ export default function LoginPage() {
   const [showOTPStep, setShowOTPStep] = useState(false)
   const [timeLeft, setTimeLeft] = useState(120)
   const [canResend, setCanResend] = useState(false)
-  const [formErrors, setFormErrors] = useState<{[key: string]: string}>({})
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
     setMounted(true)
@@ -47,8 +49,8 @@ export default function LoginPage() {
   }, [timeLeft, showOTPStep])
 
   const validateForm = (): boolean => {
-    const errors: {[key: string]: string} = {}
-    
+    const errors: { [key: string]: string } = {}
+
     if (activeTab === 'email-password') {
       if (!email.trim()) errors.email = 'Email is required'
       else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Email is invalid'
@@ -58,22 +60,23 @@ export default function LoginPage() {
       else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Email is invalid'
     } else if (activeTab === 'mobile-otp') {
       if (!mobileNumber.trim()) errors.mobile = 'Mobile number is required'
-      else if (!/^\d{7,15}$/.test(mobileNumber.replace(/\s/g, ''))) errors.mobile = 'Please enter a valid mobile number'
+      else if (!/^\d{7,15}$/.test(mobileNumber.replace(/\s/g, '')))
+        errors.mobile = 'Please enter a valid mobile number'
     }
-    
+
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) return
-    
+
     dispatch(setLoading(true))
     dispatch(setError(null))
     dispatch(setLoginMethod(activeTab))
-    
+
     try {
       if (activeTab === 'email-password') {
         const user = await authService.loginWithEmailPassword({ email, password })
@@ -100,12 +103,12 @@ export default function LoginPage() {
 
   const handleOTPSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!otp || otp.length !== 6) return
-    
+
     dispatch(setLoading(true))
     dispatch(setError(null))
-    
+
     try {
       if (activeTab === 'email-otp') {
         const user = await authService.loginWithEmailOTP({ email, otp })
@@ -125,10 +128,10 @@ export default function LoginPage() {
 
   const handleResendOTP = async () => {
     if (!canResend) return
-    
+
     dispatch(setLoading(true))
     dispatch(setError(null))
-    
+
     try {
       if (activeTab === 'email-otp') {
         await authService.sendEmailOTP(email)
@@ -170,10 +173,7 @@ export default function LoginPage() {
             <Link href="/" className="text-xl font-bold text-gray-900">
               GRIHOME
             </Link>
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-gray-900 font-medium"
-            >
+            <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium">
               ← Back to Home
             </Link>
           </div>
@@ -189,10 +189,9 @@ export default function LoginPage() {
               {showOTPStep ? 'Verify your code' : 'Sign in to your account'}
             </h1>
             <p className="mt-2 text-sm text-gray-600">
-              {showOTPStep 
+              {showOTPStep
                 ? `We've sent a verification code to ${activeTab === 'email-otp' ? email : countryCode + mobileNumber}`
-                : 'Welcome back to GRIHOME'
-              }
+                : 'Welcome back to GRIHOME'}
             </p>
           </div>
 
@@ -263,7 +262,7 @@ export default function LoginPage() {
                           type="tel"
                           id="mobile"
                           value={mobileNumber}
-                          onChange={(e) => {
+                          onChange={e => {
                             const value = e.target.value.replace(/\D/g, '')
                             setMobileNumber(value)
                             if (formErrors.mobile) {
@@ -296,7 +295,7 @@ export default function LoginPage() {
                       type="email"
                       id="email"
                       value={email}
-                      onChange={(e) => {
+                      onChange={e => {
                         setEmail(e.target.value)
                         if (formErrors.email) {
                           setFormErrors(prev => {
@@ -325,7 +324,7 @@ export default function LoginPage() {
                       type="password"
                       id="password"
                       value={password}
-                      onChange={(e) => {
+                      onChange={e => {
                         setPassword(e.target.value)
                         if (formErrors.password) {
                           setFormErrors(prev => {
@@ -350,12 +349,11 @@ export default function LoginPage() {
                   disabled={isLoading}
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                 >
-                  {isLoading 
-                    ? 'Please wait...' 
-                    : activeTab === 'email-password' 
-                    ? 'Sign In' 
-                    : 'Send OTP'
-                  }
+                  {isLoading
+                    ? 'Please wait...'
+                    : activeTab === 'email-password'
+                      ? 'Sign In'
+                      : 'Send OTP'}
                 </button>
 
                 {/* Test credentials info */}
@@ -367,7 +365,8 @@ export default function LoginPage() {
                     For any email/mobile: Use OTP <strong>123456</strong>
                   </p>
                   <p className="text-xs text-gray-600">
-                    For email/password: <strong>test@example.com</strong> / <strong>password123</strong>
+                    For email/password: <strong>test@example.com</strong> /{' '}
+                    <strong>password123</strong>
                   </p>
                 </div>
               </form>
@@ -378,8 +377,18 @@ export default function LoginPage() {
                   onClick={resetForm}
                   className="flex items-center text-sm text-gray-600 hover:text-gray-900"
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                   Back
                 </button>
@@ -388,18 +397,36 @@ export default function LoginPage() {
                 <div className="text-center">
                   <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     {activeTab === 'email-otp' ? (
-                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <svg
+                        className="w-8 h-8 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
                       </svg>
                     ) : (
-                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      <svg
+                        className="w-8 h-8 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+                        />
                       </svg>
                     )}
                   </div>
-                  <p className="text-gray-600">
-                    Enter the 6-digit code sent to
-                  </p>
+                  <p className="text-gray-600">Enter the 6-digit code sent to</p>
                   <p className="font-semibold text-gray-900">
                     {activeTab === 'email-otp' ? email : countryCode + mobileNumber}
                   </p>
@@ -414,7 +441,7 @@ export default function LoginPage() {
                       type="text"
                       id="otp"
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-center text-lg tracking-widest"
                       placeholder="123456"
                       maxLength={6}
@@ -452,7 +479,7 @@ export default function LoginPage() {
           {!showOTPStep && (
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
                   Sign up
                 </Link>

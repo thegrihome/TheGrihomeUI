@@ -14,11 +14,11 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
   const { signupStep } = useSelector((state: RootState) => state.auth)
-  const [modalPosition, setModalPosition] = useState<{ 
-    left: number; 
-    top: number; 
-    caretLeft: number; 
-    show: boolean 
+  const [modalPosition, setModalPosition] = useState<{
+    left: number
+    top: number
+    caretLeft: number
+    show: boolean
   }>({ left: 50, top: 200, caretLeft: 50, show: false })
 
   useEffect(() => {
@@ -26,21 +26,21 @@ export default function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
       // Calculate modal position based on button
       const buttonId = mode === 'login' ? 'signin-button' : 'signup-button'
       const button = document.getElementById(buttonId)
-      
+
       if (button) {
         const rect = button.getBoundingClientRect()
         const buttonCenter = rect.left + rect.width / 2
         const buttonBottom = rect.bottom
         const viewportWidth = window.innerWidth
         const viewportHeight = window.innerHeight
-        
+
         // Calculate caret position (center of button)
         const caretLeftPercentage = (buttonCenter / viewportWidth) * 100
-        
+
         // Modal positioning
         let modalLeft = buttonCenter
         let modalTop = buttonBottom + 20 // 20px gap below button + caret
-        
+
         // Ensure modal doesn't go off-screen horizontally
         const modalWidth = 400 // approximate modal width
         if (modalLeft + modalWidth / 2 > viewportWidth - 20) {
@@ -49,18 +49,18 @@ export default function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
         if (modalLeft - modalWidth / 2 < 20) {
           modalLeft = modalWidth / 2 + 20
         }
-        
+
         // Ensure modal doesn't go off-screen vertically
         const modalHeight = 600 // approximate modal height
         if (modalTop + modalHeight > viewportHeight - 20) {
           modalTop = Math.max(20, viewportHeight - modalHeight - 20)
         }
-        
-        setModalPosition({ 
+
+        setModalPosition({
           left: modalLeft,
           top: modalTop,
           caretLeft: Math.min(Math.max(caretLeftPercentage, 5), 95), // Keep caret between 5% and 95%
-          show: true 
+          show: true,
         })
       }
     } else {
@@ -95,34 +95,32 @@ export default function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
     <>
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={onClose} />
-      
+
       {/* Caret */}
       {modalPosition.show && (
-        <div 
+        <div
           className="fixed z-50 pointer-events-none"
-          style={{ 
-            left: `${modalPosition.caretLeft}%`, 
+          style={{
+            left: `${modalPosition.caretLeft}%`,
             top: `${modalPosition.top - 12}px`, // Position caret just above modal
-            transform: 'translateX(-50%)' 
+            transform: 'translateX(-50%)',
           }}
         >
           <div className="w-0 h-0 border-l-[12px] border-r-[12px] border-b-[12px] border-l-transparent border-r-transparent border-b-white dark:border-b-gray-800" />
         </div>
       )}
-      
+
       {/* Modal Content */}
       {modalPosition.show && (
-        <div 
+        <div
           className="fixed z-50 pointer-events-none"
           style={{
             left: `${modalPosition.left}px`,
             top: `${modalPosition.top}px`,
-            transform: 'translateX(-50%)'
+            transform: 'translateX(-50%)',
           }}
         >
-          <div className="pointer-events-auto">
-            {renderModal()}
-          </div>
+          <div className="pointer-events-auto">{renderModal()}</div>
         </div>
       )}
     </>

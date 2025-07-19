@@ -42,7 +42,7 @@ export default function Home() {
                 <span className="home-title-line">Redefining Real Estate</span>
                 <span className="home-title-gradient">with you.</span>
               </h1>
-              
+
               <div className="home-cities-container">
                 <div className="home-city-item">
                   <div className="home-city-icon">🏛️</div>
@@ -69,12 +69,22 @@ export default function Home() {
                   <span className="home-city-name">Kolkata</span>
                 </div>
               </div>
-              
+
               <div className="home-search-container">
                 <div className="home-search-wrapper">
                   <div className="home-search-icon-container">
-                    <svg className="home-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <svg
+                      className="home-search-icon"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
                     </svg>
                   </div>
                   <input
