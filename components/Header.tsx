@@ -4,13 +4,10 @@ import Link from 'next/link'
 import type { NextPage } from 'next'
 import { RootState } from '@/store/store'
 import { logout } from '@/store/slices/authSlice'
-import AuthModal from './auth/AuthModal'
 
 const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
-  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false)
-  const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup')
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
   
   const dispatch = useDispatch()
@@ -20,23 +17,9 @@ const Header: NextPage = () => {
     setMounted(true)
   }, [])
 
-  const handleSignIn = () => {
-    setAuthMode('login')
-    setAuthModalOpen(true)
-  }
-
-  const handleSignUp = () => {
-    setAuthMode('signup')
-    setAuthModalOpen(true)
-  }
-
   const handleLogout = () => {
     dispatch(logout())
     setUserMenuOpen(false)
-  }
-
-  const closeAuthModal = () => {
-    setAuthModalOpen(false)
   }
 
   if (!mounted) return null
@@ -124,20 +107,18 @@ const Header: NextPage = () => {
               </div>
             ) : (
               <>
-                <button
-                  id="signin-button"
-                  onClick={handleSignIn}
+                <Link
+                  href="/login"
                   className="signin-button"
                 >
                   Sign in
-                </button>
-                <button
-                  id="signup-button"
-                  onClick={handleSignUp}
+                </Link>
+                <Link
+                  href="/signup"
                   className="signup-button"
                 >
                   Sign up
-                </button>
+                </Link>
               </>
             )}
           </div>
@@ -146,9 +127,9 @@ const Header: NextPage = () => {
       
       {/* Mobile Navigation Modal - Outside header container */}
       {navbarOpen && (
-        <div className="mobile-modal-overlay">
+        <div className="mobile-modal-overlay" onClick={() => setNavbarOpen(false)}>
           <div className="mobile-modal-backdrop" onClick={() => setNavbarOpen(false)} />
-          <div className="mobile-modal-panel">
+          <div className="mobile-modal-panel" onClick={(e) => e.stopPropagation()}>
             <div className="mobile-modal-content">
               <div className="mobile-modal-header">
                 <Link href="/" className="mobile-modal-logo">
@@ -219,24 +200,20 @@ const Header: NextPage = () => {
                   </div>
                 ) : (
                   <div className="mobile-auth-buttons">
-                    <button
-                      onClick={() => {
-                        handleSignIn()
-                        setNavbarOpen(false)
-                      }}
+                    <Link
+                      href="/login"
+                      onClick={() => setNavbarOpen(false)}
                       className="mobile-signin-button"
                     >
                       Sign in
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleSignUp()
-                        setNavbarOpen(false)
-                      }}
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={() => setNavbarOpen(false)}
                       className="mobile-signup-button"
                     >
                       Sign up
-                    </button>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -244,12 +221,6 @@ const Header: NextPage = () => {
           </div>
         </div>
       )}
-      
-      <AuthModal
-        isOpen={authModalOpen}
-        mode={authMode}
-        onClose={closeAuthModal}
-      />
     </header>
   )
 }

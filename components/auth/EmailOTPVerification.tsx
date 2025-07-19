@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
-import { setLoading, setError, setSignupStep, verifyEmail } from '@/store/slices/authSlice'
+import { setLoading, setError, setSignupStep, verifyEmail, resetSignupForm } from '@/store/slices/authSlice'
 import { authService } from '@/services/authService'
 
 interface EmailOTPVerificationProps {
@@ -78,7 +78,17 @@ export default function EmailOTPVerification({ onClose }: EmailOTPVerificationPr
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 md:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto my-auto shadow-xl">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Verify Email</h2>
+          <div className="flex items-center">
+            <button
+              onClick={() => dispatch(setSignupStep('form'))}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mr-3"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Verify Email</h2>
+          </div>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"

@@ -57,14 +57,14 @@ export default function CountryCodeDropdown({ value, onChange, className = '' }:
         <button
           type="button"
           onClick={handleToggle}
-          className="flex items-center justify-between w-full px-3 py-2 text-left bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+          className="flex items-center justify-between w-full px-3 py-2 text-left bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center space-x-1 min-w-0">
             <span className="text-lg flex-shrink-0">{selectedCountry.flag}</span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white flex-shrink-0">
+            <span className="text-sm font-medium text-gray-900 flex-shrink-0">
               {selectedCountry.dialCode}
             </span>
-            <span className="text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
+            <span className="text-sm text-gray-600 flex-shrink-0">
               {selectedCountry.code3}
             </span>
           </div>
@@ -79,23 +79,23 @@ export default function CountryCodeDropdown({ value, onChange, className = '' }:
         </button>
         
         {/* Tooltip */}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 dark:bg-gray-700 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap z-50 shadow-lg">
           {selectedCountry.name}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
         </div>
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-visible">
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-visible">
           {/* Search input */}
-          <div className="p-2 border-b border-gray-200 dark:border-gray-600">
+          <div className="p-2 border-b border-gray-200">
             <input
               ref={searchInputRef}
               type="text"
               placeholder="Search countries..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
             />
           </div>
 
@@ -108,16 +108,16 @@ export default function CountryCodeDropdown({ value, onChange, className = '' }:
                     type="button"
                     onClick={() => handleCountrySelect(country)}
                     title={country.name}
-                    className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600 transition-colors ${
-                      selectedCountry.code === country.code ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                    className={`w-full px-3 py-2 text-left hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition-colors ${
+                      selectedCountry.code === country.code ? 'bg-blue-50' : ''
                     }`}
                   >
                     <div className="flex items-center space-x-1">
                       <span className="text-lg flex-shrink-0">{country.flag}</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white flex-shrink-0">
+                      <span className="text-sm font-medium text-gray-900 flex-shrink-0">
                         {country.dialCode}
                       </span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
+                      <span className="text-sm text-gray-600 flex-shrink-0">
                         {country.code3}
                       </span>
                     </div>
@@ -125,7 +125,7 @@ export default function CountryCodeDropdown({ value, onChange, className = '' }:
                 </div>
               ))
             ) : (
-              <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+              <div className="px-3 py-2 text-sm text-gray-500">
                 No countries found
               </div>
             )}

@@ -7,9 +7,10 @@ import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
 interface SignupFormProps {
   onClose: () => void
+  isAgent?: boolean
 }
 
-export default function SignupForm({ onClose }: SignupFormProps) {
+export default function SignupForm({ onClose, isAgent = false }: SignupFormProps) {
   const dispatch = useDispatch()
   const { isLoading, error } = useSelector((state: RootState) => state.auth)
   
@@ -84,7 +85,9 @@ export default function SignupForm({ onClose }: SignupFormProps) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 md:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto my-auto shadow-xl">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Sign Up</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {isAgent ? 'Sign Up as Agent' : 'Sign Up'}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"

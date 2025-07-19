@@ -18,6 +18,15 @@ interface AuthState {
   error: string | null
   signupStep: 'form' | 'email-otp' | 'mobile-otp' | 'completed'
   loginMethod: 'email-password' | 'email-otp' | 'mobile-otp' | null
+  signupFormData: {
+    firstName: string
+    lastName: string
+    username: string
+    email: string
+    mobile: string
+    password: string
+    isAgent: boolean
+  } | null
 }
 
 const initialState: AuthState = {
@@ -27,6 +36,7 @@ const initialState: AuthState = {
   error: null,
   signupStep: 'form',
   loginMethod: null,
+  signupFormData: null,
 }
 
 const authSlice = createSlice({
@@ -49,11 +59,20 @@ const authSlice = createSlice({
       state.user = action.payload
       state.isAuthenticated = true
     },
+    setSignupFormData: (state, action: PayloadAction<AuthState['signupFormData']>) => {
+      state.signupFormData = action.payload
+    },
+    resetSignupForm: (state) => {
+      state.signupStep = 'form'
+      state.signupFormData = null
+      state.error = null
+    },
     logout: (state) => {
       state.user = null
       state.isAuthenticated = false
       state.signupStep = 'form'
       state.loginMethod = null
+      state.signupFormData = null
       state.error = null
     },
     verifyEmail: (state) => {
@@ -75,6 +94,8 @@ export const {
   setSignupStep,
   setLoginMethod,
   setUser,
+  setSignupFormData,
+  resetSignupForm,
   logout,
   verifyEmail,
   verifyMobile,
