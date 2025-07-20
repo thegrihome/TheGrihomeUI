@@ -21,6 +21,9 @@ prisma/migrations/
 /.postgresql/
 $HOME/.postgresql/
 
+# Claude settings (auto-generated)
+.claude/
+
 # Logs
 *.log
 npm-debug.log*
