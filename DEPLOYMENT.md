@@ -41,6 +41,7 @@ DATABASE_URL_DEV=postgresql://grihome:RMPz8t3iklLiLp3W57-WXA@grihome-dev-13513.j
 Go to your Vercel project dashboard → Settings → Environment Variables and add:
 
 #### Required for ALL environments:
+
 ```
 NEXTAUTH_SECRET=your-generated-secret-key
 NEXTAUTH_URL=https://your-domain.vercel.app
@@ -49,6 +50,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret (optional)
 ```
 
 #### Database Configuration:
+
 ```
 # For Production environment (main branch only):
 DATABASE_URL_PROD=postgresql://grihome:yjN9G8KchKviOFDC4T897A@grihome-main-13512.j77.aws-us-west-2.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full
@@ -58,6 +60,7 @@ DATABASE_URL_DEV=postgresql://grihome:RMPz8t3iklLiLp3W57-WXA@grihome-dev-13513.j
 ```
 
 **Environment Scope Settings:**
+
 - `NEXTAUTH_SECRET`, `NEXTAUTH_URL`: All environments
 - `DATABASE_URL_PROD`: Production only
 - `DATABASE_URL_DEV`: Preview and Development
