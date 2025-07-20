@@ -124,9 +124,21 @@ const Header: NextPage = () => {
 
       {/* Mobile Navigation Modal - Outside header container */}
       {navbarOpen && (
-        <div className="mobile-modal-overlay" onClick={() => setNavbarOpen(false)}>
-          <div className="mobile-modal-backdrop" onClick={() => setNavbarOpen(false)} />
-          <div className="mobile-modal-panel" onClick={e => e.stopPropagation()}>
+        <div
+          className="mobile-modal-overlay"
+          onClick={() => setNavbarOpen(false)}
+          onTouchEnd={() => setNavbarOpen(false)}
+        >
+          <div
+            className="mobile-modal-backdrop"
+            onClick={() => setNavbarOpen(false)}
+            onTouchEnd={() => setNavbarOpen(false)}
+          />
+          <div
+            className="mobile-modal-panel"
+            onClick={e => e.stopPropagation()}
+            onTouchEnd={e => e.stopPropagation()}
+          >
             <div className="mobile-modal-content">
               <div className="mobile-modal-header">
                 <Link href="/" className="mobile-modal-logo">

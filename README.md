@@ -1,41 +1,76 @@
-# Next.js + Tailwind CSS + Redux Boilerplate
+# TheGrihomeUI - Real Estate Platform
 
-This is a boilerplate project using:
+A modern real estate platform built with Next.js, NextAuth.js, and CockroachDB.
 
-- [Next.js](https://nextjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Redux Toolkit](https://redux-toolkit.js.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-- Ready to deploy on [Vercel](https://vercel.com)
+## Tech Stack
 
-## 🛠 Setup
+- [Next.js](https://nextjs.org/) - React framework
+- [NextAuth.js](https://next-auth.js.org/) - Authentication
+- [CockroachDB](https://cockroachlabs.com/) - Distributed SQL database
+- [Prisma](https://prisma.io/) - Database ORM
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [Redux Toolkit](https://redux-toolkit.js.org/) - State management
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
 
-1. Clone your GitHub repo and extract this project inside it.
+## 🛠 Quick Start
 
-2. Install dependencies:
+### 1. Install Dependencies
 
 ```bash
 npm install
 ```
 
-3. Run the development server:
+### 2. Environment Setup
+
+```bash
+cp .env.example .env.local
+# Edit .env.local with your development credentials
+```
+
+### 3. SSL Certificate (Development)
+
+```bash
+curl --create-dirs -o $HOME/.postgresql/root.crt 'https://cockroachlabs.cloud/clusters/67af60ef-fa9e-4e81-8e1c-544336573e5e/cert'
+```
+
+### 4. Database Migration
+
+```bash
+npx prisma db push
+```
+
+### 5. Start Development Server
 
 ```bash
 npm run dev
 ```
 
-4. Open `http://localhost:3000` in your browser.
+Open `http://localhost:3000` in your browser.
 
-## 🚀 Deploy to Vercel
+## 🔒 Secure Deployment
 
-Push this code to a GitHub repo and import it in [Vercel](https://vercel.com/import/git).
+For production deployment with automatic environment-based database routing, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
-Vercel auto-detects the Next.js app and deploys it instantly.
+## 🚀 Features
 
-## 🧾 Included Features
+- **Authentication**: NextAuth.js with Google OAuth and email/password
+- **Database**: CockroachDB with Prisma ORM for scalability
+- **Real Estate Schema**: Properties, users, saved searches, images
+- **User Roles**: Buyer, Seller, Agent, Admin
+- **Image Management**: CDN URLs stored in database
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
 
-- TailwindCSS setup with PostCSS
-- Redux Toolkit configured with example `counterSlice`
-- Custom Webpack aliases (`@` mapped to root)
-- TypeScript enabled
-- Git ignore for build artifacts and node_modules
+## 📊 Database Schema
+
+- **Users**: Authentication and profile data with role-based access
+- **Properties**: Real estate listings with geolocation support
+- **PropertyImages**: CDN URLs for property photos
+- **SavedProperties**: User favorites and watchlists
+- **SavedSearches**: Stored search criteria for notifications
+
+## 🌐 Deploy to Vercel
+
+1. Push this code to a GitHub repo
+2. Import it in [Vercel](https://vercel.com/import/git)
+3. Add environment variables in Vercel dashboard
+4. Deploy instantly with automatic CI/CD

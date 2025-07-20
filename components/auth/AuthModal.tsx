@@ -5,6 +5,7 @@ import SignupForm from './SignupForm'
 import EmailOTPVerification from './EmailOTPVerification'
 import MobileOTPVerification from './MobileOTPVerification'
 import LoginForm from './LoginForm'
+import '../../styles/components/auth/AuthModal.css'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -94,33 +95,33 @@ export default function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={onClose} />
+      <div className="auth-modal-backdrop" onClick={onClose} />
 
       {/* Caret */}
       {modalPosition.show && (
         <div
-          className="fixed z-50 pointer-events-none"
+          className="auth-modal-caret"
           style={{
             left: `${modalPosition.caretLeft}%`,
-            top: `${modalPosition.top - 12}px`, // Position caret just above modal
+            top: `${modalPosition.top - 12}px`,
             transform: 'translateX(-50%)',
           }}
         >
-          <div className="w-0 h-0 border-l-[12px] border-r-[12px] border-b-[12px] border-l-transparent border-r-transparent border-b-white dark:border-b-gray-800" />
+          <div className="auth-modal-caret-arrow" />
         </div>
       )}
 
       {/* Modal Content */}
       {modalPosition.show && (
         <div
-          className="fixed z-50 pointer-events-none"
+          className="auth-modal-content"
           style={{
             left: `${modalPosition.left}px`,
             top: `${modalPosition.top}px`,
             transform: 'translateX(-50%)',
           }}
         >
-          <div className="pointer-events-auto">{renderModal()}</div>
+          <div className="auth-modal-content-inner">{renderModal()}</div>
         </div>
       )}
     </>
