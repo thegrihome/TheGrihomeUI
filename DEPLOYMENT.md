@@ -36,23 +36,31 @@ DATABASE_URL_DEV=postgresql://grihome:RMPz8t3iklLiLp3W57-WXA@grihome-dev-13513.j
 
 ### 1. Add Environment Variables to Vercel
 
-Via Vercel CLI:
+**CRITICAL: You must add these environment variables in the Vercel Dashboard**
 
-```bash
-# Production secrets
-vercel env add DATABASE_URL_PROD production
-vercel env add NEXTAUTH_SECRET production
+Go to your Vercel project dashboard → Settings → Environment Variables and add:
 
-# Preview/Development secrets
-vercel env add DATABASE_URL_DEV preview
-vercel env add DATABASE_URL_DEV development
+#### Required for ALL environments:
+```
+NEXTAUTH_SECRET=your-generated-secret-key
+NEXTAUTH_URL=https://your-domain.vercel.app
+GOOGLE_CLIENT_ID=your-google-client-id (optional)
+GOOGLE_CLIENT_SECRET=your-google-client-secret (optional)
 ```
 
-Via Vercel Dashboard:
+#### Database Configuration:
+```
+# For Production environment (main branch only):
+DATABASE_URL_PROD=postgresql://grihome:yjN9G8KchKviOFDC4T897A@grihome-main-13512.j77.aws-us-west-2.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full
 
-1. Go to Project Settings → Environment Variables
-2. Add each variable with appropriate environment scope
-3. Use "Production" for main branch, "Preview" for other branches
+# For Preview/Development environments:
+DATABASE_URL_DEV=postgresql://grihome:RMPz8t3iklLiLp3W57-WXA@grihome-dev-13513.j77.aws-us-west-2.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full
+```
+
+**Environment Scope Settings:**
+- `NEXTAUTH_SECRET`, `NEXTAUTH_URL`: All environments
+- `DATABASE_URL_PROD`: Production only
+- `DATABASE_URL_DEV`: Preview and Development
 
 ### 2. SSL Certificate Setup
 
