@@ -91,10 +91,14 @@ model Property {
   images          PropertyImage[]
   savedBy         SavedProperty[]
   
-  @@index([city, state])
-  @@index([price])
-  @@index([propertyType])
-  @@index([listingStatus])
+  // Optimized indexes for common real estate queries
+  @@index([city, state, listingStatus]) // Location + status filter
+  @@index([price, propertyType, listingStatus]) // Price range + type filter
+  @@index([propertyType, bedrooms, bathrooms]) // Property specs filter
+  @@index([listingStatus, listingDate]) // Recent listings
+  @@index([agentId, listingStatus]) // Agent's active listings
+  @@index([zipCode, price]) // Neighborhood price searches
+  @@index([latitude, longitude]) // Geospatial searches (if needed)
 }
 
 model PropertyImage {
