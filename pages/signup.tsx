@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -80,146 +80,101 @@ export default function SignupPage() {
     return /^[1-9]\d*$/.test(cleanedMobile)
   }
 
-  // Debounced uniqueness check with validation
-  useEffect(() => {
-    const checkUniqueness = async (field: 'username' | 'email' | 'mobile', value: string) => {
+  const checkUniqueness = useCallback(
+    async (field: 'username' | 'email' | 'mobile', value: string) => {
       if (!value.trim()) return
 
-      // Pre-validate before making database call
-      if (field === 'email' && !isValidEmail(value)) {
-        // Show invalid email error
-        setFormErrors(prev => ({
-          ...prev,
-          email: 'Invalid email address entered',
-        }))
-        return
-      }
-
-      if (field === 'mobile' && !isValidMobile(value)) {
-        // Show invalid mobile error
-        setFormErrors(prev => ({
-          ...prev,
-          mobileNumber: 'Invalid mobile number entered',
-        }))
-        return
-      }
-
-      // Clear any format errors since validation passed
-      setFormErrors(prev => {
-        const newErrors = { ...prev }
-        const fieldKey = field === 'mobile' ? 'mobileNumber' : field
-        if (
-          newErrors[fieldKey] &&
-          (newErrors[fieldKey].includes('Invalid email') ||
-            newErrors[fieldKey].includes('Invalid mobile'))
-        ) {
-          delete newErrors[fieldKey]
-        }
-        return newErrors
-      })
-
+      const fieldKey = field === 'mobile' ? 'mobileNumber' : field
       setCheckingUnique(prev => ({ ...prev, [field]: true }))
 
       try {
         const checkValue = field === 'mobile' ? countryCode + value : value
-
-        // Debug logging
-        if (process.env.NODE_ENV === 'development') {
-          // eslint-disable-next-line no-console
-          console.log('Frontend uniqueness check:', { field, value, checkValue })
-        }
-
         const response = await fetch('/api/auth/check-unique', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ field, value: checkValue }),
         })
-
         const data = await response.json()
 
-        if (process.env.NODE_ENV === 'development') {
-          // eslint-disable-next-line no-console
-          console.log('Frontend uniqueness response:', data)
-        }
-
-        if (!data.isUnique) {
-          setFormErrors(prev => ({
-            ...prev,
-            [field === 'mobile' ? 'mobileNumber' : field]:
-              `${field === 'mobile' ? 'Mobile number' : field.charAt(0).toUpperCase() + field.slice(1)} is already registered`,
-          }))
-        } else {
-          setFormErrors(prev => {
-            const newErrors = { ...prev }
-            delete newErrors[
-              field === 'mobile' ? 'mobileNumber' : (field as keyof typeof newErrors)
-            ]
-            return newErrors
-          })
-        }
+        setFormErrors(prev => {
+          const newErrors = { ...prev }
+          if (!data.isUnique) {
+            newErrors[fieldKey] =
+              `${field === 'mobile' ? 'Mobile number' : field.charAt(0).toUpperCase() + field.slice(1)} is already registered`
+          } else {
+            delete newErrors[fieldKey]
+          }
+          return newErrors
+        })
       } catch (error) {
-        // Silently fail - don't show error for network issues during typing
+        // Silently fail
       } finally {
         setCheckingUnique(prev => ({ ...prev, [field]: false }))
       }
-    }
+    },
+    [countryCode]
+  )
 
-    const timeouts: NodeJS.Timeout[] = []
+  // Separate effect for username validation and uniqueness check
+  useEffect(() => {
+    if (formData.username.length === 0) return
 
-    // Check username after 500ms delay
-    if (formData.username.length >= 3) {
-      timeouts.push(setTimeout(() => checkUniqueness('username', formData.username), 500))
-    } else if (formData.username.length > 0 && formData.username.length < 3) {
-      // Clear errors if username is too short (will show validation error instead)
+    if (formData.username.length < 3) {
       setFormErrors(prev => {
         const newErrors = { ...prev }
-        if (newErrors.username && newErrors.username.includes('already registered')) {
+        if (newErrors.username?.includes('already registered')) {
           delete newErrors.username
         }
         return newErrors
       })
+      return
     }
 
-    // Check email after 500ms delay - only if valid format
-    if (isValidEmail(formData.email)) {
-      // Clear any format errors since email is now valid
-      setFormErrors(prev => {
-        const newErrors = { ...prev }
-        if (newErrors.email && newErrors.email.includes('Invalid email')) {
-          delete newErrors.email
-        }
-        return newErrors
-      })
-      timeouts.push(setTimeout(() => checkUniqueness('email', formData.email), 500))
-    } else if (formData.email.length > 0) {
-      // Show invalid email error immediately
-      setFormErrors(prev => ({
-        ...prev,
-        email: 'Invalid email address entered',
-      }))
+    const timeout = setTimeout(() => checkUniqueness('username', formData.username), 500)
+    return () => clearTimeout(timeout)
+  }, [formData.username, checkUniqueness])
+
+  // Separate effect for email validation and uniqueness check
+  useEffect(() => {
+    if (formData.email.length === 0) return
+
+    if (!isValidEmail(formData.email)) {
+      setFormErrors(prev => ({ ...prev, email: 'Invalid email address entered' }))
+      return
     }
 
-    // Check mobile after 500ms delay - only if valid format
-    if (isValidMobile(formData.mobileNumber)) {
-      // Clear any format errors since mobile is now valid
-      setFormErrors(prev => {
-        const newErrors = { ...prev }
-        if (newErrors.mobileNumber && newErrors.mobileNumber.includes('Invalid mobile')) {
-          delete newErrors.mobileNumber
-        }
-        return newErrors
-      })
-      timeouts.push(setTimeout(() => checkUniqueness('mobile', formData.mobileNumber), 500))
-    } else if (formData.mobileNumber.length > 0) {
-      // Show invalid mobile error immediately
-      setFormErrors(prev => ({
-        ...prev,
-        mobileNumber: 'Invalid mobile number entered',
-      }))
+    setFormErrors(prev => {
+      const newErrors = { ...prev }
+      if (newErrors.email?.includes('Invalid email')) {
+        delete newErrors.email
+      }
+      return newErrors
+    })
+
+    const timeout = setTimeout(() => checkUniqueness('email', formData.email), 500)
+    return () => clearTimeout(timeout)
+  }, [formData.email, checkUniqueness])
+
+  // Separate effect for mobile validation and uniqueness check
+  useEffect(() => {
+    if (formData.mobileNumber.length === 0) return
+
+    if (!isValidMobile(formData.mobileNumber)) {
+      setFormErrors(prev => ({ ...prev, mobileNumber: 'Invalid mobile number entered' }))
+      return
     }
 
-    return () => timeouts.forEach(clearTimeout)
-  }, [formData.username, formData.email, formData.mobileNumber, countryCode])
+    setFormErrors(prev => {
+      const newErrors = { ...prev }
+      if (newErrors.mobileNumber?.includes('Invalid mobile')) {
+        delete newErrors.mobileNumber
+      }
+      return newErrors
+    })
+
+    const timeout = setTimeout(() => checkUniqueness('mobile', formData.mobileNumber), 500)
+    return () => clearTimeout(timeout)
+  }, [formData.mobileNumber, countryCode, checkUniqueness])
 
   const validateForm = (): boolean => {
     const errors: Partial<SignupData & { confirmPassword: string }> = {}
