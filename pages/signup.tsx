@@ -66,11 +66,16 @@ export default function SignupPage() {
     // Remove all non-digit characters
     const cleanedMobile = mobile.replace(/\D/g, '')
     // Check if it's a valid mobile number (7-15 digits)
-    return (
-      validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false }) &&
-      cleanedMobile.length >= 7 &&
-      cleanedMobile.length <= 15
-    )
+    if (cleanedMobile.length < 7 || cleanedMobile.length > 15) {
+      return false
+    }
+
+    // Only reject completely invalid patterns (all zeros)
+    if (/^0+$/.test(cleanedMobile)) {
+      return false
+    }
+
+    return validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false })
   }
 
   // Debounced uniqueness check with validation
@@ -80,14 +85,36 @@ export default function SignupPage() {
 
       // Pre-validate before making database call
       if (field === 'email' && !isValidEmail(value)) {
-        // Don't check uniqueness for invalid emails
+        // Show invalid email error
+        setFormErrors(prev => ({
+          ...prev,
+          email: 'Invalid email address entered',
+        }))
         return
       }
 
       if (field === 'mobile' && !isValidMobile(value)) {
-        // Don't check uniqueness for invalid mobile numbers
+        // Show invalid mobile error
+        setFormErrors(prev => ({
+          ...prev,
+          mobileNumber: 'Invalid mobile number entered',
+        }))
         return
       }
+
+      // Clear any format errors since validation passed
+      setFormErrors(prev => {
+        const newErrors = { ...prev }
+        const fieldKey = field === 'mobile' ? 'mobileNumber' : field
+        if (
+          newErrors[fieldKey] &&
+          (newErrors[fieldKey].includes('Invalid email') ||
+            newErrors[fieldKey].includes('Invalid mobile'))
+        ) {
+          delete newErrors[fieldKey]
+        }
+        return newErrors
+      })
 
       setCheckingUnique(prev => ({ ...prev, [field]: true }))
 
@@ -153,30 +180,40 @@ export default function SignupPage() {
 
     // Check email after 500ms delay - only if valid format
     if (isValidEmail(formData.email)) {
-      timeouts.push(setTimeout(() => checkUniqueness('email', formData.email), 500))
-    } else if (formData.email.length > 0) {
-      // Clear uniqueness errors if email is invalid (will show validation error instead)
+      // Clear any format errors since email is now valid
       setFormErrors(prev => {
         const newErrors = { ...prev }
-        if (newErrors.email && newErrors.email.includes('already registered')) {
+        if (newErrors.email && newErrors.email.includes('Invalid email')) {
           delete newErrors.email
         }
         return newErrors
       })
+      timeouts.push(setTimeout(() => checkUniqueness('email', formData.email), 500))
+    } else if (formData.email.length > 0) {
+      // Show invalid email error immediately
+      setFormErrors(prev => ({
+        ...prev,
+        email: 'Invalid email address entered',
+      }))
     }
 
     // Check mobile after 500ms delay - only if valid format
     if (isValidMobile(formData.mobileNumber)) {
-      timeouts.push(setTimeout(() => checkUniqueness('mobile', formData.mobileNumber), 500))
-    } else if (formData.mobileNumber.length > 0) {
-      // Clear uniqueness errors if mobile is invalid (will show validation error instead)
+      // Clear any format errors since mobile is now valid
       setFormErrors(prev => {
         const newErrors = { ...prev }
-        if (newErrors.mobileNumber && newErrors.mobileNumber.includes('already registered')) {
+        if (newErrors.mobileNumber && newErrors.mobileNumber.includes('Invalid mobile')) {
           delete newErrors.mobileNumber
         }
         return newErrors
       })
+      timeouts.push(setTimeout(() => checkUniqueness('mobile', formData.mobileNumber), 500))
+    } else if (formData.mobileNumber.length > 0) {
+      // Show invalid mobile error immediately
+      setFormErrors(prev => ({
+        ...prev,
+        mobileNumber: 'Invalid mobile number entered',
+      }))
     }
 
     return () => timeouts.forEach(clearTimeout)

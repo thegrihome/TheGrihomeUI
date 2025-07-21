@@ -36,6 +36,8 @@ export default function UserInfoPage() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
+  const [emailOtpLoading, setEmailOtpLoading] = useState(false)
+  const [mobileOtpLoading, setMobileOtpLoading] = useState(false)
   const [toast, setToast] = useState<ToastState>({ show: false, message: '', type: 'success' })
 
   // Email verification states
@@ -286,7 +288,7 @@ export default function UserInfoPage() {
   }
 
   const handleSendEmailOtp = async () => {
-    setIsLoading(true)
+    setEmailOtpLoading(true)
     try {
       // Simulate OTP sending
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -297,7 +299,7 @@ export default function UserInfoPage() {
     } catch (error) {
       showToast('Failed to send OTP', 'error')
     } finally {
-      setIsLoading(false)
+      setEmailOtpLoading(false)
     }
   }
 
@@ -307,7 +309,7 @@ export default function UserInfoPage() {
       return
     }
 
-    setIsLoading(true)
+    setEmailOtpLoading(true)
     try {
       const response = await fetch('/api/user/verify-email', {
         method: 'POST',
@@ -328,12 +330,12 @@ export default function UserInfoPage() {
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Email verification failed', 'error')
     } finally {
-      setIsLoading(false)
+      setEmailOtpLoading(false)
     }
   }
 
   const handleSendMobileOtp = async () => {
-    setIsLoading(true)
+    setMobileOtpLoading(true)
     try {
       // Simulate OTP sending
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -344,7 +346,7 @@ export default function UserInfoPage() {
     } catch (error) {
       showToast('Failed to send OTP', 'error')
     } finally {
-      setIsLoading(false)
+      setMobileOtpLoading(false)
     }
   }
 
@@ -354,7 +356,7 @@ export default function UserInfoPage() {
       return
     }
 
-    setIsLoading(true)
+    setMobileOtpLoading(true)
     try {
       const response = await fetch('/api/user/verify-mobile', {
         method: 'POST',
@@ -375,7 +377,7 @@ export default function UserInfoPage() {
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Mobile verification failed', 'error')
     } finally {
-      setIsLoading(false)
+      setMobileOtpLoading(false)
     }
   }
 
@@ -505,10 +507,10 @@ export default function UserInfoPage() {
                     {!emailOtpSent ? (
                       <button
                         onClick={handleSendEmailOtp}
-                        disabled={isLoading}
+                        disabled={emailOtpLoading}
                         className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                       >
-                        {isLoading ? 'Sending...' : 'Send OTP'}
+                        {emailOtpLoading ? 'Sending...' : 'Send OTP'}
                       </button>
                     ) : (
                       <div className="space-y-2">
@@ -523,10 +525,10 @@ export default function UserInfoPage() {
                         <div className="flex items-center space-x-3">
                           <button
                             onClick={handleVerifyEmail}
-                            disabled={isLoading || emailOtp.length !== 6}
+                            disabled={emailOtpLoading || emailOtp.length !== 6}
                             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                           >
-                            {isLoading ? 'Verifying...' : 'Verify'}
+                            {emailOtpLoading ? 'Verifying...' : 'Verify'}
                           </button>
                           {emailTimeLeft > 0 ? (
                             <span className="text-sm text-gray-500">
@@ -535,7 +537,7 @@ export default function UserInfoPage() {
                           ) : (
                             <button
                               onClick={handleSendEmailOtp}
-                              disabled={isLoading}
+                              disabled={emailOtpLoading}
                               className="text-sm text-blue-600 hover:text-blue-500"
                             >
                               Resend OTP
@@ -619,10 +621,10 @@ export default function UserInfoPage() {
                     {!mobileOtpSent ? (
                       <button
                         onClick={handleSendMobileOtp}
-                        disabled={isLoading}
+                        disabled={mobileOtpLoading}
                         className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                       >
-                        {isLoading ? 'Sending...' : 'Send OTP'}
+                        {mobileOtpLoading ? 'Sending...' : 'Send OTP'}
                       </button>
                     ) : (
                       <div className="space-y-2">
@@ -639,10 +641,10 @@ export default function UserInfoPage() {
                         <div className="flex items-center space-x-3">
                           <button
                             onClick={handleVerifyMobile}
-                            disabled={isLoading || mobileOtp.length !== 6}
+                            disabled={mobileOtpLoading || mobileOtp.length !== 6}
                             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                           >
-                            {isLoading ? 'Verifying...' : 'Verify'}
+                            {mobileOtpLoading ? 'Verifying...' : 'Verify'}
                           </button>
                           {mobileTimeLeft > 0 ? (
                             <span className="text-sm text-gray-500">
@@ -651,7 +653,7 @@ export default function UserInfoPage() {
                           ) : (
                             <button
                               onClick={handleSendMobileOtp}
-                              disabled={isLoading}
+                              disabled={mobileOtpLoading}
                               className="text-sm text-blue-600 hover:text-blue-500"
                             >
                               Resend OTP
@@ -692,62 +694,22 @@ export default function UserInfoPage() {
                     Current Password
                   </label>
                   {!isEditingPassword ? (
-                    <div className="mt-1 relative">
-                      <div className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-900">
-                        {showCurrentPassword
-                          ? 'Cannot display actual password for security'
-                          : displayPassword}
+                    <div className="mt-1">
+                      <div className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-900">
+                        {displayPassword}
+                        <span className="ml-2 text-xs text-gray-500">
+                          (Cannot display actual password for security)
+                        </span>
                       </div>
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      >
-                        {showCurrentPassword ? (
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        )}
-                      </button>
                     </div>
                   ) : (
-                    <div className="mt-1 relative">
+                    <div className="mt-1">
                       <input
-                        type={showCurrentPassword ? 'text' : 'password'}
+                        type="password"
                         value={currentPassword}
                         onChange={e => handleCurrentPasswordChange(e.target.value)}
                         onBlur={handleCurrentPasswordBlur}
-                        className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                        className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
                           currentPasswordValid === false
                             ? 'border-red-300 bg-red-50'
                             : currentPasswordValid === true
@@ -757,47 +719,6 @@ export default function UserInfoPage() {
                         placeholder="Enter current password"
                         autoFocus
                       />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      >
-                        {showCurrentPassword ? (
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        )}
-                      </button>
                     </div>
                   )}
                   {isEditingPassword && currentPasswordValid !== null && (

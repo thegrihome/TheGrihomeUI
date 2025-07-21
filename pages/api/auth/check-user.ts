@@ -25,11 +25,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Validate mobile format
   if (type === 'mobile') {
     const cleanedMobile = value.replace(/\D/g, '')
-    if (
-      !validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false }) ||
-      cleanedMobile.length < 7 ||
-      cleanedMobile.length > 15
-    ) {
+
+    // Check length first
+    if (cleanedMobile.length < 7 || cleanedMobile.length > 15) {
+      return res.status(400).json({ message: 'Invalid mobile number format', exists: false })
+    }
+
+    // Only reject completely invalid patterns (all zeros)
+    if (/^0+$/.test(cleanedMobile)) {
+      return res.status(400).json({ message: 'Invalid mobile number format', exists: false })
+    }
+
+    // Use validator.js as final check
+    if (!validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false })) {
       return res.status(400).json({ message: 'Invalid mobile number format', exists: false })
     }
   }

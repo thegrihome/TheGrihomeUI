@@ -61,11 +61,16 @@ export default function LoginPage() {
     // Remove all non-digit characters
     const cleanedMobile = mobile.replace(/\D/g, '')
     // Check if it's a valid mobile number (7-15 digits)
-    return (
-      validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false }) &&
-      cleanedMobile.length >= 7 &&
-      cleanedMobile.length <= 15
-    )
+    if (cleanedMobile.length < 7 || cleanedMobile.length > 15) {
+      return false
+    }
+
+    // Only reject completely invalid patterns (all zeros)
+    if (/^0+$/.test(cleanedMobile)) {
+      return false
+    }
+
+    return validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false })
   }
 
   // Check user existence for OTP tabs with validation
@@ -79,13 +84,35 @@ export default function LoginPage() {
       // Pre-validate before making database call
       if (type === 'email' && !isValidEmail(value)) {
         setUserExists(prev => ({ ...prev, [type]: false }))
+        setFormErrors(prev => ({
+          ...prev,
+          email: 'Invalid email address entered',
+        }))
         return
       }
 
       if (type === 'mobile' && !isValidMobile(value)) {
         setUserExists(prev => ({ ...prev, [type]: false }))
+        setFormErrors(prev => ({
+          ...prev,
+          mobile: 'Invalid mobile number entered',
+        }))
         return
       }
+
+      // Clear any format errors since validation passed
+      setFormErrors(prev => {
+        const newErrors = { ...prev }
+        const fieldKey = type === 'email' ? 'email' : 'mobile'
+        if (
+          newErrors[fieldKey] &&
+          (newErrors[fieldKey].includes('Invalid email') ||
+            newErrors[fieldKey].includes('Invalid mobile'))
+        ) {
+          delete newErrors[fieldKey]
+        }
+        return newErrors
+      })
 
       setCheckingUserExists(prev => ({ ...prev, [type]: true }))
 
@@ -110,16 +137,40 @@ export default function LoginPage() {
 
     // Check email after 500ms delay for email-otp tab - only if valid format
     if (activeTab === 'email-otp' && isValidEmail(email)) {
+      // Clear any format errors since email is now valid
+      setFormErrors(prev => {
+        const newErrors = { ...prev }
+        if (newErrors.email && newErrors.email.includes('Invalid email')) {
+          delete newErrors.email
+        }
+        return newErrors
+      })
       timeouts.push(setTimeout(() => checkUserExistence('email', email), 500))
     } else if (activeTab === 'email-otp' && email.length > 0) {
       setUserExists(prev => ({ ...prev, email: false }))
+      setFormErrors(prev => ({
+        ...prev,
+        email: 'Invalid email address entered',
+      }))
     }
 
     // Check mobile after 500ms delay for mobile-otp tab - only if valid format
     if (activeTab === 'mobile-otp' && isValidMobile(mobileNumber)) {
+      // Clear any format errors since mobile is now valid
+      setFormErrors(prev => {
+        const newErrors = { ...prev }
+        if (newErrors.mobile && newErrors.mobile.includes('Invalid mobile')) {
+          delete newErrors.mobile
+        }
+        return newErrors
+      })
       timeouts.push(setTimeout(() => checkUserExistence('mobile', mobileNumber), 500))
     } else if (activeTab === 'mobile-otp' && mobileNumber.length > 0) {
       setUserExists(prev => ({ ...prev, mobile: false }))
+      setFormErrors(prev => ({
+        ...prev,
+        mobile: 'Invalid mobile number entered',
+      }))
     }
 
     return () => timeouts.forEach(clearTimeout)
