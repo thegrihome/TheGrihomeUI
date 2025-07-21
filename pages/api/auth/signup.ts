@@ -8,16 +8,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { firstName, lastName, email, mobileNumber, password, isAgent, companyName, imageLink } =
-      req.body
+    const { firstName, lastName, email, mobileNumber, password, isAgent, imageLink } = req.body
 
     // Basic validation
     if (!firstName || !lastName || !email || !mobileNumber || !password) {
       return res.status(400).json({ message: 'All required fields must be provided' })
-    }
-
-    if (isAgent && !companyName) {
-      return res.status(400).json({ message: 'Company name is required for agents' })
     }
 
     // Check if user already exists (email or mobile)
@@ -47,7 +42,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         phone: mobileNumber,
         password: hashedPassword,
         role: isAgent ? 'AGENT' : 'BUYER',
-        companyName: isAgent ? companyName : null,
         image: imageLink || null,
       },
       select: {
@@ -56,7 +50,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: true,
         phone: true,
         role: true,
-        companyName: true,
         image: true,
         emailVerified: true,
         createdAt: true,

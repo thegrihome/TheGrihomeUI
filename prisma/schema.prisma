@@ -42,18 +42,15 @@ model User {
   password         String?
   phone            String?         @unique
   role             UserRole        @default(BUYER)
-  isAgent          Boolean         @default(false)
   licenseNumber    String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
-  companyName      String?
   accounts         Account[]
   listedProperties Property[]      @relation("AgentProperties")
   savedProperties  SavedProperty[]
   savedSearches    SavedSearch[]
   sessions         Session[]
 
-  @@index([isAgent])
   @@index([email])
   @@index([phone])
 }

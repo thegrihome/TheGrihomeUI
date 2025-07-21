@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // For mobile verification, we'll just return the user without updating
+    // Get user information
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -32,7 +32,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: true,
         phone: true,
         role: true,
-        companyName: true,
         image: true,
         emailVerified: true,
         createdAt: true,

@@ -28,7 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: true,
         phone: true,
         role: true,
-        companyName: true,
         image: true,
         emailVerified: true,
         createdAt: true,
