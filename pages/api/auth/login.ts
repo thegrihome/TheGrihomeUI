@@ -99,7 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Find user by phone number
-      user = await prisma.user.findUnique({
+      user = await prisma.user.findFirst({
         where: { phone: mobile },
         select: {
           id: true,
