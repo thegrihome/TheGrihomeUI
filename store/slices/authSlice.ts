@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { saveUserSession, getUserSession, clearUserSession } from '@/lib/cookies'
 
 export interface User {
   id: string
@@ -33,9 +34,27 @@ interface AuthState {
   } | null
 }
 
+// Load user from cookies on initialization
+const loadUserFromCookies = (): { user: User | null; isAuthenticated: boolean } => {
+  try {
+    const savedUser = getUserSession()
+    return {
+      user: savedUser,
+      isAuthenticated: !!savedUser,
+    }
+  } catch (error) {
+    return {
+      user: null,
+      isAuthenticated: false,
+    }
+  }
+}
+
+const initialUserState = loadUserFromCookies()
+
 const initialState: AuthState = {
-  user: null,
-  isAuthenticated: false,
+  user: initialUserState.user,
+  isAuthenticated: initialUserState.isAuthenticated,
   isLoading: false,
   error: null,
   signupStep: 'form',
@@ -62,6 +81,8 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload
       state.isAuthenticated = true
+      // Save to cookies
+      saveUserSession(action.payload)
     },
     setSignupFormData: (state, action: PayloadAction<AuthState['signupFormData']>) => {
       state.signupFormData = action.payload
@@ -78,6 +99,8 @@ const authSlice = createSlice({
       state.loginMethod = null
       state.signupFormData = null
       state.error = null
+      // Clear cookies
+      clearUserSession()
     },
     verifyEmail: state => {
       if (state.user) {
@@ -88,6 +111,11 @@ const authSlice = createSlice({
       if (state.user) {
         state.user.isMobileVerified = true
       }
+    },
+    initializeAuth: state => {
+      const sessionData = loadUserFromCookies()
+      state.user = sessionData.user
+      state.isAuthenticated = sessionData.isAuthenticated
     },
   },
 })
@@ -103,6 +131,7 @@ export const {
   logout,
   verifyEmail,
   verifyMobile,
+  initializeAuth,
 } = authSlice.actions
 
 export default authSlice.reducer

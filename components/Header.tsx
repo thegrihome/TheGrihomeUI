@@ -128,11 +128,11 @@ const Header: NextPage = () => {
                         <p className="text-xs text-gray-500">{user.companyName}</p>
                       )}
                     </div>
-                    <Link href="/profile" className="dropdown-link">
-                      My Settings
+                    <Link href="/userinfo" className="dropdown-link">
+                      My Information
                     </Link>
                     <button onClick={handleLogout} className="logout-button">
-                      Sign out
+                      Logout
                     </button>
                   </div>
                 )}
