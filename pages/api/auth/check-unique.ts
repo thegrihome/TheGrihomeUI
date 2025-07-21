@@ -77,11 +77,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ isUnique: !existingUser })
   } catch (error) {
-    // Log error in development only
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
-      console.error('Uniqueness check error:', error)
-    }
-    res.status(500).json({ message: 'Internal server error' })
+    // Always log errors for debugging
+    console.error('Uniqueness check error:', error)
+    res.status(500).json({ message: 'Internal server error', error: error.message })
   }
 }
