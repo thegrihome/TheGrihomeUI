@@ -58,11 +58,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         break
     }
 
-    // Log the query in development for debugging
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
-      console.log('Checking uniqueness:', { field, value, whereClause })
-    }
+    // Always log for debugging production issues
+    console.log('Checking uniqueness:', {
+      field,
+      value,
+      whereClause,
+      env: process.env.NODE_ENV,
+      hasDatabase: !!process.env.DATABASE_URL,
+      databaseUrlPrefix: process.env.DATABASE_URL?.substring(0, 20) + '...',
+    })
 
     // Use findFirst with select to only fetch the id field for efficiency
     const existingUser = await prisma.user.findFirst({
