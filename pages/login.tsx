@@ -28,6 +28,8 @@ export default function LoginPage() {
   const [timeLeft, setTimeLeft] = useState(180) // 3 minutes
   const [canResend, setCanResend] = useState(false)
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
+  const [userExists, setUserExists] = useState<{ [key: string]: boolean }>({})
+  const [checkingUserExists, setCheckingUserExists] = useState<{ [key: string]: boolean }>({})
 
   useEffect(() => {
     setMounted(true)
@@ -48,6 +50,52 @@ export default function LoginPage() {
       setCanResend(true)
     }
   }, [timeLeft, showOTPStep])
+
+  // Check user existence for OTP tabs
+  useEffect(() => {
+    const checkUserExistence = async (type: 'email' | 'mobile', value: string) => {
+      if (!value.trim()) {
+        setUserExists(prev => ({ ...prev, [type]: false }))
+        return
+      }
+
+      setCheckingUserExists(prev => ({ ...prev, [type]: true }))
+
+      try {
+        const checkValue = type === 'mobile' ? countryCode + value : value
+        const response = await fetch('/api/auth/check-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, value: checkValue }),
+        })
+        const data = await response.json()
+
+        setUserExists(prev => ({ ...prev, [type]: data.exists }))
+      } catch (error) {
+        setUserExists(prev => ({ ...prev, [type]: false }))
+      } finally {
+        setCheckingUserExists(prev => ({ ...prev, [type]: false }))
+      }
+    }
+
+    const timeouts: NodeJS.Timeout[] = []
+
+    // Check email after 500ms delay for email-otp tab
+    if (activeTab === 'email-otp' && email.includes('@') && email.includes('.')) {
+      timeouts.push(setTimeout(() => checkUserExistence('email', email), 500))
+    } else if (activeTab === 'email-otp' && email.length > 0) {
+      setUserExists(prev => ({ ...prev, email: false }))
+    }
+
+    // Check mobile after 500ms delay for mobile-otp tab
+    if (activeTab === 'mobile-otp' && mobileNumber.length >= 7) {
+      timeouts.push(setTimeout(() => checkUserExistence('mobile', mobileNumber), 500))
+    } else if (activeTab === 'mobile-otp' && mobileNumber.length > 0) {
+      setUserExists(prev => ({ ...prev, mobile: false }))
+    }
+
+    return () => timeouts.forEach(clearTimeout)
+  }, [email, mobileNumber, countryCode, activeTab])
 
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {}
@@ -300,7 +348,7 @@ export default function LoginPage() {
                           className={formErrors.mobile ? 'border-red-300' : ''}
                         />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 relative">
                         <input
                           type="tel"
                           id="mobile"
@@ -321,11 +369,52 @@ export default function LoginPage() {
                           placeholder="1234567890"
                           maxLength={15}
                         />
+                        {checkingUserExists.mobile && (
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                          </div>
+                        )}
+                        {!checkingUserExists.mobile && mobileNumber.length >= 7 && (
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            {userExists.mobile ? (
+                              <svg
+                                className="w-4 h-4 text-green-500"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="w-4 h-4 text-red-500"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                     {formErrors.mobile && (
                       <p className="mt-1 text-sm text-red-600">{formErrors.mobile}</p>
                     )}
+                    {!checkingUserExists.mobile &&
+                      mobileNumber.length >= 7 &&
+                      !userExists.mobile && (
+                        <p className="mt-1 text-sm text-red-600">
+                          Mobile number not registered. Please sign up first.
+                        </p>
+                      )}
                   </div>
                 )}
 
@@ -334,27 +423,71 @@ export default function LoginPage() {
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                       Email
                     </label>
-                    <input
-                      type="email"
-                      id="email"
-                      value={email}
-                      onChange={e => {
-                        setEmail(e.target.value)
-                        if (formErrors.email) {
-                          setFormErrors(prev => {
-                            const { email, ...rest } = prev
-                            return rest
-                          })
-                        }
-                      }}
-                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                        formErrors.email ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="john@example.com"
-                    />
+                    <div className="relative">
+                      <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={e => {
+                          setEmail(e.target.value)
+                          if (formErrors.email) {
+                            setFormErrors(prev => {
+                              const { email, ...rest } = prev
+                              return rest
+                            })
+                          }
+                        }}
+                        className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.email ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                        placeholder="john@example.com"
+                      />
+                      {checkingUserExists.email && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                        </div>
+                      )}
+                      {!checkingUserExists.email && email.includes('@') && email.includes('.') && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          {userExists.email ? (
+                            <svg
+                              className="w-4 h-4 text-green-500"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-4 h-4 text-red-500"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     {formErrors.email && (
                       <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
                     )}
+                    {!checkingUserExists.email &&
+                      email.includes('@') &&
+                      email.includes('.') &&
+                      !userExists.email && (
+                        <p className="mt-1 text-sm text-red-600">
+                          Email not registered. Please sign up first.
+                        </p>
+                      )}
                   </div>
                 )}
 
@@ -417,7 +550,11 @@ export default function LoginPage() {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={
+                    isLoading ||
+                    (activeTab === 'email-otp' && !userExists.email) ||
+                    (activeTab === 'mobile-otp' && !userExists.mobile)
+                  }
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                 >
                   {isLoading
@@ -538,8 +675,8 @@ export default function LoginPage() {
                   ) : (
                     <button
                       onClick={handleResendOTP}
-                      disabled={isLoading}
-                      className="text-blue-600 hover:text-blue-500 font-medium"
+                      disabled={isLoading || !canResend}
+                      className="text-blue-600 hover:text-blue-500 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Resend code
                     </button>

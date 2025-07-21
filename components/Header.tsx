@@ -77,7 +77,13 @@ const Header: NextPage = () => {
             {isAuthenticated && user ? (
               <div className="user-menu">
                 <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="user-menu-button">
-                  <div className="user-avatar">
+                  <span className="font-medium hidden md:block">
+                    Welcome {user.name || user.username}
+                  </span>
+                  <span className="font-medium md:hidden">
+                    {user.name?.split(' ')[0] || user.username}
+                  </span>
+                  <div className="user-avatar relative">
                     {user.imageLink ? (
                       <Image
                         src={user.imageLink}
@@ -97,21 +103,20 @@ const Header: NextPage = () => {
                           : user.username.charAt(0).toUpperCase()}
                       </span>
                     )}
+                    <svg
+                      className="w-3 h-3 absolute -bottom-0.5 -right-0.5 text-gray-600 bg-white rounded-full"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
-                  <span className="font-medium hidden md:block">
-                    Welcome {user.name || user.username}
-                  </span>
-                  <span className="font-medium md:hidden">
-                    {user.name?.split(' ')[0] || user.username}
-                  </span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
                 </button>
 
                 {userMenuOpen && (
