@@ -36,8 +36,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Invalid mobile number format', isUnique: false })
     }
 
-    // Use validator.js as final check
-    if (!validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false })) {
+    // Basic mobile number validation - ensure it looks like a reasonable mobile number
+    // Don't be too strict as different countries have different formats
+    if (!/^[1-9]\d*$/.test(cleanedMobile)) {
       return res.status(400).json({ message: 'Invalid mobile number format', isUnique: false })
     }
   }
@@ -53,7 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         whereClause = { email: value }
         break
       case 'mobile':
-        whereClause = { mobileNumber: value }
+        whereClause = { phone: value }
         break
     }
 

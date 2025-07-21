@@ -50,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         whereClause = { email: value }
         break
       case 'mobile':
-        whereClause = { mobileNumber: value }
+        whereClause = { phone: value }
         break
     }
 

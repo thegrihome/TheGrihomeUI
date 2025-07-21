@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import bcrypt from 'bcryptjs'
+import validator from 'validator'
 import { prisma } from '../../../lib/prisma'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -8,21 +9,49 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { firstName, lastName, email, mobileNumber, password, isAgent, imageLink } = req.body
+    const { firstName, lastName, username, email, mobileNumber, password, isAgent, imageLink } =
+      req.body
 
     // Basic validation
-    if (!firstName || !lastName || !email || !mobileNumber || !password) {
+    if (!firstName || !lastName || !username || !email || !mobileNumber || !password) {
       return res.status(400).json({ message: 'All required fields must be provided' })
     }
 
-    // Check if user already exists (email or mobile)
+    // Validate username
+    if (!username.trim() || username.length < 3) {
+      return res.status(400).json({ message: 'Username must be at least 3 characters long' })
+    }
+
+    // Validate email format
+    if (!validator.isEmail(email.trim())) {
+      return res.status(400).json({ message: 'Invalid email format' })
+    }
+
+    // Validate mobile format
+    const cleanedMobile = mobileNumber.replace(/\D/g, '')
+    if (cleanedMobile.length < 7 || cleanedMobile.length > 15) {
+      return res.status(400).json({ message: 'Invalid mobile number format' })
+    }
+    if (/^0+$/.test(cleanedMobile)) {
+      return res.status(400).json({ message: 'Invalid mobile number format' })
+    }
+    // Basic mobile number validation - ensure it looks like a reasonable mobile number
+    // Don't be too strict as different countries have different formats
+    if (!/^[1-9]\d*$/.test(cleanedMobile)) {
+      return res.status(400).json({ message: 'Invalid mobile number format' })
+    }
+
+    // Check if user already exists (username, email or mobile)
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [{ email }, { phone: mobileNumber }],
+        OR: [{ username }, { email }, { phone: mobileNumber }],
       },
     })
 
     if (existingUser) {
+      if (existingUser.username === username) {
+        return res.status(409).json({ message: 'Username is already taken' })
+      }
       if (existingUser.email === email) {
         return res.status(409).json({ message: 'Email is already registered' })
       }
@@ -37,6 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Create user
     const user = await prisma.user.create({
       data: {
+        username,
         name: `${firstName} ${lastName}`,
         email,
         phone: mobileNumber,

@@ -75,7 +75,9 @@ export default function SignupPage() {
       return false
     }
 
-    return validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false })
+    // Basic mobile number validation - ensure it looks like a reasonable mobile number
+    // Don't be too strict as different countries have different formats
+    return /^[1-9]\d*$/.test(cleanedMobile)
   }
 
   // Debounced uniqueness check with validation
