@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Image from 'next/image'
 import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
 interface SignupData {
@@ -11,6 +12,7 @@ interface SignupData {
   mobileNumber: string
   password: string
   isAgent: boolean
+  companyName: string
   imageLink?: string
 }
 
@@ -27,6 +29,7 @@ export default function SignupPage() {
     mobileNumber: '',
     password: '',
     isAgent: false,
+    companyName: '',
     imageLink: '',
   })
 
@@ -39,16 +42,87 @@ export default function SignupPage() {
   const [formErrors, setFormErrors] = useState<Partial<SignupData & { confirmPassword: string }>>(
     {}
   )
+  const [checkingUnique, setCheckingUnique] = useState<{
+    username: boolean
+    email: boolean
+    mobile: boolean
+  }>({
+    username: false,
+    email: false,
+    mobile: false,
+  })
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Debounced uniqueness check
+  useEffect(() => {
+    const checkUniqueness = async (field: 'username' | 'email' | 'mobile', value: string) => {
+      if (!value.trim()) return
+
+      setCheckingUnique(prev => ({ ...prev, [field]: true }))
+
+      try {
+        const checkValue = field === 'mobile' ? countryCode + value : value
+        const response = await fetch('/api/auth/check-unique', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ field, value: checkValue }),
+        })
+
+        const data = await response.json()
+
+        if (!data.isUnique) {
+          setFormErrors(prev => ({
+            ...prev,
+            [field === 'mobile' ? 'mobileNumber' : field]:
+              `${field === 'mobile' ? 'Mobile number' : field.charAt(0).toUpperCase() + field.slice(1)} is already registered`,
+          }))
+        } else {
+          setFormErrors(prev => {
+            const newErrors = { ...prev }
+            delete newErrors[
+              field === 'mobile' ? 'mobileNumber' : (field as keyof typeof newErrors)
+            ]
+            return newErrors
+          })
+        }
+      } catch (error) {
+        // Silently fail - don't show error for network issues during typing
+      } finally {
+        setCheckingUnique(prev => ({ ...prev, [field]: false }))
+      }
+    }
+
+    const timeouts: NodeJS.Timeout[] = []
+
+    // Check username after 500ms delay
+    if (formData.username.length >= 3) {
+      timeouts.push(setTimeout(() => checkUniqueness('username', formData.username), 500))
+    }
+
+    // Check email after 500ms delay
+    if (formData.email.includes('@')) {
+      timeouts.push(setTimeout(() => checkUniqueness('email', formData.email), 500))
+    }
+
+    // Check mobile after 500ms delay
+    if (formData.mobileNumber.length >= 7) {
+      timeouts.push(setTimeout(() => checkUniqueness('mobile', formData.mobileNumber), 500))
+    }
+
+    return () => timeouts.forEach(clearTimeout)
+  }, [formData.username, formData.email, formData.mobileNumber, countryCode])
 
   const validateForm = (): boolean => {
     const errors: Partial<SignupData & { confirmPassword: string }> = {}
 
     if (!formData.firstName.trim()) errors.firstName = 'First name is required'
     if (!formData.lastName.trim()) errors.lastName = 'Last name is required'
+
+    if (formData.isAgent && !formData.companyName.trim())
+      errors.companyName = 'Company name is required for agents'
 
     if (!formData.username.trim()) errors.username = 'Username is required'
     else if (formData.username.length < 3)
@@ -140,6 +214,7 @@ export default function SignupPage() {
         mobileNumber: countryCode + formData.mobileNumber,
         password: formData.password,
         isAgent: formData.isAgent,
+        companyName: formData.companyName,
         imageLink: imageUrl,
       }
 
@@ -220,6 +295,44 @@ export default function SignupPage() {
           {/* Form */}
           <div className="bg-white py-8 px-6 shadow rounded-lg">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Agent Checkbox */}
+              <div className="flex items-center">
+                <input
+                  id="isAgent"
+                  name="isAgent"
+                  type="checkbox"
+                  checked={formData.isAgent}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isAgent" className="ml-2 block text-sm text-gray-900">
+                  Do you want to signup as an agent?
+                </label>
+              </div>
+
+              {/* Company Name (shown only if agent is checked) */}
+              {formData.isAgent && (
+                <div>
+                  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
+                    Company *
+                  </label>
+                  <input
+                    type="text"
+                    id="companyName"
+                    name="companyName"
+                    value={formData.companyName}
+                    onChange={handleInputChange}
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                      formErrors.companyName ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="ACME Real Estate"
+                  />
+                  {formErrors.companyName && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.companyName}</p>
+                  )}
+                </div>
+              )}
+
               {/* First Name and Last Name */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -268,17 +381,24 @@ export default function SignupPage() {
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                   Username *
                 </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                    formErrors.username ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                  placeholder="johndoe"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                      formErrors.username ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="johndoe"
+                  />
+                  {checkingUnique.username && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                    </div>
+                  )}
+                </div>
                 {formErrors.username && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.username}</p>
                 )}
@@ -289,17 +409,24 @@ export default function SignupPage() {
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email Address *
                 </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                    formErrors.email ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                  placeholder="john@example.com"
-                />
+                <div className="relative">
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                      formErrors.email ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="john@example.com"
+                  />
+                  {checkingUnique.email && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                    </div>
+                  )}
+                </div>
                 {formErrors.email && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
                 )}
@@ -318,7 +445,7 @@ export default function SignupPage() {
                       className={formErrors.mobileNumber ? 'border-red-300' : ''}
                     />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 relative">
                     <input
                       type="tel"
                       id="mobile"
@@ -340,6 +467,11 @@ export default function SignupPage() {
                       placeholder="1234567890"
                       maxLength={15}
                     />
+                    {checkingUnique.mobile && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {formErrors.mobileNumber && (
@@ -399,21 +531,6 @@ export default function SignupPage() {
                 )}
               </div>
 
-              {/* Agent Checkbox */}
-              <div className="flex items-center">
-                <input
-                  id="isAgent"
-                  name="isAgent"
-                  type="checkbox"
-                  checked={formData.isAgent}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="isAgent" className="ml-2 block text-sm text-gray-900">
-                  Do you want to signup as an agent?
-                </label>
-              </div>
-
               {/* Company Logo Upload (shown only if agent is checked) */}
               {formData.isAgent && (
                 <div className="border-t pt-6">
@@ -424,11 +541,12 @@ export default function SignupPage() {
                     <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
                       <div className="space-y-1 text-center">
                         {imagePreview ? (
-                          <div className="relative">
-                            <img
+                          <div className="relative mx-auto h-32 w-32">
+                            <Image
                               src={imagePreview}
                               alt="Logo preview"
-                              className="mx-auto h-32 w-32 object-cover rounded-lg"
+                              fill
+                              className="object-cover rounded-lg"
                             />
                             <button
                               type="button"

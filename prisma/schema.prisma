@@ -50,6 +50,7 @@ model User {
   role             UserRole  @default(BUYER)
   isAgent          Boolean   @default(false)
   licenseNumber    String?   // For real estate agents
+  companyName      String?   // Company name for agents
   imageLink        String?   // CDN URL for company logo
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -63,6 +64,7 @@ model User {
   @@index([isAgent])
   @@index([email])
   @@index([username])
+  @@index([mobileNumber])
 }
 
 model VerificationToken {

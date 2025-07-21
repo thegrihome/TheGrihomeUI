@@ -15,11 +15,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     mobileNumber,
     password,
     isAgent = false,
+    companyName,
     imageLink,
   } = req.body
 
   if (!firstName || !lastName || !username || !email || !mobileNumber || !password) {
     return res.status(400).json({ message: 'Missing required fields' })
+  }
+
+  if (isAgent && !companyName?.trim()) {
+    return res.status(400).json({ message: 'Company name is required for agents' })
   }
 
   try {
@@ -55,6 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         password: hashedPassword,
         isAgent,
         role: isAgent ? 'AGENT' : 'BUYER',
+        companyName: isAgent ? companyName : null,
         imageLink: imageLink || null,
         isEmailVerified: false,
         isMobileVerified: false,
@@ -66,6 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         mobileNumber: true,
         isAgent: true,
         role: true,
+        companyName: true,
         imageLink: true,
         isEmailVerified: true,
         isMobileVerified: true,
