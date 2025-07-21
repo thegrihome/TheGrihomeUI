@@ -24,8 +24,9 @@ npm install
 
 ```bash
 cp .env.example .env.local
-# Edit .env.local with your development credentials
 ```
+
+The `.env.example` already contains working development database credentials that point to our shared dev CockroachDB cluster. No additional setup required!
 
 ### 3. SSL Certificate (Development)
 
@@ -33,10 +34,12 @@ cp .env.example .env.local
 curl --create-dirs -o $HOME/.postgresql/root.crt 'https://cockroachlabs.cloud/clusters/67af60ef-fa9e-4e81-8e1c-544336573e5e/cert'
 ```
 
-### 4. Database Migration
+### 4. Database Setup
+
+The database schema is already deployed to the dev cluster. You can optionally generate Prisma client:
 
 ```bash
-npx prisma db push
+npx prisma generate
 ```
 
 ### 5. Start Development Server
@@ -46,6 +49,15 @@ npm run dev
 ```
 
 Open `http://localhost:3000` in your browser.
+
+## 🎯 Quick Test
+
+After setup, you can test the signup functionality:
+
+1. Go to `/signup`
+2. Fill in the form with first name, last name, email, etc.
+3. Optionally check "Do you want to signup as an agent?" to test logo upload
+4. Submit and verify the user is created in the dev database
 
 ## 🔒 Secure Deployment
 

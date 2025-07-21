@@ -1,28 +1,22 @@
 import { useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { RootState } from '@/store/store'
-import {
-  resetSignupForm,
-  setLoading,
-  setError,
-  setSignupStep,
-  setUser,
-  verifyEmail,
-  verifyMobile,
-} from '@/store/slices/authSlice'
-import { authService, SignupData } from '@/services/authService'
 import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
+interface SignupData {
+  firstName: string
+  lastName: string
+  username: string
+  email: string
+  mobileNumber: string
+  password: string
+  isAgent: boolean
+  imageLink?: string
+}
+
 export default function SignupPage() {
-  const [activeTab, setActiveTab] = useState<'user' | 'agent'>('user')
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
-  const dispatch = useDispatch()
-  const { signupStep, isAuthenticated, user, isLoading, error } = useSelector(
-    (state: RootState) => state.auth
-  )
 
   // Form state
   const [formData, setFormData] = useState<SignupData>({
@@ -30,166 +24,156 @@ export default function SignupPage() {
     lastName: '',
     username: '',
     email: '',
-    mobile: '',
+    mobileNumber: '',
     password: '',
+    isAgent: false,
+    imageLink: '',
   })
 
   const [countryCode, setCountryCode] = useState('+91')
-  const [mobileNumber, setMobileNumber] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formErrors, setFormErrors] = useState<Partial<SignupData & { confirmPassword: string }>>(
     {}
   )
 
-  // OTP state
-  const [otp, setOtp] = useState('')
-  const [timeLeft, setTimeLeft] = useState(300)
-  const [canResend, setCanResend] = useState(false)
-
   useEffect(() => {
     setMounted(true)
-    const { type } = router.query
-    if (type === 'agent') {
-      setActiveTab('agent')
-    }
-  }, [router.query])
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/')
-    }
-  }, [isAuthenticated, router])
-
-  // OTP timer
-  useEffect(() => {
-    if ((signupStep === 'email-otp' || signupStep === 'mobile-otp') && timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
-      return () => clearTimeout(timer)
-    } else if (timeLeft === 0) {
-      setCanResend(true)
-    }
-  }, [timeLeft, signupStep])
-
-  const handleClose = () => {
-    dispatch(resetSignupForm())
-    router.push('/')
-  }
-
-  useEffect(() => {
-    return () => {
-      if (!isAuthenticated) {
-        dispatch(resetSignupForm())
-      }
-    }
-  }, [dispatch, isAuthenticated])
+  }, [])
 
   const validateForm = (): boolean => {
     const errors: Partial<SignupData & { confirmPassword: string }> = {}
 
     if (!formData.firstName.trim()) errors.firstName = 'First name is required'
     if (!formData.lastName.trim()) errors.lastName = 'Last name is required'
+
     if (!formData.username.trim()) errors.username = 'Username is required'
+    else if (formData.username.length < 3)
+      errors.username = 'Username must be at least 3 characters'
+
     if (!formData.email.trim()) errors.email = 'Email is required'
     else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid'
-    if (!mobileNumber.trim()) errors.mobile = 'Mobile number is required'
-    else if (!/^\d{7,15}$/.test(mobileNumber.replace(/\s/g, '')))
-      errors.mobile = 'Please enter a valid mobile number'
+
+    if (!formData.mobileNumber.trim()) errors.mobileNumber = 'Mobile number is required'
+    else if (!/^\d{7,15}$/.test(formData.mobileNumber.replace(/\s/g, '')))
+      errors.mobileNumber = 'Please enter a valid mobile number'
+
     if (!formData.password) errors.password = 'Password is required'
     else if (formData.password.length < 6)
       errors.password = 'Password must be at least 6 characters'
+
     if (formData.password !== confirmPassword) errors.confirmPassword = 'Passwords do not match'
 
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
 
-  const handleSignupSubmit = async (e: React.FormEvent) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file')
+        return
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB')
+        return
+      }
+
+      setImageFile(file)
+
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+      setError('')
+    }
+  }
+
+  const uploadImageToCDN = async (file: File): Promise<string> => {
+    // This is a placeholder for CDN upload
+    // In real implementation, you would upload to Cloudflare R2, AWS S3, etc.
+    // For now, we'll simulate it
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      // Simulate API call to upload service
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Return a mock CDN URL
+      return `https://cdn.grihome.com/logos/${Date.now()}-${file.name}`
+    } catch (error) {
+      throw new Error('Failed to upload image')
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateForm()) return
 
-    dispatch(setLoading(true))
-    dispatch(setError(null))
+    setIsLoading(true)
+    setError('')
 
     try {
-      const fullMobile = countryCode + mobileNumber
-      const signupData = { ...formData, mobile: fullMobile }
+      let imageUrl = ''
 
-      const { user } = await authService.signup(signupData)
-      dispatch(setUser(user))
-      dispatch(setSignupStep('email-otp'))
-      setTimeLeft(300)
-      setCanResend(false)
-
-      await authService.sendEmailOTP(formData.email)
-    } catch (err) {
-      dispatch(setError(err instanceof Error ? err.message : 'Signup failed'))
-    } finally {
-      dispatch(setLoading(false))
-    }
-  }
-
-  const handleOTPSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!otp || !user) return
-
-    dispatch(setLoading(true))
-    dispatch(setError(null))
-
-    try {
-      if (signupStep === 'email-otp') {
-        const isValid = await authService.verifyEmailOTP({ email: user.email, otp })
-        if (isValid) {
-          dispatch(verifyEmail())
-          dispatch(setSignupStep('mobile-otp'))
-          setOtp('')
-          setTimeLeft(300)
-          setCanResend(false)
-          await authService.sendMobileOTP(user.mobile)
-        }
-      } else if (signupStep === 'mobile-otp') {
-        const isValid = await authService.verifyMobileOTP({ mobile: user.mobile, otp })
-        if (isValid) {
-          dispatch(verifyMobile())
-          dispatch(setSignupStep('completed'))
-          setTimeout(() => {
-            router.push('/')
-          }, 2000)
-        }
+      // Upload image if agent and file selected
+      if (formData.isAgent && imageFile) {
+        imageUrl = await uploadImageToCDN(imageFile)
       }
-    } catch (err) {
-      dispatch(setError(err instanceof Error ? err.message : 'OTP verification failed'))
-    } finally {
-      dispatch(setLoading(false))
-    }
-  }
 
-  const handleResendOTP = async () => {
-    if (!user || !canResend) return
-
-    dispatch(setLoading(true))
-    dispatch(setError(null))
-
-    try {
-      if (signupStep === 'email-otp') {
-        await authService.sendEmailOTP(user.email)
-      } else {
-        await authService.sendMobileOTP(user.mobile)
+      const signupData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        username: formData.username,
+        email: formData.email,
+        mobileNumber: countryCode + formData.mobileNumber,
+        password: formData.password,
+        isAgent: formData.isAgent,
+        imageLink: imageUrl,
       }
-      setTimeLeft(300)
-      setCanResend(false)
+
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(signupData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Signup failed')
+      }
+
+      // Redirect to login or dashboard
+      router.push('/login?message=Account created successfully')
     } catch (err) {
-      dispatch(setError(err instanceof Error ? err.message : 'Failed to resend OTP'))
+      setError(err instanceof Error ? err.message : 'Signup failed')
     } finally {
-      dispatch(setLoading(false))
+      setIsLoading(false)
     }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }))
 
+    // Clear specific error when user starts typing
     if (formErrors[name as keyof typeof formErrors]) {
       setFormErrors(prev => {
         const newErrors = { ...prev }
@@ -197,12 +181,6 @@ export default function SignupPage() {
         return newErrors
       })
     }
-  }
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   if (!mounted) return null
@@ -228,57 +206,9 @@ export default function SignupPage() {
         <div className="max-w-md w-full space-y-8">
           {/* Form Header */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">
-              {signupStep === 'form'
-                ? activeTab === 'agent'
-                  ? 'Sign up as Agent'
-                  : 'Create your account'
-                : signupStep === 'email-otp'
-                  ? 'Verify your email'
-                  : signupStep === 'mobile-otp'
-                    ? 'Verify your mobile'
-                    : 'Welcome to GRIHOME!'}
-            </h1>
-            {signupStep === 'form' && (
-              <p className="mt-2 text-sm text-gray-600">
-                {activeTab === 'agent' ? 'Join as a real estate agent' : 'Join GRIHOME today'}
-              </p>
-            )}
+            <h1 className="text-3xl font-bold text-gray-900">Create your account</h1>
+            <p className="mt-2 text-sm text-gray-600">Join GRIHOME today</p>
           </div>
-
-          {/* Tab Navigation */}
-          {signupStep === 'form' && (
-            <div className="mb-8">
-              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-                <button
-                  onClick={() => {
-                    setActiveTab('user')
-                    router.push('/signup', undefined, { shallow: true })
-                  }}
-                  className={`flex-1 py-3 px-4 text-sm font-medium rounded-md transition-colors ${
-                    activeTab === 'user'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Sign up
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab('agent')
-                    router.push('/signup?type=agent', undefined, { shallow: true })
-                  }}
-                  className={`flex-1 py-3 px-4 text-sm font-medium rounded-md transition-colors ${
-                    activeTab === 'agent'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Sign up as Agent
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Error Display */}
           {error && (
@@ -287,336 +217,323 @@ export default function SignupPage() {
             </div>
           )}
 
-          {/* Form Content */}
+          {/* Form */}
           <div className="bg-white py-8 px-6 shadow rounded-lg">
-            {signupStep === 'form' && (
-              <form onSubmit={handleSignupSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                      First Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                        formErrors.firstName ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="John"
-                    />
-                    {formErrors.firstName && (
-                      <p className="mt-1 text-sm text-red-600">{formErrors.firstName}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                      Last Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                        formErrors.lastName ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="Doe"
-                    />
-                    {formErrors.lastName && (
-                      <p className="mt-1 text-sm text-red-600">{formErrors.lastName}</p>
-                    )}
-                  </div>
-                </div>
-
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* First Name and Last Name */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                    Username *
+                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                    First Name *
                   </label>
                   <input
                     type="text"
-                    id="username"
-                    name="username"
-                    value={formData.username}
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
                     onChange={handleInputChange}
                     className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                      formErrors.username ? 'border-red-300' : 'border-gray-300'
+                      formErrors.firstName ? 'border-red-300' : 'border-gray-300'
                     }`}
-                    placeholder="johndoe"
+                    placeholder="John"
                   />
-                  {formErrors.username && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.username}</p>
+                  {formErrors.firstName && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.firstName}</p>
                   )}
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email *
+                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                    Last Name *
                   </label>
                   <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
                     onChange={handleInputChange}
                     className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                      formErrors.email ? 'border-red-300' : 'border-gray-300'
+                      formErrors.lastName ? 'border-red-300' : 'border-gray-300'
                     }`}
-                    placeholder="john@example.com"
+                    placeholder="Doe"
                   />
-                  {formErrors.email && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
+                  {formErrors.lastName && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.lastName}</p>
                   )}
                 </div>
+              </div>
 
-                <div>
-                  <label htmlFor="mobile" className="block text-sm font-medium text-gray-700">
-                    Mobile Number *
-                  </label>
-                  <div className="mt-1 flex space-x-2">
-                    <div className="w-36">
-                      <CountryCodeDropdown
-                        value={countryCode}
-                        onChange={setCountryCode}
-                        className={formErrors.mobile ? 'border-red-300' : ''}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <input
-                        type="tel"
-                        id="mobile"
-                        value={mobileNumber}
-                        onChange={e => {
-                          const value = e.target.value.replace(/\D/g, '')
-                          setMobileNumber(value)
-                          if (formErrors.mobile) {
-                            setFormErrors(prev => {
-                              const { mobile, ...rest } = prev
-                              return rest
-                            })
-                          }
-                        }}
-                        className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                          formErrors.mobile ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                        placeholder="1234567890"
-                        maxLength={15}
-                      />
-                    </div>
+              {/* Username */}
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                  Username *
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                    formErrors.username ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="johndoe"
+                />
+                {formErrors.username && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.username}</p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                    formErrors.email ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="john@example.com"
+                />
+                {formErrors.email && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
+                )}
+              </div>
+
+              {/* Mobile Number */}
+              <div>
+                <label htmlFor="mobile" className="block text-sm font-medium text-gray-700">
+                  Mobile Number *
+                </label>
+                <div className="mt-1 flex space-x-2">
+                  <div className="w-36">
+                    <CountryCodeDropdown
+                      value={countryCode}
+                      onChange={setCountryCode}
+                      className={formErrors.mobileNumber ? 'border-red-300' : ''}
+                    />
                   </div>
-                  {formErrors.mobile && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.mobile}</p>
-                  )}
+                  <div className="flex-1">
+                    <input
+                      type="tel"
+                      id="mobile"
+                      name="mobileNumber"
+                      value={formData.mobileNumber}
+                      onChange={e => {
+                        const value = e.target.value.replace(/\D/g, '')
+                        setFormData(prev => ({ ...prev, mobileNumber: value }))
+                        if (formErrors.mobileNumber) {
+                          setFormErrors(prev => {
+                            const { mobileNumber, ...rest } = prev
+                            return rest
+                          })
+                        }
+                      }}
+                      className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                        formErrors.mobileNumber ? 'border-red-300' : 'border-gray-300'
+                      }`}
+                      placeholder="1234567890"
+                      maxLength={15}
+                    />
+                  </div>
                 </div>
+                {formErrors.mobileNumber && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.mobileNumber}</p>
+                )}
+              </div>
 
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Password *
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                      formErrors.password ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                    placeholder="••••••••"
-                  />
-                  {formErrors.password && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
-                  )}
-                </div>
+              {/* Password */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                    formErrors.password ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="••••••••"
+                />
+                {formErrors.password && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
+                )}
+              </div>
 
-                <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Confirm Password *
-                  </label>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={e => {
-                      setConfirmPassword(e.target.value)
-                      if (formErrors.confirmPassword) {
-                        setFormErrors(prev => {
-                          const { confirmPassword, ...rest } = prev
-                          return rest
-                        })
-                      }
-                    }}
-                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                      formErrors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                    placeholder="••••••••"
-                  />
-                  {formErrors.confirmPassword && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              {/* Confirm Password */}
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700"
                 >
-                  {isLoading ? 'Creating Account...' : 'Create Account'}
-                </button>
-              </form>
-            )}
-
-            {(signupStep === 'email-otp' || signupStep === 'mobile-otp') && (
-              <div className="space-y-6">
-                {/* Back Button */}
-                <button
-                  onClick={() => {
-                    if (signupStep === 'email-otp') {
-                      dispatch(setSignupStep('form'))
-                    } else {
-                      dispatch(setSignupStep('email-otp'))
+                  Confirm Password *
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={e => {
+                    setConfirmPassword(e.target.value)
+                    if (formErrors.confirmPassword) {
+                      setFormErrors(prev => {
+                        const { confirmPassword, ...rest } = prev
+                        return rest
+                      })
                     }
                   }}
-                  className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                >
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                  Back
-                </button>
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                    formErrors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="••••••••"
+                />
+                {formErrors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>
+                )}
+              </div>
 
-                {/* OTP Info */}
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    {signupStep === 'email-otp' ? (
-                      <svg
-                        className="w-8 h-8 text-blue-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        className="w-8 h-8 text-blue-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <p className="text-gray-600">We&apos;ve sent a verification code to</p>
-                  <p className="font-semibold text-gray-900">
-                    {signupStep === 'email-otp' ? user?.email : user?.mobile}
-                  </p>
-                </div>
+              {/* Agent Checkbox */}
+              <div className="flex items-center">
+                <input
+                  id="isAgent"
+                  name="isAgent"
+                  type="checkbox"
+                  checked={formData.isAgent}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isAgent" className="ml-2 block text-sm text-gray-900">
+                  Do you want to signup as an agent?
+                </label>
+              </div>
 
-                <form onSubmit={handleOTPSubmit} className="space-y-6">
+              {/* Company Logo Upload (shown only if agent is checked) */}
+              {formData.isAgent && (
+                <div className="border-t pt-6">
                   <div>
-                    <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-                      Enter 6-digit code
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Company Logo (Optional)
                     </label>
-                    <input
-                      type="text"
-                      id="otp"
-                      value={otp}
-                      onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-center text-lg tracking-widest"
-                      placeholder="123456"
-                      maxLength={6}
-                    />
+                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                      <div className="space-y-1 text-center">
+                        {imagePreview ? (
+                          <div className="relative">
+                            <img
+                              src={imagePreview}
+                              alt="Logo preview"
+                              className="mx-auto h-32 w-32 object-cover rounded-lg"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setImageFile(null)
+                                setImagePreview('')
+                              }}
+                              className="absolute -top-2 -right-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-full p-1"
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <svg
+                              className="mx-auto h-12 w-12 text-gray-400"
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                            <div className="flex text-sm text-gray-600">
+                              <label
+                                htmlFor="file-upload"
+                                className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                              >
+                                <span>Upload a file</span>
+                                <input
+                                  id="file-upload"
+                                  name="file-upload"
+                                  type="file"
+                                  className="sr-only"
+                                  accept="image/*"
+                                  onChange={handleImageUpload}
+                                />
+                              </label>
+                              <p className="pl-1">or drag and drop</p>
+                            </div>
+                            <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
+                </div>
+              )}
 
-                  <button
-                    type="submit"
-                    disabled={isLoading || otp.length !== 6}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                  >
-                    {isLoading ? 'Verifying...' : 'Verify Code'}
-                  </button>
-                </form>
-
-                {/* Timer and Resend */}
-                <div className="text-center text-sm text-gray-600">
-                  {timeLeft > 0 ? (
-                    <p>Resend code in {formatTime(timeLeft)}</p>
-                  ) : (
-                    <button
-                      onClick={handleResendOTP}
-                      disabled={isLoading}
-                      className="text-blue-600 hover:text-blue-500 font-medium"
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
                     >
-                      Resend code
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {signupStep === 'completed' && (
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <svg
-                    className="w-8 h-8 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-medium text-gray-900">Account created successfully!</h3>
-                <p className="text-gray-600">Redirecting to home page...</p>
-              </div>
-            )}
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Creating Account...
+                  </div>
+                ) : (
+                  'Create Account'
+                )}
+              </button>
+            </form>
           </div>
 
           {/* Login Link */}
-          {signupStep === 'form' && (
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{' '}
-                <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                  Sign in
-                </Link>
-              </p>
-            </div>
-          )}
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

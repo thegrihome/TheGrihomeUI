@@ -7,39 +7,69 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
-  const { email, password, name, phone, role = 'BUYER' } = req.body
+  const {
+    firstName,
+    lastName,
+    username,
+    email,
+    mobileNumber,
+    password,
+    isAgent = false,
+    imageLink,
+  } = req.body
 
-  if (!email || !password || !name) {
+  if (!firstName || !lastName || !username || !email || !mobileNumber || !password) {
     return res.status(400).json({ message: 'Missing required fields' })
   }
 
   try {
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    // Check if user already exists (email or username or mobile)
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { username }, { mobileNumber }],
+      },
     })
 
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' })
+      if (existingUser.email === email) {
+        return res.status(400).json({ message: 'Email already exists' })
+      }
+      if (existingUser.username === username) {
+        return res.status(400).json({ message: 'Username already exists' })
+      }
+      if (existingUser.mobileNumber === mobileNumber) {
+        return res.status(400).json({ message: 'Mobile number already exists' })
+      }
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Create user
+    // Create user with new schema
     const user = await prisma.user.create({
       data: {
+        name: `${firstName} ${lastName}`,
+        username,
         email,
+        mobileNumber,
         password: hashedPassword,
-        name,
-        phone,
-        role,
+        isAgent,
+        role: isAgent ? 'AGENT' : 'BUYER',
+        imageLink: imageLink || null,
+        isEmailVerified: false,
+        isMobileVerified: false,
       },
       select: {
         id: true,
+        username: true,
         email: true,
-        name: true,
+        mobileNumber: true,
+        isAgent: true,
         role: true,
+        imageLink: true,
+        isEmailVerified: true,
+        isMobileVerified: true,
+        createdAt: true,
       },
     })
 
