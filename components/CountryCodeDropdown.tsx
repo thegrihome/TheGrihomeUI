@@ -5,12 +5,14 @@ interface CountryCodeDropdownProps {
   value: string
   onChange: (dialCode: string) => void
   className?: string
+  disabled?: boolean
 }
 
 export default function CountryCodeDropdown({
   value,
   onChange,
   className = '',
+  disabled = false,
 }: CountryCodeDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -53,8 +55,10 @@ export default function CountryCodeDropdown({
   }
 
   const handleToggle = () => {
-    setIsOpen(!isOpen)
-    setSearchTerm('')
+    if (!disabled) {
+      setIsOpen(!isOpen)
+      setSearchTerm('')
+    }
   }
 
   return (
@@ -63,7 +67,12 @@ export default function CountryCodeDropdown({
         <button
           type="button"
           onClick={handleToggle}
-          className="flex items-center justify-between w-full px-3 py-2 text-left bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-50 transition-colors"
+          disabled={disabled}
+          className={`flex items-center justify-between w-full px-3 py-2 text-left border border-gray-300 rounded-md transition-colors ${
+            disabled
+              ? 'bg-gray-50 text-gray-500 cursor-not-allowed'
+              : 'bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-50'
+          }`}
         >
           <div className="flex items-center space-x-1 min-w-0">
             <span className="text-lg flex-shrink-0">{selectedCountry.flag}</span>
@@ -89,7 +98,7 @@ export default function CountryCodeDropdown({
         </div>
       </div>
 
-      {isOpen && (
+      {isOpen && !disabled && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-visible">
           {/* Search input */}
           <div className="p-2 border-b border-gray-200">

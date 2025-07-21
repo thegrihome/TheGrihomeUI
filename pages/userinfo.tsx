@@ -151,7 +151,7 @@ export default function UserInfoPage() {
       const response = await fetch('/api/user/update-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, currentPassword, newPassword }),
+        body: JSON.stringify({ userId: user?.id, currentPassword, newPassword }),
       })
 
       const data = await response.json()
@@ -186,7 +186,7 @@ export default function UserInfoPage() {
       const response = await fetch('/api/user/update-avatar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, imageUrl }),
+        body: JSON.stringify({ userId: user?.id, imageUrl }),
       })
 
       const data = await response.json()
@@ -233,7 +233,7 @@ export default function UserInfoPage() {
       const response = await fetch('/api/user/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, otp: emailOtp }),
+        body: JSON.stringify({ userId: user?.id, otp: emailOtp }),
       })
 
       const data = await response.json()
@@ -280,7 +280,7 @@ export default function UserInfoPage() {
       const response = await fetch('/api/user/verify-mobile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, otp: mobileOtp }),
+        body: JSON.stringify({ userId: user?.id, otp: mobileOtp }),
       })
 
       const data = await response.json()
@@ -457,7 +457,7 @@ export default function UserInfoPage() {
                     <CountryCodeDropdown
                       value={countryCode}
                       onChange={setCountryCode}
-                      disabled
+                      disabled={true}
                       className="bg-gray-50 text-gray-500 cursor-not-allowed"
                     />
                   </div>

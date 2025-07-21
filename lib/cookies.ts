@@ -39,6 +39,7 @@ export const saveUserSession = (user: any) => {
     const userJson = JSON.stringify(user)
     setCookie(AUTH_COOKIE_NAME, userJson, 30) // 30 days
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to save user session:', error)
   }
 }
@@ -48,6 +49,7 @@ export const getUserSession = () => {
     const userJson = getCookie(AUTH_COOKIE_NAME)
     return userJson ? JSON.parse(userJson) : null
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to retrieve user session:', error)
     return null
   }
