@@ -23,8 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // For mobile verification, we'll add a custom field or use a different approach
-    // Since the schema doesn't have isMobileVerified, we'll skip this for now
+    // For mobile verification, we'll just return the user without updating
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -32,7 +31,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         name: true,
         email: true,
         phone: true,
-        isAgent: true,
         role: true,
         companyName: true,
         image: true,

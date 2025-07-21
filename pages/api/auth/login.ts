@@ -30,7 +30,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           email: true,
           phone: true,
           password: true,
-          isAgent: true,
           role: true,
           companyName: true,
           image: true,
@@ -75,7 +74,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           name: true,
           email: true,
           phone: true,
-          isAgent: true,
           role: true,
           companyName: true,
           image: true,
@@ -102,15 +100,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(401).json({ message: 'Invalid OTP' })
       }
 
-      // Find user by phone number
-      user = await prisma.user.findUnique({
+      // Find user by phone number using findFirst
+      user = await prisma.user.findFirst({
         where: { phone: mobile },
         select: {
           id: true,
           name: true,
           email: true,
           phone: true,
-          isAgent: true,
           role: true,
           companyName: true,
           image: true,
