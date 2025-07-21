@@ -31,11 +31,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         break
     }
 
+    // Log the query in development for debugging
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('Checking uniqueness:', { field, value, whereClause })
+    }
+
     // Use findFirst with select to only fetch the id field for efficiency
     const existingUser = await prisma.user.findFirst({
       where: whereClause,
       select: { id: true },
     })
+
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('Query result:', { existingUser, isUnique: !existingUser })
+    }
 
     res.status(200).json({ isUnique: !existingUser })
   } catch (error) {

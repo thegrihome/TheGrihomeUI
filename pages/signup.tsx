@@ -65,6 +65,12 @@ export default function SignupPage() {
 
       try {
         const checkValue = field === 'mobile' ? countryCode + value : value
+
+        // Debug logging
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Frontend uniqueness check:', { field, value, checkValue })
+        }
+
         const response = await fetch('/api/auth/check-unique', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -72,6 +78,10 @@ export default function SignupPage() {
         })
 
         const data = await response.json()
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Frontend uniqueness response:', data)
+        }
 
         if (!data.isUnique) {
           setFormErrors(prev => ({
@@ -100,16 +110,43 @@ export default function SignupPage() {
     // Check username after 500ms delay
     if (formData.username.length >= 3) {
       timeouts.push(setTimeout(() => checkUniqueness('username', formData.username), 500))
+    } else if (formData.username.length > 0 && formData.username.length < 3) {
+      // Clear errors if username is too short (will show validation error instead)
+      setFormErrors(prev => {
+        const newErrors = { ...prev }
+        if (newErrors.username && newErrors.username.includes('already registered')) {
+          delete newErrors.username
+        }
+        return newErrors
+      })
     }
 
     // Check email after 500ms delay
-    if (formData.email.includes('@')) {
+    if (formData.email.includes('@') && formData.email.includes('.')) {
       timeouts.push(setTimeout(() => checkUniqueness('email', formData.email), 500))
+    } else if (formData.email.length > 0 && !formData.email.includes('@')) {
+      // Clear uniqueness errors if email is incomplete (will show validation error instead)
+      setFormErrors(prev => {
+        const newErrors = { ...prev }
+        if (newErrors.email && newErrors.email.includes('already registered')) {
+          delete newErrors.email
+        }
+        return newErrors
+      })
     }
 
     // Check mobile after 500ms delay
     if (formData.mobileNumber.length >= 7) {
       timeouts.push(setTimeout(() => checkUniqueness('mobile', formData.mobileNumber), 500))
+    } else if (formData.mobileNumber.length > 0 && formData.mobileNumber.length < 7) {
+      // Clear uniqueness errors if mobile is too short (will show validation error instead)
+      setFormErrors(prev => {
+        const newErrors = { ...prev }
+        if (newErrors.mobileNumber && newErrors.mobileNumber.includes('already registered')) {
+          delete newErrors.mobileNumber
+        }
+        return newErrors
+      })
     }
 
     return () => timeouts.forEach(clearTimeout)
@@ -609,7 +646,13 @@ export default function SignupPage() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={
+                  isLoading ||
+                  Object.keys(formErrors).length > 0 ||
+                  checkingUnique.username ||
+                  checkingUnique.email ||
+                  checkingUnique.mobile
+                }
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
