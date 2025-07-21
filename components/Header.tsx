@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { NextPage } from 'next'
@@ -12,6 +13,7 @@ const Header: NextPage = () => {
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
 
   const dispatch = useDispatch()
+  const router = useRouter()
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
 
   useEffect(() => {
@@ -21,6 +23,7 @@ const Header: NextPage = () => {
   const handleLogout = () => {
     dispatch(logout())
     setUserMenuOpen(false)
+    router.push('/')
   }
 
   if (!mounted) return null

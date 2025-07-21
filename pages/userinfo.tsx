@@ -27,6 +27,9 @@ export default function UserInfoPage() {
   const [displayPassword, setDisplayPassword] = useState('••••••••••••') // Real password display
   const [isEditingPassword, setIsEditingPassword] = useState(false)
   const [currentPasswordValid, setCurrentPasswordValid] = useState<boolean | null>(null)
+  const [passwordValidationTimeout, setPasswordValidationTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  )
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -106,6 +109,34 @@ export default function UserInfoPage() {
     } catch (error) {
       setCurrentPasswordValid(false)
     }
+  }
+
+  const handleCurrentPasswordChange = (password: string) => {
+    setCurrentPassword(password)
+
+    // Clear existing timeout
+    if (passwordValidationTimeout) {
+      clearTimeout(passwordValidationTimeout)
+    }
+
+    // Reset validation state immediately
+    setCurrentPasswordValid(null)
+
+    // Set new timeout for 5 seconds
+    const timeout = setTimeout(() => {
+      validateCurrentPassword(password)
+    }, 5000)
+
+    setPasswordValidationTimeout(timeout)
+  }
+
+  const handleCurrentPasswordBlur = () => {
+    // Validate immediately on blur
+    if (passwordValidationTimeout) {
+      clearTimeout(passwordValidationTimeout)
+      setPasswordValidationTimeout(null)
+    }
+    validateCurrentPassword(currentPassword)
   }
 
   useEffect(() => {
@@ -424,27 +455,47 @@ export default function UserInfoPage() {
                     className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    {user.isEmailVerified ? (
-                      <svg
-                        className="w-5 h-5 text-green-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
+                    <div
+                      className="relative group cursor-help"
+                      title={
+                        user.isEmailVerified
+                          ? 'Email verified successfully'
+                          : 'Pending verification'
+                      }
+                    >
+                      {user.isEmailVerified ? (
+                        <svg
+                          className="w-5 h-5 text-green-500"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-5 h-5 text-red-500"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                        {user.isEmailVerified
+                          ? 'Email verified successfully'
+                          : 'Pending verification'}
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -517,31 +568,47 @@ export default function UserInfoPage() {
                       className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                      {user.isMobileVerified ? (
-                        <svg
-                          className="w-5 h-5 text-green-500"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          className="w-5 h-5 text-red-500"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      )}
+                      <div
+                        className="relative group cursor-help"
+                        title={
+                          user.isMobileVerified
+                            ? 'Mobile verified successfully'
+                            : 'Pending verification'
+                        }
+                      >
+                        {user.isMobileVerified ? (
+                          <svg
+                            className="w-5 h-5 text-green-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            className="w-5 h-5 text-red-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                          {user.isMobileVerified
+                            ? 'Mobile verified successfully'
+                            : 'Pending verification'}
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -678,15 +745,8 @@ export default function UserInfoPage() {
                       <input
                         type={showCurrentPassword ? 'text' : 'password'}
                         value={currentPassword}
-                        onChange={e => {
-                          const newPassword = e.target.value
-                          setCurrentPassword(newPassword)
-                          // Debounce validation
-                          const timeoutId = setTimeout(() => {
-                            validateCurrentPassword(newPassword)
-                          }, 500)
-                          return () => clearTimeout(timeoutId)
-                        }}
+                        onChange={e => handleCurrentPasswordChange(e.target.value)}
+                        onBlur={handleCurrentPasswordBlur}
                         className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
                           currentPasswordValid === false
                             ? 'border-red-300 bg-red-50'
