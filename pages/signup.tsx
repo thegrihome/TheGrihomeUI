@@ -68,6 +68,7 @@ export default function SignupPage() {
 
         // Debug logging
         if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
           console.log('Frontend uniqueness check:', { field, value, checkValue })
         }
 
@@ -80,6 +81,7 @@ export default function SignupPage() {
         const data = await response.json()
 
         if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
           console.log('Frontend uniqueness response:', data)
         }
 
