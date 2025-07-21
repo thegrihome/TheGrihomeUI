@@ -7,80 +7,68 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
-  const {
-    firstName,
-    lastName,
-    username,
-    email,
-    mobileNumber,
-    password,
-    isAgent = false,
-    companyName,
-    imageLink,
-  } = req.body
-
-  if (!firstName || !lastName || !username || !email || !mobileNumber || !password) {
-    return res.status(400).json({ message: 'Missing required fields' })
-  }
-
-  if (isAgent && !companyName?.trim()) {
-    return res.status(400).json({ message: 'Company name is required for agents' })
-  }
-
   try {
-    // Check if user already exists (email or username or mobile)
+    const { firstName, lastName, email, mobileNumber, password, isAgent, companyName, imageLink } =
+      req.body
+
+    // Basic validation
+    if (!firstName || !lastName || !email || !mobileNumber || !password) {
+      return res.status(400).json({ message: 'All required fields must be provided' })
+    }
+
+    if (isAgent && !companyName) {
+      return res.status(400).json({ message: 'Company name is required for agents' })
+    }
+
+    // Check if user already exists (email or mobile)
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [{ email }, { username }, { mobileNumber }],
+        OR: [{ email }, { phone: mobileNumber }],
       },
     })
 
     if (existingUser) {
       if (existingUser.email === email) {
-        return res.status(400).json({ message: 'Email already exists' })
+        return res.status(409).json({ message: 'Email is already registered' })
       }
-      if (existingUser.username === username) {
-        return res.status(400).json({ message: 'Username already exists' })
-      }
-      if (existingUser.mobileNumber === mobileNumber) {
-        return res.status(400).json({ message: 'Mobile number already exists' })
+      if (existingUser.phone === mobileNumber) {
+        return res.status(409).json({ message: 'Mobile number is already registered' })
       }
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Create user with new schema
+    // Create user
     const user = await prisma.user.create({
       data: {
         name: `${firstName} ${lastName}`,
-        username,
         email,
-        mobileNumber,
+        phone: mobileNumber,
         password: hashedPassword,
         isAgent,
         role: isAgent ? 'AGENT' : 'BUYER',
         companyName: isAgent ? companyName : null,
-        imageLink: imageLink || null,
-        isEmailVerified: false,
-        isMobileVerified: false,
+        image: imageLink || null,
       },
       select: {
         id: true,
-        username: true,
+        name: true,
         email: true,
-        mobileNumber: true,
+        phone: true,
         isAgent: true,
         role: true,
         companyName: true,
-        imageLink: true,
-        isEmailVerified: true,
-        isMobileVerified: true,
+        image: true,
+        emailVerified: true,
         createdAt: true,
       },
     })
 
-    res.status(201).json({ user, message: 'User created successfully' })
+    res.status(201).json({
+      message: 'User created successfully',
+      user,
+    })
   } catch (error) {
     // Log error in development only
     if (process.env.NODE_ENV === 'development') {

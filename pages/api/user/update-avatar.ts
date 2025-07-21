@@ -21,19 +21,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Update user avatar in database
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: { imageLink: imageUrl },
+      data: { image: imageUrl },
       select: {
         id: true,
-        username: true,
         name: true,
         email: true,
-        mobileNumber: true,
+        phone: true,
         isAgent: true,
         role: true,
         companyName: true,
-        imageLink: true,
-        isEmailVerified: true,
-        isMobileVerified: true,
+        image: true,
+        emailVerified: true,
         createdAt: true,
       },
     })

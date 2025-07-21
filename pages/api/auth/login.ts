@@ -18,37 +18,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (type === 'username-password') {
       if (!username || !password) {
-        return res.status(400).json({ message: 'Username and password are required' })
+        return res.status(400).json({ message: 'Email and password are required' })
       }
 
-      // Find user by username
+      // Find user by email (using email as username)
       user = await prisma.user.findUnique({
-        where: { username },
+        where: { email: username },
         select: {
           id: true,
-          username: true,
           name: true,
           email: true,
-          mobileNumber: true,
+          phone: true,
           password: true,
           isAgent: true,
           role: true,
           companyName: true,
-          imageLink: true,
-          isEmailVerified: true,
-          isMobileVerified: true,
+          image: true,
+          emailVerified: true,
           createdAt: true,
         },
       })
 
       if (!user) {
-        return res.status(401).json({ message: 'Invalid username or password' })
+        return res.status(401).json({ message: 'Invalid email or password' })
       }
 
       // Verify password
       const isValidPassword = await bcrypt.compare(password, user.password || '')
       if (!isValidPassword) {
-        return res.status(401).json({ message: 'Invalid username or password' })
+        return res.status(401).json({ message: 'Invalid email or password' })
       }
 
       // Remove password from response
@@ -74,16 +72,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { email },
         select: {
           id: true,
-          username: true,
           name: true,
           email: true,
-          mobileNumber: true,
+          phone: true,
           isAgent: true,
           role: true,
           companyName: true,
-          imageLink: true,
-          isEmailVerified: true,
-          isMobileVerified: true,
+          image: true,
+          emailVerified: true,
           createdAt: true,
         },
       })
@@ -106,21 +102,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(401).json({ message: 'Invalid OTP' })
       }
 
-      // Find user by mobile number
+      // Find user by phone number
       user = await prisma.user.findUnique({
-        where: { mobileNumber: mobile },
+        where: { phone: mobile },
         select: {
           id: true,
-          username: true,
           name: true,
           email: true,
-          mobileNumber: true,
+          phone: true,
           isAgent: true,
           role: true,
           companyName: true,
-          imageLink: true,
-          isEmailVerified: true,
-          isMobileVerified: true,
+          image: true,
+          emailVerified: true,
           createdAt: true,
         },
       })
