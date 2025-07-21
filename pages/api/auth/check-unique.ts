@@ -79,6 +79,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     // Always log errors for debugging
     console.error('Uniqueness check error:', error)
-    res.status(500).json({ message: 'Internal server error', error: error.message })
+    res.status(500).json({
+      message: 'Internal server error',
+      error: error instanceof Error ? error.message : String(error),
+    })
   }
 }
