@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
+import validator from 'validator'
 import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
 interface SignupData {
@@ -56,10 +57,37 @@ export default function SignupPage() {
     setMounted(true)
   }, [])
 
-  // Debounced uniqueness check
+  // Validation helper functions
+  const isValidEmail = (email: string): boolean => {
+    return validator.isEmail(email.trim())
+  }
+
+  const isValidMobile = (mobile: string): boolean => {
+    // Remove all non-digit characters
+    const cleanedMobile = mobile.replace(/\D/g, '')
+    // Check if it's a valid mobile number (7-15 digits)
+    return (
+      validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false }) &&
+      cleanedMobile.length >= 7 &&
+      cleanedMobile.length <= 15
+    )
+  }
+
+  // Debounced uniqueness check with validation
   useEffect(() => {
     const checkUniqueness = async (field: 'username' | 'email' | 'mobile', value: string) => {
       if (!value.trim()) return
+
+      // Pre-validate before making database call
+      if (field === 'email' && !isValidEmail(value)) {
+        // Don't check uniqueness for invalid emails
+        return
+      }
+
+      if (field === 'mobile' && !isValidMobile(value)) {
+        // Don't check uniqueness for invalid mobile numbers
+        return
+      }
 
       setCheckingUnique(prev => ({ ...prev, [field]: true }))
 
@@ -123,11 +151,11 @@ export default function SignupPage() {
       })
     }
 
-    // Check email after 500ms delay
-    if (formData.email.includes('@') && formData.email.includes('.')) {
+    // Check email after 500ms delay - only if valid format
+    if (isValidEmail(formData.email)) {
       timeouts.push(setTimeout(() => checkUniqueness('email', formData.email), 500))
-    } else if (formData.email.length > 0 && !formData.email.includes('@')) {
-      // Clear uniqueness errors if email is incomplete (will show validation error instead)
+    } else if (formData.email.length > 0) {
+      // Clear uniqueness errors if email is invalid (will show validation error instead)
       setFormErrors(prev => {
         const newErrors = { ...prev }
         if (newErrors.email && newErrors.email.includes('already registered')) {
@@ -137,11 +165,11 @@ export default function SignupPage() {
       })
     }
 
-    // Check mobile after 500ms delay
-    if (formData.mobileNumber.length >= 7) {
+    // Check mobile after 500ms delay - only if valid format
+    if (isValidMobile(formData.mobileNumber)) {
       timeouts.push(setTimeout(() => checkUniqueness('mobile', formData.mobileNumber), 500))
-    } else if (formData.mobileNumber.length > 0 && formData.mobileNumber.length < 7) {
-      // Clear uniqueness errors if mobile is too short (will show validation error instead)
+    } else if (formData.mobileNumber.length > 0) {
+      // Clear uniqueness errors if mobile is invalid (will show validation error instead)
       setFormErrors(prev => {
         const newErrors = { ...prev }
         if (newErrors.mobileNumber && newErrors.mobileNumber.includes('already registered')) {
@@ -168,11 +196,11 @@ export default function SignupPage() {
       errors.username = 'Username must be at least 3 characters'
 
     if (!formData.email.trim()) errors.email = 'Email is required'
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid'
+    else if (!isValidEmail(formData.email)) errors.email = 'Please enter a valid email address'
 
     if (!formData.mobileNumber.trim()) errors.mobileNumber = 'Mobile number is required'
-    else if (!/^\d{7,15}$/.test(formData.mobileNumber.replace(/\s/g, '')))
-      errors.mobileNumber = 'Please enter a valid mobile number'
+    else if (!isValidMobile(formData.mobileNumber))
+      errors.mobileNumber = 'Please enter a valid mobile number (7-15 digits)'
 
     if (!formData.password) errors.password = 'Password is required'
     else if (formData.password.length < 6)

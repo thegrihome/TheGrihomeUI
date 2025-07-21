@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import validator from 'validator'
 import { RootState } from '@/store/store'
 import { setLoading, setError, setLoginMethod, setUser } from '@/store/slices/authSlice'
 import { authService } from '@/services/authService'
@@ -51,10 +52,37 @@ export default function LoginPage() {
     }
   }, [timeLeft, showOTPStep])
 
-  // Check user existence for OTP tabs
+  // Validation helper functions
+  const isValidEmail = (email: string): boolean => {
+    return validator.isEmail(email.trim())
+  }
+
+  const isValidMobile = (mobile: string): boolean => {
+    // Remove all non-digit characters
+    const cleanedMobile = mobile.replace(/\D/g, '')
+    // Check if it's a valid mobile number (7-15 digits)
+    return (
+      validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false }) &&
+      cleanedMobile.length >= 7 &&
+      cleanedMobile.length <= 15
+    )
+  }
+
+  // Check user existence for OTP tabs with validation
   useEffect(() => {
     const checkUserExistence = async (type: 'email' | 'mobile', value: string) => {
       if (!value.trim()) {
+        setUserExists(prev => ({ ...prev, [type]: false }))
+        return
+      }
+
+      // Pre-validate before making database call
+      if (type === 'email' && !isValidEmail(value)) {
+        setUserExists(prev => ({ ...prev, [type]: false }))
+        return
+      }
+
+      if (type === 'mobile' && !isValidMobile(value)) {
         setUserExists(prev => ({ ...prev, [type]: false }))
         return
       }
@@ -80,15 +108,15 @@ export default function LoginPage() {
 
     const timeouts: NodeJS.Timeout[] = []
 
-    // Check email after 500ms delay for email-otp tab
-    if (activeTab === 'email-otp' && email.includes('@') && email.includes('.')) {
+    // Check email after 500ms delay for email-otp tab - only if valid format
+    if (activeTab === 'email-otp' && isValidEmail(email)) {
       timeouts.push(setTimeout(() => checkUserExistence('email', email), 500))
     } else if (activeTab === 'email-otp' && email.length > 0) {
       setUserExists(prev => ({ ...prev, email: false }))
     }
 
-    // Check mobile after 500ms delay for mobile-otp tab
-    if (activeTab === 'mobile-otp' && mobileNumber.length >= 7) {
+    // Check mobile after 500ms delay for mobile-otp tab - only if valid format
+    if (activeTab === 'mobile-otp' && isValidMobile(mobileNumber)) {
       timeouts.push(setTimeout(() => checkUserExistence('mobile', mobileNumber), 500))
     } else if (activeTab === 'mobile-otp' && mobileNumber.length > 0) {
       setUserExists(prev => ({ ...prev, mobile: false }))
@@ -105,11 +133,11 @@ export default function LoginPage() {
       if (!password) errors.password = 'Password is required'
     } else if (activeTab === 'email-otp') {
       if (!email.trim()) errors.email = 'Email is required'
-      else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Email is invalid'
+      else if (!isValidEmail(email)) errors.email = 'Please enter a valid email address'
     } else if (activeTab === 'mobile-otp') {
       if (!mobileNumber.trim()) errors.mobile = 'Mobile number is required'
-      else if (!/^\d{7,15}$/.test(mobileNumber.replace(/\s/g, '')))
-        errors.mobile = 'Please enter a valid mobile number'
+      else if (!isValidMobile(mobileNumber))
+        errors.mobile = 'Please enter a valid mobile number (7-15 digits)'
     }
 
     setFormErrors(errors)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
@@ -24,8 +24,9 @@ export default function UserInfoPage() {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [displayPassword] = useState('••••••••••••') // Simulated current password display
+  const [displayPassword, setDisplayPassword] = useState('••••••••••••') // Real password display
   const [isEditingPassword, setIsEditingPassword] = useState(false)
+  const [currentPasswordValid, setCurrentPasswordValid] = useState<boolean | null>(null)
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -47,6 +48,26 @@ export default function UserInfoPage() {
   const [mobileCanResend, setMobileCanResend] = useState(false)
   const [countryCode, setCountryCode] = useState('')
 
+  const fetchPasswordDisplay = useCallback(async () => {
+    if (!user?.id) return
+
+    try {
+      const response = await fetch('/api/user/get-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id }),
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        setDisplayPassword(data.passwordDisplay)
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error fetching password display:', error)
+    }
+  }, [user?.id])
+
   useEffect(() => {
     setMounted(true)
     if (user?.mobileNumber) {
@@ -60,7 +81,32 @@ export default function UserInfoPage() {
         setCountryCode('+91') // default
       }
     }
-  }, [user])
+
+    // Fetch user's password display
+    fetchPasswordDisplay()
+  }, [user, fetchPasswordDisplay])
+
+  const validateCurrentPassword = async (password: string) => {
+    if (!password.trim()) {
+      setCurrentPasswordValid(null)
+      return
+    }
+
+    try {
+      const response = await fetch('/api/user/get-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user?.id, testPassword: password }),
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        setCurrentPasswordValid(data.isValidPassword)
+      }
+    } catch (error) {
+      setCurrentPasswordValid(false)
+    }
+  }
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -581,7 +627,9 @@ export default function UserInfoPage() {
                   {!isEditingPassword ? (
                     <div className="mt-1 relative">
                       <div className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-900">
-                        {showCurrentPassword ? 'MyCurrentPassword123!' : displayPassword}
+                        {showCurrentPassword
+                          ? 'Cannot display actual password for security'
+                          : displayPassword}
                       </div>
                       <button
                         type="button"
@@ -630,8 +678,22 @@ export default function UserInfoPage() {
                       <input
                         type={showCurrentPassword ? 'text' : 'password'}
                         value={currentPassword}
-                        onChange={e => setCurrentPassword(e.target.value)}
-                        className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        onChange={e => {
+                          const newPassword = e.target.value
+                          setCurrentPassword(newPassword)
+                          // Debounce validation
+                          const timeoutId = setTimeout(() => {
+                            validateCurrentPassword(newPassword)
+                          }, 500)
+                          return () => clearTimeout(timeoutId)
+                        }}
+                        className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                          currentPasswordValid === false
+                            ? 'border-red-300 bg-red-50'
+                            : currentPasswordValid === true
+                              ? 'border-green-300 bg-green-50'
+                              : 'border-gray-300'
+                        }`}
                         placeholder="Enter current password"
                         autoFocus
                       />
@@ -677,6 +739,15 @@ export default function UserInfoPage() {
                         )}
                       </button>
                     </div>
+                  )}
+                  {isEditingPassword && currentPasswordValid !== null && (
+                    <p
+                      className={`mt-1 text-xs ${currentPasswordValid ? 'text-green-600' : 'text-red-600'}`}
+                    >
+                      {currentPasswordValid
+                        ? '✓ Current password is correct'
+                        : '✗ Current password is incorrect'}
+                    </p>
                   )}
                   <p className="mt-1 text-xs text-gray-500">
                     {!isEditingPassword ? (
@@ -821,7 +892,13 @@ export default function UserInfoPage() {
 
                     <button
                       onClick={handlePasswordUpdate}
-                      disabled={isLoading || !currentPassword || !newPassword || !confirmPassword}
+                      disabled={
+                        isLoading ||
+                        !currentPassword ||
+                        !newPassword ||
+                        !confirmPassword ||
+                        currentPasswordValid !== true
+                      }
                       className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? 'Updating...' : 'Update Password'}

@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
+import validator from 'validator'
 import { prisma } from '../../../lib/prisma'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -14,6 +15,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!['username', 'email', 'mobile'].includes(field)) {
     return res.status(400).json({ message: 'Invalid field' })
+  }
+
+  // Validate email format
+  if (field === 'email' && !validator.isEmail(value.trim())) {
+    return res.status(400).json({ message: 'Invalid email format', isUnique: false })
+  }
+
+  // Validate mobile format
+  if (field === 'mobile') {
+    const cleanedMobile = value.replace(/\D/g, '')
+    if (
+      !validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false }) ||
+      cleanedMobile.length < 7 ||
+      cleanedMobile.length > 15
+    ) {
+      return res.status(400).json({ message: 'Invalid mobile number format', isUnique: false })
+    }
   }
 
   try {
