@@ -34,13 +34,13 @@ export default function MobileOTPVerification({ onClose }: MobileOTPVerification
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!user?.mobile || !otp) return
+    if (!user?.mobileNumber || !otp) return
 
     dispatch(setLoading(true))
     dispatch(setError(null))
 
     try {
-      const isValid = await authService.verifyMobileOTP({ mobile: user.mobile, otp })
+      const isValid = await authService.verifyMobileOTP({ mobile: user.mobileNumber || '', otp })
 
       if (isValid) {
         dispatch(verifyMobile())
@@ -61,13 +61,13 @@ export default function MobileOTPVerification({ onClose }: MobileOTPVerification
   }
 
   const handleResendOTP = async () => {
-    if (!user?.mobile || !canResend) return
+    if (!user?.mobileNumber || !canResend) return
 
     dispatch(setLoading(true))
     dispatch(setError(null))
 
     try {
-      await authService.sendMobileOTP(user.mobile)
+      await authService.sendMobileOTP(user.mobileNumber || '')
       setTimeLeft(300)
       setCanResend(false)
     } catch (err) {
@@ -128,7 +128,7 @@ export default function MobileOTPVerification({ onClose }: MobileOTPVerification
           </svg>
         </div>
         <p className="text-gray-600 dark:text-gray-400">We&apos;ve sent a verification code to</p>
-        <p className="font-semibold text-gray-900 dark:text-white">{user?.mobile}</p>
+        <p className="font-semibold text-gray-900 dark:text-white">{user?.mobileNumber}</p>
       </div>
 
       {error && (

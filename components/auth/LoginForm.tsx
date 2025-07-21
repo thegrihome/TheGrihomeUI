@@ -13,7 +13,7 @@ export default function LoginForm({ onClose }: LoginFormProps) {
   const dispatch = useDispatch()
   const { isLoading, error, loginMethod } = useSelector((state: RootState) => state.auth)
 
-  const [activeTab, setActiveTab] = useState<'email-password' | 'email-otp' | 'mobile-otp'>(
+  const [activeTab, setActiveTab] = useState<'username-password' | 'email-otp' | 'mobile-otp'>(
     'mobile-otp'
   )
   const [formData, setFormData] = useState({
@@ -27,7 +27,7 @@ export default function LoginForm({ onClose }: LoginFormProps) {
   const [otpSent, setOtpSent] = useState(false)
   const [timeLeft, setTimeLeft] = useState(0)
 
-  const handleTabChange = (tab: 'email-password' | 'email-otp' | 'mobile-otp') => {
+  const handleTabChange = (tab: 'username-password' | 'email-otp' | 'mobile-otp') => {
     setActiveTab(tab)
     setFormData({ email: '', mobile: '', password: '', otp: '' })
     setMobileNumber('')
@@ -88,7 +88,7 @@ export default function LoginForm({ onClose }: LoginFormProps) {
     try {
       let user
 
-      if (activeTab === 'email-password') {
+      if (activeTab === 'username-password') {
         if (!formData.email || !formData.password) {
           dispatch(setError('Please enter email and password'))
           return
@@ -176,9 +176,9 @@ export default function LoginForm({ onClose }: LoginFormProps) {
           Email OTP
         </button>
         <button
-          onClick={() => handleTabChange('email-password')}
+          onClick={() => handleTabChange('username-password')}
           className={`flex-1 py-2 px-4 text-sm font-medium ${
-            activeTab === 'email-password'
+            activeTab === 'username-password'
               ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
@@ -194,7 +194,7 @@ export default function LoginForm({ onClose }: LoginFormProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {activeTab === 'email-password' && (
+        {activeTab === 'username-password' && (
           <>
             <div>
               <label

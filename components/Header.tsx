@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Link from 'next/link'
+import Image from 'next/image'
 import type { NextPage } from 'next'
 import { RootState } from '@/store/store'
 import { logout } from '@/store/slices/authSlice'
@@ -77,13 +78,32 @@ const Header: NextPage = () => {
               <div className="user-menu">
                 <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="user-menu-button">
                   <div className="user-avatar">
-                    {user.firstName.charAt(0)}
-                    {user.lastName.charAt(0)}
+                    {user.imageLink ? (
+                      <Image
+                        src={user.imageLink}
+                        alt="Profile"
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-white font-medium">
+                        {user.name
+                          ? user.name
+                              .split(' ')
+                              .map((n: string) => n.charAt(0))
+                              .join('')
+                              .slice(0, 2)
+                          : user.username.charAt(0).toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   <span className="font-medium hidden md:block">
-                    Welcome {user.firstName} {user.lastName}
+                    Welcome {user.name || user.username}
                   </span>
-                  <span className="font-medium md:hidden">{user.firstName}</span>
+                  <span className="font-medium md:hidden">
+                    {user.name?.split(' ')[0] || user.username}
+                  </span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -97,11 +117,15 @@ const Header: NextPage = () => {
                 {userMenuOpen && (
                   <div className="user-menu-dropdown">
                     <div className="user-info">
-                      <p className="user-name">
-                        {user.firstName} {user.lastName}
-                      </p>
+                      <p className="user-name">{user.name || user.username}</p>
                       <p className="username">@{user.username}</p>
+                      {user.isAgent && user.companyName && (
+                        <p className="text-xs text-gray-500">{user.companyName}</p>
+                      )}
                     </div>
+                    <Link href="/profile" className="dropdown-link">
+                      My Settings
+                    </Link>
                     <button onClick={handleLogout} className="logout-button">
                       Sign out
                     </button>
@@ -192,14 +216,32 @@ const Header: NextPage = () => {
                   <div>
                     <div className="mobile-user-info">
                       <div className="mobile-user-avatar">
-                        {user.firstName.charAt(0)}
-                        {user.lastName.charAt(0)}
+                        {user.imageLink ? (
+                          <Image
+                            src={user.imageLink}
+                            alt="Profile"
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-white font-medium">
+                            {user.name
+                              ? user.name
+                                  .split(' ')
+                                  .map((n: string) => n.charAt(0))
+                                  .join('')
+                                  .slice(0, 2)
+                              : user.username.charAt(0).toUpperCase()}
+                          </span>
+                        )}
                       </div>
                       <div className="mobile-user-details">
-                        <p className="user-name">
-                          {user.firstName} {user.lastName}
-                        </p>
+                        <p className="user-name">{user.name || user.username}</p>
                         <p className="username">@{user.username}</p>
+                        {user.isAgent && user.companyName && (
+                          <p className="text-xs text-gray-500">{user.companyName}</p>
+                        )}
                       </div>
                     </div>
                     <button

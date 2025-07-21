@@ -7,6 +7,7 @@ export interface SignupData {
   email: string
   mobile: string
   password: string
+  isAgent?: boolean
 }
 
 export interface LoginData {
@@ -29,13 +30,15 @@ export const authService = {
 
     const user: User = {
       id: Math.random().toString(36).substr(2, 9),
-      firstName: data.firstName,
-      lastName: data.lastName,
+      name: `${data.firstName} ${data.lastName}`,
       username: data.username,
       email: data.email,
-      mobile: data.mobile,
+      mobileNumber: data.mobile,
       isEmailVerified: false,
       isMobileVerified: false,
+      isAgent: data.isAgent || false,
+      role: data.isAgent ? 'AGENT' : 'BUYER',
+      createdAt: new Date().toISOString(),
     }
 
     return { user, tempId: 'temp-' + user.id }
@@ -74,13 +77,15 @@ export const authService = {
     // Mock user data - replace with actual API response
     return {
       id: Math.random().toString(36).substr(2, 9),
-      firstName: 'John',
-      lastName: 'Doe',
+      name: 'John Doe',
       username: 'johndoe',
       email: data.email || '',
-      mobile: '+1234567890',
+      mobileNumber: '+1234567890',
       isEmailVerified: true,
       isMobileVerified: true,
+      isAgent: false,
+      role: 'BUYER',
+      createdAt: new Date().toISOString(),
     }
   },
 
@@ -94,13 +99,15 @@ export const authService = {
 
     return {
       id: Math.random().toString(36).substr(2, 9),
-      firstName: 'John',
-      lastName: 'Doe',
+      name: 'John Doe',
       username: 'johndoe',
       email: data.email || '',
-      mobile: '+1234567890',
+      mobileNumber: '+1234567890',
       isEmailVerified: true,
       isMobileVerified: true,
+      isAgent: false,
+      role: 'BUYER',
+      createdAt: new Date().toISOString(),
     }
   },
 
@@ -114,13 +121,15 @@ export const authService = {
 
     return {
       id: Math.random().toString(36).substr(2, 9),
-      firstName: 'John',
-      lastName: 'Doe',
+      name: 'John Doe',
       username: 'johndoe',
       email: 'john@example.com',
-      mobile: data.mobile || '',
+      mobileNumber: data.mobile || '',
       isEmailVerified: true,
       isMobileVerified: true,
+      isAgent: false,
+      role: 'BUYER',
+      createdAt: new Date().toISOString(),
     }
   },
 }

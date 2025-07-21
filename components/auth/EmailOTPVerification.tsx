@@ -53,7 +53,7 @@ export default function EmailOTPVerification({ onClose }: EmailOTPVerificationPr
         dispatch(setSignupStep('mobile-otp'))
 
         // Send mobile OTP
-        await authService.sendMobileOTP(user.mobile)
+        await authService.sendMobileOTP(user.mobileNumber || '')
       } else {
         dispatch(setError('Invalid OTP. Please try again.'))
       }

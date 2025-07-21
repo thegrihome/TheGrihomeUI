@@ -9,7 +9,7 @@ import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
 export default function LoginPage() {
   const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'mobile-otp' | 'email-otp' | 'email-password'>(
+  const [activeTab, setActiveTab] = useState<'mobile-otp' | 'email-otp' | 'username-password'>(
     'mobile-otp'
   )
 
@@ -19,12 +19,13 @@ export default function LoginPage() {
 
   // Form states
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [countryCode, setCountryCode] = useState('+91')
   const [mobileNumber, setMobileNumber] = useState('')
   const [otp, setOtp] = useState('')
   const [showOTPStep, setShowOTPStep] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(120)
+  const [timeLeft, setTimeLeft] = useState(180) // 3 minutes
   const [canResend, setCanResend] = useState(false)
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
 
@@ -51,9 +52,8 @@ export default function LoginPage() {
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {}
 
-    if (activeTab === 'email-password') {
-      if (!email.trim()) errors.email = 'Email is required'
-      else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Email is invalid'
+    if (activeTab === 'username-password') {
+      if (!username.trim()) errors.username = 'Username is required'
       if (!password) errors.password = 'Password is required'
     } else if (activeTab === 'email-otp') {
       if (!email.trim()) errors.email = 'Email is required'
@@ -78,20 +78,53 @@ export default function LoginPage() {
     dispatch(setLoginMethod(activeTab))
 
     try {
-      if (activeTab === 'email-password') {
-        const user = await authService.loginWithEmailPassword({ email, password })
-        dispatch(setUser(user))
+      if (activeTab === 'username-password') {
+        // Call new username/password login API
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'username-password', username, password }),
+        })
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Login failed')
+        }
+
+        dispatch(setUser(data.user))
         router.push('/')
       } else if (activeTab === 'email-otp') {
-        await authService.sendEmailOTP(email)
+        // Check if email exists first
+        const response = await fetch('/api/auth/check-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'email', value: email }),
+        })
+        const data = await response.json()
+
+        if (!response.ok || !data.exists) {
+          throw new Error('Email not registered. Please sign up first.')
+        }
+
         setShowOTPStep(true)
-        setTimeLeft(120)
+        setTimeLeft(180)
         setCanResend(false)
       } else if (activeTab === 'mobile-otp') {
+        // Check if mobile exists first
         const fullMobile = countryCode + mobileNumber
-        await authService.sendMobileOTP(fullMobile)
+        const response = await fetch('/api/auth/check-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'mobile', value: fullMobile }),
+        })
+        const data = await response.json()
+
+        if (!response.ok || !data.exists) {
+          throw new Error('Mobile number not registered. Please sign up first.')
+        }
+
         setShowOTPStep(true)
-        setTimeLeft(120)
+        setTimeLeft(180)
         setCanResend(false)
       }
     } catch (err) {
@@ -106,19 +139,42 @@ export default function LoginPage() {
 
     if (!otp || otp.length !== 6) return
 
+    // Check if OTP is 123456 (hardcoded for development)
+    if (otp !== '123456') {
+      dispatch(setError('Invalid OTP. Please enter 123456 for testing.'))
+      return
+    }
+
     dispatch(setLoading(true))
     dispatch(setError(null))
 
     try {
+      let response
       if (activeTab === 'email-otp') {
-        const user = await authService.loginWithEmailOTP({ email, otp })
-        dispatch(setUser(user))
+        response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'email-otp', email, otp }),
+        })
       } else if (activeTab === 'mobile-otp') {
         const fullMobile = countryCode + mobileNumber
-        const user = await authService.loginWithMobileOTP({ mobile: fullMobile, otp })
-        dispatch(setUser(user))
+        response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'mobile-otp', mobile: fullMobile, otp }),
+        })
       }
-      router.push('/')
+
+      if (response) {
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Login failed')
+        }
+
+        dispatch(setUser(data.user))
+        router.push('/')
+      }
     } catch (err) {
       dispatch(setError(err instanceof Error ? err.message : 'OTP verification failed'))
     } finally {
@@ -129,23 +185,10 @@ export default function LoginPage() {
   const handleResendOTP = async () => {
     if (!canResend) return
 
-    dispatch(setLoading(true))
+    // Just reset the timer - no actual OTP sending in development
+    setTimeLeft(180)
+    setCanResend(false)
     dispatch(setError(null))
-
-    try {
-      if (activeTab === 'email-otp') {
-        await authService.sendEmailOTP(email)
-      } else if (activeTab === 'mobile-otp') {
-        const fullMobile = countryCode + mobileNumber
-        await authService.sendMobileOTP(fullMobile)
-      }
-      setTimeLeft(120)
-      setCanResend(false)
-    } catch (err) {
-      dispatch(setError(err instanceof Error ? err.message : 'Failed to resend OTP'))
-    } finally {
-      dispatch(setLoading(false))
-    }
   }
 
   const formatTime = (seconds: number) => {
@@ -157,7 +200,7 @@ export default function LoginPage() {
   const resetForm = () => {
     setShowOTPStep(false)
     setOtp('')
-    setTimeLeft(120)
+    setTimeLeft(180)
     setCanResend(false)
     dispatch(setError(null))
   }
@@ -220,14 +263,14 @@ export default function LoginPage() {
                   Email OTP
                 </button>
                 <button
-                  onClick={() => setActiveTab('email-password')}
+                  onClick={() => setActiveTab('username-password')}
                   className={`flex-1 py-3 px-4 text-sm font-medium rounded-md transition-colors ${
-                    activeTab === 'email-password'
+                    activeTab === 'username-password'
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  Email & Password
+                  Username & Password
                 </button>
               </div>
             </div>
@@ -286,7 +329,7 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                {(activeTab === 'email-otp' || activeTab === 'email-password') && (
+                {activeTab === 'email-otp' && (
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                       Email
@@ -315,33 +358,61 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                {activeTab === 'email-password' && (
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      id="password"
-                      value={password}
-                      onChange={e => {
-                        setPassword(e.target.value)
-                        if (formErrors.password) {
-                          setFormErrors(prev => {
-                            const { password, ...rest } = prev
-                            return rest
-                          })
-                        }
-                      }}
-                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                        formErrors.password ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="••••••••"
-                    />
-                    {formErrors.password && (
-                      <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
-                    )}
-                  </div>
+                {activeTab === 'username-password' && (
+                  <>
+                    <div>
+                      <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                        Username
+                      </label>
+                      <input
+                        type="text"
+                        id="username"
+                        value={username}
+                        onChange={e => {
+                          setUsername(e.target.value)
+                          if (formErrors.username) {
+                            setFormErrors(prev => {
+                              const { username, ...rest } = prev
+                              return rest
+                            })
+                          }
+                        }}
+                        className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.username ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                        placeholder="johndoe"
+                      />
+                      {formErrors.username && (
+                        <p className="mt-1 text-sm text-red-600">{formErrors.username}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        id="password"
+                        value={password}
+                        onChange={e => {
+                          setPassword(e.target.value)
+                          if (formErrors.password) {
+                            setFormErrors(prev => {
+                              const { password, ...rest } = prev
+                              return rest
+                            })
+                          }
+                        }}
+                        className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.password ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                        placeholder="••••••••"
+                      />
+                      {formErrors.password && (
+                        <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
+                      )}
+                    </div>
+                  </>
                 )}
 
                 <button
@@ -351,23 +422,26 @@ export default function LoginPage() {
                 >
                   {isLoading
                     ? 'Please wait...'
-                    : activeTab === 'email-password'
+                    : activeTab === 'username-password'
                       ? 'Sign In'
                       : 'Send OTP'}
                 </button>
 
-                {/* Test credentials info */}
-                <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
-                  <p className="text-xs text-gray-600 mb-2">
-                    <strong>Test Credentials:</strong>
+                {/* Development notice */}
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                  <p className="text-xs text-blue-700 mb-2">
+                    <strong>🚧 Development Mode:</strong>
                   </p>
-                  <p className="text-xs text-gray-600">
-                    For any email/mobile: Use OTP <strong>123456</strong>
+                  <p className="text-xs text-blue-600">
+                    OTP sending is still in development. For testing, use OTP{' '}
+                    <strong>123456</strong>
                   </p>
-                  <p className="text-xs text-gray-600">
-                    For email/password: <strong>test@example.com</strong> /{' '}
-                    <strong>password123</strong>
-                  </p>
+                  {activeTab === 'username-password' && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      Try existing usernames: <strong>testuser123</strong> with password{' '}
+                      <strong>password123</strong>
+                    </p>
+                  )}
                 </div>
               </form>
             ) : (

@@ -2,13 +2,17 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export interface User {
   id: string
-  firstName: string
-  lastName: string
   username: string
+  name?: string
   email: string
-  mobile: string
+  mobileNumber?: string
   isEmailVerified: boolean
   isMobileVerified: boolean
+  isAgent: boolean
+  role: string
+  companyName?: string
+  imageLink?: string
+  createdAt: string
 }
 
 interface AuthState {
@@ -17,7 +21,7 @@ interface AuthState {
   isLoading: boolean
   error: string | null
   signupStep: 'form' | 'email-otp' | 'mobile-otp' | 'completed'
-  loginMethod: 'email-password' | 'email-otp' | 'mobile-otp' | null
+  loginMethod: 'username-password' | 'email-otp' | 'mobile-otp' | null
   signupFormData: {
     firstName: string
     lastName: string
