@@ -58,16 +58,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         break
     }
 
-    // Always log for debugging production issues
-    console.log('Checking uniqueness:', {
-      field,
-      value,
-      whereClause,
-      env: process.env.NODE_ENV,
-      hasDatabase: !!process.env.DATABASE_URL,
-      databaseUrlPrefix: process.env.DATABASE_URL?.substring(0, 20) + '...',
-    })
-
     // Use findFirst with select to only fetch the id field for efficiency
     const existingUser = await prisma.user.findFirst({
       where: whereClause,
@@ -81,8 +71,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ isUnique: !existingUser })
   } catch (error) {
-    // Always log errors for debugging
-    console.error('Uniqueness check error:', error)
     res.status(500).json({
       message: 'Internal server error',
       error: error instanceof Error ? error.message : String(error),

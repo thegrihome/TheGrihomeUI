@@ -29,12 +29,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       data: { emailVerified: new Date() },
       select: {
         id: true,
+        username: true,
         name: true,
         email: true,
         phone: true,
         role: true,
         image: true,
         emailVerified: true,
+        mobileVerified: true,
         createdAt: true,
       },
     })

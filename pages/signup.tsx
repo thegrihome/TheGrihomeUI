@@ -17,6 +17,12 @@ interface SignupData {
   imageLink?: string
 }
 
+interface ToastState {
+  show: boolean
+  message: string
+  type: 'success' | 'error'
+}
+
 export default function SignupPage() {
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
@@ -52,10 +58,16 @@ export default function SignupPage() {
     email: false,
     mobile: false,
   })
+  const [toast, setToast] = useState<ToastState>({ show: false, message: '', type: 'success' })
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ show: true, message, type })
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 10000)
+  }
 
   // Validation helper functions
   const isValidEmail = (email: string): boolean => {
@@ -293,8 +305,11 @@ export default function SignupPage() {
         throw new Error(data.message || 'Signup failed')
       }
 
-      // Redirect to login or dashboard
-      router.push('/login?message=Account created successfully')
+      // Show success toast and redirect after a short delay
+      showToast('Signup successful! Redirecting to login...', 'success')
+      setTimeout(() => {
+        router.push('/login?message=Account created successfully')
+      }, 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed')
     } finally {
@@ -323,6 +338,29 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Toast Notification */}
+      {toast.show && (
+        <div
+          className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-md shadow-lg text-white flex items-center justify-between ${
+            toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}
+        >
+          <span>{toast.message}</span>
+          <button
+            onClick={() => setToast({ show: false, message: '', type: 'success' })}
+            className="ml-4 text-white hover:text-gray-200 focus:outline-none"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

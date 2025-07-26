@@ -75,9 +75,9 @@ export default function UserInfoPage() {
 
   useEffect(() => {
     setMounted(true)
-    if (user?.mobileNumber) {
+    const mobile = user?.phone || user?.mobileNumber
+    if (mobile) {
       // Extract country code from mobile number
-      const mobile = user.mobileNumber
       if (mobile.startsWith('+91')) {
         setCountryCode('+91')
       } else if (mobile.startsWith('+1')) {
@@ -179,8 +179,8 @@ export default function UserInfoPage() {
   }
 
   const getMobileWithoutCountryCode = () => {
-    if (!user?.mobileNumber) return ''
-    const mobile = user.mobileNumber
+    const mobile = user?.phone || user?.mobileNumber
+    if (!mobile) return ''
     if (mobile.startsWith('+91')) {
       return mobile.substring(3)
     } else if (mobile.startsWith('+1')) {
@@ -440,7 +440,7 @@ export default function UserInfoPage() {
                 <label className="block text-sm font-medium text-gray-700">Username</label>
                 <input
                   type="text"
-                  value={user.username}
+                  value={user.username || ''}
                   disabled
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
                 />
@@ -915,7 +915,7 @@ export default function UserInfoPage() {
                               .map(n => n.charAt(0))
                               .join('')
                               .slice(0, 2)
-                          : user.username.charAt(0).toUpperCase()}
+                          : (user.username || 'U').charAt(0).toUpperCase()}
                       </div>
                     )}
                   </div>

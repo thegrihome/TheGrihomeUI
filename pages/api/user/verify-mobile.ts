@@ -23,17 +23,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Get user information
-    const user = await prisma.user.findUnique({
+    // Update mobile verification status
+    const user = await prisma.user.update({
       where: { id: userId },
+      data: {
+        mobileVerified: new Date(),
+      },
       select: {
         id: true,
+        username: true,
         name: true,
         email: true,
         phone: true,
         role: true,
         image: true,
         emailVerified: true,
+        mobileVerified: true,
         createdAt: true,
       },
     })

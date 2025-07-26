@@ -26,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { email: username },
         select: {
           id: true,
+          username: true,
           name: true,
           email: true,
           phone: true,
@@ -33,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           role: true,
           image: true,
           emailVerified: true,
+          mobileVerified: true,
           createdAt: true,
         },
       })
@@ -47,12 +49,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(401).json({ message: 'Invalid email or password' })
       }
 
-      // Remove password from response
-      // eslint-disable-next-line no-unused-vars
-      const { password: _, ...userWithoutPassword } = user
+      // For username-password login, both email and mobile should be unverified
+      // until manually verified through OTP
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: null,
+          mobileVerified: null,
+        },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: true,
+          image: true,
+          emailVerified: true,
+          mobileVerified: true,
+          createdAt: true,
+        },
+      })
 
       res.status(200).json({
-        user: userWithoutPassword,
+        user: updatedUser,
         message: 'Login successful',
       })
     } else if (type === 'email-otp') {
@@ -70,12 +90,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { email },
         select: {
           id: true,
+          username: true,
           name: true,
           email: true,
           phone: true,
           role: true,
           image: true,
           emailVerified: true,
+          mobileVerified: true,
           createdAt: true,
         },
       })
@@ -84,8 +106,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(401).json({ message: 'Email not found' })
       }
 
+      // For email-OTP login, mark email as verified
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: new Date(),
+        },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: true,
+          image: true,
+          emailVerified: true,
+          mobileVerified: true,
+          createdAt: true,
+        },
+      })
+
       res.status(200).json({
-        user,
+        user: updatedUser,
         message: 'Login successful',
       })
     } else if (type === 'mobile-otp') {
@@ -103,12 +145,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { phone: mobile },
         select: {
           id: true,
+          username: true,
           name: true,
           email: true,
           phone: true,
           role: true,
           image: true,
           emailVerified: true,
+          mobileVerified: true,
           createdAt: true,
         },
       })
@@ -117,8 +161,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(401).json({ message: 'Mobile number not found' })
       }
 
+      // For mobile-OTP login, mark mobile as verified
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          mobileVerified: new Date(),
+        },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: true,
+          image: true,
+          emailVerified: true,
+          mobileVerified: true,
+          createdAt: true,
+        },
+      })
+
       res.status(200).json({
-        user,
+        user: updatedUser,
         message: 'Login successful',
       })
     } else {

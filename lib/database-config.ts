@@ -23,17 +23,6 @@ export function getDatabaseConfig(): DatabaseConfig {
   // Use production database only for main branch deployments
   const isProduction = isVercelProduction && isMainBranch
 
-  // Debug logging to see what's happening
-  console.log('Database config debug:', {
-    VERCEL_ENV: process.env.VERCEL_ENV,
-    VERCEL_GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF,
-    isVercelProduction,
-    isMainBranch,
-    isProduction,
-    hasProdUrl: !!process.env.DATABASE_URL_PROD,
-    hasDevUrl: !!(process.env.DATABASE_URL || process.env.DATABASE_URL_DEV),
-  })
-
   if (isProduction) {
     // Production environment - database URL comes from Vercel environment variables
     const prodUrl = process.env.DATABASE_URL_PROD
