@@ -66,7 +66,7 @@ export default function SignupPage() {
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ show: true, message, type })
-    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 10000)
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 5000)
   }
 
   // Validation helper functions
@@ -188,6 +188,27 @@ export default function SignupPage() {
     return () => clearTimeout(timeout)
   }, [formData.mobileNumber, countryCode, checkUniqueness])
 
+  // Check if all required fields are filled and passwords match
+  const areRequiredFieldsFilled = useMemo((): boolean => {
+    const basicFieldsFilled = !!(
+      formData.firstName.trim() &&
+      formData.lastName.trim() &&
+      formData.username.trim() &&
+      formData.email.trim() &&
+      formData.mobileNumber.trim() &&
+      formData.password &&
+      confirmPassword &&
+      formData.password === confirmPassword // Passwords must match
+    )
+
+    // If agent is checked, company name is also required
+    if (formData.isAgent) {
+      return basicFieldsFilled && !!formData.companyName.trim()
+    }
+
+    return basicFieldsFilled
+  }, [formData, confirmPassword])
+
   const validateForm = (): boolean => {
     const errors: Partial<SignupData & { confirmPassword: string }> = {}
 
@@ -305,11 +326,9 @@ export default function SignupPage() {
         throw new Error(data.message || 'Signup failed')
       }
 
-      // Show success toast and redirect after a short delay
-      showToast('Signup successful! Redirecting to login...', 'success')
-      setTimeout(() => {
-        router.push('/login?message=Account created successfully')
-      }, 2000)
+      // Show success toast and redirect immediately
+      showToast('Signup successful!', 'success')
+      router.push('/login?message=Account created successfully')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed')
     } finally {
@@ -340,24 +359,31 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Toast Notification */}
       {toast.show && (
-        <div
-          className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-md shadow-lg text-white flex items-center justify-between ${
-            toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-          }`}
-        >
-          <span>{toast.message}</span>
-          <button
-            onClick={() => setToast({ show: false, message: '', type: 'success' })}
-            className="ml-4 text-white hover:text-gray-200 focus:outline-none"
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div
+            className={`px-4 py-2 rounded-md shadow-lg text-white flex items-center text-sm ${
+              toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`}
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
+            {toast.type === 'success' ? (
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+            <span>{toast.message}</span>
+          </div>
         </div>
       )}
 
@@ -713,6 +739,7 @@ export default function SignupPage() {
                 type="submit"
                 disabled={
                   isLoading ||
+                  !areRequiredFieldsFilled ||
                   Object.keys(formErrors).length > 0 ||
                   checkingUnique.username ||
                   checkingUnique.email ||

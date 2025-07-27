@@ -18,12 +18,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (type === 'username-password') {
       if (!username || !password) {
-        return res.status(400).json({ message: 'Email and password are required' })
+        return res.status(400).json({ message: 'Username/Email and password are required' })
       }
 
-      // Find user by email (using email as username)
-      user = await prisma.user.findUnique({
-        where: { email: username },
+      // Check if the input is an email or username
+      const isEmail = username.includes('@')
+
+      // Find user by either email or username
+      user = await prisma.user.findFirst({
+        where: isEmail ? { email: username } : { username: username },
         select: {
           id: true,
           username: true,
@@ -32,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           phone: true,
           password: true,
           role: true,
+          companyName: true,
           image: true,
           emailVerified: true,
           mobileVerified: true,
@@ -40,13 +44,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
 
       if (!user) {
-        return res.status(401).json({ message: 'Invalid email or password' })
+        return res.status(401).json({ message: 'Invalid username/email or password' })
       }
 
       // Verify password
       const isValidPassword = await bcrypt.compare(password, user.password || '')
       if (!isValidPassword) {
-        return res.status(401).json({ message: 'Invalid email or password' })
+        return res.status(401).json({ message: 'Invalid username/email or password' })
       }
 
       // For username-password login, both email and mobile should be unverified
@@ -64,6 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           email: true,
           phone: true,
           role: true,
+          companyName: true,
           image: true,
           emailVerified: true,
           mobileVerified: true,
@@ -95,6 +100,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           email: true,
           phone: true,
           role: true,
+          companyName: true,
           image: true,
           emailVerified: true,
           mobileVerified: true,
@@ -119,6 +125,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           email: true,
           phone: true,
           role: true,
+          companyName: true,
           image: true,
           emailVerified: true,
           mobileVerified: true,
@@ -150,6 +157,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           email: true,
           phone: true,
           role: true,
+          companyName: true,
           image: true,
           emailVerified: true,
           mobileVerified: true,
@@ -174,6 +182,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           email: true,
           phone: true,
           role: true,
+          companyName: true,
           image: true,
           emailVerified: true,
           mobileVerified: true,

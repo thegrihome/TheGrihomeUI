@@ -8,6 +8,12 @@ import { setLoading, setError, setLoginMethod, setUser } from '@/store/slices/au
 import { authService } from '@/services/authService'
 import CountryCodeDropdown from '@/components/CountryCodeDropdown'
 
+interface ToastState {
+  show: boolean
+  message: string
+  type: 'success' | 'error'
+}
+
 export default function LoginPage() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'mobile-otp' | 'email-otp' | 'username-password'>(
@@ -31,10 +37,21 @@ export default function LoginPage() {
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
   const [userExists, setUserExists] = useState<{ [key: string]: boolean }>({})
   const [checkingUserExists, setCheckingUserExists] = useState<{ [key: string]: boolean }>({})
+  const [toast, setToast] = useState<ToastState>({ show: false, message: '', type: 'success' })
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+
+    // Check for success message from query params
+    const { message } = router.query
+    if (message && typeof message === 'string') {
+      setToast({ show: true, message, type: 'success' })
+      setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 5000)
+
+      // Clean up the URL
+      router.replace('/login', undefined, { shallow: true })
+    }
+  }, [router])
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -180,7 +197,7 @@ export default function LoginPage() {
     const errors: { [key: string]: string } = {}
 
     if (activeTab === 'username-password') {
-      if (!username.trim()) errors.username = 'Username is required'
+      if (!username.trim()) errors.username = 'Username or email is required'
       if (!password) errors.password = 'Password is required'
     } else if (activeTab === 'email-otp') {
       if (!email.trim()) errors.email = 'Email is required'
@@ -336,6 +353,36 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div
+            className={`px-4 py-2 rounded-md shadow-lg text-white flex items-center text-sm ${
+              toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`}
+          >
+            {toast.type === 'success' ? (
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -574,7 +621,7 @@ export default function LoginPage() {
                   <>
                     <div>
                       <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                        Username
+                        Username or Email
                       </label>
                       <input
                         type="text"
@@ -592,7 +639,7 @@ export default function LoginPage() {
                         className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
                           formErrors.username ? 'border-red-300' : 'border-gray-300'
                         }`}
-                        placeholder="johndoe"
+                        placeholder="johndoe or john@example.com"
                       />
                       {formErrors.username && (
                         <p className="mt-1 text-sm text-red-600">{formErrors.username}</p>

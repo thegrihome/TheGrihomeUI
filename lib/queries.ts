@@ -1,5 +1,5 @@
 import { prisma } from './prisma'
-import { PropertyType, ListingStatus } from '@prisma/client'
+import { PropertyType, ProjectType } from '@prisma/client'
 
 /**
  * Optimized database queries for real estate operations
@@ -10,64 +10,53 @@ import { PropertyType, ListingStatus } from '@prisma/client'
 export async function searchProperties({
   city,
   state,
-  minPrice,
-  maxPrice,
-  propertyType,
-  bedrooms,
-  bathrooms,
+  country = 'USA',
   limit = 20,
   offset = 0,
 }: {
   city?: string
   state?: string
-  minPrice?: number
-  maxPrice?: number
-  propertyType?: PropertyType
-  bedrooms?: number
-  bathrooms?: number
+  country?: string
   limit?: number
   offset?: number
 }) {
   // Use indexed fields and selective queries to reduce RU consumption
   return await prisma.property.findMany({
     where: {
-      listingStatus: ListingStatus.ACTIVE, // Always filter by status first (indexed)
-      ...(city && state && { city, state }), // Use compound index
-      ...(minPrice || maxPrice
-        ? {
-            price: {
-              ...(minPrice && { gte: minPrice }),
-              ...(maxPrice && { lte: maxPrice }),
-            },
-          }
-        : {}),
-      ...(propertyType && { propertyType }),
-      ...(bedrooms && { bedrooms: { gte: bedrooms } }),
-      ...(bathrooms && { bathrooms: { gte: bathrooms } }),
+      ...(city &&
+        state && {
+          location: {
+            city,
+            state,
+            country,
+          },
+        }),
     },
     select: {
       // Only select needed fields to reduce data transfer
       id: true,
-      address: true,
-      city: true,
-      state: true,
-      price: true,
-      bedrooms: true,
-      bathrooms: true,
-      squareFeet: true,
-      propertyType: true,
-      listingDate: true,
-      images: {
+      streetAddress: true,
+      imageUrls: true,
+      thumbnailIndex: true,
+      createdAt: true,
+      location: {
         select: {
-          imageUrl: true,
-          altText: true,
+          city: true,
+          state: true,
+          country: true,
+          zipcode: true,
         },
-        take: 1, // Only get the first image
-        orderBy: { displayOrder: 'asc' },
+      },
+      project: {
+        select: {
+          id: true,
+          type: true,
+          numberOfUnits: true,
+        },
       },
     },
     orderBy: [
-      { listingDate: 'desc' }, // Use indexed field for sorting
+      { createdAt: 'desc' }, // Use indexed field for sorting
     ],
     take: limit,
     skip: offset,
@@ -79,7 +68,7 @@ export async function getPropertyById(id: string) {
   return await prisma.property.findUnique({
     where: { id },
     include: {
-      agent: {
+      user: {
         select: {
           id: true,
           name: true,
@@ -88,6 +77,8 @@ export async function getPropertyById(id: string) {
           licenseNumber: true,
         },
       },
+      location: true,
+      project: true,
       images: {
         orderBy: { displayOrder: 'asc' },
       },
@@ -95,22 +86,26 @@ export async function getPropertyById(id: string) {
   })
 }
 
-// Get agent's listings (optimized for agent dashboard)
-export async function getAgentListings(agentId: string, status?: ListingStatus) {
+// Get user's listings (optimized for user dashboard)
+export async function getUserListings(userId: string) {
   return await prisma.property.findMany({
     where: {
-      agentId,
-      ...(status && { listingStatus: status }),
+      userId,
     },
     select: {
       id: true,
-      address: true,
-      city: true,
-      state: true,
-      price: true,
-      listingStatus: true,
-      listingDate: true,
+      streetAddress: true,
+      imageUrls: true,
+      thumbnailIndex: true,
+      createdAt: true,
       updatedAt: true,
+      location: {
+        select: {
+          city: true,
+          state: true,
+          zipcode: true,
+        },
+      },
     },
     orderBy: { updatedAt: 'desc' },
   })
@@ -124,17 +119,21 @@ export async function getUserSavedProperties(userId: string) {
       property: {
         select: {
           id: true,
-          address: true,
-          city: true,
-          state: true,
-          price: true,
-          bedrooms: true,
-          bathrooms: true,
-          propertyType: true,
-          images: {
-            select: { imageUrl: true, altText: true },
-            take: 1,
-            orderBy: { displayOrder: 'asc' },
+          streetAddress: true,
+          imageUrls: true,
+          thumbnailIndex: true,
+          location: {
+            select: {
+              city: true,
+              state: true,
+              zipcode: true,
+            },
+          },
+          project: {
+            select: {
+              type: true,
+              numberOfUnits: true,
+            },
           },
         },
       },
@@ -159,26 +158,27 @@ export async function batchCreatePropertyImages(
 // Get recent listings for homepage (cached/optimized)
 export async function getRecentListings(limit = 12) {
   return await prisma.property.findMany({
-    where: {
-      listingStatus: ListingStatus.ACTIVE,
-    },
     select: {
       id: true,
-      address: true,
-      city: true,
-      state: true,
-      price: true,
-      bedrooms: true,
-      bathrooms: true,
-      squareFeet: true,
-      propertyType: true,
-      images: {
-        select: { imageUrl: true, altText: true },
-        take: 1,
-        orderBy: { displayOrder: 'asc' },
+      streetAddress: true,
+      imageUrls: true,
+      thumbnailIndex: true,
+      createdAt: true,
+      location: {
+        select: {
+          city: true,
+          state: true,
+          zipcode: true,
+        },
+      },
+      project: {
+        select: {
+          type: true,
+          numberOfUnits: true,
+        },
       },
     },
-    orderBy: { listingDate: 'desc' },
+    orderBy: { createdAt: 'desc' },
     take: limit,
   })
 }
@@ -187,23 +187,24 @@ export async function getRecentListings(limit = 12) {
 export async function countProperties(filters: {
   city?: string
   state?: string
-  minPrice?: number
-  maxPrice?: number
-  propertyType?: PropertyType
+  country?: string
+  projectType?: ProjectType
 }) {
   return await prisma.property.count({
     where: {
-      listingStatus: ListingStatus.ACTIVE,
-      ...(filters.city && filters.state && { city: filters.city, state: filters.state }),
-      ...(filters.minPrice || filters.maxPrice
-        ? {
-            price: {
-              ...(filters.minPrice && { gte: filters.minPrice }),
-              ...(filters.maxPrice && { lte: filters.maxPrice }),
-            },
-          }
-        : {}),
-      ...(filters.propertyType && { propertyType: filters.propertyType }),
+      ...(filters.city &&
+        filters.state && {
+          location: {
+            city: filters.city,
+            state: filters.state,
+            ...(filters.country && { country: filters.country }),
+          },
+        }),
+      ...(filters.projectType && {
+        project: {
+          type: filters.projectType,
+        },
+      }),
     },
   })
 }

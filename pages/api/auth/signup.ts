@@ -9,12 +9,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { firstName, lastName, username, email, mobileNumber, password, isAgent, imageLink } =
-      req.body
+    const {
+      firstName,
+      lastName,
+      username,
+      email,
+      mobileNumber,
+      password,
+      isAgent,
+      companyName,
+      imageLink,
+    } = req.body
 
     // Basic validation
     if (!firstName || !lastName || !username || !email || !mobileNumber || !password) {
       return res.status(400).json({ message: 'All required fields must be provided' })
+    }
+
+    // Validate company name for agents
+    if (isAgent && !companyName?.trim()) {
+      return res.status(400).json({ message: 'Company name is required for agents' })
     }
 
     // Validate username
@@ -72,6 +86,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         phone: mobileNumber,
         password: hashedPassword,
         role: isAgent ? 'AGENT' : 'BUYER',
+        companyName: isAgent ? companyName : null,
         image: imageLink || null,
       },
       select: {
@@ -81,6 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: true,
         phone: true,
         role: true,
+        companyName: true,
         image: true,
         emailVerified: true,
         createdAt: true,
