@@ -1,10 +1,71 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
+import { useEffect, useRef, useState } from 'react'
+import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export default function Home() {
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
+  const [showPredictions, setShowPredictions] = useState(false)
+  const [autocompleteService, setAutocompleteService] =
+    useState<google.maps.places.AutocompleteService | null>(null)
+
+  useEffect(() => {
+    const loader = new Loader({
+      apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+      version: 'weekly',
+      libraries: ['places'],
+    })
+
+    loader
+      .load()
+      .then(() => {
+        const service = new google.maps.places.AutocompleteService()
+        setAutocompleteService(service)
+      })
+      .catch(error => {
+        // eslint-disable-next-line no-console
+        console.error('Error loading Google Maps API:', error)
+      })
+  }, [])
+
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value
+
+    if (query.length > 2 && autocompleteService) {
+      autocompleteService.getPlacePredictions(
+        {
+          input: query,
+          types: ['(regions)'],
+          componentRestrictions: { country: 'IN' },
+        },
+        (predictions, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+            setPredictions(predictions)
+            setShowPredictions(true)
+          } else {
+            setPredictions([])
+            setShowPredictions(false)
+          }
+        }
+      )
+    } else {
+      setPredictions([])
+      setShowPredictions(false)
+    }
+  }
+
+  const handlePredictionSelect = (prediction: google.maps.places.AutocompletePrediction) => {
+    if (searchInputRef.current) {
+      searchInputRef.current.value = prediction.description
+    }
+    setShowPredictions(false)
+    setPredictions([])
+  }
+
   return (
     <div className="home-container">
       <NextSeo
@@ -88,10 +149,55 @@ export default function Home() {
                     </svg>
                   </div>
                   <input
+                    ref={searchInputRef}
                     type="text"
                     className="home-search-input"
                     placeholder="Enter a property, locality or zip code"
+                    onChange={handleSearchInput}
+                    onFocus={() => predictions.length > 0 && setShowPredictions(true)}
+                    onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
                   />
+                  {showPredictions && predictions.length > 0 && (
+                    <div className="home-search-predictions">
+                      {predictions.map(prediction => (
+                        <div
+                          key={prediction.place_id}
+                          className="home-search-prediction-item"
+                          onClick={() => handlePredictionSelect(prediction)}
+                        >
+                          <div className="home-search-prediction-icon">
+                            <svg
+                              className="home-search-location-icon"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                            </svg>
+                          </div>
+                          <div className="home-search-prediction-text">
+                            <span className="home-search-prediction-main">
+                              {prediction.structured_formatting.main_text}
+                            </span>
+                            <span className="home-search-prediction-secondary">
+                              {prediction.structured_formatting.secondary_text}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
