@@ -14,8 +14,18 @@ export default function Home() {
     useState<google.maps.places.AutocompleteService | null>(null)
 
   useEffect(() => {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
+    if (!apiKey) {
+      // eslint-disable-next-line no-console
+      console.error(
+        'Google Maps API key is missing. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.'
+      )
+      return
+    }
+
     const loader = new Loader({
-      apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+      apiKey,
       version: 'weekly',
       libraries: ['places'],
     })
