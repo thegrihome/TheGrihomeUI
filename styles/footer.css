@@ -2,19 +2,25 @@
 
 .footer {
   color: #000000;
-}
-
-.footer-container {
-  max-width: 1200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 2.5rem 2rem 2.5rem;
-  margin: 0 auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
   border-top: 1px solid #9333ea;
 }
 
-@media (min-width: 640px) {
+.footer-container {
+  max-width: 80rem;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 2rem 2.5rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
   .footer-container {
     flex-direction: row;
   }

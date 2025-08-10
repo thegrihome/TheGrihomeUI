@@ -3,10 +3,12 @@ import { NextSeo } from 'next-seo'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import RichTextEditor from '@/components/RichTextEditor'
+import UserStats from '@/components/UserStats'
 import { prisma } from '@/lib/prisma'
 
 interface ForumReply {
@@ -81,6 +83,29 @@ export default function ThreadPage({ post }: ThreadPageProps) {
   const [replyContent, setReplyContent] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [userVerification, setUserVerification] = useState<{
+    emailVerified?: boolean
+    mobileVerified?: boolean
+  } | null>(null)
+
+  useEffect(() => {
+    const fetchUserVerification = async () => {
+      if (session?.user?.id) {
+        try {
+          const response = await fetch(`/api/user/verification-status`)
+          if (response.ok) {
+            const data = await response.json()
+            setUserVerification(data)
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error fetching user verification:', error)
+        }
+      }
+    }
+
+    fetchUserVerification()
+  }, [session?.user?.id])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -92,7 +117,8 @@ export default function ThreadPage({ post }: ThreadPageProps) {
     })
   }
 
-  const canReply = session?.user && !post.isLocked
+  const isUserVerified = userVerification?.emailVerified || userVerification?.mobileVerified
+  const canReply = session?.user && !post.isLocked && isUserVerified
 
   const handleReaction = async (type: string, targetType: 'post' | 'reply', targetId: string) => {
     if (!session?.user) {
@@ -181,56 +207,46 @@ export default function ThreadPage({ post }: ThreadPageProps) {
 
     return (
       <div key={reply.id} className={`forum-reply level-${Math.min(level, 3)}`}>
-        <div className="forum-reply-content">
-          <div className="forum-reply-header">
-            <div className="forum-reply-author">
-              <div className="forum-avatar">
-                {reply.author.image ? (
-                  <Image
-                    src={reply.author.image}
-                    alt={reply.author.username}
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="forum-avatar-placeholder">
-                    {reply.author.username.charAt(0).toUpperCase()}
-                  </div>
+        <div className="forum-reply-layout">
+          <div className="forum-reply-sidebar">
+            <UserStats
+              userId={reply.author.id}
+              username={reply.author.username}
+              userImage={reply.author.image}
+              createdAt={reply.author.createdAt}
+              showFullStats={false}
+            />
+          </div>
+
+          <div className="forum-reply-main">
+            <div className="forum-reply-content">
+              <div className="forum-reply-date">{formatDate(reply.createdAt)}</div>
+
+              <div className="forum-reply-body">
+                <div dangerouslySetInnerHTML={{ __html: reply.content }} />
+              </div>
+
+              <div className="forum-reply-actions">
+                <div className="forum-reactions">
+                  {Object.entries(reactionEmojis).map(([type, emoji]) => (
+                    <button
+                      key={type}
+                      className={`forum-reaction-btn ${userReactions.has(type) ? 'active' : ''}`}
+                      onClick={() => handleReaction(type, 'reply', reply.id)}
+                      disabled={!session?.user}
+                    >
+                      {emoji} {reactionCounts[type] || 0}
+                    </button>
+                  ))}
+                </div>
+
+                {canReply && level < 3 && (
+                  <button className="forum-reply-btn" onClick={() => setReplyingTo(reply.id)}>
+                    Reply
+                  </button>
                 )}
               </div>
-              <div className="forum-author-info">
-                <Link href={`/forum/user/${reply.author.id}`} className="forum-username">
-                  {reply.author.username}
-                </Link>
-                <span className="forum-reply-date">{formatDate(reply.createdAt)}</span>
-              </div>
             </div>
-          </div>
-
-          <div className="forum-reply-body">
-            <p>{reply.content}</p>
-          </div>
-
-          <div className="forum-reply-actions">
-            <div className="forum-reactions">
-              {Object.entries(reactionEmojis).map(([type, emoji]) => (
-                <button
-                  key={type}
-                  className={`forum-reaction-btn ${userReactions.has(type) ? 'active' : ''}`}
-                  onClick={() => handleReaction(type, 'reply', reply.id)}
-                  disabled={!session?.user}
-                >
-                  {emoji} {reactionCounts[type] || 0}
-                </button>
-              ))}
-            </div>
-
-            {canReply && level < 3 && (
-              <button className="forum-reply-btn" onClick={() => setReplyingTo(reply.id)}>
-                Reply
-              </button>
-            )}
           </div>
         </div>
 
@@ -270,62 +286,47 @@ export default function ThreadPage({ post }: ThreadPageProps) {
         </div>
 
         <div className="forum-thread">
-          <div className="forum-post-main">
-            <div className="forum-post-header">
-              <div className="forum-post-flags">
-                {post.isSticky && <span className="forum-flag sticky">📌 Sticky</span>}
-                {post.isLocked && <span className="forum-flag locked">🔒 Locked</span>}
-              </div>
+          <div className="forum-post-header">
+            <div className="forum-post-flags">
+              {post.isSticky && <span className="forum-flag sticky">📌 Sticky</span>}
+              {post.isLocked && <span className="forum-flag locked">🔒 Locked</span>}
+            </div>
+            <h1 className="forum-post-title">{post.title}</h1>
+            <div className="forum-post-stats">
+              <span className="forum-stat">{post.viewCount} views</span>
+              <span className="forum-stat">{post.replyCount} replies</span>
+            </div>
+          </div>
 
-              <h1 className="forum-post-title">{post.title}</h1>
-
-              <div className="forum-post-meta">
-                <div className="forum-post-author">
-                  <div className="forum-avatar">
-                    {post.author.image ? (
-                      <Image
-                        src={post.author.image}
-                        alt={post.author.username}
-                        width={40}
-                        height={40}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="forum-avatar-placeholder">
-                        {post.author.username.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="forum-author-info">
-                    <Link href={`/forum/user/${post.author.id}`} className="forum-username">
-                      {post.author.username}
-                    </Link>
-                    <span className="forum-post-date">{formatDate(post.createdAt)}</span>
-                  </div>
-                </div>
-                <div className="forum-post-stats">
-                  <span className="forum-stat">{post.viewCount} views</span>
-                  <span className="forum-stat">{post.replyCount} replies</span>
-                </div>
-              </div>
+          <div className="forum-thread-layout">
+            <div className="forum-thread-sidebar">
+              <UserStats
+                userId={post.author.id}
+                username={post.author.username}
+                userImage={post.author.image}
+                createdAt={post.author.createdAt}
+                showFullStats={false}
+              />
             </div>
 
-            <div className="forum-post-content">
-              <p>{post.content}</p>
-            </div>
+            <div className="forum-thread-content">
+              <div className="forum-post-content">
+                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              </div>
 
-            <div className="forum-post-actions">
-              <div className="forum-reactions">
-                {Object.entries(reactionEmojis).map(([type, emoji]) => (
-                  <button
-                    key={type}
-                    className={`forum-reaction-btn ${postUserReactions.has(type) ? 'active' : ''}`}
-                    onClick={() => handleReaction(type, 'post', post.id)}
-                    disabled={!session?.user}
-                  >
-                    {emoji} {postReactionCounts[type] || 0}
-                  </button>
-                ))}
+              <div className="forum-post-actions">
+                <div className="forum-reactions">
+                  {Object.entries(reactionEmojis).map(([type, emoji]) => (
+                    <button
+                      key={type}
+                      className={`forum-reaction-btn ${postUserReactions.has(type) ? 'active' : ''}`}
+                      onClick={() => handleReaction(type, 'post', post.id)}
+                      disabled={!session?.user}
+                    >
+                      {emoji} {postReactionCounts[type] || 0}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -349,13 +350,11 @@ export default function ThreadPage({ post }: ThreadPageProps) {
                 </div>
               )}
               <form onSubmit={handleSubmitReply}>
-                <textarea
+                <RichTextEditor
                   value={replyContent}
-                  onChange={e => setReplyContent(e.target.value)}
-                  placeholder="Write your reply..."
-                  rows={6}
-                  className="forum-reply-textarea"
-                  disabled={isSubmitting}
+                  onChange={setReplyContent}
+                  placeholder="Write your reply... You can add images, videos, and rich formatting."
+                  className="forum-rich-text-editor"
                 />
                 <div className="forum-reply-form-actions">
                   <button
@@ -376,6 +375,19 @@ export default function ThreadPage({ post }: ThreadPageProps) {
                 <Link href="/login">Login</Link> or <Link href="/signup">Sign up</Link> to post
                 replies and react to posts.
               </p>
+            </div>
+          )}
+
+          {session?.user && !isUserVerified && (
+            <div className="forum-verification-prompt">
+              <h3>Verification Required</h3>
+              <p>
+                You need to verify your email or mobile number to participate in discussions. Please
+                verify your account to post replies and reactions.
+              </p>
+              <Link href="/userinfo" className="forum-verify-btn">
+                Verify Account
+              </Link>
             </div>
           )}
         </div>

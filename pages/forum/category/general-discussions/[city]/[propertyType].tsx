@@ -1,12 +1,15 @@
+import React from 'react'
 import { GetServerSideProps } from 'next'
 import { NextSeo } from 'next-seo'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ForumSearch from '@/components/ForumSearch'
 import { prisma } from '@/lib/prisma'
 
 interface ForumPost {
@@ -79,8 +82,42 @@ export default function PropertyTypePage({
   currentPage,
   totalPages,
 }: PropertyTypePageProps) {
-  const { data: session } = useSession()
   const router = useRouter()
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
+
+  // Smart title formatter - determines which words should be gradient
+  const formatTitle = (title: string) => {
+    const gradientWords = ['Forum', 'Introductions', 'News', 'Deals'] // Removed 'Discussions'
+    const cityNames = ['Hyderabad', 'Chennai', 'Bengaluru', 'Mumbai', 'Delhi', 'Kolkata']
+
+    const words = title.split(' ')
+
+    return words
+      .map((word, index) => {
+        const isGradientWord = gradientWords.some(gw => word.includes(gw))
+        const isCityName = cityNames.some(city => word.includes(city))
+
+        // Special cases
+        if (isCityName) {
+          return (
+            <span key={index} className="forum-title-gradient">
+              {word}
+            </span>
+          )
+        } else if (isGradientWord) {
+          return (
+            <span key={index} className="forum-title-gradient">
+              {word}
+            </span>
+          )
+        } else {
+          return word
+        }
+      })
+      .reduce((prev, curr, index) => {
+        return index === 0 ? [curr] : [...prev, ' ', curr]
+      }, [] as React.ReactNode[])
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -92,10 +129,11 @@ export default function PropertyTypePage({
     })
   }
 
-  const canPost =
-    session?.user &&
-    // This would be checked on the server side, but for UI we'll assume verified users can post
-    true
+  const canPost = isAuthenticated && user
+
+  // Debug logging
+  // eslint-disable-next-line no-console
+  console.log('Auth state:', { isAuthenticated, user, canPost })
 
   return (
     <div className="forum-container">
@@ -108,50 +146,64 @@ export default function PropertyTypePage({
       <Header />
 
       <main className="forum-main">
-        <div className="forum-breadcrumb">
-          <Link href="/forum" className="forum-breadcrumb-link">
-            Forum
-          </Link>
-          <span className="forum-breadcrumb-separator">›</span>
-          <Link href="/forum/category/general-discussions" className="forum-breadcrumb-link">
-            General Discussions
-          </Link>
-          <span className="forum-breadcrumb-separator">›</span>
-          <Link
-            href={`/forum/category/general-discussions/${city.city}`}
-            className="forum-breadcrumb-link"
-          >
-            {city.name}
-          </Link>
-          <span className="forum-breadcrumb-separator">›</span>
-          <span className="forum-breadcrumb-current">{category.name}</span>
+        <div className="forum-breadcrumb-container">
+          <div className="forum-breadcrumb">
+            <Link href="/forum" className="forum-breadcrumb-link">
+              Forum
+            </Link>
+            <span className="forum-breadcrumb-separator">›</span>
+            <Link href="/forum/category/general-discussions" className="forum-breadcrumb-link">
+              General Discussions
+            </Link>
+            <span className="forum-breadcrumb-separator">›</span>
+            <Link
+              href={`/forum/category/general-discussions/${city.city}`}
+              className="forum-breadcrumb-link"
+            >
+              {city.name}
+            </Link>
+            <span className="forum-breadcrumb-separator">›</span>
+            <span className="forum-breadcrumb-current">{category.name}</span>
+          </div>
+          <div className="forum-breadcrumb-search">
+            <ForumSearch />
+          </div>
         </div>
 
         <div className="forum-header">
           <div className="forum-header-content">
             <div className="forum-property-header-section">
               <div className="forum-property-icons">
-                <div className="forum-city-icon-small">{cityIcons[city.city] || '🏛️'}</div>
-                <div className="forum-property-type-icon-small">
+                <div className="forum-property-type-icon">
                   {propertyTypeIcons[category.propertyType || ''] || '🏠'}
                 </div>
               </div>
-              <div>
-                <h1 className="forum-title-combined">{category.name}</h1>
-                <div className="forum-stats-summary">
-                  <span className="forum-stat">
-                    {totalCount} {totalCount === 1 ? 'thread' : 'threads'}
-                  </span>
+              <div className="forum-header-text">
+                <h1 className="forum-title">
+                  {formatTitle(
+                    category.name.includes(city.name)
+                      ? category.name
+                      : `${category.name} in ${city.name}`
+                  )}
+                </h1>
+                <div className="forum-thread-count">
+                  {totalCount} {totalCount === 1 ? 'thread' : 'threads'}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="forum-category-actions">
-          {canPost && (
+        <div className="forum-category-actions-header">
+          <div className="forum-category-spacer"></div>
+
+          {canPost ? (
             <Link href={`/forum/new-post?category=${category.id}`} className="forum-new-post-btn">
               New Thread
+            </Link>
+          ) : (
+            <Link href="/login" className="forum-login-btn">
+              Login to Post
             </Link>
           )}
         </div>
@@ -162,16 +214,8 @@ export default function PropertyTypePage({
               <h3>No threads yet</h3>
               <p>
                 Be the first to start a discussion about {category.name.toLowerCase()} in{' '}
-                {city.name}!
+                {city.name}! Use the &ldquo;New Thread&rdquo; button above to get started.
               </p>
-              {canPost && (
-                <Link
-                  href={`/forum/new-post?category=${category.id}`}
-                  className="forum-new-post-btn"
-                >
-                  Start New Thread
-                </Link>
-              )}
             </div>
           ) : (
             <>

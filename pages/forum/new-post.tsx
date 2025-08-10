@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import RichTextEditor from '@/components/RichTextEditor'
 import { prisma } from '@/lib/prisma'
 
 interface ForumCategory {
@@ -180,14 +181,11 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
               <label htmlFor="content" className="forum-label">
                 Content *
               </label>
-              <textarea
-                id="content"
+              <RichTextEditor
                 value={content}
-                onChange={e => setContent(e.target.value)}
-                placeholder="Write your post content here..."
-                className="forum-textarea"
-                rows={12}
-                required
+                onChange={setContent}
+                placeholder="Write your post content here... You can add images, videos, and rich formatting."
+                className="forum-rich-text-editor"
               />
             </div>
 

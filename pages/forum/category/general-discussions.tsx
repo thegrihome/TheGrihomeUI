@@ -43,6 +43,40 @@ export default function GeneralDiscussionsPage({
   cities,
   totalPosts,
 }: GeneralDiscussionsPageProps) {
+  // Smart title formatter - determines which words should be gradient
+  const formatTitle = (title: string) => {
+    const gradientWords = ['Forum', 'Introductions', 'News', 'Deals', 'Discussions'] // Added 'Discussions' back
+    const cityNames = ['Hyderabad', 'Chennai', 'Bengaluru', 'Mumbai', 'Delhi', 'Kolkata']
+
+    const words = title.split(' ')
+
+    return words
+      .map((word, index) => {
+        const isGradientWord = gradientWords.some(gw => word.includes(gw))
+        const isCityName = cityNames.some(city => word.includes(city))
+
+        // Special cases
+        if (isCityName) {
+          return (
+            <span key={index} className="forum-title-gradient">
+              {word}
+            </span>
+          )
+        } else if (isGradientWord) {
+          return (
+            <span key={index} className="forum-title-gradient">
+              {word}
+            </span>
+          )
+        } else {
+          return word
+        }
+      })
+      .reduce((prev, curr, index) => {
+        return index === 0 ? [curr] : [...prev, ' ', curr]
+      }, [] as React.ReactNode[])
+  }
+
   return (
     <div className="forum-container">
       <NextSeo
@@ -54,29 +88,33 @@ export default function GeneralDiscussionsPage({
       <Header />
 
       <main className="forum-main">
-        <div className="forum-breadcrumb">
-          <Link href="/forum" className="forum-breadcrumb-link">
-            Forum
-          </Link>
-          <span className="forum-breadcrumb-separator">›</span>
-          <span className="forum-breadcrumb-current">General Discussions</span>
+        <div className="forum-breadcrumb-container">
+          <div className="forum-breadcrumb">
+            <Link href="/forum" className="forum-breadcrumb-link">
+              Forum
+            </Link>
+            <span className="forum-breadcrumb-separator">›</span>
+            <span className="forum-breadcrumb-current">General Discussions</span>
+          </div>
+          <div className="forum-breadcrumb-search">
+            <ForumSearch />
+          </div>
         </div>
 
         <div className="forum-header">
           <div className="forum-header-content">
             <div className="forum-header-main">
+              <div className="forum-category-icon-large">💬</div>
               <div className="forum-header-text">
-                <h1 className="forum-title">General Discussions</h1>
+                <h1 className="forum-title">{formatTitle('General Discussions')}</h1>
                 <p className="forum-subtitle">
-                  Explore real estate discussions across major Indian cities. Select your city to
-                  browse specific property types and local insights.
+                  Explore real estate discussions across major Indian cities.
                 </p>
-                <div className="forum-stats-summary">
-                  <span className="forum-stat">{totalPosts} total discussions</span>
-                </div>
               </div>
-              <div className="forum-header-search">
-                <ForumSearch />
+              <div className="forum-header-stats">
+                <div className="forum-thread-count">
+                  {totalPosts} {totalPosts === 1 ? 'thread' : 'threads'}
+                </div>
               </div>
             </div>
           </div>
@@ -104,7 +142,7 @@ export default function GeneralDiscussionsPage({
                   <div className="forum-city-list-stats">
                     <div className="forum-city-stat">
                       <span className="forum-stat-number">{city._count.posts}</span>
-                      <span className="forum-stat-label">discussions</span>
+                      <span className="forum-stat-label">threads</span>
                     </div>
                     <div className="forum-city-stat">
                       <span className="forum-stat-number">{city.children.length}</span>
