@@ -45,20 +45,18 @@ model User {
   mobileVerified   DateTime?
   role             UserRole        @default(BUYER)
   licenseNumber    String?
-  companyName      String?         // Company name for agents
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  companyName      String?
   accounts         Account[]
-  listedProperties Property[]      @relation("AgentProperties")
-  savedProperties  SavedProperty[]
-  savedSearches    SavedSearch[]
-  sessions         Session[]
-  
-  // Forum relations
   forumPosts       ForumPost[]
   forumReplies     ForumReply[]
   postReactions    PostReaction[]
+  listedProperties Property[]      @relation("AgentProperties")
   replyReactions   ReplyReaction[]
+  savedProperties  SavedProperty[]
+  savedSearches    SavedSearch[]
+  sessions         Session[]
 
   @@index([email])
   @@index([phone])
@@ -73,70 +71,57 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Location Model
 model Location {
-  id        String    @id @default(cuid())
-  country   String
-  state     String
-  city      String
-  zipcode   String
-  locality  String
-  
-  // Relations
+  id         String     @id @default(cuid())
+  country    String
+  state      String
+  city       String
+  zipcode    String
+  locality   String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
   projects   Project[]
   properties Property[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+
   @@index([country, state, city])
   @@index([zipcode])
 }
 
-// Project Model
 model Project {
   id            String      @id @default(cuid())
   locationId    String
   description   String
   type          ProjectType
   numberOfUnits Int
-  size          Float       // area in sqft or acres
-  density       Float       // units per acre or similar
-  imageUrls     String[]    // Cloudflare images list (array of URLs)
-  thumbnailUrl  String      // Direct thumbnail URL
-  
-  // Relations
-  location   Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  properties Property[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  size          Float
+  density       Float
+  imageUrls     String[]
+  thumbnailUrl  String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  location      Location    @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  properties    Property[]
+
   @@index([locationId])
   @@index([type])
 }
 
 model Property {
-  id             String    @id @default(cuid())
+  id             String          @id @default(cuid())
   streetAddress  String
   locationId     String
-  projectId      String?   // Optional relation to Project
-  userId         String    // Owner/Agent who listed the property
-  imageUrls      String[]  // Cloudflare images list (array of URLs)
-  thumbnailIndex Int       @default(0) // index in the imageUrls array for the thumbnail
-  
-  // Relations
-  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  project  Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  user     User     @relation("AgentProperties", fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Additional relations (assuming these exist from your original schema)
-  images   PropertyImage[]
-  savedBy  SavedProperty[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  projectId      String?
+  userId         String
+  imageUrls      String[]
+  thumbnailIndex Int             @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  location       Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  project        Project?        @relation(fields: [projectId], references: [id])
+  user           User            @relation("AgentProperties", fields: [userId], references: [id], onDelete: Cascade)
+  images         PropertyImage[]
+  savedBy        SavedProperty[]
+
   @@index([locationId])
   @@index([projectId])
   @@index([userId])
@@ -175,6 +160,103 @@ model SavedSearch {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model ForumCategory {
+  id           String             @id @default(cuid())
+  name         String             @unique
+  slug         String             @unique
+  description  String?
+  parentId     String?
+  city         String?
+  propertyType ForumPropertyType?
+  displayOrder Int                @default(0)
+  isActive     Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  parent       ForumCategory?     @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children     ForumCategory[]    @relation("CategoryHierarchy")
+  posts        ForumPost[]
+
+  @@index([slug])
+  @@index([parentId])
+  @@index([city])
+  @@index([displayOrder])
+}
+
+model ForumPost {
+  id          String         @id @default(cuid())
+  title       String
+  content     String
+  slug        String         @unique
+  categoryId  String
+  authorId    String
+  isSticky    Boolean        @default(false)
+  isLocked    Boolean        @default(false)
+  viewCount   Int            @default(0)
+  replyCount  Int            @default(0)
+  lastReplyAt DateTime?
+  lastReplyBy String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  author      User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category    ForumCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  replies     ForumReply[]
+  reactions   PostReaction[]
+
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([lastReplyAt])
+  @@index([slug])
+}
+
+model ForumReply {
+  id        String          @id @default(cuid())
+  content   String
+  postId    String
+  authorId  String
+  parentId  String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  author    User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent    ForumReply?     @relation("ReplyHierarchy", fields: [parentId], references: [id])
+  children  ForumReply[]    @relation("ReplyHierarchy")
+  post      ForumPost       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reactions ReplyReaction[]
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+model PostReaction {
+  id        String       @id @default(cuid())
+  postId    String
+  userId    String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+  post      ForumPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId, type])
+  @@index([postId])
+  @@index([userId])
+}
+
+model ReplyReaction {
+  id        String       @id @default(cuid())
+  replyId   String
+  userId    String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+  reply     ForumReply   @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([replyId, userId, type])
+  @@index([replyId])
+  @@index([userId])
+}
+
 enum UserRole {
   BUYER
   SELLER
@@ -204,114 +286,6 @@ enum ProjectType {
   COMMERCIAL
   MIXED_USE
   INDUSTRIAL
-}
-
-// Forum Models
-model ForumCategory {
-  id            String           @id @default(cuid())
-  name          String           @unique
-  slug          String           @unique
-  description   String?
-  parentId      String?          // For subcategories
-  city          String?          // For city-specific categories
-  propertyType  ForumPropertyType? // For property type subcategories
-  displayOrder  Int              @default(0)
-  isActive      Boolean          @default(true)
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  
-  // Relations
-  parent        ForumCategory?   @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children      ForumCategory[]  @relation("CategoryHierarchy")
-  posts         ForumPost[]
-  
-  @@index([slug])
-  @@index([parentId])
-  @@index([city])
-  @@index([displayOrder])
-}
-
-model ForumPost {
-  id           String         @id @default(cuid())
-  title        String
-  content      String
-  slug         String         @unique
-  categoryId   String
-  authorId     String
-  isSticky     Boolean        @default(false)
-  isLocked     Boolean        @default(false)
-  viewCount    Int            @default(0)
-  replyCount   Int            @default(0)
-  lastReplyAt  DateTime?
-  lastReplyBy  String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  
-  // Relations
-  category     ForumCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  author       User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  replies      ForumReply[]
-  reactions    PostReaction[]
-  
-  @@index([categoryId])
-  @@index([authorId])
-  @@index([createdAt])
-  @@index([lastReplyAt])
-  @@index([slug])
-}
-
-model ForumReply {
-  id         String          @id @default(cuid())
-  content    String
-  postId     String
-  authorId   String
-  parentId   String?         // For nested replies
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  
-  // Relations
-  post       ForumPost       @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author     User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  parent     ForumReply?     @relation("ReplyHierarchy", fields: [parentId], references: [id])
-  children   ForumReply[]    @relation("ReplyHierarchy")
-  reactions  ReplyReaction[]
-  
-  @@index([postId])
-  @@index([authorId])
-  @@index([parentId])
-  @@index([createdAt])
-}
-
-model PostReaction {
-  id       String       @id @default(cuid())
-  postId   String
-  userId   String
-  type     ReactionType
-  createdAt DateTime    @default(now())
-  
-  // Relations
-  post     ForumPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([postId, userId, type])
-  @@index([postId])
-  @@index([userId])
-}
-
-model ReplyReaction {
-  id       String       @id @default(cuid())
-  replyId  String
-  userId   String
-  type     ReactionType
-  createdAt DateTime    @default(now())
-  
-  // Relations
-  reply    ForumReply   @relation(fields: [replyId], references: [id], onDelete: Cascade)
-  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([replyId, userId, type])
-  @@index([replyId])
-  @@index([userId])
 }
 
 enum ReactionType {
