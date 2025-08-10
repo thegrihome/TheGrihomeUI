@@ -1,9 +1,9 @@
 import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ForumSearch from '@/components/ForumSearch'
 import { prisma } from '@/lib/prisma'
 
 interface ForumCategory {
@@ -13,7 +13,6 @@ interface ForumCategory {
   description: string | null
   city: string | null
   propertyType: string | null
-  children: ForumCategory[]
   _count: {
     posts: number
   }
@@ -41,26 +40,6 @@ const propertyTypeIcons: { [key: string]: string } = {
 }
 
 export default function Forum({ categories }: ForumProps) {
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
-
-  const toggleCategory = (categoryId: string) => {
-    const newExpanded = new Set(expandedCategories)
-    if (newExpanded.has(categoryId)) {
-      newExpanded.delete(categoryId)
-    } else {
-      newExpanded.add(categoryId)
-    }
-    setExpandedCategories(newExpanded)
-  }
-
-  // Auto-expand categories with subcategories
-  useEffect(() => {
-    const categoriesWithChildren = categories
-      .filter(cat => cat.children.length > 0)
-      .map(cat => cat.id)
-    setExpandedCategories(new Set(categoriesWithChildren))
-  }, [categories])
-
   return (
     <div className="forum-container">
       <NextSeo
@@ -74,11 +53,18 @@ export default function Forum({ categories }: ForumProps) {
       <main className="forum-main">
         <div className="forum-header">
           <div className="forum-header-content">
-            <h1 className="forum-title">Grihome Community Forum</h1>
-            <p className="forum-subtitle">
-              Connect with fellow property enthusiasts, share experiences, and get insights about
-              real estate across India.
-            </p>
+            <div className="forum-header-main">
+              <div className="forum-header-text">
+                <h1 className="forum-title">Grihome Community Forum</h1>
+                <p className="forum-subtitle">
+                  Connect with fellow property enthusiasts, share experiences, and get insights
+                  about real estate across India.
+                </p>
+              </div>
+              <div className="forum-header-search">
+                <ForumSearch />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -86,18 +72,22 @@ export default function Forum({ categories }: ForumProps) {
           <div className="forum-categories">
             {categories.map(category => (
               <div key={category.id} className="forum-category-card">
-                <div
-                  className="forum-category-header"
-                  onClick={() => category.children.length > 0 && toggleCategory(category.id)}
-                  style={{ cursor: category.children.length > 0 ? 'pointer' : 'default' }}
-                >
+                <div className="forum-category-header">
                   <div className="forum-category-info">
                     <div className="forum-category-icon">
                       {category.city ? cityIcons[category.city.toLowerCase()] || '🏛️' : '💬'}
                     </div>
                     <div className="forum-category-details">
                       <h3 className="forum-category-name">
-                        <Link href={`/forum/category/${category.slug}`}>{category.name}</Link>
+                        <Link
+                          href={
+                            category.slug === 'general-discussions'
+                              ? `/forum/category/general-discussions`
+                              : `/forum/category/${category.slug}`
+                          }
+                        >
+                          {category.name}
+                        </Link>
                       </h3>
                       {category.description && (
                         <p className="forum-category-description">{category.description}</p>
@@ -106,81 +96,11 @@ export default function Forum({ categories }: ForumProps) {
                   </div>
                   <div className="forum-category-stats">
                     <span className="forum-post-count">{category._count.posts} posts</span>
-                    {category.children.length > 0 && (
-                      <div className="forum-expand-icon">
-                        {expandedCategories.has(category.id) ? '▼' : '▶'}
-                      </div>
+                    {category.slug === 'general-discussions' && (
+                      <div className="forum-expand-icon">→</div>
                     )}
                   </div>
                 </div>
-
-                {category.children.length > 0 && expandedCategories.has(category.id) && (
-                  <div className="forum-subcategories">
-                    {category.children.map(subcategory => (
-                      <div key={subcategory.id} className="forum-subcategory">
-                        <div
-                          className="forum-subcategory-header"
-                          onClick={() =>
-                            subcategory.children.length > 0 && toggleCategory(subcategory.id)
-                          }
-                          style={{
-                            cursor: subcategory.children.length > 0 ? 'pointer' : 'default',
-                          }}
-                        >
-                          <div className="forum-subcategory-info">
-                            <div className="forum-subcategory-icon">
-                              {subcategory.city
-                                ? cityIcons[subcategory.city.toLowerCase()] || '🏛️'
-                                : '📁'}
-                            </div>
-                            <div className="forum-subcategory-details">
-                              <h4 className="forum-subcategory-name">
-                                <Link href={`/forum/category/${subcategory.slug}`}>
-                                  {subcategory.name}
-                                </Link>
-                              </h4>
-                            </div>
-                          </div>
-                          <div className="forum-subcategory-stats">
-                            <span className="forum-post-count">
-                              {subcategory._count.posts} posts
-                            </span>
-                            {subcategory.children.length > 0 && (
-                              <div className="forum-expand-icon">
-                                {expandedCategories.has(subcategory.id) ? '▼' : '▶'}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {subcategory.children.length > 0 &&
-                          expandedCategories.has(subcategory.id) && (
-                            <div className="forum-property-types">
-                              {subcategory.children.map(propertyCategory => (
-                                <Link
-                                  key={propertyCategory.id}
-                                  href={`/forum/category/${propertyCategory.slug}`}
-                                  className="forum-property-type-card"
-                                >
-                                  <div className="forum-property-type-icon">
-                                    {propertyTypeIcons[propertyCategory.propertyType || ''] || '🏠'}
-                                  </div>
-                                  <div className="forum-property-type-info">
-                                    <h5 className="forum-property-type-name">
-                                      {propertyCategory.name}
-                                    </h5>
-                                    <span className="forum-post-count">
-                                      {propertyCategory._count.posts} posts
-                                    </span>
-                                  </div>
-                                </Link>
-                              ))}
-                            </div>
-                          )}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -199,24 +119,6 @@ export const getStaticProps: GetStaticProps = async () => {
       parentId: null,
     },
     include: {
-      children: {
-        where: { isActive: true },
-        include: {
-          children: {
-            where: { isActive: true },
-            include: {
-              _count: {
-                select: { posts: true },
-              },
-            },
-            orderBy: { displayOrder: 'asc' },
-          },
-          _count: {
-            select: { posts: true },
-          },
-        },
-        orderBy: { displayOrder: 'asc' },
-      },
       _count: {
         select: { posts: true },
       },
