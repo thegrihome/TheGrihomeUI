@@ -6,6 +6,7 @@
 @import './header.css';
 @import './footer.css';
 @import './home.css';
+@import './forum.css';
 
 html {
   min-width: 360px;
