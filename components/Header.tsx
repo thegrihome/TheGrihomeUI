@@ -62,7 +62,7 @@ const Header: NextPage = () => {
         {/* Desktop Navigation */}
         <div className="desktop-nav">
           <div className="desktop-nav-links">
-            <Link href="/#agents" className="desktop-nav-link">
+            <Link href="/agents" className="desktop-nav-link">
               Agents
             </Link>
             <Link href="/#builders" className="desktop-nav-link">
@@ -190,7 +190,7 @@ const Header: NextPage = () => {
 
               <nav className="mobile-nav-links">
                 <Link
-                  href="/#agents"
+                  href="/agents"
                   className="mobile-nav-link"
                   onClick={() => setNavbarOpen(false)}
                 >

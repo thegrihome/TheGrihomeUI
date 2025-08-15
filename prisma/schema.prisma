@@ -44,6 +44,7 @@ model User {
   phone            String?         @unique
   mobileVerified   DateTime?
   role             UserRole        @default(BUYER)
+  isAdmin          Boolean         @default(false)
   licenseNumber    String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
@@ -76,8 +77,8 @@ model Location {
   country    String
   state      String
   city       String
-  zipcode    String
-  locality   String
+  zipcode    String?
+  locality   String?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   projects   Project[]
@@ -87,21 +88,42 @@ model Location {
   @@index([zipcode])
 }
 
+model Builder {
+  id           String    @id @default(cuid())
+  name         String
+  description  String?
+  logoUrl      String?
+  contactInfo  Json?
+  website      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  projects     Project[]
+  properties   Property[] @relation("BuilderProperties")
+
+  @@index([name])
+}
+
 model Project {
   id            String      @id @default(cuid())
+  builderId     String
   locationId    String
+  name          String
   description   String
   type          ProjectType
-  numberOfUnits Int
-  size          Float
-  density       Float
+  numberOfUnits Int?
+  size          Float?
+  density       Float?
+  googlePin     String?
+  thumbnailUrl  String?
   imageUrls     String[]
-  thumbnailUrl  String
+  projectDetails Json?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  builder       Builder     @relation(fields: [builderId], references: [id], onDelete: Cascade)
   location      Location    @relation(fields: [locationId], references: [id], onDelete: Cascade)
   properties    Property[]
 
+  @@index([builderId])
   @@index([locationId])
   @@index([type])
 }
@@ -111,20 +133,32 @@ model Property {
   streetAddress  String
   locationId     String
   projectId      String?
+  builderId      String?
   userId         String
+  postedBy       String
+  postedDate     DateTime        @default(now())
+  propertyDetails Json
+  propertyType   PropertyType
+  sqFt           Float?
+  thumbnailUrl   String?
   imageUrls      String[]
   thumbnailIndex Int             @default(0)
+  listingStatus  ListingStatus   @default(ACTIVE)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  builder        Builder?        @relation("BuilderProperties", fields: [builderId], references: [id])
   location       Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
   project        Project?        @relation(fields: [projectId], references: [id])
   user           User            @relation("AgentProperties", fields: [userId], references: [id], onDelete: Cascade)
   images         PropertyImage[]
   savedBy        SavedProperty[]
 
+  @@index([builderId])
   @@index([locationId])
   @@index([projectId])
   @@index([userId])
+  @@index([propertyType])
+  @@index([listingStatus])
 }
 
 model PropertyImage {
