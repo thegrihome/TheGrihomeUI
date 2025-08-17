@@ -65,8 +65,11 @@ const Header: NextPage = () => {
             <Link href="/agents" className="desktop-nav-link">
               Agents
             </Link>
-            <Link href="/#builders" className="desktop-nav-link">
-              Builders
+            <Link href="/projects" className="desktop-nav-link">
+              Projects
+            </Link>
+            <Link href="/#properties" className="desktop-nav-link">
+              Properties
             </Link>
             <Link href="/forum" className="desktop-nav-link">
               Forum
@@ -197,11 +200,18 @@ const Header: NextPage = () => {
                   Agents
                 </Link>
                 <Link
-                  href="/#builders"
+                  href="/projects"
                   className="mobile-nav-link"
                   onClick={() => setNavbarOpen(false)}
                 >
-                  Builders
+                  Projects
+                </Link>
+                <Link
+                  href="/#properties"
+                  className="mobile-nav-link"
+                  onClick={() => setNavbarOpen(false)}
+                >
+                  Properties
                 </Link>
                 <Link
                   href="/forum"
