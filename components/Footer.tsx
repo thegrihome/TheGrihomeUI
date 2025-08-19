@@ -74,7 +74,7 @@ const Footer: NextPage = () => {
           </a>
           <a
             aria-label="facebook"
-            href="https://facebook.com/"
+            href="https://www.facebook.com/profile.php?id=61579069483089"
             target="_blank"
             rel="noreferrer"
             className="footer-social-link"
