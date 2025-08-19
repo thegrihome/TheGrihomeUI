@@ -74,7 +74,7 @@ const Footer: NextPage = () => {
           </a>
           <a
             aria-label="facebook"
-            href="https://facebook.com/gri.home"
+            href="https://facebook.com/"
             target="_blank"
             rel="noreferrer"
             className="footer-social-link"
