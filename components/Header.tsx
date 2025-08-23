@@ -11,25 +11,14 @@ const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
-  const [currentIconIndex, setCurrentIconIndex] = useState(0)
 
   const dispatch = useDispatch()
   const router = useRouter()
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
 
-  const logoIcons = ['🏡', '🏢', '🏞️', '🏘️', '🏬', '🏚️', '🏡']
-
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIconIndex(prevIndex => (prevIndex + 1) % logoIcons.length)
-    }, 5000) // Cycle every 5 seconds
-
-    return () => clearInterval(interval)
-  }, [logoIcons.length])
 
   const handleLogout = () => {
     dispatch(logout())
@@ -44,10 +33,7 @@ const Header: NextPage = () => {
       <div className="header-container">
         <div className="header-top">
           <Link href="/" className="header-logo">
-            GRI
-            <span className="logo-icon-viewport">
-              <span className="logo-icon-cycle">{logoIcons[currentIconIndex]}</span>
-            </span>
+            GRIHOME
           </Link>
           <button
             className="mobile-menu-button"
@@ -190,11 +176,8 @@ const Header: NextPage = () => {
           >
             <div className="mobile-modal-content">
               <div className="mobile-modal-header">
-                <Link href="/" className="mobile-modal-logo" onClick={() => setNavbarOpen(false)}>
-                  GRI
-                  <span className="logo-icon-viewport">
-                    <span className="logo-icon-cycle">{logoIcons[currentIconIndex]}</span>
-                  </span>
+                <Link href="/" className="mobile-modal-logo">
+                  GRIHOME
                 </Link>
                 <button onClick={() => setNavbarOpen(false)} className="mobile-modal-close">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
