@@ -4,6 +4,11 @@
 .header {
   width: 100%;
   border-bottom: 1px solid #9333ea;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
 }
 
 .header-container {
