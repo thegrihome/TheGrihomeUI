@@ -5,7 +5,8 @@ const prisma = new PrismaClient()
 const buildersData = [
   {
     name: 'My Home Group',
-    description: 'My Home Constructions',
+    description:
+      'Myhome Constructions are a trusted builder in Hyderabad, India, known for on-time completion and superior quality. They have built over 26 million square feet of happy homes and prime commercial properties.',
     website: 'https://www.myhomeconstructions.com',
     contactInfo: {
       company: 'My Home Constructions Pvt. Ltd',

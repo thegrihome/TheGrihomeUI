@@ -14,12 +14,12 @@ export default function Home() {
     useState<google.maps.places.AutocompleteService | null>(null)
 
   useEffect(() => {
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
     if (!apiKey) {
       // eslint-disable-next-line no-console
       console.error(
-        'Google Maps API key is missing. Please set GOOGLE_MAPS_API_KEY environment variable.'
+        'Google Maps API key is missing. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.'
       )
       return
     }

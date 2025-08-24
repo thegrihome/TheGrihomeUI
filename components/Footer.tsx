@@ -17,7 +17,7 @@ const Footer: NextPage = () => {
         <div className="footer-social-links">
           <a
             aria-label="mail"
-            href="mailto:me@grihome.com?subject=From Grihome!"
+            href="mailto:thegrihome@gmail.com?subject=From Grihome!"
             className="footer-social-link"
           >
             <svg
@@ -74,7 +74,7 @@ const Footer: NextPage = () => {
           </a>
           <a
             aria-label="facebook"
-            href="https://facebook.com"
+            href="https://www.facebook.com/profile.php?id=61579380794505"
             target="_blank"
             rel="noreferrer"
             className="footer-social-link"

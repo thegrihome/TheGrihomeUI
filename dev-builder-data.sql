@@ -4,7 +4,7 @@
 -- My Home Group
 INSERT INTO "Builder" ("name", "description", "website", "contactInfo") VALUES (
   'My Home Group',
-  'My Home Constructions',
+  'Myhome Constructions are a trusted builder in Hyderabad, India, known for on-time completion and superior quality. They have built over 26 million square feet of happy homes and prime commercial properties.',
   'https://www.myhomeconstructions.com',
   '{
     "company": "My Home Constructions Pvt. Ltd",

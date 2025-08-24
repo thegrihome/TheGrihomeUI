@@ -58,7 +58,7 @@ RESEND_API_KEY=re_xxxxxxxxxx
 ### 🗺️ Google Maps API
 
 ```env
-GOOGLE_MAPS_API_KEY=AIzaSyxxxxxxxxxx
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyxxxxxxxxxx
 ```
 
 **How to get it:**
@@ -97,7 +97,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 - `NEXTAUTH_SECRET` → (same as local)
 - `DATABASE_URL` → (your production database URL)
 - `RESEND_API_KEY` → (same as local)
-- `GOOGLE_MAPS_API_KEY` → (same as local, or restricted for production domain)
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` → (same as local, or restricted for production domain)
 
 **Optional:**
 

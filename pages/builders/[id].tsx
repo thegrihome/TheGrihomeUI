@@ -242,9 +242,6 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                             <div className="company-info">
                               <h3 className="text-lg font-semibold mb-4">Company Information</h3>
                               <div className="space-y-3">
-                                <div className="text-xl font-medium text-gray-800">
-                                  {contactInfo.company}
-                                </div>
                                 {builder.website && (
                                   <div>
                                     <a

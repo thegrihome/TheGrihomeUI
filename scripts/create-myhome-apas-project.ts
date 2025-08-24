@@ -12,19 +12,10 @@ const projectData = {
   type: 'RESIDENTIAL' as const,
   numberOfUnits: 1338,
   size: 13.52, // acres
-  googlePin: 'https://maps.app.goo.gl/ipeExSTNuPhXaER58',
+  googlePin: 'https://maps.app.goo.gl/V21goB4Hxu3PnhhY7',
   thumbnailUrl:
-    'https://jeczfxlhtp0pv0xq.public.blob.vercel-storage.com/hyderabad-projects/myhome-apas/myhome-apas-logo.png',
-  imageUrls: [
-    'https://www.myhomeconstructions.com/my-home-apas/assets-avali/My-Home-Apas.webp',
-    'https://www.myhomeconstructions.com/my-home-apas/assets-avali/club-house.webp',
-    'https://www.myhomeconstructions.com/my-home-apas/assets-avali/gallery/Sky-walk.webp',
-    'https://www.myhomeconstructions.com/my-home-apas/assets-avali/gallery/Central-landscape.webp',
-    'https://www.myhomeconstructions.com/my-home-apas/assets-avali/gallery/Gym-area.webp',
-    'https://www.myhomeconstructions.com/my-home-apas/assets-avali/gallery/Lakeside-night-view.webp',
-    'https://www.myhomeconstructions.com/my-home-apas/assets-avali/gallery/Central-lawn.webp',
-    'https://www.myhomeconstructions.com/my-home-apas/assets-avali/gallery/Toddler-park.webp',
-  ],
+    'https://www.myhomeconstructions.com/my-home-apas/assets-avali/my-home-apas-mobile.webp',
+  imageUrls: [],
   projectDetails: {
     overview: {
       projectName: 'My Home Apas',
