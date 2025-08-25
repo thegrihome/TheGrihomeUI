@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Image from 'next/image'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import { useEffect, useRef, useState } from 'react'
@@ -116,7 +117,7 @@ export default function Home() {
 
               <div className="home-cities-container">
                 <div className="home-city-item">
-                  <div className="home-city-icon">🏛️</div>
+                  <div className="home-city-icon">💎</div>
                   <span className="home-city-name">Hyderabad</span>
                 </div>
                 <div className="home-city-item">
@@ -124,7 +125,7 @@ export default function Home() {
                   <span className="home-city-name">Chennai</span>
                 </div>
                 <div className="home-city-item">
-                  <div className="home-city-icon">🌆</div>
+                  <div className="home-city-icon">🌳</div>
                   <span className="home-city-name">Bengaluru</span>
                 </div>
                 <div className="home-city-item">
@@ -138,6 +139,14 @@ export default function Home() {
                 <div className="home-city-item">
                   <div className="home-city-icon">🌉</div>
                   <span className="home-city-name">Kolkata</span>
+                </div>
+                <div className="home-city-item">
+                  <div className="home-city-icon">🏢</div>
+                  <span className="home-city-name">Gurgaon</span>
+                </div>
+                <div className="home-city-item">
+                  <div className="home-city-icon">🌇</div>
+                  <span className="home-city-name">Noida</span>
                 </div>
               </div>
 
@@ -222,45 +231,53 @@ export default function Home() {
             Featured Properties
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-            {/* Generate 21 dummy property tiles (7 rows × 3 columns) */}
-            {Array.from({ length: 21 }, (_, index) => (
-              <div
-                key={index}
-                className="property-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-              >
-                <div className="property-image-container relative h-48 bg-gradient-to-br from-amber-50 to-orange-100">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center text-amber-700">
-                      <div className="text-4xl mb-2">🏠</div>
-                      <div className="text-sm font-medium">Property Image</div>
+            {/* My Home Apas property variations */}
+            {Array.from({ length: 21 }, (_, index) => {
+              const unitTypes = ['2 BHK', '3 BHK', '4 BHK'] as const
+              const unitType = unitTypes[index % 3]
+              const sqFeet = {
+                '2 BHK': [1050, 1100, 1150, 1200, 1250],
+                '3 BHK': [1450, 1500, 1550, 1600, 1650],
+                '4 BHK': [1950, 2000, 2050, 2100, 2150],
+              } as const
+              const area = sqFeet[unitType][index % 5]
+
+              return (
+                <div
+                  key={index}
+                  className="property-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                >
+                  <div className="property-image-container relative h-48">
+                    <Image
+                      src="https://www.myhomeconstructions.com/my-home-apas/assets-avali/my-home-apas-mobile.webp"
+                      alt="My Home Apas"
+                      width={400}
+                      height={192}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 left-4 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                      Featured
                     </div>
                   </div>
-                  <div className="absolute top-4 left-4 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                    Featured
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2 text-gray-800">
-                    Sample Property {index + 1}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-2">
-                    Luxury {index % 2 === 0 ? '2 BHK' : '3 BHK'} Apartment
-                  </p>
-                  <p className="text-gray-500 text-sm mb-3">
-                    {['Kokapet', 'Gachibowli', 'Hitech City', 'Madhapur', 'Kondapur'][index % 5]},
-                    Hyderabad
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <div className="text-blue-600 font-bold text-lg">
-                      ₹{(((index * 7) % 30) / 10 + 1).toFixed(1)} Cr
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg mb-2 text-gray-800">
+                      My Home Apas - Unit {String(index + 1).padStart(2, '0')}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-2">
+                      Luxury {unitType} Apartment • {area} sq ft
+                    </p>
+                    <p className="text-gray-500 text-sm mb-3">Kokapet, Hyderabad</p>
+                    <div className="flex justify-end">
+                      <Link href="/projects/cmefaoyhh00011yq6nh3bjkcw">
+                        <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors">
+                          View Details
+                        </button>
+                      </Link>
                     </div>
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors">
-                      View Details
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>

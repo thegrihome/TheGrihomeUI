@@ -58,6 +58,7 @@ model User {
   savedProperties  SavedProperty[]
   savedSearches    SavedSearch[]
   sessions         Session[]
+  interests        Interest[]
 
   @@index([email])
   @@index([phone])
@@ -122,6 +123,7 @@ model Project {
   builder       Builder     @relation(fields: [builderId], references: [id], onDelete: Cascade)
   location      Location    @relation(fields: [locationId], references: [id], onDelete: Cascade)
   properties    Property[]
+  interests     Interest[]
 
   @@index([builderId])
   @@index([locationId])
@@ -152,6 +154,7 @@ model Property {
   user           User            @relation("AgentProperties", fields: [userId], references: [id], onDelete: Cascade)
   images         PropertyImage[]
   savedBy        SavedProperty[]
+  interests      Interest[]
 
   @@index([builderId])
   @@index([locationId])
@@ -192,6 +195,25 @@ model SavedSearch {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Interest {
+  id         String    @id @default(cuid())
+  userId     String
+  projectId  String?
+  propertyId String?
+  message    String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project    Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([projectId])
+  @@index([propertyId])
 }
 
 model ForumCategory {

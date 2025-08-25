@@ -5,7 +5,6 @@ import SignupForm from './SignupForm'
 import EmailOTPVerification from './EmailOTPVerification'
 import MobileOTPVerification from './MobileOTPVerification'
 import LoginForm from './LoginForm'
-import '../../styles/components/auth/AuthModal.css'
 
 interface AuthModalProps {
   isOpen: boolean

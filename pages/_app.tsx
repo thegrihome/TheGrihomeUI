@@ -1,5 +1,6 @@
 import '@/styles/globals.css'
 import '@/styles/rich-text-editor.css'
+import '@/styles/components/auth/AuthModal.css'
 import type { AppProps } from 'next/app'
 import { Provider } from 'react-redux'
 import { SessionProvider } from 'next-auth/react'

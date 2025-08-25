@@ -13,7 +13,7 @@
   flex-direction: column;
   flex-wrap: wrap;
   align-items: center;
-  padding: 2rem 2.5rem;
+  padding: 1rem 2.5rem;
   margin: 0 auto;
 }
 
@@ -27,7 +27,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0.75rem;
+  margin-top: 0;
   font-size: 0.875rem;
   font-weight: 500;
 }
@@ -42,13 +42,13 @@
 .footer-social-links {
   display: inline-flex;
   justify-content: center;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   margin-left: auto;
 }
 
 @media (min-width: 640px) {
   .footer-social-links {
-    margin-top: 0.75rem;
+    margin-top: 0;
     justify-content: flex-start;
   }
 }
