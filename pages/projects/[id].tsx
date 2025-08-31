@@ -6,6 +6,7 @@ import { GetServerSideProps } from 'next'
 import { PrismaClient } from '@prisma/client'
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ExpressInterestButton from '@/components/ExpressInterestButton'
@@ -55,8 +56,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 })
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const { isAuthenticated } = useSelector((state: RootState) => state.auth)
+  const router = useRouter()
 
   const details = project?.projectDetails || {}
   const allImages = project
@@ -159,6 +162,35 @@ export default function ProjectPage({ project }: ProjectPageProps) {
     setShowAuthModal(true)
   }
 
+  const handleDeleteProject = async () => {
+    if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch('/api/projects/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ projectId: project.id }),
+      })
+
+      if (response.ok) {
+        alert('Project deleted successfully!')
+        router.push('/projects')
+      } else {
+        const data = await response.json()
+        alert(`Error: ${data.message}`)
+      }
+    } catch (error) {
+      alert('Error deleting project. Please try again.')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   return (
     <div className="project-page-container">
       <NextSeo
@@ -239,6 +271,37 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   projectName={project.name}
                   onAuthRequired={handleAuthRequired}
                 />
+
+                {/* Admin Delete Button */}
+                <button
+                  onClick={handleDeleteProject}
+                  disabled={isDeleting}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                      Delete
+                    </>
+                  )}
+                </button>
 
                 {details.assets?.documents?.[0]?.url && (
                   <a
@@ -358,12 +421,15 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               {/* Right Side - Location & Highlights */}
               <div className="lg:w-1/3 flex flex-col justify-between space-y-6">
                 {/* Google Maps */}
-                {(project.googlePin || details.overview?.location) && (
+                {(details.googleMaps?.embedUrl ||
+                  project.googlePin ||
+                  details.overview?.location) && (
                   <div className="map-card bg-white p-6 rounded-lg shadow-md">
                     <h3 className="text-lg font-semibold mb-4">Location</h3>
                     <div className="map-container rounded-lg overflow-hidden border">
                       <iframe
                         src={
+                          details.googleMaps?.embedUrl ||
                           project.googlePin ||
                           `https://maps.google.com/maps?q=${encodeURIComponent(
                             details.overview?.location ||
