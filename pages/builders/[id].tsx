@@ -15,6 +15,7 @@ interface Builder {
   logoUrl: string | null
   website: string | null
   contactInfo: any
+  builderDetails: any
   projects: Array<{
     id: string
     name: string
@@ -63,6 +64,7 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
   }
 
   const contactInfo = builder.contactInfo || {}
+  const details = builder.builderDetails || {}
 
   return (
     <div className="builder-page-container">
@@ -130,6 +132,12 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                       <span className="font-medium text-blue-600">{builder.projects.length}</span>
                       <span className="ml-1">Active Projects</span>
                     </div>
+                    {details.experience && (
+                      <div className="stat-item">
+                        <span className="font-medium text-green-600">{details.experience}</span>
+                        <span className="ml-1">Years Experience</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -171,6 +179,9 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                 {[
                   { id: 'overview', label: 'Overview' },
                   { id: 'projects', label: `Projects (${builder.projects.length})` },
+                  ...(details.awards || details.certifications
+                    ? [{ id: 'achievements', label: 'Achievements' }]
+                    : []),
                 ].map(tab => (
                   <button
                     key={tab.id}
@@ -205,6 +216,11 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                             quality homes and commercial spaces.
                           </p>
                         )}
+                        {details.overview?.description && (
+                          <p className="text-gray-700 leading-relaxed">
+                            {details.overview.description}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -225,13 +241,65 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                               {new Set(builder.projects.map(p => p.location.city)).size}
                             </span>
                           </div>
+                          {details.totalUnits && (
+                            <div className="stat-item flex justify-between items-center">
+                              <span className="text-gray-600">Total Units:</span>
+                              <span className="font-semibold text-purple-600 text-lg">
+                                {details.totalUnits}
+                              </span>
+                            </div>
+                          )}
+                          {details.experience && (
+                            <div className="stat-item flex justify-between items-center">
+                              <span className="text-gray-600">Experience:</span>
+                              <span className="font-semibold text-green-600 text-lg">
+                                {details.experience} Years
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Full Width Contact Information */}
-                  {contactInfo.company && (
+                  {/* Services Section */}
+                  {details.services && details.services.length > 0 && (
+                    <div className="services-section mb-12">
+                      <h2 className="text-2xl font-semibold mb-6">Our Services</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {details.services.map((service: any, index: number) => (
+                          <div
+                            key={index}
+                            className="service-item bg-white p-6 rounded-lg shadow-sm border"
+                          >
+                            {(service.emoji || service.icon) && (
+                              <div className="service-icon mb-4">
+                                {service.emoji ? (
+                                  <div className="text-4xl">{service.emoji}</div>
+                                ) : (
+                                  <Image
+                                    src={service.icon}
+                                    alt={service.name}
+                                    width={48}
+                                    height={48}
+                                    className="object-contain"
+                                  />
+                                )}
+                              </div>
+                            )}
+                            <h3 className="text-lg font-semibold mb-3">{service.name}</h3>
+                            <p className="text-gray-600 text-sm">{service.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Contact Information */}
+                  {(contactInfo.company ||
+                    contactInfo.emails ||
+                    contactInfo.phones ||
+                    contactInfo.addresses) && (
                     <div className="contact-section">
                       <h2 className="text-2xl font-semibold mb-6">Contact Information</h2>
                       <div className="bg-white border rounded-lg p-8">
@@ -270,68 +338,40 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                               </div>
                             </div>
 
-                            {/* Email Addresses */}
+                            {/* Dynamic Contact Sections */}
                             {contactInfo.emails && (
                               <div className="emails-section">
                                 <h3 className="text-lg font-semibold mb-4">Email Addresses</h3>
                                 <div className="space-y-3">
                                   {Array.isArray(contactInfo.emails) ? (
                                     contactInfo.emails.map((email: any, index: number) => (
-                                      <div key={index} className="email-item">
-                                        {typeof email === 'string' ? (
-                                          <div className="flex items-center">
-                                            <svg
-                                              className="w-5 h-5 mr-3 text-gray-400"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                            >
-                                              <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                                d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                              />
-                                            </svg>
-                                            <a
-                                              href={`mailto:${email}`}
-                                              className="text-blue-600 hover:text-blue-800"
-                                            >
-                                              {email}
-                                            </a>
-                                          </div>
-                                        ) : (
-                                          <div>
-                                            <div className="flex items-center">
-                                              <svg
-                                                className="w-5 h-5 mr-3 text-gray-400"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                              >
-                                                <path
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                  strokeWidth="2"
-                                                  d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                                />
-                                              </svg>
-                                              <div>
-                                                <a
-                                                  href={`mailto:${email.email}`}
-                                                  className="text-blue-600 hover:text-blue-800 font-medium"
-                                                >
-                                                  {email.email}
-                                                </a>
-                                                {email.purpose && (
-                                                  <div className="text-sm text-gray-500 mt-1">
-                                                    {email.purpose}
-                                                  </div>
-                                                )}
-                                              </div>
+                                      <div key={index} className="email-item flex items-center">
+                                        <svg
+                                          className="w-5 h-5 mr-3 text-gray-400"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                          />
+                                        </svg>
+                                        <div>
+                                          <a
+                                            href={`mailto:${typeof email === 'string' ? email : email.email}`}
+                                            className="text-blue-600 hover:text-blue-800"
+                                          >
+                                            {typeof email === 'string' ? email : email.email}
+                                          </a>
+                                          {typeof email !== 'string' && email.purpose && (
+                                            <div className="text-sm text-gray-500">
+                                              {email.purpose}
                                             </div>
-                                          </div>
-                                        )}
+                                          )}
+                                        </div>
                                       </div>
                                     ))
                                   ) : (
@@ -368,86 +408,46 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                                 <div className="space-y-3">
                                   {Array.isArray(contactInfo.phones) ? (
                                     contactInfo.phones.map((phone: any, index: number) => (
-                                      <div key={index} className="phone-item">
-                                        {typeof phone === 'string' ? (
-                                          <div className="flex items-center">
-                                            <svg
-                                              className="w-5 h-5 mr-3 text-gray-400"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                            >
-                                              <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                                              />
-                                            </svg>
+                                      <div key={index} className="phone-item flex items-start">
+                                        <svg
+                                          className="w-5 h-5 mr-3 mt-0.5 text-gray-400"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                          />
+                                        </svg>
+                                        <div className="flex-grow">
+                                          {typeof phone === 'string' ? (
                                             <a
                                               href={`tel:${phone}`}
                                               className="text-blue-600 hover:text-blue-800"
                                             >
                                               {phone}
                                             </a>
-                                          </div>
-                                        ) : (
-                                          <div>
-                                            <div className="flex justify-between items-start">
-                                              <div className="flex items-start">
-                                                <svg
-                                                  className="w-5 h-5 mr-3 mt-0.5 text-gray-400"
-                                                  fill="none"
-                                                  stroke="currentColor"
-                                                  viewBox="0 0 24 24"
-                                                >
-                                                  <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                                                  />
-                                                </svg>
-                                                <div>
-                                                  {phone.numbers && Array.isArray(phone.numbers) ? (
-                                                    phone.numbers.map(
-                                                      (number: string, numIndex: number) => (
-                                                        <div key={numIndex} className="mb-2">
-                                                          <a
-                                                            href={`tel:${number}`}
-                                                            className="text-blue-600 hover:text-blue-800"
-                                                          >
-                                                            {number}
-                                                          </a>
-                                                        </div>
-                                                      )
-                                                    )
-                                                  ) : (
-                                                    <a
-                                                      href={`tel:${phone}`}
-                                                      className="text-blue-600 hover:text-blue-800"
-                                                    >
-                                                      {phone}
-                                                    </a>
-                                                  )}
-                                                </div>
-                                              </div>
+                                          ) : (
+                                            <div>
+                                              <a
+                                                href={`tel:${phone.number}`}
+                                                className="text-blue-600 hover:text-blue-800"
+                                              >
+                                                {phone.number}
+                                              </a>
                                               {(phone.location || phone.type) && (
-                                                <div className="text-sm text-gray-500 ml-3">
-                                                  {phone.location && (
-                                                    <span className="capitalize">
-                                                      {phone.location}
-                                                    </span>
-                                                  )}
+                                                <div className="text-sm text-gray-500">
+                                                  {phone.location && <span>{phone.location}</span>}
                                                   {phone.type && phone.location && <span> • </span>}
-                                                  {phone.type && (
-                                                    <span className="capitalize">{phone.type}</span>
-                                                  )}
+                                                  {phone.type && <span>{phone.type}</span>}
                                                 </div>
                                               )}
                                             </div>
-                                          </div>
-                                        )}
+                                          )}
+                                        </div>
                                       </div>
                                     ))
                                   ) : (
@@ -480,14 +480,13 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
 
                           {/* Right Column: Map */}
                           <div className="map-section">
-                            {/* Google Maps Iframe */}
-                            {contactInfo.addresses && contactInfo.addresses[0]?.mapLink && (
+                            {contactInfo.addresses && contactInfo.addresses[0] && (
                               <div>
                                 <h3 className="text-lg font-semibold mb-4">Location</h3>
                                 <div className="map-container">
                                   <iframe
                                     src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                                      contactInfo.addresses[0].address
+                                      contactInfo.addresses[0].address || contactInfo.addresses[0]
                                     )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                                     width="100%"
                                     height="400"
@@ -497,6 +496,12 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                                     referrerPolicy="no-referrer-when-downgrade"
                                     className="rounded-lg"
                                   />
+                                </div>
+                                <div className="mt-3 text-sm text-gray-600">
+                                  <span className="font-medium">Address:</span>{' '}
+                                  {typeof contactInfo.addresses[0] === 'string'
+                                    ? contactInfo.addresses[0]
+                                    : contactInfo.addresses[0].address}
                                 </div>
                               </div>
                             )}
@@ -613,6 +618,66 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                       <p className="text-gray-500">
                         This builder doesn&apos;t have any projects listed yet.
                       </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'achievements' && (details.awards || details.certifications) && (
+                <div className="achievements-content">
+                  <h2 className="text-2xl font-semibold mb-6">Achievements & Recognition</h2>
+
+                  {/* Awards Section */}
+                  {details.awards && details.awards.length > 0 && (
+                    <div className="awards-section mb-12">
+                      <h3 className="text-xl font-semibold mb-4">Awards</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {details.awards.map((award: any, index: number) => (
+                          <div
+                            key={index}
+                            className="award-item bg-white p-6 rounded-lg shadow-sm border"
+                          >
+                            <div className="flex items-start gap-4">
+                              <div className="award-icon text-3xl">🏆</div>
+                              <div>
+                                <h4 className="text-lg font-semibold mb-2">{award.name}</h4>
+                                <p className="text-gray-600 text-sm mb-2">{award.description}</p>
+                                {award.year && (
+                                  <div className="text-blue-600 font-medium text-sm">
+                                    {award.year}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Certifications Section */}
+                  {details.certifications && details.certifications.length > 0 && (
+                    <div className="certifications-section">
+                      <h3 className="text-xl font-semibold mb-4">Certifications</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {details.certifications.map((cert: any, index: number) => (
+                          <div
+                            key={index}
+                            className="certification-item bg-white p-6 rounded-lg shadow-sm border"
+                          >
+                            <div className="text-center">
+                              <div className="certification-icon text-2xl mb-3">📜</div>
+                              <h4 className="text-lg font-semibold mb-2">{cert.name}</h4>
+                              {cert.issuer && (
+                                <p className="text-gray-600 text-sm mb-2">by {cert.issuer}</p>
+                              )}
+                              {cert.year && (
+                                <div className="text-blue-600 font-medium text-sm">{cert.year}</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

@@ -90,16 +90,17 @@ model Location {
 }
 
 model Builder {
-  id           String    @id @default(cuid())
-  name         String
-  description  String?
-  logoUrl      String?
-  contactInfo  Json?
-  website      String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  projects     Project[]
-  properties   Property[] @relation("BuilderProperties")
+  id             String    @id @default(cuid())
+  name           String
+  description    String?
+  logoUrl        String?
+  contactInfo    Json?
+  website        String?
+  builderDetails Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  projects       Project[]
+  properties     Property[] @relation("BuilderProperties")
 
   @@index([name])
 }
