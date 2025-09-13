@@ -11,7 +11,6 @@ const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
-  const [adminMenuOpen, setAdminMenuOpen] = useState<boolean>(false)
 
   const dispatch = useDispatch()
   const router = useRouter()
@@ -78,43 +77,6 @@ const Header: NextPage = () => {
             <Link href="/contact" className="desktop-nav-link">
               Contact Us
             </Link>
-
-            {/* Admin Section */}
-            <div className="admin-menu relative">
-              <button
-                onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                className="desktop-nav-link flex items-center gap-1"
-              >
-                Admin
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-
-              {adminMenuOpen && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  <Link
-                    href="/admin/add-project"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-t-lg"
-                    onClick={() => setAdminMenuOpen(false)}
-                  >
-                    Add Project
-                  </Link>
-                  <Link
-                    href="/admin/add-property"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-b-lg"
-                    onClick={() => setAdminMenuOpen(false)}
-                  >
-                    Add Property
-                  </Link>
-                </div>
-              )}
-            </div>
           </div>
 
           <div className="auth-section">
