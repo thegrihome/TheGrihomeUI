@@ -109,11 +109,11 @@ export default function AddProperty() {
 
   // Property types from forum (matching the database schema)
   const propertyTypes = [
-    { value: 'VILLAS', label: 'Villas', icon: '🏡' },
-    { value: 'APARTMENTS', label: 'Apartments', icon: '🏢' },
-    { value: 'RESIDENTIAL_LANDS', label: 'Residential Lands', icon: '🏞️' },
-    { value: 'AGRICULTURE_LANDS', label: 'Agriculture Lands', icon: '🌾' },
-    { value: 'COMMERCIAL_PROPERTIES', label: 'Commercial Properties', icon: '🏬' },
+    { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
+    { value: 'CONDO', label: 'Apartments', icon: '🏢' },
+    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
+    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
+    { value: 'COMMERCIAL', label: 'Commercial Properties', icon: '🏬' },
   ]
 
   // Mock projects data - replace with actual API call based on builder
@@ -556,9 +556,9 @@ export default function AddProperty() {
   }
 
   const showPlotSizeField =
-    formData.propertyType === 'VILLAS' || formData.propertyType === 'APARTMENTS'
+    formData.propertyType === 'SINGLE_FAMILY' || formData.propertyType === 'CONDO'
   const showBedroomsBathroomsFields =
-    formData.propertyType === 'VILLAS' || formData.propertyType === 'APARTMENTS'
+    formData.propertyType === 'SINGLE_FAMILY' || formData.propertyType === 'CONDO'
 
   // Show loading state during hydration
   if (!mounted) {
@@ -921,7 +921,7 @@ export default function AddProperty() {
                       htmlFor="plotSize"
                       className="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      {formData.propertyType === 'APARTMENTS' ? 'UDS' : 'Plot Size'}
+                      {formData.propertyType === 'CONDO' ? 'UDS' : 'Plot Size'}
                     </label>
                     <input
                       type="number"
@@ -929,7 +929,7 @@ export default function AddProperty() {
                       name="plotSize"
                       value={formData.plotSize}
                       onChange={handleInputChange}
-                      placeholder={`Enter ${formData.propertyType === 'APARTMENTS' ? 'UDS' : 'plot size'}`}
+                      placeholder={`Enter ${formData.propertyType === 'CONDO' ? 'UDS' : 'plot size'}`}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
