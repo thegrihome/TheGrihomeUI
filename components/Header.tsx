@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -11,6 +11,7 @@ const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   const dispatch = useDispatch()
   const router = useRouter()
@@ -19,6 +20,22 @@ const Header: NextPage = () => {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false)
+      }
+    }
+
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [userMenuOpen])
 
   const handleLogout = () => {
     dispatch(logout())
@@ -61,7 +78,7 @@ const Header: NextPage = () => {
 
         {/* Desktop Navigation */}
         <div className="desktop-nav">
-          <div className="desktop-nav-links">
+          <div className="desktop-nav-links flex items-center">
             <Link href="/agents" className="desktop-nav-link">
               Agents
             </Link>
@@ -77,72 +94,93 @@ const Header: NextPage = () => {
             <Link href="/contact" className="desktop-nav-link">
               Contact Us
             </Link>
+            {isAuthenticated && user && (
+              <Link
+                href="/add-property"
+                className="desktop-nav-link flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors ml-4 text-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Add Property
+              </Link>
+            )}
           </div>
 
-          <div className="auth-section">
+          <div className="auth-section flex items-center">
             {isAuthenticated && user ? (
-              <div className="user-menu">
-                <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="user-menu-button">
-                  <span className="font-medium hidden md:block">
-                    Welcome {user.name || user.username}
-                  </span>
-                  <span className="font-medium md:hidden">
-                    {user.name?.split(' ')[0] || user.username}
-                  </span>
-                  <div className="user-avatar relative">
-                    {user.imageLink ? (
-                      <Image
-                        src={user.imageLink}
-                        alt="Profile"
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-white font-medium">
-                        {user.name
-                          ? user.name
-                              .split(' ')
-                              .map((n: string) => n.charAt(0))
-                              .join('')
-                              .slice(0, 2)
-                          : user.username.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                    <svg
-                      className="w-3 h-3 absolute -bottom-0.5 -right-0.5 text-gray-600 bg-white rounded-full"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                </button>
-
-                {userMenuOpen && (
-                  <div className="user-menu-dropdown">
-                    <div className="user-info">
-                      <p className="user-name">{user.name || user.username}</p>
-                      <p className="username">@{user.username}</p>
-                      {user.isAgent && user.companyName && (
-                        <p className="text-xs text-gray-500">{user.companyName}</p>
+              <>
+                <div className="user-menu" ref={userMenuRef}>
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="user-menu-button flex items-center"
+                  >
+                    <span className="font-medium hidden md:block">
+                      Welcome {user.name || user.username}
+                    </span>
+                    <span className="font-medium md:hidden">
+                      {user.name?.split(' ')[0] || user.username}
+                    </span>
+                    <div className="user-avatar relative">
+                      {user.imageLink ? (
+                        <Image
+                          src={user.imageLink}
+                          alt="Profile"
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-white font-medium bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center">
+                          {user.name
+                            ? user.name
+                                .split(' ')
+                                .map((n: string) => n.charAt(0))
+                                .join('')
+                                .slice(0, 2)
+                            : user.username.charAt(0).toUpperCase()}
+                        </span>
                       )}
+                      <svg
+                        className="w-3 h-3 absolute -bottom-0.5 -right-0.5 text-blue-600 bg-white rounded-full"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
                     </div>
-                    <Link href="/userinfo" className="dropdown-link">
-                      My Information
-                    </Link>
-                    <button onClick={handleLogout} className="logout-button">
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
+                  </button>
+
+                  {userMenuOpen && (
+                    <div className="user-menu-dropdown">
+                      <div className="user-info">
+                        <p className="user-name">{user.name || user.username}</p>
+                        <p className="username">@{user.username}</p>
+                        {user.isAgent && user.companyName && (
+                          <p className="text-xs text-gray-500">{user.companyName}</p>
+                        )}
+                      </div>
+                      <Link href="/userinfo" className="dropdown-link">
+                        My Information
+                      </Link>
+                      <button onClick={handleLogout} className="logout-button">
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : (
               <>
                 <Link href="/login" className="signin-button">
@@ -227,6 +265,23 @@ const Header: NextPage = () => {
                 >
                   Contact Us
                 </Link>
+                {isAuthenticated && user && (
+                  <Link
+                    href="/add-property"
+                    className="mobile-nav-link flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-3 mt-2"
+                    onClick={() => setNavbarOpen(false)}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Add Property
+                  </Link>
+                )}
               </nav>
 
               <div className="mobile-auth-section">
