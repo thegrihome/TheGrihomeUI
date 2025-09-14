@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { NextSeo } from 'next-seo'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -46,6 +47,7 @@ interface Filters {
 }
 
 export default function PropertiesPage() {
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [properties, setProperties] = useState<Property[]>([])
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
@@ -81,6 +83,23 @@ export default function PropertiesPage() {
     { value: 'newest', label: 'Newest First' },
     { value: 'oldest', label: 'Oldest First' },
   ]
+
+  // Initialize from URL query parameters
+  useEffect(() => {
+    if (router.isReady) {
+      const { location, zipcode, propertyType, bedrooms, bathrooms, sortBy } = router.query
+
+      setFilters(prev => ({
+        ...prev,
+        location: (location as string) || '',
+        zipcode: (zipcode as string) || '',
+        propertyType: (propertyType as string) || '',
+        bedrooms: (bedrooms as string) || '',
+        bathrooms: (bathrooms as string) || '',
+        sortBy: (sortBy as string) || '',
+      }))
+    }
+  }, [router.isReady, router.query])
 
   // Initialize Google Maps API
   useEffect(() => {

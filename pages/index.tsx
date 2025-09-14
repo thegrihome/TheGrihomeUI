@@ -3,11 +3,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/router'
 import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export default function Home() {
+  const router = useRouter()
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
   const [showPredictions, setShowPredictions] = useState(false)
@@ -75,6 +77,36 @@ export default function Home() {
     }
     setShowPredictions(false)
     setPredictions([])
+    // Navigate to properties page with location
+    navigateToProperties(prediction.description)
+  }
+
+  const isZipCode = (input: string) => {
+    // Check if input is numeric and between 5-6 digits (Indian postal codes)
+    return /^\d{5,6}$/.test(input.trim())
+  }
+
+  const navigateToProperties = (searchValue: string) => {
+    const query: { [key: string]: string } = {}
+
+    if (isZipCode(searchValue)) {
+      query.zipcode = searchValue.trim()
+    } else {
+      query.location = searchValue
+    }
+
+    router.push({
+      pathname: '/properties',
+      query,
+    })
+  }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const searchValue = searchInputRef.current?.value?.trim()
+    if (searchValue) {
+      navigateToProperties(searchValue)
+    }
   }
 
   return (
@@ -151,7 +183,7 @@ export default function Home() {
               </div>
 
               <div className="home-search-container">
-                <div className="home-search-wrapper">
+                <form onSubmit={handleSearchSubmit} className="home-search-wrapper">
                   <div className="home-search-icon-container">
                     <svg
                       className="home-search-icon"
@@ -176,6 +208,9 @@ export default function Home() {
                     onFocus={() => predictions.length > 0 && setShowPredictions(true)}
                     onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
                   />
+                  <button type="submit" className="home-search-button">
+                    Search
+                  </button>
                   {showPredictions && predictions.length > 0 && (
                     <div className="home-search-predictions">
                       {predictions.map(prediction => (
@@ -217,7 +252,7 @@ export default function Home() {
                       ))}
                     </div>
                   )}
-                </div>
+                </form>
               </div>
             </div>
           </div>
