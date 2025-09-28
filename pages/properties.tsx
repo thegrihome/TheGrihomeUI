@@ -580,7 +580,10 @@ export default function PropertiesPage() {
                         <div>Posted by: {property.postedBy}</div>
                         {property.companyName && <div>Company: {property.companyName}</div>}
                       </div>
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors">
+                      <button
+                        onClick={() => router.push(`/properties/${property.id}`)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
+                      >
                         View Details
                       </button>
                     </div>

@@ -106,6 +106,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               contactInfo: true,
             },
           },
+          user: {
+            select: {
+              email: true,
+              name: true,
+            },
+          },
         },
       })
 
@@ -113,9 +119,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(404).json({ error: 'Property not found' })
       }
 
+      // Check if user is trying to express interest in their own property
+      if (property.user.email === user.email) {
+        return res.status(400).json({ error: 'You cannot express interest in your own property' })
+      }
+
       projectOrPropertyName = property.project?.name || `Property at ${property.streetAddress}`
 
-      // Try to get builder email from contactInfo JSON
+      // Use property owner's email as primary recipient
+      builderEmail = property.user.email
+
+      // Try to get builder email from contactInfo JSON as secondary
       if (property.builder?.contactInfo && typeof property.builder.contactInfo === 'object') {
         const contactInfo = property.builder.contactInfo as any
         if (contactInfo.email) {
@@ -169,9 +183,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     `
 
     try {
+      // Send email to property owner and TheGrihome
+      const recipients = ['thegrihome@gmail.com']
+      if (builderEmail && builderEmail !== 'thegrihome@gmail.com') {
+        recipients.push(builderEmail)
+      }
+
       await resend.emails.send({
         from: 'TheGrihome <noreply@grihome.com>',
-        to: ['thegrihome@gmail.com'],
+        to: recipients,
         subject: emailSubject,
         html: emailBody,
       })
