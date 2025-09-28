@@ -61,6 +61,7 @@ model User {
   sessions         Session[]
   interests        Interest[]
   ads              Ad[]
+  projectRequests  ProjectRequest[]
 
   @@index([email])
   @@index([phone])
@@ -345,6 +346,7 @@ enum ListingStatus {
   SOLD
   OFF_MARKET
   DRAFT
+  ARCHIVED
 }
 
 enum ProjectType {
@@ -430,4 +432,34 @@ model Ad {
   @@index([status])
   @@index([endDate])
   @@index([startDate])
+}
+
+model ProjectRequest {
+  id              String              @id @default(cuid())
+  userId          String
+  builderName     String
+  projectName     String
+  location        String
+  contactPersonName String
+  contactPersonEmail String
+  contactPersonPhone String
+  builderWebsite  String?
+  projectDescription String?
+  projectType     ProjectType
+  additionalInfo  String?
+  status          ProjectRequestStatus @default(PENDING)
+  adminNotes      String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum ProjectRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

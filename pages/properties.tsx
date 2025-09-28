@@ -436,60 +436,76 @@ export default function PropertiesPage() {
             <p className="text-gray-600">
               Showing {filteredProperties.length} of {properties.length} properties
             </p>
-
-            {/* Sort Dropdown */}
-            <div className="relative sort-dropdown">
+            <div className="flex items-center gap-4">
               <button
-                onClick={() => setShowSortDropdown(!showSortDropdown)}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                onClick={() => router.push('/add-project-request')}
+                className="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700 transition-colors flex items-center gap-2"
               >
-                Sort: {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Default'}
-                <svg
-                  className={`w-4 h-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
+                    d="M12 4v16m8-8H4"
                   />
                 </svg>
+                Add Project
               </button>
 
-              {showSortDropdown && (
-                <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
-                  <button
-                    onClick={() => {
-                      handleFilterChange('sortBy', '')
-                      setShowSortDropdown(false)
-                    }}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                      !filters.sortBy ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
-                    }`}
+              {/* Sort Dropdown */}
+              <div className="relative sort-dropdown">
+                <button
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  Sort: {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Default'}
+                  <svg
+                    className={`w-4 h-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    Default
-                  </button>
-                  {sortOptions.map(option => (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {showSortDropdown && (
+                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
                     <button
-                      key={option.value}
                       onClick={() => {
-                        handleFilterChange('sortBy', option.value)
+                        handleFilterChange('sortBy', '')
                         setShowSortDropdown(false)
                       }}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                        filters.sortBy === option.value
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700'
+                        !filters.sortBy ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
                       }`}
                     >
-                      {option.label}
+                      Default
                     </button>
-                  ))}
-                </div>
-              )}
+                    {sortOptions.map(option => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          handleFilterChange('sortBy', option.value)
+                          setShowSortDropdown(false)
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
+                          filters.sortBy === option.value
+                            ? 'bg-blue-50 text-blue-700'
+                            : 'text-gray-700'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

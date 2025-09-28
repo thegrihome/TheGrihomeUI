@@ -57,6 +57,7 @@ export default function MyPropertiesPage() {
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active')
   const [showInterestModal, setShowInterestModal] = useState<string | null>(null)
   const [showSoldModal, setShowSoldModal] = useState<string | null>(null)
+  const [showArchiveModal, setShowArchiveModal] = useState<string | null>(null)
   const [soldToName, setSoldToName] = useState('')
 
   const propertyTypes = [
@@ -122,6 +123,27 @@ export default function MyPropertiesPage() {
     }
   }
 
+  const handleArchiveProperty = async (propertyId: string) => {
+    try {
+      const response = await fetch(`/api/properties/${propertyId}/archive`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to archive property')
+      }
+
+      toast.success('Property archived successfully')
+      setShowArchiveModal(null)
+      loadMyProperties()
+    } catch (error) {
+      toast.error('Failed to archive property')
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -134,7 +156,7 @@ export default function MyPropertiesPage() {
 
   const activeProperties = properties.filter(p => p.listingStatus === 'ACTIVE')
   const archivedProperties = properties.filter(p =>
-    ['SOLD', 'OFF_MARKET', 'DRAFT'].includes(p.listingStatus)
+    ['SOLD', 'OFF_MARKET', 'DRAFT', 'ARCHIVED'].includes(p.listingStatus)
   )
 
   const currentProperties = activeTab === 'active' ? activeProperties : archivedProperties
@@ -324,14 +346,22 @@ export default function MyPropertiesPage() {
                       <div className="text-xs text-gray-500">
                         <div>Posted: {formatDate(property.createdAt)}</div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         {activeTab === 'active' && (
-                          <button
-                            onClick={() => setShowSoldModal(property.id)}
-                            className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition-colors"
-                          >
-                            Mark as Sold
-                          </button>
+                          <>
+                            <button
+                              onClick={() => setShowSoldModal(property.id)}
+                              className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition-colors"
+                            >
+                              Mark as Sold
+                            </button>
+                            <button
+                              onClick={() => setShowArchiveModal(property.id)}
+                              className="bg-gray-600 text-white px-3 py-1 rounded text-xs hover:bg-gray-700 transition-colors"
+                            >
+                              Archive
+                            </button>
+                          </>
                         )}
                         <button
                           onClick={() => router.push(`/properties/${property.id}`)}
@@ -426,6 +456,48 @@ export default function MyPropertiesPage() {
                   className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                 >
                   Mark as Sold
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Archive Property Modal */}
+      {showArchiveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Archive Property</h3>
+              <button
+                onClick={() => setShowArchiveModal(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                <p className="text-yellow-800 text-sm">
+                  <strong>Warning:</strong> Once archived, this property cannot be reactivated. It
+                  will be moved to your archived properties and will no longer be visible to buyers.
+                </p>
+              </div>
+              <p className="text-gray-600">
+                Are you sure you want to archive this property? This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowArchiveModal(null)}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleArchiveProperty(showArchiveModal)}
+                  className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                >
+                  Archive Property
                 </button>
               </div>
             </div>
