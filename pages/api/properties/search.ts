@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { searchProperties, countProperties } from '../../../lib/queries'
-import { logAPIMetrics } from '../../../lib/ru-monitor'
+import { searchProperties, countProperties } from '@/lib/cockroachDB/queries'
+import { logAPIMetrics } from '@/lib/cockroachDB/ru-monitor'
 import { PropertyType } from '@prisma/client'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

@@ -5,12 +5,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store/store'
+import { useSession } from 'next-auth/react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import ForumSearch from '@/components/ForumSearch'
-import { prisma } from '@/lib/prisma'
+import ForumSearch from '@/components/forum/ForumSearch'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface ForumPost {
   id: string
@@ -58,7 +57,9 @@ export default function CategoryPage({
   totalPages,
 }: CategoryPageProps) {
   const router = useRouter()
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
+  const { data: session, status } = useSession()
+  const user = session?.user
+  const isAuthenticated = status === 'authenticated'
   const [showNewPostModal, setShowNewPostModal] = useState(false)
 
   // Category icons mapping

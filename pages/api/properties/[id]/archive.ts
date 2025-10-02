@@ -56,7 +56,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ message: 'Property archived successfully' })
   } catch (error) {
-    console.error('Error archiving property:', error)
+    // Log error in development only
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('Error archiving property:', error)
+    }
     res.status(500).json({ message: 'Internal server error' })
   } finally {
     await prisma.$disconnect()

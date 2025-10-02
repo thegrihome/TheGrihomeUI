@@ -121,10 +121,10 @@ export default function AddProjectRequestPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="add-project-request-main">
         <Header />
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="add-project-request-loading">
+          <div className="add-project-request-spinner"></div>
         </div>
         <Footer />
       </div>
@@ -146,16 +146,18 @@ export default function AddProjectRequestPage() {
 
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-3xl mx-auto">
+      <main className="add-project-request-main">
+        <div className="add-project-request-content">
+          <div className="add-project-request-inner">
             {/* Header */}
-            <div className="mb-8">
-              <button
-                onClick={() => router.back()}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="request-header">
+              <button onClick={() => router.back()} className="request-back-button">
+                <svg
+                  className="request-back-icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -165,43 +167,41 @@ export default function AddProjectRequestPage() {
                 </svg>
                 Back
               </button>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Add Project Request</h1>
-              <p className="text-gray-600">
+              <h1 className="request-title">Add Project Request</h1>
+              <p className="request-subtitle">
                 Submit a request to add a new project to Grihome. Our team will review and contact
                 you.
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="request-form">
               {/* Builder Information */}
-              <div className="border-b border-gray-200 pb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Builder Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-section">
+                <h2 className="form-section__title">Builder Information</h2>
+                <div className="form-section__grid">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Builder Name <span className="text-red-500">*</span>
+                    <label className="request-field__label">
+                      Builder Name <span className="request-field__required">*</span>
                     </label>
                     <input
                       type="text"
                       name="builderName"
                       value={formData.builderName}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="request-field__textarea"
                       placeholder="Enter builder/developer name"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Builder Website
-                    </label>
+                    <label className="request-field__label">Builder Website</label>
                     <input
                       type="url"
                       name="builderWebsite"
                       value={formData.builderWebsite}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="request-field__textarea"
                       placeholder="https://builder-website.com"
                     />
                   </div>
@@ -209,33 +209,33 @@ export default function AddProjectRequestPage() {
               </div>
 
               {/* Project Information */}
-              <div className="border-b border-gray-200 pb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Project Information</h2>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-section">
+                <h2 className="form-section__title">Project Information</h2>
+                <div className="form-section__fields">
+                  <div className="form-section__grid">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Project Name <span className="text-red-500">*</span>
+                      <label className="request-field__label">
+                        Project Name <span className="request-field__required">*</span>
                       </label>
                       <input
                         type="text"
                         name="projectName"
                         value={formData.projectName}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="request-field__textarea"
                         placeholder="Enter project name"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Project Type <span className="text-red-500">*</span>
+                      <label className="request-field__label">
+                        Project Type <span className="request-field__required">*</span>
                       </label>
                       <select
                         name="projectType"
                         value={formData.projectType}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="request-field__textarea"
                         required
                       >
                         {projectTypes.map(type => (
@@ -247,29 +247,27 @@ export default function AddProjectRequestPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Project Location <span className="text-red-500">*</span>
+                    <label className="request-field__label">
+                      Project Location <span className="request-field__required">*</span>
                     </label>
                     <input
                       type="text"
                       name="location"
                       value={formData.location}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="request-field__textarea"
                       placeholder="Enter complete address (city, state, area)"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Project Description
-                    </label>
+                    <label className="request-field__label">Project Description</label>
                     <textarea
                       name="projectDescription"
                       value={formData.projectDescription}
                       onChange={handleInputChange}
                       rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="request-field__textarea"
                       placeholder="Brief description of the project, amenities, unit types, etc."
                     />
                   </div>
@@ -277,47 +275,47 @@ export default function AddProjectRequestPage() {
               </div>
 
               {/* Contact Information */}
-              <div className="border-b border-gray-200 pb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="form-section">
+                <h2 className="form-section__title">Contact Information</h2>
+                <div className="form-section__grid--three">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Person Name <span className="text-red-500">*</span>
+                    <label className="request-field__label">
+                      Contact Person Name <span className="request-field__required">*</span>
                     </label>
                     <input
                       type="text"
                       name="contactPersonName"
                       value={formData.contactPersonName}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="request-field__textarea"
                       placeholder="Contact person name"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address <span className="text-red-500">*</span>
+                    <label className="request-field__label">
+                      Email Address <span className="request-field__required">*</span>
                     </label>
                     <input
                       type="email"
                       name="contactPersonEmail"
                       value={formData.contactPersonEmail}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="request-field__textarea"
                       placeholder="contact@example.com"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number <span className="text-red-500">*</span>
+                    <label className="request-field__label">
+                      Phone Number <span className="request-field__required">*</span>
                     </label>
                     <input
                       type="tel"
                       name="contactPersonPhone"
                       value={formData.contactPersonPhone}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="request-field__textarea"
                       placeholder="+91 98765 43210"
                       required
                     />
@@ -327,39 +325,33 @@ export default function AddProjectRequestPage() {
 
               {/* Additional Information */}
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
+                <h2 className="form-section__title">Additional Information</h2>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Additional Information
-                  </label>
+                  <label className="request-field__label">Additional Information</label>
                   <textarea
                     name="additionalInfo"
                     value={formData.additionalInfo}
                     onChange={handleInputChange}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="request-field__textarea"
                     placeholder="Any additional information, special requirements, or notes for our team"
                   />
                 </div>
               </div>
 
               {/* Submit Button */}
-              <div className="pt-6">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
+              <div className="submit-section">
+                <button type="submit" disabled={loading} className="submit-button">
                   {loading ? (
-                    <span className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <span className="submit-button__loading">
+                      <div className="submit-button__spinner"></div>
                       Submitting Request...
                     </span>
                   ) : (
                     'Submit Project Request'
                   )}
                 </button>
-                <p className="text-xs text-gray-500 mt-3 text-center">
+                <p className="submit-disclaimer">
                   By submitting this request, you agree that Grihome admins will review and contact
                   you for further details.
                 </p>

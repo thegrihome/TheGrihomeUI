@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store/store'
+import { useSession } from 'next-auth/react'
 
 interface ExpressInterestButtonProps {
   projectId?: string
@@ -17,7 +16,9 @@ export default function ExpressInterestButton({
   propertyName,
   onAuthRequired,
 }: ExpressInterestButtonProps) {
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
+  const { data: session, status } = useSession()
+  const isAuthenticated = status === 'authenticated'
+  const user = session?.user
   const [isExpressing, setIsExpressing] = useState(false)
   const [hasExpressed, setHasExpressed] = useState(false)
   const [error, setError] = useState<string | null>(null)

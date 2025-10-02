@@ -7,9 +7,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import RichTextEditor from '@/components/RichTextEditor'
-import UserStats from '@/components/UserStats'
-import { prisma } from '@/lib/prisma'
+import UserStats from '@/components/forum/UserStats'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface ForumReply {
   id: string
@@ -350,11 +349,12 @@ export default function ThreadPage({ post }: ThreadPageProps) {
                 </div>
               )}
               <form onSubmit={handleSubmitReply}>
-                <RichTextEditor
+                <textarea
                   value={replyContent}
-                  onChange={setReplyContent}
-                  placeholder="Write your reply... You can add images, videos, and rich formatting."
-                  className="forum-rich-text-editor"
+                  onChange={e => setReplyContent(e.target.value)}
+                  placeholder="Write your reply..."
+                  className="forum-rich-text-editor w-full min-h-[200px] p-3 border rounded"
+                  rows={8}
                 />
                 <div className="forum-reply-form-actions">
                   <button

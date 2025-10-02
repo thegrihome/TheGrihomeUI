@@ -3,10 +3,20 @@
 @tailwind utilities;
 
 /* Import Component Styles */
-@import './header.css';
-@import './footer.css';
-@import './home.css';
-@import './forum.css';
+@import './components/Header.css';
+@import './components/Footer.css';
+
+/* Import Page Styles */
+@import './pages/index.css';
+@import './pages/forum/index.css';
+@import './pages/auth/login.css';
+@import './pages/auth/signup.css';
+@import './pages/auth/userinfo.css';
+@import './pages/contactUs/contact.css';
+@import './pages/properties/detail.css';
+@import './pages/properties/add-property.css';
+@import './pages/projects/detail.css';
+@import './pages/projects/add-project-request.css';
 
 html {
   min-width: 360px;

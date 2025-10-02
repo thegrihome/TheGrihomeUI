@@ -156,10 +156,10 @@ export default function PropertyDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="property-detail-main">
         <Header />
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="property-detail-loading">
+          <div className="property-detail-spinner"></div>
         </div>
         <Footer />
       </div>
@@ -168,14 +168,14 @@ export default function PropertyDetailPage() {
 
   if (!property) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="property-detail-main">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Property Not Found</h1>
+        <div className="property-detail-content">
+          <div className="property-not-found">
+            <h1 className="property-not-found__title">Property Not Found</h1>
             <button
               onClick={() => router.push('/properties')}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="property-not-found__button"
             >
               Back to Properties
             </button>
@@ -202,14 +202,16 @@ export default function PropertyDetailPage() {
 
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+      <main className="property-detail-main">
+        <div className="property-detail-content">
           {/* Back Button */}
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onClick={() => router.back()} className="property-detail-back">
+            <svg
+              className="property-detail-back__icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -220,12 +222,12 @@ export default function PropertyDetailPage() {
             Back
           </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="property-detail-grid">
             {/* Property Images and Main Info */}
-            <div className="lg:col-span-2">
+            <div className="property-detail-main-column">
               {/* Image Gallery */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-                <div className="relative h-96">
+              <div className="property-image-gallery">
+                <div className="property-image-main">
                   <Image
                     src={
                       allImages[selectedImageIndex] ||
@@ -233,37 +235,35 @@ export default function PropertyDetailPage() {
                     }
                     alt={`${property.project} - Image ${selectedImageIndex + 1}`}
                     fill
-                    className="object-cover"
+                    className="property-image-main__img"
                   />
                   <div
-                    className={`absolute top-4 left-4 px-3 py-1 rounded text-sm font-medium text-white ${
+                    className={`property-image-status ${
                       property.listingStatus === 'ACTIVE'
-                        ? 'bg-green-600'
+                        ? 'property-image-status--active'
                         : property.listingStatus === 'SOLD'
-                          ? 'bg-red-600'
+                          ? 'property-image-status--sold'
                           : property.listingStatus === 'PENDING'
-                            ? 'bg-yellow-600'
-                            : 'bg-gray-600'
+                            ? 'property-image-status--pending'
+                            : 'property-image-status--default'
                     }`}
                   >
                     {property.listingStatus}
                   </div>
-                  {property.price && (
-                    <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">
-                      ₹{property.price}L
-                    </div>
-                  )}
+                  {property.price && <div className="property-image-price">₹{property.price}L</div>}
                 </div>
 
                 {/* Image Thumbnails */}
                 {allImages.length > 1 && (
-                  <div className="flex gap-2 p-4 overflow-x-auto">
+                  <div className="property-image-thumbnails">
                     {allImages.map((image, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedImageIndex(index)}
-                        className={`flex-shrink-0 w-20 h-16 rounded overflow-hidden border-2 ${
-                          selectedImageIndex === index ? 'border-blue-500' : 'border-gray-200'
+                        className={`property-thumbnail ${
+                          selectedImageIndex === index
+                            ? 'property-thumbnail--active'
+                            : 'property-thumbnail--inactive'
                         }`}
                       >
                         <Image
@@ -271,7 +271,7 @@ export default function PropertyDetailPage() {
                           alt={`Thumbnail ${index + 1}`}
                           width={80}
                           height={64}
-                          className="w-full h-full object-cover"
+                          className="property-thumbnail__img"
                         />
                       </button>
                     ))}
@@ -280,15 +280,20 @@ export default function PropertyDetailPage() {
               </div>
 
               {/* Property Details */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl">{propertyTypeInfo?.icon}</span>
-                  <h1 className="text-3xl font-bold text-gray-900">{property.project}</h1>
+              <div className="property-details-section">
+                <div className="property-details-header">
+                  <span className="property-details-icon">{propertyTypeInfo?.icon}</span>
+                  <h1 className="property-details-title">{property.project}</h1>
                 </div>
 
-                <div className="mb-4">
-                  <p className="text-gray-600 flex items-center gap-1 mb-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="property-location">
+                  <p className="property-location__address">
+                    <svg
+                      className="property-location__icon"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -304,57 +309,55 @@ export default function PropertyDetailPage() {
                     </svg>
                     {property.location.fullAddress}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="property-location__meta">
                     Zipcode: {property.location.zipcode} • Posted on{' '}
                     {formatDate(property.createdAt)}
                   </p>
                 </div>
 
                 {/* Property Features */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="property-features-grid">
                   {property.sqFt && (
-                    <div className="text-center p-3 bg-gray-50 rounded">
-                      <div className="text-lg font-semibold text-gray-900">{property.sqFt}</div>
-                      <div className="text-sm text-gray-600">Sq Ft</div>
+                    <div className="property-feature">
+                      <div className="property-feature__value">{property.sqFt}</div>
+                      <div className="property-feature__label">Sq Ft</div>
                     </div>
                   )}
                   {property.bedrooms && (
-                    <div className="text-center p-3 bg-gray-50 rounded">
-                      <div className="text-lg font-semibold text-gray-900">{property.bedrooms}</div>
-                      <div className="text-sm text-gray-600">Bedrooms</div>
+                    <div className="property-feature">
+                      <div className="property-feature__value">{property.bedrooms}</div>
+                      <div className="property-feature__label">Bedrooms</div>
                     </div>
                   )}
                   {property.bathrooms && (
-                    <div className="text-center p-3 bg-gray-50 rounded">
-                      <div className="text-lg font-semibold text-gray-900">
-                        {property.bathrooms}
-                      </div>
-                      <div className="text-sm text-gray-600">Bathrooms</div>
+                    <div className="property-feature">
+                      <div className="property-feature__value">{property.bathrooms}</div>
+                      <div className="property-feature__label">Bathrooms</div>
                     </div>
                   )}
                   {property.plotSize && (
-                    <div className="text-center p-3 bg-gray-50 rounded">
-                      <div className="text-lg font-semibold text-gray-900">
+                    <div className="property-feature">
+                      <div className="property-feature__value">
                         {property.plotSize} {property.plotSizeUnit}
                       </div>
-                      <div className="text-sm text-gray-600">Plot Size</div>
+                      <div className="property-feature__label">Plot Size</div>
                     </div>
                   )}
                 </div>
 
                 {/* Description */}
                 {property.description && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-2">Description</h3>
-                    <p className="text-gray-700 leading-relaxed">{property.description}</p>
+                  <div className="property-description">
+                    <h3 className="property-description__title">Description</h3>
+                    <p className="property-description__text">{property.description}</p>
                   </div>
                 )}
 
                 {/* Builder/Company Info */}
                 {(property.builder !== 'Independent' || property.companyName) && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-2">Builder Information</h3>
-                    <p className="text-gray-700">
+                  <div className="property-builder-info">
+                    <h3 className="property-builder-info__title">Builder Information</h3>
+                    <p className="property-builder-info__text">
                       {property.builder !== 'Independent' && `Builder: ${property.builder}`}
                       {property.companyName && ` • Company: ${property.companyName}`}
                     </p>
@@ -363,9 +366,9 @@ export default function PropertyDetailPage() {
 
                 {/* Sold Information */}
                 {property.listingStatus === 'SOLD' && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded mb-6">
-                    <h3 className="text-lg font-semibold text-red-800 mb-2">Property Sold</h3>
-                    <p className="text-red-700">
+                  <div className="property-sold-notice">
+                    <h3 className="property-sold-notice__title">Property Sold</h3>
+                    <p className="property-sold-notice__text">
                       Sold to: {property.soldTo || 'External Buyer'}
                       {property.soldDate && ` on ${formatDate(property.soldDate)}`}
                     </p>
@@ -375,25 +378,25 @@ export default function PropertyDetailPage() {
             </div>
 
             {/* Sidebar */}
-            <div className="lg:col-span-1">
+            <div className="property-detail-sidebar-column">
               {/* Contact/Interest Card */}
-              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h3 className="text-lg font-semibold mb-4">Property Owner</h3>
-                <div className="mb-4">
-                  <p className="font-medium">{property.postedBy}</p>
-                  <p className="text-sm text-gray-600">{property.userEmail}</p>
+              <div className="property-contact-card">
+                <h3 className="property-contact-card__title">Property Owner</h3>
+                <div className="property-contact-card__owner">
+                  <p className="property-contact-card__name">{property.postedBy}</p>
+                  <p className="property-contact-card__email">{property.userEmail}</p>
                   {property.userPhone && (
-                    <p className="text-sm text-gray-600">{property.userPhone}</p>
+                    <p className="property-contact-card__phone">{property.userPhone}</p>
                   )}
                 </div>
 
                 {/* Express Interest Button */}
                 {!isOwner && status === 'authenticated' && property.listingStatus === 'ACTIVE' && (
-                  <div className="mb-4">
+                  <div className="property-interest-section">
                     {hasExpressedInterest ? (
-                      <div className="bg-green-50 border border-green-200 rounded p-3 text-center">
+                      <div className="property-interest-expressed">
                         <svg
-                          className="w-6 h-6 text-green-600 mx-auto mb-2"
+                          className="property-interest-expressed__icon"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -405,14 +408,16 @@ export default function PropertyDetailPage() {
                             d="M5 13l4 4L19 7"
                           />
                         </svg>
-                        <p className="text-green-800 font-medium">Interest Expressed</p>
-                        <p className="text-green-600 text-sm">The owner has your contact details</p>
+                        <p className="property-interest-expressed__title">Interest Expressed</p>
+                        <p className="property-interest-expressed__text">
+                          The owner has your contact details
+                        </p>
                       </div>
                     ) : (
                       <button
                         onClick={handleExpressInterest}
                         disabled={expressing}
-                        className="w-full bg-blue-600 text-white py-3 px-4 rounded font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="property-interest-button"
                       >
                         {expressing ? 'Expressing Interest...' : 'Express Interest'}
                       </button>
@@ -426,7 +431,7 @@ export default function PropertyDetailPage() {
                   property.listingStatus === 'ACTIVE' && (
                     <button
                       onClick={() => router.push('/api/auth/signin')}
-                      className="w-full bg-blue-600 text-white py-3 px-4 rounded font-medium hover:bg-blue-700"
+                      className="property-login-prompt"
                     >
                       Sign In to Express Interest
                     </button>
@@ -434,29 +439,31 @@ export default function PropertyDetailPage() {
 
                 {/* Property Unavailable */}
                 {property.listingStatus !== 'ACTIVE' && (
-                  <div className="bg-gray-50 border border-gray-200 rounded p-3 text-center">
-                    <p className="text-gray-600 font-medium">Property Not Available</p>
-                    <p className="text-gray-500 text-sm">Status: {property.listingStatus}</p>
+                  <div className="property-unavailable">
+                    <p className="property-unavailable__title">Property Not Available</p>
+                    <p className="property-unavailable__status">Status: {property.listingStatus}</p>
                   </div>
                 )}
               </div>
 
               {/* Interested Buyers (Owner Only) */}
               {isOwner && (
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-lg font-semibold mb-4">
+                <div className="property-buyers-card">
+                  <h3 className="property-buyers-card__title">
                     Interested Buyers ({property.interests.length})
                   </h3>
                   {property.interests.length === 0 ? (
-                    <p className="text-gray-500">No one has expressed interest yet.</p>
+                    <p className="property-buyers-card__empty">
+                      No one has expressed interest yet.
+                    </p>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="property-buyers-list">
                       {property.interests.map(interest => (
-                        <div key={interest.id} className="border rounded p-3">
-                          <p className="font-medium">{interest.user.name}</p>
-                          <p className="text-sm text-gray-600">{interest.user.email}</p>
-                          <p className="text-sm text-gray-600">{interest.user.phone}</p>
-                          <p className="text-xs text-gray-500 mt-1">
+                        <div key={interest.id} className="property-buyer">
+                          <p className="property-buyer__name">{interest.user.name}</p>
+                          <p className="property-buyer__email">{interest.user.email}</p>
+                          <p className="property-buyer__phone">{interest.user.phone}</p>
+                          <p className="property-buyer__date">
                             Expressed interest on {formatDate(interest.createdAt)}
                           </p>
                         </div>

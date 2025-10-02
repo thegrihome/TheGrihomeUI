@@ -51,9 +51,12 @@ interface Property {
 
 export default function MyPropertiesPage() {
   const { data: session, status } = useSession()
+  const user = session?.user
+  const isAuthenticated = status === 'authenticated'
   const router = useRouter()
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active')
   const [showInterestModal, setShowInterestModal] = useState<string | null>(null)
   const [showSoldModal, setShowSoldModal] = useState<string | null>(null)
@@ -69,15 +72,21 @@ export default function MyPropertiesPage() {
   ]
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/api/auth/signin')
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    if (!isAuthenticated) {
+      router.push('/login')
       return
     }
 
-    if (status === 'authenticated' && session?.user) {
+    if (isAuthenticated && user) {
       loadMyProperties()
     }
-  }, [status, session, router])
+  }, [mounted, isAuthenticated, user, router])
 
   const loadMyProperties = async () => {
     setLoading(true)
@@ -161,7 +170,7 @@ export default function MyPropertiesPage() {
 
   const currentProperties = activeTab === 'active' ? activeProperties : archivedProperties
 
-  if (status === 'loading' || loading) {
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -173,8 +182,25 @@ export default function MyPropertiesPage() {
     )
   }
 
-  if (status === 'unauthenticated') {
-    return null
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex justify-center items-center py-12">
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Authentication Required</h2>
+            <p className="text-gray-600 mb-6">Please sign in to view your properties</p>
+            <button
+              onClick={() => router.push('/login')}
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Sign In
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
   }
 
   return (
@@ -228,18 +254,29 @@ export default function MyPropertiesPage() {
           {currentProperties.length === 0 ? (
             <div className="text-center py-16">
               <h2 className="text-4xl font-bold mb-4">
-                <span className="text-gray-800">
-                  No {activeTab === 'active' ? 'Active' : 'Archived'} Properties
-                </span>{' '}
-                <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                <span className="text-gray-800">No Properties</span>{' '}
+                <span
+                  className="text-transparent bg-clip-text"
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, #ec4899, #8b5cf6, #6366f1)',
+                  }}
+                >
                   Found
                 </span>
               </h2>
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 text-lg mb-6">
                 {activeTab === 'active'
                   ? "You haven't listed any active properties yet."
                   : "You don't have any archived properties."}
               </p>
+              {activeTab === 'active' && (
+                <button
+                  onClick={() => router.push('/add-property')}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Add Your First Property
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -395,7 +432,7 @@ export default function MyPropertiesPage() {
             <div className="space-y-3">
               {properties
                 .find(p => p.id === showInterestModal)
-                ?.interests.map((interest, index) => (
+                ?.interests.map(interest => (
                   <div key={interest.id} className="border rounded p-3">
                     <div className="flex justify-between items-start">
                       <div>

@@ -1,0 +1,499 @@
+/* Property Detail Page Styles */
+
+/* Container */
+.property-detail-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main Layout */
+.property-detail-main {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.property-detail-content {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Loading State */
+.property-detail-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.property-detail-spinner {
+  animation: spin 1s linear infinite;
+  border-radius: 9999px;
+  height: 2rem;
+  width: 2rem;
+  border-bottom-width: 2px;
+  border-color: #2563eb;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Not Found State */
+.property-not-found {
+  text-align: center;
+}
+
+.property-not-found__title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.property-not-found__button {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  border: none;
+}
+
+.property-not-found__button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Back Button */
+.property-detail-back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4b5563;
+  cursor: pointer;
+  border: none;
+  background: none;
+  margin-bottom: 1.5rem;
+}
+
+.property-detail-back:hover {
+  color: #1f2937;
+}
+
+.property-detail-back__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Grid Layout */
+.property-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .property-detail-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.property-detail-main-column {
+  grid-column: span 1;
+}
+
+@media (min-width: 1024px) {
+  .property-detail-main-column {
+    grid-column: span 2 / span 2;
+  }
+}
+
+.property-detail-sidebar-column {
+  grid-column: span 1;
+}
+
+/* Image Gallery */
+.property-image-gallery {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.property-image-main {
+  position: relative;
+  height: 24rem;
+}
+
+.property-image-main__img {
+  object-fit: cover;
+}
+
+.property-image-status {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+}
+
+.property-image-status--active {
+  background-color: #16a34a;
+}
+
+.property-image-status--sold {
+  background-color: #dc2626;
+}
+
+.property-image-status--pending {
+  background-color: #ca8a04;
+}
+
+.property-image-status--default {
+  background-color: #4b5563;
+}
+
+.property-image-price {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: #16a34a;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+/* Image Thumbnails */
+.property-image-thumbnails {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.property-thumbnail {
+  flex-shrink: 0;
+  width: 5rem;
+  height: 4rem;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  border: 2px solid;
+  cursor: pointer;
+}
+
+.property-thumbnail--active {
+  border-color: #3b82f6;
+}
+
+.property-thumbnail--inactive {
+  border-color: #e5e7eb;
+}
+
+.property-thumbnail__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Property Details Section */
+.property-details-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.property-details-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.property-details-icon {
+  font-size: 1.5rem;
+}
+
+.property-details-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #111827;
+}
+
+/* Location Info */
+.property-location {
+  margin-bottom: 1rem;
+}
+
+.property-location__address {
+  color: #4b5563;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.property-location__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.property-location__meta {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Property Features Grid */
+.property-features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .property-features-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.property-feature {
+  text-align: center;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.25rem;
+}
+
+.property-feature__value {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.property-feature__label {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+/* Description Section */
+.property-description {
+  margin-bottom: 1.5rem;
+}
+
+.property-description__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.property-description__text {
+  color: #374151;
+  line-height: 1.625;
+}
+
+/* Builder Info Section */
+.property-builder-info {
+  margin-bottom: 1.5rem;
+}
+
+.property-builder-info__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.property-builder-info__text {
+  color: #374151;
+}
+
+/* Sold Information */
+.property-sold-notice {
+  padding: 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.property-sold-notice__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: 0.5rem;
+}
+
+.property-sold-notice__text {
+  color: #b91c1c;
+}
+
+/* Sidebar - Contact Card */
+.property-contact-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.property-contact-card__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.property-contact-card__owner {
+  margin-bottom: 1rem;
+}
+
+.property-contact-card__name {
+  font-weight: 500;
+}
+
+.property-contact-card__email,
+.property-contact-card__phone {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+/* Express Interest Section */
+.property-interest-section {
+  margin-bottom: 1rem;
+}
+
+.property-interest-expressed {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.property-interest-expressed__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #16a34a;
+  margin: 0 auto 0.5rem;
+}
+
+.property-interest-expressed__title {
+  color: #166534;
+  font-weight: 500;
+}
+
+.property-interest-expressed__text {
+  color: #16a34a;
+  font-size: 0.875rem;
+}
+
+.property-interest-button {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.property-interest-button:hover {
+  background-color: #1d4ed8;
+}
+
+.property-interest-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Login Prompt */
+.property-login-prompt {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.property-login-prompt:hover {
+  background-color: #1d4ed8;
+}
+
+/* Property Unavailable */
+.property-unavailable {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.property-unavailable__title {
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.property-unavailable__status {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Interested Buyers Card */
+.property-buyers-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.property-buyers-card__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.property-buyers-card__empty {
+  color: #6b7280;
+}
+
+.property-buyers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.property-buyer {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+}
+
+.property-buyer__name {
+  font-weight: 500;
+}
+
+.property-buyer__email,
+.property-buyer__phone {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.property-buyer__date {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}

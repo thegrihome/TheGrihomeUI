@@ -4,8 +4,8 @@ import { NextSeo } from 'next-seo'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import ForumSearch from '@/components/ForumSearch'
-import { prisma } from '@/lib/prisma'
+import ForumSearch from '@/components/forum/ForumSearch'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface PropertyType {
   id: string

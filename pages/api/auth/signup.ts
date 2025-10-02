@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import bcrypt from 'bcryptjs'
 import validator from 'validator'
-import { prisma } from '../../../lib/prisma'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -44,34 +44,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Validate mobile format
     const cleanedMobile = mobileNumber.replace(/\D/g, '')
     if (cleanedMobile.length < 7 || cleanedMobile.length > 15) {
-      return res.status(400).json({ message: 'Invalid mobile number format' })
+      return res.status(400).json({ message: 'Please enter a valid mobile number' })
     }
     if (/^0+$/.test(cleanedMobile)) {
-      return res.status(400).json({ message: 'Invalid mobile number format' })
+      return res.status(400).json({ message: 'Please enter a valid mobile number' })
     }
-    // Basic mobile number validation - ensure it looks like a reasonable mobile number
-    // Don't be too strict as different countries have different formats
-    if (!/^[1-9]\d*$/.test(cleanedMobile)) {
-      return res.status(400).json({ message: 'Invalid mobile number format' })
+    // Use validator.js for proper mobile validation
+    if (!validator.isMobilePhone(cleanedMobile, 'any', { strictMode: false })) {
+      return res.status(400).json({ message: 'Please enter a valid mobile number' })
     }
 
-    // Check if user already exists (username, email or mobile)
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ username }, { email }, { phone: mobileNumber }],
-      },
+    // Check if username already exists (username must always be unique)
+    const existingUsername = await prisma.user.findFirst({
+      where: { username },
+      select: { id: true },
     })
 
-    if (existingUser) {
-      if (existingUser.username === username) {
-        return res.status(409).json({ message: 'Username is already taken' })
-      }
-      if (existingUser.email === email) {
-        return res.status(409).json({ message: 'Email is already registered' })
-      }
-      if (existingUser.phone === mobileNumber) {
-        return res.status(409).json({ message: 'Mobile number is already registered' })
-      }
+    if (existingUsername) {
+      return res.status(409).json({ message: 'Username is already taken' })
+    }
+
+    // Check if VERIFIED email already exists (emailVerified is not null)
+    const existingEmail = await prisma.user.findFirst({
+      where: {
+        email,
+        emailVerified: { not: null },
+      },
+      select: { id: true },
+    })
+
+    if (existingEmail) {
+      return res.status(409).json({ message: 'Email is already registered and verified' })
+    }
+
+    // Check if VERIFIED mobile already exists (mobileVerified is not null)
+    const existingMobile = await prisma.user.findFirst({
+      where: {
+        phone: mobileNumber,
+        mobileVerified: { not: null },
+      },
+      select: { id: true },
+    })
+
+    if (existingMobile) {
+      return res.status(409).json({ message: 'Mobile number is already registered and verified' })
     }
 
     // Hash password

@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
-import { useSelector } from 'react-redux'
+import { useSession } from 'next-auth/react'
 import { NextSeo } from 'next-seo'
 import { Loader } from '@googlemaps/js-api-loader'
 import toast from 'react-hot-toast'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { RootState } from '@/store/store'
 
 interface FormData {
   location: string
@@ -31,7 +30,8 @@ interface FormData {
 
 export default function AddProperty() {
   const router = useRouter()
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
   const locationInputRef = useRef<HTMLInputElement>(null)
 
   const [mounted, setMounted] = useState(false)
@@ -569,16 +569,16 @@ export default function AddProperty() {
           description="Add your property to GRIHOME marketplace"
         />
         <Header />
-        <main className="min-h-screen bg-gray-50 py-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="animate-pulse">
-                <div className="h-8 bg-gray-300 rounded w-1/3 mb-8"></div>
-                <div className="space-y-6">
-                  <div className="h-4 bg-gray-300 rounded w-1/4"></div>
-                  <div className="h-10 bg-gray-300 rounded"></div>
-                  <div className="h-4 bg-gray-300 rounded w-1/4"></div>
-                  <div className="h-10 bg-gray-300 rounded"></div>
+        <main className="add-property-main">
+          <div className="add-property-container">
+            <div className="add-property-card">
+              <div className="loading-skeleton">
+                <div className="skeleton-title"></div>
+                <div className="add-property-form">
+                  <div className="skeleton-field"></div>
+                  <div className="skeleton-input"></div>
+                  <div className="skeleton-field"></div>
+                  <div className="skeleton-input"></div>
                 </div>
               </div>
             </div>
@@ -598,12 +598,12 @@ export default function AddProperty() {
           description="Add your property to GRIHOME marketplace"
         />
         <Header />
-        <main className="min-h-screen bg-gray-50 py-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-white rounded-lg shadow p-6 text-center">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h1>
-              <p className="text-gray-600 mb-4">Please sign in to add a property.</p>
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <main className="add-property-main">
+          <div className="add-property-container">
+            <div className="add-property-card auth-required">
+              <h1 className="auth-required__title">Authentication Required</h1>
+              <p className="auth-required__text">Please sign in to add a property.</p>
+              <div className="auth-required__spinner"></div>
             </div>
           </div>
         </main>
@@ -620,15 +620,15 @@ export default function AddProperty() {
       />
       <Header />
 
-      <main className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-8">Add New Property</h1>
+      <main className="add-property-main">
+        <div className="add-property-container">
+          <div className="add-property-card">
+            <h1 className="add-property-title">Add New Property</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="add-property-form">
               {/* Location */}
               <div className="relative">
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="location" className="form-field__label">
                   Location *
                 </label>
                 <input
@@ -639,18 +639,18 @@ export default function AddProperty() {
                   value={formData.location}
                   onChange={handleLocationInput}
                   placeholder="Enter city or location"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="form-field__input"
                   required
                 />
 
                 {showPredictions && predictions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                  <div className="predictions-dropdown">
                     {predictions.map((prediction, index) => (
                       <button
                         key={index}
                         type="button"
                         onClick={() => handleLocationSelect(prediction)}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                        className="prediction-item"
                       >
                         {prediction.description}
                       </button>
@@ -661,32 +661,30 @@ export default function AddProperty() {
 
               {/* Location Details Display */}
               {(formData.city || formData.state || formData.zipcode || formData.neighborhood) && (
-                <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                  <h3 className="text-sm font-medium text-green-800 mb-2">
-                    📍 Location Details Captured:
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-green-700">
+                <div className="location-info">
+                  <h3 className="location-info__title">📍 Location Details Captured:</h3>
+                  <div className="location-info__grid">
                     {formData.neighborhood && (
                       <div>
-                        <span className="font-medium">Neighborhood:</span>
+                        <span className="location-info__label">Neighborhood:</span>
                         <div>{formData.neighborhood}</div>
                       </div>
                     )}
                     {formData.city && (
                       <div>
-                        <span className="font-medium">City:</span>
+                        <span className="location-info__label">City:</span>
                         <div>{formData.city}</div>
                       </div>
                     )}
                     {formData.state && (
                       <div>
-                        <span className="font-medium">State:</span>
+                        <span className="location-info__label">State:</span>
                         <div>{formData.state}</div>
                       </div>
                     )}
                     {formData.zipcode && (
                       <div>
-                        <span className="font-medium">Zipcode:</span>
+                        <span className="location-info__label">Zipcode:</span>
                         <div>{formData.zipcode}</div>
                       </div>
                     )}
@@ -696,7 +694,7 @@ export default function AddProperty() {
 
               {/* Zipcode */}
               <div>
-                <label htmlFor="zipcode" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="zipcode" className="form-field__label">
                   Zipcode
                 </label>
                 <input
@@ -706,13 +704,13 @@ export default function AddProperty() {
                   value={formData.zipcode}
                   onChange={handleInputChange}
                   placeholder="Enter zipcode"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="form-field__input"
                 />
               </div>
 
               {/* Builder */}
               <div className="relative builder-dropdown">
-                <label htmlFor="builder" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="builder" className="form-field__label">
                   Builder *
                 </label>
                 <button
@@ -777,7 +775,7 @@ export default function AddProperty() {
               {/* Project (conditional) */}
               {formData.builder && formData.builder !== 'independent' && (
                 <div>
-                  <label htmlFor="project" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="project" className="form-field__label">
                     Project *
                   </label>
                   <select
@@ -785,7 +783,7 @@ export default function AddProperty() {
                     name="project"
                     value={formData.project}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="form-field__input"
                     required
                   >
                     <option value="">Select Project</option>
@@ -802,10 +800,7 @@ export default function AddProperty() {
 
               {/* Property Type */}
               <div className="relative">
-                <label
-                  htmlFor="propertyType"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label htmlFor="propertyType" className="form-field__label">
                   Property Type *
                 </label>
                 <div className="relative">
@@ -842,10 +837,7 @@ export default function AddProperty() {
 
               {/* Description */}
               <div>
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label htmlFor="description" className="form-field__label">
                   Description *
                 </label>
                 <textarea
@@ -855,15 +847,15 @@ export default function AddProperty() {
                   onChange={handleInputChange}
                   rows={4}
                   placeholder="Describe your property..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="form-field__input"
                   required
                 />
               </div>
 
               {/* Size */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="size-input-group">
                 <div>
-                  <label htmlFor="size" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="size" className="form-field__label">
                     Size *
                   </label>
                   <input
@@ -873,15 +865,12 @@ export default function AddProperty() {
                     value={formData.size}
                     onChange={handleInputChange}
                     placeholder="Enter size"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="form-field__input"
                     required
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="sizeUnit"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="sizeUnit" className="form-field__label">
                     Unit *
                   </label>
                   <div className="relative">
@@ -915,12 +904,9 @@ export default function AddProperty() {
 
               {/* Plot Size / UDS (conditional) */}
               {showPlotSizeField && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="size-input-group">
                   <div>
-                    <label
-                      htmlFor="plotSize"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                    <label htmlFor="plotSize" className="form-field__label">
                       {formData.propertyType === 'CONDO' ? 'UDS' : 'Plot Size'}
                     </label>
                     <input
@@ -930,14 +916,11 @@ export default function AddProperty() {
                       value={formData.plotSize}
                       onChange={handleInputChange}
                       placeholder={`Enter ${formData.propertyType === 'CONDO' ? 'UDS' : 'plot size'}`}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="form-field__input"
                     />
                   </div>
                   <div>
-                    <label
-                      htmlFor="plotSizeUnit"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                    <label htmlFor="plotSizeUnit" className="form-field__label">
                       Unit
                     </label>
                     <div className="relative">
@@ -972,12 +955,9 @@ export default function AddProperty() {
 
               {/* Bedrooms and Bathrooms (conditional) */}
               {showBedroomsBathroomsFields && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="size-input-group">
                   <div>
-                    <label
-                      htmlFor="bedrooms"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                    <label htmlFor="bedrooms" className="form-field__label">
                       Number of Bedrooms
                     </label>
                     <select
@@ -985,7 +965,7 @@ export default function AddProperty() {
                       name="bedrooms"
                       value={formData.bedrooms}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="form-field__input"
                     >
                       <option value="">Select</option>
                       <option value="1">1 BHK</option>
@@ -996,10 +976,7 @@ export default function AddProperty() {
                     </select>
                   </div>
                   <div>
-                    <label
-                      htmlFor="bathrooms"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                    <label htmlFor="bathrooms" className="form-field__label">
                       Number of Bathrooms
                     </label>
                     <select
@@ -1007,7 +984,7 @@ export default function AddProperty() {
                       name="bathrooms"
                       value={formData.bathrooms}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="form-field__input"
                     >
                       <option value="">Select</option>
                       <option value="1">1</option>
@@ -1022,7 +999,7 @@ export default function AddProperty() {
 
               {/* Price */}
               <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="price" className="form-field__label">
                   Price (₹) *
                 </label>
                 <input
@@ -1032,14 +1009,14 @@ export default function AddProperty() {
                   value={formData.price}
                   onChange={handleInputChange}
                   placeholder="Enter price in rupees"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="form-field__input"
                   required
                 />
               </div>
 
               {/* Images */}
               <div>
-                <label htmlFor="images" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="images" className="form-field__label">
                   Images (Max 20, 1MB each, 20MB total)
                 </label>
                 <input
@@ -1049,10 +1026,10 @@ export default function AddProperty() {
                   multiple
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="form-field__input"
                 />
                 {formData.images.length > 0 && (
-                  <div className="mt-2 text-sm text-gray-600">
+                  <div className="file-upload__hint">
                     <p>{formData.images.length} image(s) selected</p>
                     <p>
                       Total size:{' '}
@@ -1068,7 +1045,7 @@ export default function AddProperty() {
 
               {/* Video */}
               <div>
-                <label htmlFor="video" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="video" className="form-field__label">
                   Walk-through Video (Max 20MB)
                 </label>
                 <input
@@ -1077,12 +1054,10 @@ export default function AddProperty() {
                   name="video"
                   accept="video/*"
                   onChange={handleVideoUpload}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="form-field__input"
                 />
                 {formData.video && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    Video selected: {formData.video.name}
-                  </p>
+                  <p className="file-upload__hint">Video selected: {formData.video.name}</p>
                 )}
               </div>
 

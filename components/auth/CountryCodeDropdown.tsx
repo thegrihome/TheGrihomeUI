@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Country, countryCodes } from '@/data/countryCodes'
+import { Country, countryCodes } from '@/lib/countryCodes'
 
 interface CountryCodeDropdownProps {
   value: string

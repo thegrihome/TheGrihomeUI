@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
-export default function Error(): JSX.Element {
+export default function Error() {
   return (
     <div className="bg-white dark:bg-black">
       <Header />
@@ -18,11 +18,10 @@ export default function Error(): JSX.Element {
         </div>
         <div className="max-w-md">
           <p className="mb-4 text-xl font-bold leading-normal md:text-2xl">
-            There was an error finding your page.
+            You&apos;ve reached an invalid page in Grihome
           </p>
           <p className="max-w-sm mb-8 text-md">
-            Plutonium doesn&apos;t do well with generic 404 pages. Hence: this page. If you&apos;re
-            here from clicking demo: it was on purpose!
+            The page you&apos;re looking for doesn&apos;t exist or has been moved.
           </p>
           <Link
             href="/"

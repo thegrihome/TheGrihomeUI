@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import validator from 'validator'
-import CountryCodeDropdown from '@/components/CountryCodeDropdown'
+import CountryCodeDropdown from '@/components/auth/CountryCodeDropdown'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
@@ -147,33 +147,31 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="contact-page">
       <Header />
-      <div className="flex-1 py-8">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Contact Us</h1>
-              <p className="text-gray-600">
+      <div className="contact-page__content">
+        <div className="contact-container">
+          <div className="contact-card">
+            <div className="contact-header">
+              <h1 className="contact-header__title">Contact Us</h1>
+              <p className="contact-header__subtitle">
                 Have a question or need help? We&apos;d love to hear from you.
               </p>
             </div>
 
             {toast.show && (
               <div
-                className={`mb-6 p-4 rounded-lg ${
-                  toast.type === 'success'
-                    ? 'bg-green-50 border border-green-200 text-green-800'
-                    : 'bg-red-50 border border-red-200 text-red-800'
+                className={`contact-toast ${
+                  toast.type === 'success' ? 'contact-toast--success' : 'contact-toast--error'
                 }`}
               >
                 {toast.message}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="contact-form">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="name" className="contact-form__label">
                   Name *
                 </label>
                 <input
@@ -182,16 +180,16 @@ export default function ContactPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                    formErrors.name ? 'border-red-300' : 'border-gray-300'
+                  className={`contact-form__input ${
+                    formErrors.name ? 'contact-form__input--error' : ''
                   }`}
                   placeholder="Your full name"
                 />
-                {formErrors.name && <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>}
+                {formErrors.name && <p className="contact-form__error">{formErrors.name}</p>}
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="email" className="contact-form__label">
                   Email *
                 </label>
                 <input
@@ -200,21 +198,19 @@ export default function ContactPage() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                    formErrors.email ? 'border-red-300' : 'border-gray-300'
+                  className={`contact-form__input ${
+                    formErrors.email ? 'contact-form__input--error' : ''
                   }`}
                   placeholder="your.email@example.com"
                 />
-                {formErrors.email && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
-                )}
+                {formErrors.email && <p className="contact-form__error">{formErrors.email}</p>}
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="phone" className="contact-form__label">
                   Phone Number
                 </label>
-                <div className="flex">
+                <div className="contact-form__phone-group">
                   <CountryCodeDropdown
                     value={countryCode}
                     onChange={setCountryCode}
@@ -226,20 +222,18 @@ export default function ContactPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className={`flex-1 px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                      formErrors.phone ? 'border-red-300' : 'border-gray-300'
+                    className={`contact-form__phone-input ${
+                      formErrors.phone ? 'contact-form__phone-input--error' : ''
                     }`}
                     placeholder="Phone number"
                     maxLength={15}
                   />
                 </div>
-                {formErrors.phone && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.phone}</p>
-                )}
+                {formErrors.phone && <p className="contact-form__error">{formErrors.phone}</p>}
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="message" className="contact-form__label">
                   Message *
                 </label>
                 <textarea
@@ -248,23 +242,19 @@ export default function ContactPage() {
                   rows={5}
                   value={formData.message}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                    formErrors.message ? 'border-red-300' : 'border-gray-300'
+                  className={`contact-form__textarea ${
+                    formErrors.message ? 'contact-form__textarea--error' : ''
                   }`}
                   placeholder="Tell us how we can help you..."
                 />
-                {formErrors.message && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.message}</p>
-                )}
+                {formErrors.message && <p className="contact-form__error">{formErrors.message}</p>}
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-3 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                  isSubmitting
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                className={`contact-form__submit ${
+                  isSubmitting ? 'contact-form__submit--disabled' : 'contact-form__submit--active'
                 }`}
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}

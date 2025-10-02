@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
-import { useSelector } from 'react-redux'
+import { useSession } from 'next-auth/react'
 import Head from 'next/head'
 import Image from 'next/image'
 import { NextSeo } from 'next-seo'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { RootState } from '@/store/store'
 
 interface Agent {
   id: string
@@ -35,7 +34,8 @@ interface AgentsResponse {
 
 export default function AgentsPage() {
   const router = useRouter()
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
+  const { data: session, status } = useSession()
+  const isAuthenticated = status === 'authenticated'
   const { company } = router.query
 
   const [agents, setAgents] = useState<Agent[]>([])

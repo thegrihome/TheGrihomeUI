@@ -5,13 +5,11 @@ import { NextSeo } from 'next-seo'
 import { GetServerSideProps } from 'next'
 import { PrismaClient } from '@prisma/client'
 import { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import ExpressInterestButton from '@/components/ExpressInterestButton'
-import AuthModal from '@/components/auth/AuthModal'
-import { RootState } from '@/store/store'
+import ExpressInterestButton from '@/components/properties/ExpressInterestButton'
 
 interface ProjectDetails {
   id: string
@@ -58,7 +56,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
   const router = useRouter()
 
   const details = project?.projectDetails || {}
@@ -80,16 +79,13 @@ export default function ProjectPage({ project }: ProjectPageProps) {
     return (
       <div className="project-not-found">
         <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <div className="text-6xl mb-4">🏗️</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Project Not Found</h1>
-          <p className="text-gray-600 mb-8">
+        <div className="project-not-found__content">
+          <div className="project-not-found__icon">🏗️</div>
+          <h1 className="project-not-found__title">Project Not Found</h1>
+          <p className="project-not-found__text">
             The project you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
-          <Link
-            href="/projects"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
+          <Link href="/projects" className="project-not-found__button">
             Browse All Projects
           </Link>
         </div>
@@ -222,26 +218,21 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
       <main className="project-main">
         {/* Project Header */}
-        <div className="project-header bg-white border-b">
-          <div className="container mx-auto px-4 py-6">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="project-header">
+          <div className="project-header__content">
+            <div className="project-header__layout">
               <div className="project-title-section">
-                <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
-                  {project.name}
-                </h1>
-                <div className="project-meta flex flex-wrap items-center gap-4 text-gray-600">
+                <h1 className="project-title">{project.name}</h1>
+                <div className="project-meta">
                   <div className="builder-info">
-                    <span className="text-sm">by </span>
-                    <Link
-                      href={`/builders/${project.builder.id}`}
-                      className="font-medium text-blue-600 hover:text-blue-800 transition-colors"
-                    >
+                    <span className="builder-info__text">by </span>
+                    <Link href={`/builders/${project.builder.id}`} className="builder-info__link">
                       {project.builder.name}
                     </Link>
                   </div>
-                  <div className="location-info flex items-center">
+                  <div className="location-info">
                     <svg
-                      className="w-4 h-4 mr-1"
+                      className="location-info__icon"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -253,19 +244,17 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                       />
                     </svg>
-                    <span className="text-sm">
+                    <span className="location-info__text">
                       {project.location.locality && `${project.location.locality}, `}
                       {project.location.city}, {project.location.state}
                     </span>
                   </div>
                   <div className="project-type">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
-                      {project.type}
-                    </span>
+                    <span className="project-type-badge">{project.type}</span>
                   </div>
                 </div>
               </div>
-              <div className="project-actions flex items-center gap-4">
+              <div className="project-actions">
                 <ExpressInterestButton
                   projectId={project.id}
                   projectName={project.name}
@@ -276,17 +265,17 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 <button
                   onClick={handleDeleteProject}
                   disabled={isDeleting}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                  className="project-action-button project-action-button--delete"
                 >
                   {isDeleting ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <div className="project-action-spinner"></div>
                       Deleting...
                     </>
                   ) : (
                     <>
                       <svg
-                        className="w-4 h-4"
+                        className="project-action-icon"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -308,9 +297,14 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                     href={details.assets.documents[0].url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    className="project-action-button project-action-button--download"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="project-action-icon"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -326,9 +320,14 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   href={details.routes?.builderWebsite || project.builder.website || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                  className="project-action-button project-action-button--visit"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="project-action-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -344,19 +343,19 @@ export default function ProjectPage({ project }: ProjectPageProps) {
         </div>
 
         {/* Project Image & Sidebar */}
-        <div className="project-image-section bg-gray-50">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col lg:flex-row gap-8">
+        <div className="project-image-section">
+          <div className="project-image-section__content">
+            <div className="project-image-layout">
               {/* Left Side - Project Image */}
               {allImages.length > 0 && (
-                <div className="lg:w-2/3">
-                  <div className="relative rounded-lg overflow-hidden h-full">
+                <div className="project-image-container">
+                  <div>
                     <Image
                       src={allImages[currentImageIndex]}
                       alt={`${project.name} - Image ${currentImageIndex + 1}`}
                       width={600}
                       height={400}
-                      className="object-cover w-full h-full transition-all duration-500"
+                      className="project-image-main"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 60vw"
                     />
 
@@ -365,10 +364,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                       <>
                         <button
                           onClick={prevImage}
-                          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-colors"
+                          className="project-image-nav project-image-nav--prev"
                         >
                           <svg
-                            className="w-5 h-5"
+                            className="project-image-nav__icon"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -383,10 +382,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         </button>
                         <button
                           onClick={nextImage}
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-colors"
+                          className="project-image-nav project-image-nav--next"
                         >
                           <svg
-                            className="w-5 h-5"
+                            className="project-image-nav__icon"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -401,13 +400,15 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         </button>
 
                         {/* Image Dots */}
-                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                        <div className="project-image-dots">
                           {allImages.map((_, index) => (
                             <button
                               key={index}
                               onClick={() => setCurrentImageIndex(index)}
-                              className={`w-2 h-2 rounded-full transition-colors ${
-                                index === currentImageIndex ? 'bg-white' : 'bg-white bg-opacity-50'
+                              className={`project-image-dot ${
+                                index === currentImageIndex
+                                  ? 'project-image-dot--active'
+                                  : 'project-image-dot--inactive'
                               }`}
                             />
                           ))}
@@ -419,14 +420,14 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               )}
 
               {/* Right Side - Location & Highlights */}
-              <div className="lg:w-1/3 flex flex-col justify-between space-y-6">
+              <div className="project-sidebar">
                 {/* Google Maps */}
                 {(details.googleMaps?.embedUrl ||
                   project.googlePin ||
                   details.overview?.location) && (
-                  <div className="map-card bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-lg font-semibold mb-4">Location</h3>
-                    <div className="map-container rounded-lg overflow-hidden border">
+                  <div className="map-card">
+                    <h3 className="map-card__title">Location</h3>
+                    <div className="map-container">
                       <iframe
                         src={
                           details.googleMaps?.embedUrl ||
@@ -442,12 +443,12 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         allowFullScreen
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
-                        className="rounded-lg"
+                        className="map-container__iframe"
                         title={`${project.name} Location`}
                       />
                     </div>
-                    <div className="mt-2 text-sm text-gray-600">
-                      <span className="font-medium">Address:</span>{' '}
+                    <div className="map-card__address">
+                      <span className="map-card__address-label">Address:</span>{' '}
                       {details.overview?.location ||
                         `${project.location.locality ? project.location.locality + ', ' : ''}${project.location.city}, ${project.location.state}`}
                     </div>
@@ -456,31 +457,28 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
                 {/* Highlights */}
                 {details.highlights && (
-                  <div className="highlights-card bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-lg font-semibold mb-4">Highlights</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="highlights-card">
+                    <h3 className="highlights-card__title">Highlights</h3>
+                    <div className="highlights-grid">
                       {details.highlights.map((highlight: any, index: number) => (
-                        <div
-                          key={index}
-                          className="highlight-item text-center flex flex-col items-center"
-                        >
+                        <div key={index} className="highlight-item">
                           {highlight.icon && (
-                            <div className="highlight-icon mb-1 flex items-center justify-center h-16">
+                            <div className="highlight-icon">
                               <Image
                                 src={highlight.icon}
                                 alt={`${highlight.value} ${highlight.label}`}
                                 width={50}
                                 height={50}
-                                className="mx-auto object-contain"
+                                className="highlight-icon__img"
                               />
                             </div>
                           )}
                           <div className="highlight-text">
-                            <div className="text-base font-bold text-blue-600">
+                            <div className="highlight-text__value">
                               {highlight.value}
                               {highlight.unit && <span> {highlight.unit}</span>}
                             </div>
-                            <div className="text-xs text-gray-700">
+                            <div className="highlight-text__label">
                               {highlight.label}
                               {highlight.labelLine2 && (
                                 <>
@@ -498,14 +496,14 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
                 {/* Project Walkthrough Video */}
                 {details.assets?.videos?.[0] && (
-                  <div className="video-card bg-white p-6 rounded-lg shadow-md mt-auto">
-                    <h3 className="text-lg font-semibold mb-4">Project Walkthrough</h3>
-                    <div className="video-container rounded-lg overflow-hidden">
+                  <div className="video-card">
+                    <h3 className="video-card__title">Project Walkthrough</h3>
+                    <div className="video-container">
                       <video
                         width="100%"
                         height="200"
                         controls
-                        className="rounded-lg"
+                        className="video-container__player"
                         poster={details.assets.videos[0].poster || project.thumbnailUrl}
                       >
                         <source src={details.assets.videos[0].url} type="video/mp4" />
@@ -521,15 +519,15 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
         {/* Project Content */}
         <div className="project-content">
-          <div className="container mx-auto px-4 py-8">
+          <div className="project-image-section__content">
             <div className="space-y-8">
               {/* Overview Section */}
               <div className="overview-section">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">Overview</h2>
-                <div className="space-y-6">
+                <h2 className="overview-section__title">Overview</h2>
+                <div className="overview-section__content">
                   <div>
-                    <h3 className="text-xl font-semibold mb-3">Project Description</h3>
-                    <div className="text-gray-700 leading-relaxed space-y-4">
+                    <h3 className="overview-section__subtitle">Project Description</h3>
+                    <div className="overview-section__text">
                       <p>{project.description}</p>
                       {details.overview?.description && (
                         <p>
@@ -546,43 +544,37 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               {/* Amenities Section */}
               {(details.amenities?.outdoorImages || details.amenities?.indoorImages) && (
                 <div className="amenities-section">
-                  <h2 className="text-2xl font-bold mb-6 text-gray-800">Amenities</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <h2 className="amenities-section__title">Amenities</h2>
+                  <div className="amenities-grid">
                     {details.amenities?.outdoorImages?.map((amenity: any, index: number) => (
-                      <div
-                        key={`outdoor-${index}`}
-                        className="amenity-item text-center p-3 bg-white rounded-lg shadow-sm border"
-                      >
-                        <div className="amenity-icon mb-2">
+                      <div key={`outdoor-${index}`} className="amenity-item">
+                        <div className="amenity-icon">
                           <Image
                             src={amenity.icon}
                             alt={amenity.name}
                             width={50}
                             height={50}
-                            className="mx-auto object-contain"
+                            className="amenity-icon__img"
                           />
                         </div>
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className="amenity-name">
                           {typeof amenity.name === 'string' ? amenity.name : String(amenity.name)}
                         </p>
                       </div>
                     ))}
 
                     {details.amenities?.indoorImages?.map((amenity: any, index: number) => (
-                      <div
-                        key={`indoor-${index}`}
-                        className="amenity-item text-center p-3 bg-white rounded-lg shadow-sm border"
-                      >
-                        <div className="amenity-icon mb-2">
+                      <div key={`indoor-${index}`} className="amenity-item">
+                        <div className="amenity-icon">
                           <Image
                             src={amenity.icon}
                             alt={amenity.name}
                             width={50}
                             height={50}
-                            className="mx-auto object-contain"
+                            className="amenity-icon__img"
                           />
                         </div>
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className="amenity-name">
                           {typeof amenity.name === 'string' ? amenity.name : String(amenity.name)}
                         </p>
                       </div>
@@ -597,17 +589,17 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   <h2 className="text-2xl font-bold mb-8 text-gray-800 text-center">
                     SPECIFICATIONS
                   </h2>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="specifications-grid">
                     {Array.isArray(details.specifications)
                       ? details.specifications.map((specGroup: any, index: number) => (
-                          <div key={index} className="spec-item bg-white border rounded-lg">
+                          <div key={index} className="spec-item">
                             <details className="group">
-                              <summary className="cursor-pointer p-4 font-semibold text-gray-800 uppercase hover:bg-gray-50 transition-colors">
+                              <summary className="spec-summary">
                                 {specGroup.category || `Specification ${index + 1}`}
                               </summary>
-                              <div className="p-4 pt-0 text-gray-700">
+                              <div className="spec-content">
                                 {Array.isArray(specGroup.items) ? (
-                                  <ul className="list-disc list-inside space-y-2">
+                                  <ul className="spec-list">
                                     {specGroup.items.map((item: string, idx: number) => (
                                       <li key={idx} dangerouslySetInnerHTML={{ __html: item }} />
                                     ))}
@@ -625,16 +617,16 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         ))
                       : Object.entries(details.specifications).map(
                           ([category, specs]: [string, any]) => (
-                            <div key={category} className="spec-item bg-white border rounded-lg">
+                            <div key={category} className="spec-item">
                               <details className="group">
-                                <summary className="cursor-pointer p-4 font-semibold text-gray-800 uppercase hover:bg-gray-50 transition-colors">
+                                <summary className="spec-summary">
                                   {category
                                     .replace(/([A-Z])/g, ' $1')
                                     .replace(/^./, str => str.toUpperCase())}
                                 </summary>
-                                <div className="p-4 pt-0 text-gray-700">
+                                <div className="spec-content">
                                   {Array.isArray(specs) ? (
-                                    <ul className="list-disc list-inside space-y-2">
+                                    <ul className="spec-list">
                                       {specs.map((spec: string, index: number) => (
                                         <li
                                           key={index}
@@ -643,14 +635,14 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                                       ))}
                                     </ul>
                                   ) : typeof specs === 'object' && specs !== null ? (
-                                    <div className="space-y-3">
+                                    <div className="spec-details">
                                       {Object.entries(specs).map(([key, value]: [string, any]) => (
                                         <div key={key}>
-                                          <strong className="text-gray-800">
+                                          <strong className="spec-details__label">
                                             {key.toUpperCase()}:
                                           </strong>{' '}
                                           {Array.isArray(value) ? (
-                                            <ul className="list-disc list-inside ml-4 mt-1">
+                                            <ul className="spec-details__sublist">
                                               {value.map((item: any, idx: number) => (
                                                 <li
                                                   key={idx}
@@ -681,10 +673,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               {/* Layout Section */}
               {details.assets?.layout && (
                 <div className="layout-section">
-                  <h2 className="text-2xl font-bold mb-6 text-gray-800">Layout</h2>
-                  <div className="layout-image-container bg-white p-6 rounded-lg shadow-sm border">
+                  <h2 className="layout-section__title">Layout</h2>
+                  <div className="layout-image-container">
                     <div
-                      className="cursor-pointer hover:opacity-90 transition-opacity"
+                      className="layout-image-wrapper"
                       onClick={() => openImageModal(details.assets.layout.url)}
                     >
                       <Image
@@ -692,7 +684,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         alt={details.assets.layout.title || `${project.name} Site Layout`}
                         width={800}
                         height={600}
-                        className="w-full h-auto object-contain rounded-lg"
+                        className="layout-image"
                         sizes="100vw"
                       />
                     </div>
@@ -703,15 +695,12 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               {/* Floor Plans Section */}
               {details.floorPlans && details.floorPlans.length > 0 && (
                 <div className="floor-plans-section">
-                  <h2 className="text-2xl font-bold mb-6 text-gray-800">Floor Plans</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <h2 className="floor-plans-section__title">Floor Plans</h2>
+                  <div className="floor-plans-grid">
                     {details.floorPlans.map((floorPlan: any, index: number) => (
-                      <div
-                        key={`floorplan-${index}`}
-                        className="fp bg-white p-4 rounded-lg shadow-sm border"
-                      >
+                      <div key={`floorplan-${index}`} className="fp">
                         <div
-                          className="cursor-pointer hover:opacity-90 transition-opacity"
+                          className="layout-image-wrapper"
                           onClick={() => openImageModal(floorPlan.image)}
                         >
                           <Image
@@ -736,15 +725,12 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               {/* Gallery Section */}
               {details.gallery && details.gallery.length > 0 && (
                 <div className="gallery-section">
-                  <h2 className="text-2xl font-bold mb-6 text-gray-800">Gallery</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <h2 className="gallery-section__title">Gallery</h2>
+                  <div className="floor-plans-grid">
                     {details.gallery.map((galleryItem: any, index: number) => (
-                      <div
-                        key={`gallery-${index}`}
-                        className="gallery-item bg-white p-4 rounded-lg shadow-sm border"
-                      >
+                      <div key={`gallery-${index}`} className="gallery-item">
                         <div
-                          className="cursor-pointer hover:opacity-90 transition-opacity"
+                          className="layout-image-wrapper"
                           onClick={() => openImageModal(galleryItem.image)}
                         >
                           <Image
@@ -769,7 +755,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               {/* Project Status Section */}
               {details.projectStatus && details.projectStatus.length > 0 && (
                 <div className="project-status-section">
-                  <h2 className="text-2xl font-bold mb-6 text-gray-800">Project Status</h2>
+                  <h2 className="project-status-section__title">Project Status</h2>
                   {details.projectStatusDate && (
                     <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
                       <p className="text-blue-800 font-medium">
@@ -779,14 +765,11 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                       </p>
                     </div>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="floor-plans-grid">
                     {details.projectStatus.map((statusItem: any, index: number) => (
-                      <div
-                        key={`status-${index}`}
-                        className="status-item bg-white p-4 rounded-lg shadow-sm border"
-                      >
+                      <div key={`status-${index}`} className="status-item">
                         <div
-                          className="cursor-pointer hover:opacity-90 transition-opacity"
+                          className="layout-image-wrapper"
                           onClick={() => openImageModal(statusItem.image)}
                         >
                           <Image
@@ -840,7 +823,12 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 text-white transition-colors"
                 onClick={handleZoomIn}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="project-image-nav__icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -853,7 +841,12 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 text-white transition-colors"
                 onClick={handleZoomOut}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="project-image-nav__icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
                 </svg>
               </button>
@@ -887,8 +880,6 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           </div>
         </div>
       )}
-
-      <AuthModal isOpen={showAuthModal} mode={authMode} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }

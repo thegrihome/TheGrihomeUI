@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import validator from 'validator'
-import { prisma } from '../../../lib/prisma'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -48,13 +48,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     switch (field) {
       case 'username':
+        // Username must always be unique
         whereClause = { username: value }
         break
       case 'email':
-        whereClause = { email: value }
+        // Only check for VERIFIED emails (emailVerified is not null)
+        whereClause = { email: value, emailVerified: { not: null } }
         break
       case 'mobile':
-        whereClause = { phone: value }
+        // Only check for VERIFIED mobile numbers (mobileVerified is not null)
+        whereClause = { phone: value, mobileVerified: { not: null } }
         break
     }
 
@@ -66,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
-      console.log('Query result:', { existingUser, isUnique: !existingUser })
+      console.log('Query result:', { field, value, existingUser, isUnique: !existingUser })
     }
 
     res.status(200).json({ isUnique: !existingUser })

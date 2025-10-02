@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/cockroachDB/prisma'
 import { PropertyType, ListingStatus } from '@prisma/client'
 
 interface QueryParams {

@@ -6,8 +6,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import RichTextEditor from '@/components/RichTextEditor'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface ForumCategory {
   id: string
@@ -181,11 +180,14 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
               <label htmlFor="content" className="forum-label">
                 Content *
               </label>
-              <RichTextEditor
+              <textarea
+                id="content"
                 value={content}
-                onChange={setContent}
-                placeholder="Write your post content here... You can add images, videos, and rich formatting."
-                className="forum-rich-text-editor"
+                onChange={e => setContent(e.target.value)}
+                placeholder="Write your post content here..."
+                className="forum-rich-text-editor w-full min-h-[300px] p-3 border rounded"
+                rows={12}
+                required
               />
             </div>
 

@@ -146,7 +146,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         html: emailHtml,
       })
     } catch (emailError) {
-      console.error('Failed to send email notification:', emailError)
+      // Log error in development only
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('Failed to send email notification:', emailError)
+      }
       // Don't fail the request if email fails - project is still saved
     }
 
@@ -155,7 +159,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       requestId: projectRequest.id,
     })
   } catch (error) {
-    console.error('Error submitting project request:', error)
+    // Log error in development only
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('Error submitting project request:', error)
+    }
     res.status(500).json({ message: 'Internal server error' })
   } finally {
     await prisma.$disconnect()

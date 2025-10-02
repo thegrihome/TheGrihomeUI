@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { NextPage } from 'next'
-import { RootState } from '@/store/store'
-import { logout } from '@/store/slices/authSlice'
 
 const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
@@ -13,9 +11,10 @@ const Header: NextPage = () => {
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
-  const dispatch = useDispatch()
+  const { data: session, status } = useSession()
   const router = useRouter()
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
+  const isAuthenticated = status === 'authenticated'
+  const user = session?.user
 
   useEffect(() => {
     setMounted(true)
@@ -38,9 +37,8 @@ const Header: NextPage = () => {
   }, [userMenuOpen])
 
   const handleLogout = () => {
-    dispatch(logout())
+    signOut({ callbackUrl: '/' })
     setUserMenuOpen(false)
-    router.push('/')
   }
 
   if (!mounted) return null
@@ -121,15 +119,15 @@ const Header: NextPage = () => {
                     className="user-menu-button flex items-center"
                   >
                     <span className="font-medium hidden md:block">
-                      Welcome {user.name || user.username}
+                      Welcome {user.name || user.email?.split('@')[0]}
                     </span>
                     <span className="font-medium md:hidden">
-                      {user.name?.split(' ')[0] || user.username}
+                      {user.name?.split(' ')[0] || user.email?.split('@')[0]}
                     </span>
                     <div className="user-avatar relative">
-                      {user.imageLink ? (
+                      {user.image ? (
                         <Image
-                          src={user.imageLink}
+                          src={user.image}
                           alt="Profile"
                           width={32}
                           height={32}
@@ -143,7 +141,7 @@ const Header: NextPage = () => {
                                 .map((n: string) => n.charAt(0))
                                 .join('')
                                 .slice(0, 2)
-                            : user.username.charAt(0).toUpperCase()}
+                            : user.email?.charAt(0).toUpperCase()}
                         </span>
                       )}
                       <svg
@@ -165,11 +163,9 @@ const Header: NextPage = () => {
                   {userMenuOpen && (
                     <div className="user-menu-dropdown">
                       <div className="user-info">
-                        <p className="user-name">{user.name || user.username}</p>
-                        <p className="username">@{user.username}</p>
-                        {user.isAgent && user.companyName && (
-                          <p className="text-xs text-gray-500">{user.companyName}</p>
-                        )}
+                        <p className="user-name">{user.name || user.email?.split('@')[0]}</p>
+                        <p className="username">{user.email}</p>
+                        <p className="text-xs text-gray-500">{user.role || 'USER'}</p>
                       </div>
                       <Link href="/userinfo" className="dropdown-link">
                         My Information
@@ -292,9 +288,9 @@ const Header: NextPage = () => {
                   <div>
                     <div className="mobile-user-info">
                       <div className="mobile-user-avatar">
-                        {user.imageLink ? (
+                        {user.image ? (
                           <Image
-                            src={user.imageLink}
+                            src={user.image}
                             alt="Profile"
                             width={40}
                             height={40}
@@ -308,16 +304,14 @@ const Header: NextPage = () => {
                                   .map((n: string) => n.charAt(0))
                                   .join('')
                                   .slice(0, 2)
-                              : user.username.charAt(0).toUpperCase()}
+                              : user.email?.charAt(0).toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div className="mobile-user-details">
-                        <p className="user-name">{user.name || user.username}</p>
-                        <p className="username">@{user.username}</p>
-                        {user.isAgent && user.companyName && (
-                          <p className="text-xs text-gray-500">{user.companyName}</p>
-                        )}
+                        <p className="user-name">{user.name || user.email?.split('@')[0]}</p>
+                        <p className="username">{user.email}</p>
+                        <p className="text-xs text-gray-500">{user.role || 'USER'}</p>
                       </div>
                     </div>
                     <div className="mobile-user-links">
