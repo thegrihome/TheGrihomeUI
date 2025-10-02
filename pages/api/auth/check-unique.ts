@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import validator from 'validator'
+import { parsePhoneNumber } from 'libphonenumber-js'
 import { prisma } from '@/lib/cockroachDB/prisma'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -22,23 +23,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ message: 'Invalid email format', isUnique: false })
   }
 
-  // Validate mobile format
+  // Validate mobile format using libphonenumber-js
   if (field === 'mobile') {
-    const cleanedMobile = value.replace(/\D/g, '')
-
-    // Check length first
-    if (cleanedMobile.length < 7 || cleanedMobile.length > 15) {
-      return res.status(400).json({ message: 'Invalid mobile number format', isUnique: false })
-    }
-
-    // Only reject completely invalid patterns (all zeros)
-    if (/^0+$/.test(cleanedMobile)) {
-      return res.status(400).json({ message: 'Invalid mobile number format', isUnique: false })
-    }
-
-    // Basic mobile number validation - ensure it looks like a reasonable mobile number
-    // Don't be too strict as different countries have different formats
-    if (!/^[1-9]\d*$/.test(cleanedMobile)) {
+    try {
+      const phoneNumber = parsePhoneNumber(value)
+      if (!phoneNumber || !phoneNumber.isValid()) {
+        return res.status(400).json({ message: 'Invalid mobile number format', isUnique: false })
+      }
+    } catch (error) {
       return res.status(400).json({ message: 'Invalid mobile number format', isUnique: false })
     }
   }

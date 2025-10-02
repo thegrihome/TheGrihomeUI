@@ -1,4 +1,4 @@
-import { useSession, signOut, signIn } from 'next-auth/react'
+import { useSession, signIn } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
@@ -31,6 +31,13 @@ export default function UserInfo() {
   const [showMobileOtpInput, setShowMobileOtpInput] = useState(false)
   const [sendingOtp, setSendingOtp] = useState(false)
   const [verifyingOtp, setVerifyingOtp] = useState(false)
+  const [emailOtp, setEmailOtp] = useState('')
+  const [showEmailOtpInput, setShowEmailOtpInput] = useState(false)
+  const [sendingEmailOtp, setSendingEmailOtp] = useState(false)
+  const [verifyingEmailOtp, setVerifyingEmailOtp] = useState(false)
+  const [avatar, setAvatar] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string>('')
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -137,6 +144,156 @@ export default function UserInfo() {
     }
   }
 
+  const handleSendEmailOTP = async () => {
+    if (!userData?.email) return
+
+    setSendingEmailOtp(true)
+    try {
+      // Simulate sending OTP
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setShowEmailOtpInput(true)
+      toast.success('OTP sent to your email! Use 123456 for testing')
+    } catch (error) {
+      toast.error('Failed to send OTP')
+    } finally {
+      setSendingEmailOtp(false)
+    }
+  }
+
+  const handleVerifyEmailOTP = async () => {
+    if (!userData?.email || !emailOtp) return
+
+    setVerifyingEmailOtp(true)
+    try {
+      const result = await signIn('credentials', {
+        identifier: userData.email,
+        otp: emailOtp,
+        loginType: 'otp',
+        redirect: false,
+      })
+
+      if (result?.error) {
+        toast.error('Invalid OTP')
+      } else {
+        toast.success('Email verified successfully!')
+        // Refresh user data
+        const response = await fetch(`/api/user/info?email=${session?.user?.email}`)
+        if (response.ok) {
+          const data = await response.json()
+          setUserData(data.user)
+        }
+        setShowEmailOtpInput(false)
+        setEmailOtp('')
+      }
+    } catch (error) {
+      toast.error('Verification failed')
+    } finally {
+      setVerifyingEmailOtp(false)
+    }
+  }
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB')
+        return
+      }
+
+      setAvatar(file)
+
+      // Create preview and compress image
+      const reader = new FileReader()
+      reader.onload = e => {
+        const img = new window.Image()
+        img.onload = () => {
+          // Create canvas to resize image
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+
+          // Resize to max 400x400 while maintaining aspect ratio
+          let width = img.width
+          let height = img.height
+          const maxSize = 400
+
+          if (width > height) {
+            if (width > maxSize) {
+              height *= maxSize / width
+              width = maxSize
+            }
+          } else {
+            if (height > maxSize) {
+              width *= maxSize / height
+              height = maxSize
+            }
+          }
+
+          canvas.width = width
+          canvas.height = height
+          ctx?.drawImage(img, 0, 0, width, height)
+
+          // Convert to base64 with compression
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8)
+          setAvatarPreview(compressedBase64)
+        }
+        img.src = e.target?.result as string
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleUploadAvatar = async () => {
+    if (!avatar || !avatarPreview) {
+      toast.error('Please select an image first')
+      return
+    }
+
+    setUploadingAvatar(true)
+
+    try {
+      // Convert file to base64 and compress if needed
+      const reader = new FileReader()
+      reader.onload = async e => {
+        try {
+          const base64 = e.target?.result as string
+
+          // Update user avatar with base64 data
+          const response = await fetch('/api/user/update-avatar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageData: base64 }),
+          })
+
+          if (response.ok) {
+            toast.success('Avatar updated successfully!')
+            // Refresh user data
+            const userResponse = await fetch(`/api/user/info?email=${session?.user?.email}`)
+            if (userResponse.ok) {
+              const data = await userResponse.json()
+              setUserData(data.user)
+            }
+            setAvatar(null)
+            setAvatarPreview('')
+            // Reload page to refresh session
+            window.location.reload()
+          } else {
+            const error = await response.json()
+            toast.error(error.message || 'Failed to update avatar')
+          }
+        } catch (error) {
+          toast.error('Failed to upload avatar')
+        } finally {
+          setUploadingAvatar(false)
+        }
+      }
+      reader.readAsDataURL(avatar)
+    } catch (error) {
+      toast.error('Failed to upload avatar')
+      setUploadingAvatar(false)
+    }
+  }
+
   return (
     <div className="userinfo-container">
       <Header />
@@ -154,17 +311,60 @@ export default function UserInfo() {
             </div>
 
             {/* Profile Picture */}
-            {userData.image && (
-              <div className="userinfo-avatar-section">
-                <Image
-                  src={userData.image}
-                  alt="Profile"
-                  width={120}
-                  height={120}
-                  className="userinfo-avatar"
-                />
+            <div className="userinfo-avatar-section">
+              <div className="userinfo-avatar-display">
+                <label className="userinfo-label">Profile Picture</label>
+                {userData.image || avatarPreview ? (
+                  <Image
+                    src={avatarPreview || userData.image || ''}
+                    alt="Profile"
+                    width={120}
+                    height={120}
+                    className="userinfo-avatar"
+                  />
+                ) : (
+                  <div className="userinfo-avatar-placeholder">
+                    <span className="text-4xl font-medium text-gray-400">
+                      {userData.name
+                        ? userData.name
+                            .split(' ')
+                            .map(n => n.charAt(0))
+                            .join('')
+                            .slice(0, 2)
+                            .toUpperCase()
+                        : userData.email?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                {userData.image && !avatarPreview && (
+                  <p className="userinfo-avatar-status">Current Avatar</p>
+                )}
+                {avatarPreview && (
+                  <p className="userinfo-avatar-status">Preview - Click Save to update</p>
+                )}
               </div>
-            )}
+              <div className="userinfo-avatar-upload">
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+                <label htmlFor="avatar-upload" className="userinfo-avatar-select-btn">
+                  {userData.image ? 'Change Avatar' : 'Upload Avatar'}
+                </label>
+                {avatar && (
+                  <button
+                    onClick={handleUploadAvatar}
+                    disabled={uploadingAvatar}
+                    className="userinfo-avatar-upload-btn"
+                  >
+                    {uploadingAvatar ? 'Uploading...' : 'Save Avatar'}
+                  </button>
+                )}
+              </div>
+            </div>
 
             {/* User Details */}
             <div className="userinfo-grid">
@@ -180,12 +380,46 @@ export default function UserInfo() {
 
               <div className="userinfo-field">
                 <label className="userinfo-label">Email Address</label>
-                <div className="userinfo-value-with-badge">
-                  <p className="userinfo-value">{userData.email}</p>
-                  {userData.emailVerified ? (
-                    <span className="userinfo-badge userinfo-badge--verified">Verified</span>
-                  ) : (
-                    <span className="userinfo-badge userinfo-badge--unverified">Unverified</span>
+                <div className="userinfo-mobile-section">
+                  <div className="userinfo-value-with-badge">
+                    <p className="userinfo-value">{userData.email}</p>
+                    {userData.emailVerified ? (
+                      <span className="userinfo-badge userinfo-badge--verified">Verified</span>
+                    ) : (
+                      <>
+                        <span className="userinfo-badge userinfo-badge--unverified">
+                          Unverified
+                        </span>
+                        {!showEmailOtpInput && (
+                          <button
+                            onClick={handleSendEmailOTP}
+                            disabled={sendingEmailOtp}
+                            className="userinfo-verify-btn"
+                          >
+                            {sendingEmailOtp ? 'Sending...' : 'Send OTP'}
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  {showEmailOtpInput && !userData.emailVerified && (
+                    <div className="userinfo-otp-full-group">
+                      <input
+                        type="text"
+                        value={emailOtp}
+                        onChange={e => setEmailOtp(e.target.value)}
+                        placeholder="Enter OTP (123456)"
+                        maxLength={6}
+                        className="userinfo-otp-full-input"
+                      />
+                      <button
+                        onClick={handleVerifyEmailOTP}
+                        disabled={verifyingEmailOtp || !emailOtp}
+                        className="userinfo-verify-full-btn"
+                      >
+                        {verifyingEmailOtp ? 'Verifying...' : 'Verify'}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

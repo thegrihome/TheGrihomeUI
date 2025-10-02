@@ -9,9 +9,10 @@ const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
+  const [userImage, setUserImage] = useState<string | null>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
   const router = useRouter()
   const isAuthenticated = status === 'authenticated'
   const user = session?.user
@@ -19,6 +20,31 @@ const Header: NextPage = () => {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Fetch user image from database if not in session
+  useEffect(() => {
+    const fetchUserImage = async () => {
+      if (isAuthenticated && user?.email && !user.image) {
+        try {
+          const response = await fetch(`/api/user/info?email=${user.email}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.user?.image) {
+              setUserImage(data.user.image)
+              // Update session with the image
+              await update()
+            }
+          }
+        } catch (error) {
+          // Silent fail
+        }
+      } else if (user?.image) {
+        setUserImage(user.image)
+      }
+    }
+
+    fetchUserImage()
+  }, [isAuthenticated, user?.email, user?.image, update, user])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -125,9 +151,9 @@ const Header: NextPage = () => {
                       {user.name?.split(' ')[0] || user.email?.split('@')[0]}
                     </span>
                     <div className="user-avatar relative">
-                      {user.image ? (
+                      {userImage ? (
                         <Image
-                          src={user.image}
+                          src={userImage}
                           alt="Profile"
                           width={32}
                           height={32}
@@ -288,9 +314,9 @@ const Header: NextPage = () => {
                   <div>
                     <div className="mobile-user-info">
                       <div className="mobile-user-avatar">
-                        {user.image ? (
+                        {userImage ? (
                           <Image
-                            src={user.image}
+                            src={userImage}
                             alt="Profile"
                             width={40}
                             height={40}

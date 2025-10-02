@@ -68,28 +68,6 @@ export default function Signup() {
     setLoading(true)
 
     try {
-      let imageLink = ''
-
-      // Upload avatar if provided
-      if (avatar) {
-        const uploadFormData = new FormData()
-        uploadFormData.append('file', avatar)
-        uploadFormData.append('upload_preset', 'grihome_avatars')
-
-        const uploadRes = await fetch(
-          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-          {
-            method: 'POST',
-            body: uploadFormData,
-          }
-        )
-
-        if (uploadRes.ok) {
-          const uploadData = await uploadRes.json()
-          imageLink = uploadData.secure_url
-        }
-      }
-
       // Create user
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -103,7 +81,7 @@ export default function Signup() {
           password: formData.password,
           isAgent: formData.isAgent,
           companyName: formData.companyName,
-          imageLink,
+          imageLink: avatarPreview || null,
         }),
       })
 
@@ -199,7 +177,13 @@ export default function Signup() {
 
         const data = await response.json()
 
-        if (response.ok && !data.isUnique) {
+        if (!response.ok) {
+          // Handle validation errors (400) or other errors
+          setValidationErrors(prev => ({
+            ...prev,
+            email: data.message || 'Invalid email',
+          }))
+        } else if (!data.isUnique) {
           setValidationErrors(prev => ({
             ...prev,
             email: 'Email is already registered and verified',
@@ -244,7 +228,13 @@ export default function Signup() {
 
         const data = await response.json()
 
-        if (response.ok && !data.isUnique) {
+        if (!response.ok) {
+          // Handle validation errors (400) or other errors
+          setValidationErrors(prev => ({
+            ...prev,
+            mobileNumber: data.message || 'Invalid mobile number',
+          }))
+        } else if (!data.isUnique) {
           setValidationErrors(prev => ({
             ...prev,
             mobileNumber: 'Mobile number is already registered and verified',

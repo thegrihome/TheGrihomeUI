@@ -103,10 +103,21 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.role = user.role
         token.image = user.image
+      }
+      // Refresh token data on update or when image is missing
+      if ((trigger === 'update' || !token.image) && token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true, image: true },
+        })
+        if (dbUser) {
+          token.role = dbUser.role
+          token.image = dbUser.image
+        }
       }
       return token
     },
