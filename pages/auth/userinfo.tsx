@@ -303,7 +303,7 @@ export default function UserInfo() {
             <div className="userinfo-header">
               <h1 className="userinfo-title">User Information</h1>
               <button
-                onClick={() => router.push('/my-properties')}
+                onClick={() => router.push('/properties/my-properties')}
                 className="userinfo-properties-link"
               >
                 My Properties
