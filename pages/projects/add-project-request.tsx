@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { NextSeo } from 'next-seo'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
@@ -19,10 +19,23 @@ interface ProjectRequestForm {
   additionalInfo: string
 }
 
+interface UserData {
+  name?: string
+  email?: string
+  phone?: string
+  emailVerified?: boolean
+  mobileVerified?: boolean
+}
+
 export default function AddProjectRequestPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [showEmailOTP, setShowEmailOTP] = useState(false)
+  const [showMobileOTP, setShowMobileOTP] = useState(false)
+  const [emailOTP, setEmailOTP] = useState('')
+  const [mobileOTP, setMobileOTP] = useState('')
   const [formData, setFormData] = useState<ProjectRequestForm>({
     builderName: '',
     projectName: '',
@@ -35,6 +48,30 @@ export default function AddProjectRequestPage() {
     projectType: 'RESIDENTIAL',
     additionalInfo: '',
   })
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchUserData()
+    }
+  }, [session])
+
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch(`/api/user/verification-status`)
+      if (!response.ok) return
+      const data = await response.json()
+      setUserData(data)
+      // Auto-populate form
+      setFormData(prev => ({
+        ...prev,
+        contactPersonName: data.name || '',
+        contactPersonEmail: data.email || '',
+        contactPersonPhone: data.phone || '',
+      }))
+    } catch (error) {
+      // Error fetching user data
+    }
+  }
 
   const projectTypes = [
     { value: 'RESIDENTIAL', label: 'Residential', icon: '🏠' },
@@ -53,7 +90,54 @@ export default function AddProjectRequestPage() {
     }))
   }
 
+  const handleVerifyEmail = async () => {
+    if (!userData?.email) return
+    setShowEmailOTP(true)
+    toast.success('OTP sent to your email')
+    // TODO: Call API to send email OTP
+  }
+
+  const handleVerifyMobile = async () => {
+    if (!userData?.phone) return
+    setShowMobileOTP(true)
+    toast.success('OTP sent to your mobile')
+    // TODO: Call API to send mobile OTP
+  }
+
+  const handleEmailOTPSubmit = async () => {
+    if (emailOTP.length !== 6) {
+      toast.error('Please enter a valid 6-digit OTP')
+      return
+    }
+    // TODO: Call API to verify email OTP
+    toast.success('Email verified successfully')
+    setUserData(prev => (prev ? { ...prev, emailVerified: true } : null))
+    setShowEmailOTP(false)
+  }
+
+  const handleMobileOTPSubmit = async () => {
+    if (mobileOTP.length !== 6) {
+      toast.error('Please enter a valid 6-digit OTP')
+      return
+    }
+    // TODO: Call API to verify mobile OTP
+    toast.success('Mobile verified successfully')
+    setUserData(prev => (prev ? { ...prev, mobileVerified: true } : null))
+    setShowMobileOTP(false)
+  }
+
   const validateForm = () => {
+    // Check email verification
+    if (!userData?.emailVerified) {
+      toast.error('Please verify your email address before submitting')
+      return false
+    }
+    // Check mobile verification
+    if (!userData?.mobileVerified) {
+      toast.error('Please verify your mobile number before submitting')
+      return false
+    }
+
     const requiredFields = [
       'builderName',
       'projectName',
@@ -296,29 +380,95 @@ export default function AddProjectRequestPage() {
                     <label className="request-field__label">
                       Email Address <span className="request-field__required">*</span>
                     </label>
-                    <input
-                      type="email"
-                      name="contactPersonEmail"
-                      value={formData.contactPersonEmail}
-                      onChange={handleInputChange}
-                      className="request-field__textarea"
-                      placeholder="contact@example.com"
-                      required
-                    />
+                    <div className="verification-container">
+                      <input
+                        type="email"
+                        name="contactPersonEmail"
+                        value={formData.contactPersonEmail}
+                        onChange={handleInputChange}
+                        className="request-field__textarea verification-input"
+                        placeholder="contact@example.com"
+                        disabled={userData?.emailVerified}
+                        required
+                      />
+                      {userData?.emailVerified ? (
+                        <span className="verification-status">✓ Verified</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleVerifyEmail}
+                          className="verification-button"
+                        >
+                          Verify
+                        </button>
+                      )}
+                    </div>
+                    {showEmailOTP && !userData?.emailVerified && (
+                      <div className="verification-otp-box">
+                        <input
+                          type="text"
+                          maxLength={6}
+                          value={emailOTP}
+                          onChange={e => setEmailOTP(e.target.value)}
+                          placeholder="Enter 6-digit OTP"
+                          className="verification-otp-input"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleEmailOTPSubmit}
+                          className="verification-otp-button"
+                        >
+                          Submit OTP
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="request-field__label">
                       Phone Number <span className="request-field__required">*</span>
                     </label>
-                    <input
-                      type="tel"
-                      name="contactPersonPhone"
-                      value={formData.contactPersonPhone}
-                      onChange={handleInputChange}
-                      className="request-field__textarea"
-                      placeholder="+91 98765 43210"
-                      required
-                    />
+                    <div className="verification-container">
+                      <input
+                        type="tel"
+                        name="contactPersonPhone"
+                        value={formData.contactPersonPhone}
+                        onChange={handleInputChange}
+                        className="request-field__textarea verification-input"
+                        placeholder="+91 98765 43210"
+                        disabled={userData?.mobileVerified}
+                        required
+                      />
+                      {userData?.mobileVerified ? (
+                        <span className="verification-status">✓ Verified</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleVerifyMobile}
+                          className="verification-button"
+                        >
+                          Verify
+                        </button>
+                      )}
+                    </div>
+                    {showMobileOTP && !userData?.mobileVerified && (
+                      <div className="verification-otp-box">
+                        <input
+                          type="text"
+                          maxLength={6}
+                          value={mobileOTP}
+                          onChange={e => setMobileOTP(e.target.value)}
+                          placeholder="Enter 6-digit OTP"
+                          className="verification-otp-input"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleMobileOTPSubmit}
+                          className="verification-otp-button"
+                        >
+                          Submit OTP
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -341,7 +491,11 @@ export default function AddProjectRequestPage() {
 
               {/* Submit Button */}
               <div className="submit-section">
-                <button type="submit" disabled={loading} className="submit-button">
+                <button
+                  type="submit"
+                  disabled={loading || !userData?.emailVerified || !userData?.mobileVerified}
+                  className="submit-button"
+                >
                   {loading ? (
                     <span className="submit-button__loading">
                       <div className="submit-button__spinner"></div>
@@ -351,6 +505,11 @@ export default function AddProjectRequestPage() {
                     'Submit Project Request'
                   )}
                 </button>
+                {(!userData?.emailVerified || !userData?.mobileVerified) && (
+                  <p className="verification-error">
+                    Please verify your email and phone number before submitting
+                  </p>
+                )}
                 <p className="submit-disclaimer">
                   By submitting this request, you agree that Grihome admins will review and contact
                   you for further details.

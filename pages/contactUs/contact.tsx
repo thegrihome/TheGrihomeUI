@@ -252,9 +252,19 @@ export default function ContactPage() {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={
+                  isSubmitting ||
+                  !formData.name.trim() ||
+                  !formData.email.trim() ||
+                  !formData.message.trim()
+                }
                 className={`contact-form__submit ${
-                  isSubmitting ? 'contact-form__submit--disabled' : 'contact-form__submit--active'
+                  isSubmitting ||
+                  !formData.name.trim() ||
+                  !formData.email.trim() ||
+                  !formData.message.trim()
+                    ? 'contact-form__submit--disabled'
+                    : 'contact-form__submit--active'
                 }`}
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}

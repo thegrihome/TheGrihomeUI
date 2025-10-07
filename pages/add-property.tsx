@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 
-export default function UserinfoRedirect() {
+export default function AddPropertyRedirect() {
   const router = useRouter()
 
   useEffect(() => {
-    router.replace('/auth/userinfo')
+    router.replace('/properties/add-property')
   }, [router])
 
   return null

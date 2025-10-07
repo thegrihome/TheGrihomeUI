@@ -152,7 +152,7 @@ export default function Home() {
       return
     }
 
-    router.push(`/ads/${slotNumber}/purchase`)
+    router.push(`/purchase-ad?slot=${slotNumber}`)
   }
 
   const handleRenewAd = (adId: string, slotNumber: number) => {
@@ -205,33 +205,62 @@ export default function Home() {
     }
   }
 
-  const handlePredictionSelect = (prediction: google.maps.places.AutocompletePrediction) => {
+  const handlePredictionSelect = async (prediction: google.maps.places.AutocompletePrediction) => {
     if (searchInputRef.current) {
       searchInputRef.current.value = prediction.description
     }
     setShowPredictions(false)
     setPredictions([])
-    // Navigate to properties page with location
-    navigateToProperties(prediction.description)
+
+    // Get place details to extract city, state, locality
+    const placesService = new google.maps.places.PlacesService(document.createElement('div'))
+    placesService.getDetails(
+      {
+        placeId: prediction.place_id,
+        fields: ['address_components', 'formatted_address'],
+      },
+      (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+          navigateToPropertiesWithDetails(place)
+        } else {
+          // Fallback to simple location search
+          navigateToProperties(prediction.description)
+        }
+      }
+    )
   }
 
-  const isZipCode = (input: string) => {
-    // Check if input is numeric and between 5-6 digits (Indian postal codes)
-    return /^\d{5,6}$/.test(input.trim())
-  }
+  const navigateToPropertiesWithDetails = (place: google.maps.places.PlaceResult) => {
+    const addressComponents = place.address_components || []
+    let city = ''
+    let state = ''
+    let locality = ''
 
-  const navigateToProperties = (searchValue: string) => {
+    addressComponents.forEach(component => {
+      const types = component.types
+      if (types.includes('locality')) city = component.long_name
+      if (types.includes('administrative_area_level_1')) state = component.long_name
+      if (types.includes('sublocality_level_1') || types.includes('sublocality'))
+        locality = component.long_name
+      // If locality is not found, also check for neighborhood
+      if (!locality && types.includes('neighborhood')) locality = component.long_name
+    })
+
     const query: { [key: string]: string } = {}
-
-    if (isZipCode(searchValue)) {
-      query.zipcode = searchValue.trim()
-    } else {
-      query.location = searchValue
-    }
+    if (city) query.city = city
+    if (state) query.state = state
+    if (locality) query.locality = locality
 
     router.push({
       pathname: '/properties',
       query,
+    })
+  }
+
+  const navigateToProperties = (searchValue: string) => {
+    router.push({
+      pathname: '/properties',
+      query: { location: searchValue },
     })
   }
 
@@ -255,7 +284,10 @@ export default function Home() {
           description: 'Grihome — Redefining Real Estate with you.',
           images: [
             {
-              url: 'blob:https://og-playground.vercel.app/8baff750-c782-4a04-b198-7ee3dd1e1974',
+              url: 'https://grihome.vercel.app/images/grihome-logo.png',
+              width: 800,
+              height: 600,
+              alt: 'Grihome Logo',
             },
           ],
           site_name: 'Grihome',
@@ -266,9 +298,6 @@ export default function Home() {
           cardType: 'summary_large_image',
         }}
       />
-      <Head>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
 
       <Header />
 
@@ -342,9 +371,6 @@ export default function Home() {
                     onFocus={() => predictions.length > 0 && setShowPredictions(true)}
                     onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
                   />
-                  <button type="submit" className="home-search-button">
-                    Search
-                  </button>
                   {showPredictions && predictions.length > 0 && (
                     <div className="home-search-predictions">
                       {predictions.map(prediction => (
@@ -441,10 +467,6 @@ export default function Home() {
       {/* Featured Properties Section */}
       <section className="featured-properties-section">
         <div className="container mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            Featured Properties
-          </h2>
-
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -454,125 +476,16 @@ export default function Home() {
               {adSlots.map(slot => (
                 <div
                   key={slot.slotNumber}
-                  className="property-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  className="relative border-2 border-black rounded-lg p-8 min-h-[200px] flex items-center justify-center hover:shadow-lg transition-shadow duration-300 bg-white"
                 >
-                  {slot.hasAd && slot.ad ? (
-                    // Show actual property/project ad
-                    <>
-                      <div className="property-image-container relative h-48">
-                        <Image
-                          src={
-                            slot.ad.property?.thumbnail ||
-                            slot.ad.project?.thumbnail ||
-                            'https://via.placeholder.com/400x192?text=Property+Ad'
-                          }
-                          alt={slot.ad.property?.title || slot.ad.project?.name || 'Property Ad'}
-                          width={400}
-                          height={192}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-4 left-4 bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
-                          Featured Ad
-                        </div>
-                        {slot.isUserAd && slot.isExpiringSoon && (
-                          <div className="absolute top-4 right-4 bg-red-600 text-white px-2 py-1 rounded text-xs font-medium">
-                            Expiring Soon
-                          </div>
-                        )}
-                        {slot.isUserAd && (
-                          <div className="absolute bottom-4 right-4">
-                            <button
-                              onClick={() => handleRenewAd(slot.ad!.id, slot.slotNumber)}
-                              className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
-                            >
-                              Renew
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-semibold text-lg mb-2 text-gray-800">
-                          {slot.ad.property?.title || slot.ad.project?.name}
-                        </h3>
-                        {slot.ad.property && (
-                          <p className="text-gray-600 text-sm mb-2">
-                            {getPropertyTypeLabel(slot.ad.property.type)} • {slot.ad.property.sqFt}{' '}
-                            sq ft
-                            {slot.ad.property.details?.bedrooms &&
-                              ` • ${slot.ad.property.details.bedrooms} BHK`}
-                          </p>
-                        )}
-                        <p className="text-gray-500 text-sm mb-3">
-                          {formatLocation(slot.ad.property?.location || slot.ad.project?.location)}
-                        </p>
-                        <div className="flex justify-between items-center">
-                          <p className="text-xs text-gray-500">
-                            Posted by{' '}
-                            <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
-                              {slot.ad.user.name}
-                            </span>
-                          </p>
-                          <button
-                            onClick={() => {
-                              if (slot.ad?.property) {
-                                router.push(`/properties/${slot.ad.property.id}`)
-                              } else if (slot.ad?.project) {
-                                router.push(`/projects/${slot.ad.project.id}`)
-                              }
-                            }}
-                            className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
-                          >
-                            View Details
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    // Show "Purchase Ad" placeholder
-                    <>
-                      <div className="property-image-container relative h-48 bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
-                        <div className="text-center">
-                          <svg
-                            className="mx-auto h-12 w-12 text-gray-400"
-                            stroke="currentColor"
-                            fill="none"
-                            viewBox="0 0 48 48"
-                          >
-                            <path
-                              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                              strokeWidth={2}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          <h3 className="mt-2 text-sm font-medium text-gray-900">
-                            Purchase Ad Slot
-                          </h3>
-                          <p className="mt-1 text-sm text-gray-500">₹{slot.basePrice}/day</p>
-                        </div>
-                        <div className="absolute top-4 left-4 bg-orange-600 text-white px-2 py-1 rounded text-xs font-medium">
-                          Slot #{slot.slotNumber}
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-semibold text-lg mb-2 text-gray-800">
-                          Ad Slot Available
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-2">Feature your property here</p>
-                        <p className="text-gray-500 text-sm mb-3">
-                          Starting at ₹{slot.basePrice} per day
-                        </p>
-                        <div className="flex justify-end">
-                          <button
-                            onClick={() => handlePurchaseAd(slot.slotNumber)}
-                            className="bg-orange-600 text-white px-4 py-2 rounded text-sm hover:bg-orange-700 transition-colors"
-                          >
-                            Purchase Ad
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  <div className="absolute top-4 left-4 text-sm font-bold ad-slot-number">
+                    Slot #{slot.slotNumber}
+                  </div>
+                  <button onClick={() => handlePurchaseAd(slot.slotNumber)} className="text-center">
+                    <div className="text-black text-base font-semibold">
+                      Advertise your property <span className="ad-slot-text-gradient">here</span>
+                    </div>
+                  </button>
                 </div>
               ))}
             </div>

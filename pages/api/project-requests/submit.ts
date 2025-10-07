@@ -142,7 +142,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await resend.emails.send({
         from: 'Grihome <noreply@grihome.vercel.app>',
         to: ['admin@grihome.com'], // Replace with actual admin email(s)
-        subject: '[New Project Addition Request] ' + projectName + ' by ' + builderName,
+        subject: '[New Project Request] ' + projectName + ' by ' + builderName,
         html: emailHtml,
       })
     } catch (emailError) {

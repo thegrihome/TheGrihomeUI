@@ -37,28 +37,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (property.userId !== session.user.id) {
-      return res.status(403).json({ message: 'You can only archive your own properties' })
+      return res.status(403).json({ message: 'You can only reactivate your own properties' })
     }
 
-    if (property.listingStatus !== LISTING_STATUS.ACTIVE) {
-      return res.status(400).json({ message: 'Only active properties can be archived' })
+    if (property.listingStatus !== LISTING_STATUS.ARCHIVED) {
+      return res.status(400).json({ message: 'Only archived properties can be reactivated' })
     }
 
-    // Archive the property
+    // Reactivate the property
     await prisma.property.update({
       where: { id },
       data: {
-        listingStatus: LISTING_STATUS.ARCHIVED,
+        listingStatus: LISTING_STATUS.ACTIVE,
         updatedAt: new Date(),
       },
     })
 
-    res.status(200).json({ message: 'Property archived successfully' })
+    res.status(200).json({ message: 'Property reactivated successfully' })
   } catch (error) {
     // Log error in development only
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
-      console.error('Error archiving property:', error)
+      console.error('Error reactivating property:', error)
     }
     res.status(500).json({ message: 'Internal server error' })
   }

@@ -10,28 +10,51 @@ import { PropertyType, ProjectType } from '@prisma/client'
 export async function searchProperties({
   city,
   state,
-  country = 'USA',
+  locality,
+  location,
+  country = 'India',
   limit = 20,
   offset = 0,
 }: {
   city?: string
   state?: string
+  locality?: string
+  location?: string
   country?: string
   limit?: number
   offset?: number
 }) {
+  // Build location filter with intelligent matching
+  const locationFilter: any = {}
+
+  if (city && state) {
+    // If we have city and state, filter by them first
+    locationFilter.location = {
+      city,
+      state,
+      ...(country && { country }),
+    }
+
+    // If locality is provided, do fuzzy matching on locality or street address
+    if (locality) {
+      locationFilter.OR = [
+        { location: { locality: { contains: locality, mode: 'insensitive' } } },
+        { streetAddress: { contains: locality, mode: 'insensitive' } },
+      ]
+    }
+  } else if (location) {
+    // Fallback: search across all location fields
+    locationFilter.OR = [
+      { location: { city: { contains: location, mode: 'insensitive' } } },
+      { location: { state: { contains: location, mode: 'insensitive' } } },
+      { location: { locality: { contains: location, mode: 'insensitive' } } },
+      { streetAddress: { contains: location, mode: 'insensitive' } },
+    ]
+  }
+
   // Use indexed fields and selective queries to reduce RU consumption
   return await prisma.property.findMany({
-    where: {
-      ...(city &&
-        state && {
-          location: {
-            city,
-            state,
-            country,
-          },
-        }),
-    },
+    where: locationFilter,
     select: {
       // Only select needed fields to reduce data transfer
       id: true,
@@ -45,6 +68,7 @@ export async function searchProperties({
           state: true,
           country: true,
           zipcode: true,
+          locality: true,
         },
       },
       project: {
@@ -187,19 +211,42 @@ export async function getRecentListings(limit = 12) {
 export async function countProperties(filters: {
   city?: string
   state?: string
+  locality?: string
+  location?: string
   country?: string
   projectType?: ProjectType
 }) {
+  // Build location filter with intelligent matching
+  const locationFilter: any = {}
+
+  if (filters.city && filters.state) {
+    // If we have city and state, filter by them first
+    locationFilter.location = {
+      city: filters.city,
+      state: filters.state,
+      ...(filters.country && { country: filters.country }),
+    }
+
+    // If locality is provided, do fuzzy matching
+    if (filters.locality) {
+      locationFilter.OR = [
+        { location: { locality: { contains: filters.locality, mode: 'insensitive' } } },
+        { streetAddress: { contains: filters.locality, mode: 'insensitive' } },
+      ]
+    }
+  } else if (filters.location) {
+    // Fallback: search across all location fields
+    locationFilter.OR = [
+      { location: { city: { contains: filters.location, mode: 'insensitive' } } },
+      { location: { state: { contains: filters.location, mode: 'insensitive' } } },
+      { location: { locality: { contains: filters.location, mode: 'insensitive' } } },
+      { streetAddress: { contains: filters.location, mode: 'insensitive' } },
+    ]
+  }
+
   return await prisma.property.count({
     where: {
-      ...(filters.city &&
-        filters.state && {
-          location: {
-            city: filters.city,
-            state: filters.state,
-            ...(filters.country && { country: filters.country }),
-          },
-        }),
+      ...locationFilter,
       ...(filters.projectType && {
         project: {
           type: filters.projectType,

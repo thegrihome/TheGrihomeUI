@@ -6,6 +6,14 @@ import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import toast from 'react-hot-toast'
+import styles from '@/styles/pages/properties/my-properties.module.css'
+import {
+  PROPERTY_TYPES,
+  PROPERTY_TYPE_LABELS,
+  PROPERTY_TYPE_ICONS,
+  LISTING_STATUS,
+  LISTING_STATUS_LABELS,
+} from '@/lib/constants'
 
 interface Property {
   id: string
@@ -64,11 +72,31 @@ export default function MyPropertiesPage() {
   const [soldToName, setSoldToName] = useState('')
 
   const propertyTypes = [
-    { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
-    { value: 'CONDO', label: 'Apartments', icon: '🏢' },
-    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
-    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
-    { value: 'COMMERCIAL', label: 'Commercial Properties', icon: '🏬' },
+    {
+      value: PROPERTY_TYPES.SINGLE_FAMILY,
+      label: 'Villas',
+      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.SINGLE_FAMILY],
+    },
+    {
+      value: PROPERTY_TYPES.CONDO,
+      label: 'Apartments',
+      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.CONDO],
+    },
+    {
+      value: PROPERTY_TYPES.LAND_RESIDENTIAL,
+      label: 'Residential Lands',
+      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.LAND_RESIDENTIAL],
+    },
+    {
+      value: PROPERTY_TYPES.LAND_AGRICULTURE,
+      label: 'Agriculture Lands',
+      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.LAND_AGRICULTURE],
+    },
+    {
+      value: PROPERTY_TYPES.COMMERCIAL,
+      label: 'Commercial Properties',
+      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.COMMERCIAL],
+    },
   ]
 
   useEffect(() => {
@@ -153,6 +181,26 @@ export default function MyPropertiesPage() {
     }
   }
 
+  const handleReactivateProperty = async (propertyId: string) => {
+    try {
+      const response = await fetch(`/api/properties/${propertyId}/reactivate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to reactivate property')
+      }
+
+      toast.success('Property reactivated successfully')
+      loadMyProperties()
+    } catch (error) {
+      toast.error('Failed to reactivate property')
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -163,9 +211,14 @@ export default function MyPropertiesPage() {
     })
   }
 
-  const activeProperties = properties.filter(p => p.listingStatus === 'ACTIVE')
+  const activeProperties = properties.filter(p => p.listingStatus === LISTING_STATUS.ACTIVE)
   const archivedProperties = properties.filter(p =>
-    ['SOLD', 'OFF_MARKET', 'DRAFT', 'ARCHIVED'].includes(p.listingStatus)
+    [
+      LISTING_STATUS.SOLD,
+      LISTING_STATUS.OFF_MARKET,
+      LISTING_STATUS.DRAFT,
+      LISTING_STATUS.ARCHIVED,
+    ].includes(p.listingStatus as any)
   )
 
   const currentProperties = activeTab === 'active' ? activeProperties : archivedProperties
@@ -204,7 +257,7 @@ export default function MyPropertiesPage() {
   }
 
   return (
-    <div className="my-properties-container">
+    <div className={styles['my-properties-container']}>
       <NextSeo
         title="My Properties - Grihome"
         description="Manage your property listings and view interested buyers"
@@ -215,56 +268,47 @@ export default function MyPropertiesPage() {
 
       <main className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Properties</h1>
-            <p className="text-gray-600">
+          <div className={styles['my-properties-header']}>
+            <h1 className={styles['my-properties-title']}>My Properties</h1>
+            <p className={styles['my-properties-subtitle']}>
               Manage your property listings and view interested buyers
             </p>
           </div>
 
           {/* Tabs */}
-          <div className="mb-6">
-            <div className="border-b border-gray-200">
-              <nav className="-mb-px flex space-x-8">
-                <button
-                  onClick={() => setActiveTab('active')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'active'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  Active Properties ({activeProperties.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab('archived')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'archived'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  Archived Properties ({archivedProperties.length})
-                </button>
-              </nav>
+          <div className={styles['my-properties-tabs']}>
+            <div className={styles['my-properties-tabs-nav']}>
+              <button
+                onClick={() => setActiveTab('active')}
+                className={`${styles['my-properties-tab']} ${
+                  activeTab === 'active'
+                    ? styles['my-properties-tab--active']
+                    : styles['my-properties-tab--inactive']
+                }`}
+              >
+                Active Properties ({activeProperties.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('archived')}
+                className={`${styles['my-properties-tab']} ${
+                  activeTab === 'archived'
+                    ? styles['my-properties-tab--active']
+                    : styles['my-properties-tab--inactive']
+                }`}
+              >
+                Archived Properties ({archivedProperties.length})
+              </button>
             </div>
           </div>
 
           {/* Properties Grid */}
           {currentProperties.length === 0 ? (
-            <div className="text-center py-16">
-              <h2 className="text-4xl font-bold mb-4">
-                <span className="text-gray-800">No Properties</span>{' '}
-                <span
-                  className="text-transparent bg-clip-text"
-                  style={{
-                    backgroundImage: 'linear-gradient(to right, #ec4899, #8b5cf6, #6366f1)',
-                  }}
-                >
-                  Found
-                </span>
+            <div className={styles['my-properties-empty']}>
+              <h2 className={styles['my-properties-empty-title']}>
+                <span className={styles['my-properties-empty-title-main']}>No Properties</span>{' '}
+                <span className={styles['my-properties-empty-title-highlight']}>Found</span>
               </h2>
-              <p className="text-gray-600 text-lg mb-6">
+              <p className={styles['my-properties-empty-text']}>
                 {activeTab === 'active'
                   ? "You haven't listed any active properties yet."
                   : "You don't have any archived properties."}
@@ -272,20 +316,17 @@ export default function MyPropertiesPage() {
               {activeTab === 'active' && (
                 <button
                   onClick={() => router.push('/add-property')}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                  className={styles['my-properties-empty-button']}
                 >
                   Add Your First Property
                 </button>
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className={styles['my-properties-grid']}>
               {currentProperties.map(property => (
-                <div
-                  key={property.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                >
-                  <div className="relative h-48">
+                <div key={property.id} className={styles['property-card']}>
+                  <div className={styles['property-card-image']}>
                     <Image
                       src={
                         property.thumbnailUrl ||
@@ -297,34 +338,34 @@ export default function MyPropertiesPage() {
                       height={192}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-4 left-4 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                    <div className={styles['property-card-badge']}>
                       {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
                       {propertyTypes.find(t => t.value === property.propertyType)?.label}
                     </div>
                     <div
-                      className={`absolute top-4 right-4 px-2 py-1 rounded text-xs font-bold text-white ${
-                        property.listingStatus === 'ACTIVE'
-                          ? 'bg-green-600'
-                          : property.listingStatus === 'SOLD'
-                            ? 'bg-red-600'
-                            : property.listingStatus === 'PENDING'
-                              ? 'bg-yellow-600'
-                              : 'bg-gray-600'
+                      className={`${styles['property-card-status']} ${
+                        property.listingStatus === LISTING_STATUS.ACTIVE
+                          ? styles['property-card-status--active']
+                          : property.listingStatus === LISTING_STATUS.SOLD
+                            ? styles['property-card-status--sold']
+                            : property.listingStatus === LISTING_STATUS.PENDING
+                              ? styles['property-card-status--pending']
+                              : styles['property-card-status--archived']
                       }`}
                     >
                       {property.listingStatus}
                     </div>
                   </div>
 
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-2 text-gray-800">{property.project}</h3>
-                    <p className="text-gray-600 text-sm mb-2">
+                  <div className={styles['property-card-content']}>
+                    <h3 className={styles['property-card-title']}>{property.project}</h3>
+                    <p className={styles['property-card-details']}>
                       {property.sqFt && `${property.sqFt} sq ft`}
                       {property.bedrooms && ` • ${property.bedrooms} BHK`}
                       {property.bathrooms && ` • ${property.bathrooms} Bath`}
                       {property.builder !== 'Independent' && ` • Built by ${property.builder}`}
                     </p>
-                    <p className="text-gray-500 text-sm mb-3 flex items-center gap-1">
+                    <p className={styles['property-card-location']}>
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -348,13 +389,13 @@ export default function MyPropertiesPage() {
                     </p>
 
                     {/* Sold Information */}
-                    {property.listingStatus === 'SOLD' && (
-                      <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded">
-                        <p className="text-red-800 text-sm font-medium">
+                    {property.listingStatus === LISTING_STATUS.SOLD && (
+                      <div className={styles['property-sold-info']}>
+                        <p className={styles['property-sold-info-buyer']}>
                           Sold to: {property.soldTo || 'External Buyer'}
                         </p>
                         {property.soldDate && (
-                          <p className="text-red-600 text-xs">
+                          <p className={styles['property-sold-info-date']}>
                             Sold on: {formatDate(property.soldDate)}
                           </p>
                         )}
@@ -363,15 +404,15 @@ export default function MyPropertiesPage() {
 
                     {/* Interest Count for Active Properties */}
                     {activeTab === 'active' && (
-                      <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded">
-                        <p className="text-blue-800 text-sm font-medium">
+                      <div className={styles['property-interest-info']}>
+                        <p className={styles['property-interest-count']}>
                           {property.interests.length} interested buyer
                           {property.interests.length !== 1 ? 's' : ''}
                         </p>
                         {property.interests.length > 0 && (
                           <button
                             onClick={() => setShowInterestModal(property.id)}
-                            className="text-blue-600 text-xs underline mt-1"
+                            className={styles['property-interest-link']}
                           >
                             View Details
                           </button>
@@ -379,30 +420,39 @@ export default function MyPropertiesPage() {
                       </div>
                     )}
 
-                    <div className="flex justify-between items-center">
-                      <div className="text-xs text-gray-500">
+                    <div className={styles['property-card-footer']}>
+                      <div className={styles['property-card-date']}>
                         <div>Posted: {formatDate(property.createdAt)}</div>
                       </div>
-                      <div className="flex gap-2 flex-wrap">
+                      <div className={styles['property-card-actions']}>
                         {activeTab === 'active' && (
                           <>
                             <button
                               onClick={() => setShowSoldModal(property.id)}
-                              className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition-colors"
+                              className={`${styles['property-action-button']} ${styles['property-action-button--sold']}`}
                             >
                               Mark as Sold
                             </button>
                             <button
                               onClick={() => setShowArchiveModal(property.id)}
-                              className="bg-gray-600 text-white px-3 py-1 rounded text-xs hover:bg-gray-700 transition-colors"
+                              className={`${styles['property-action-button']} ${styles['property-action-button--archive']}`}
                             >
                               Archive
                             </button>
                           </>
                         )}
+                        {activeTab === 'archived' &&
+                          property.listingStatus === LISTING_STATUS.ARCHIVED && (
+                            <button
+                              onClick={() => handleReactivateProperty(property.id)}
+                              className={`${styles['property-action-button']} ${styles['property-action-button--reactivate']}`}
+                            >
+                              Reactivate
+                            </button>
+                          )}
                         <button
                           onClick={() => router.push(`/properties/${property.id}`)}
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
+                          className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
                         >
                           View Details
                         </button>
@@ -418,29 +468,28 @@ export default function MyPropertiesPage() {
 
       {/* Interest Details Modal */}
       {showInterestModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Interested Buyers</h3>
-              <button
-                onClick={() => setShowInterestModal(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
+        <div className={styles['modal-overlay']}>
+          <div className={styles['modal-container']}>
+            <div className={styles['modal-header']}>
+              <h3 className={styles['modal-title']}>Interested Buyers</h3>
+              <button onClick={() => setShowInterestModal(null)} className={styles['modal-close']}>
                 ✕
               </button>
             </div>
-            <div className="space-y-3">
+            <div className={styles['modal-content']}>
               {properties
                 .find(p => p.id === showInterestModal)
                 ?.interests.map(interest => (
-                  <div key={interest.id} className="border rounded p-3">
-                    <div className="flex justify-between items-start">
+                  <div key={interest.id} className={styles['interest-item']}>
+                    <div className={styles['interest-item-header']}>
                       <div>
-                        <p className="font-medium">{interest.user.name}</p>
-                        <p className="text-sm text-gray-600">{interest.user.email}</p>
-                        <p className="text-sm text-gray-600">{interest.user.phone}</p>
+                        <p className={styles['interest-item-name']}>{interest.user.name}</p>
+                        <p className={styles['interest-item-email']}>{interest.user.email}</p>
+                        <p className={styles['interest-item-phone']}>{interest.user.phone}</p>
                       </div>
-                      <p className="text-xs text-gray-500">{formatDate(interest.createdAt)}</p>
+                      <p className={styles['interest-item-date']}>
+                        {formatDate(interest.createdAt)}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -451,46 +500,44 @@ export default function MyPropertiesPage() {
 
       {/* Mark as Sold Modal */}
       {showSoldModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Mark as Sold</h3>
+        <div className={styles['modal-overlay']}>
+          <div className={styles['modal-container']}>
+            <div className={styles['modal-header']}>
+              <h3 className={styles['modal-title']}>Mark as Sold</h3>
               <button
                 onClick={() => {
                   setShowSoldModal(null)
                   setSoldToName('')
                 }}
-                className="text-gray-500 hover:text-gray-700"
+                className={styles['modal-close']}
               >
                 ✕
               </button>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sold to (optional)
-                </label>
+            <div className={styles['modal-content']}>
+              <div className={styles['sold-modal-input-group']}>
+                <label className={styles['sold-modal-label']}>Sold to (optional)</label>
                 <input
                   type="text"
                   value={soldToName}
                   onChange={e => setSoldToName(e.target.value)}
                   placeholder="Buyer name or 'External Buyer'"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className={styles['sold-modal-input']}
                 />
               </div>
-              <div className="flex justify-end gap-3">
+              <div className={styles['modal-actions']}>
                 <button
                   onClick={() => {
                     setShowSoldModal(null)
                     setSoldToName('')
                   }}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+                  className={`${styles['modal-button']} ${styles['modal-button--cancel']}`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleMarkAsSold(showSoldModal)}
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                  className={`${styles['modal-button']} ${styles['modal-button--confirm']}`}
                 >
                   Mark as Sold
                 </button>
@@ -502,37 +549,35 @@ export default function MyPropertiesPage() {
 
       {/* Archive Property Modal */}
       {showArchiveModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Archive Property</h3>
-              <button
-                onClick={() => setShowArchiveModal(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
+        <div className={styles['modal-overlay']}>
+          <div className={styles['modal-container']}>
+            <div className={styles['modal-header']}>
+              <h3 className={styles['modal-title']}>Archive Property</h3>
+              <button onClick={() => setShowArchiveModal(null)} className={styles['modal-close']}>
                 ✕
               </button>
             </div>
-            <div className="space-y-4">
-              <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-                <p className="text-yellow-800 text-sm">
-                  <strong>Warning:</strong> Once archived, this property cannot be reactivated. It
-                  will be moved to your archived properties and will no longer be visible to buyers.
+            <div className={styles['modal-content']}>
+              <div className={styles['archive-warning']}>
+                <p className={styles['archive-warning-text']}>
+                  <strong>Note:</strong> This property will be moved to your archived properties and
+                  will no longer be visible to buyers. You can reactivate it later from the Archived
+                  Properties tab.
                 </p>
               </div>
-              <p className="text-gray-600">
-                Are you sure you want to archive this property? This action cannot be undone.
+              <p className={styles['archive-modal-text']}>
+                Are you sure you want to archive this property?
               </p>
-              <div className="flex justify-end gap-3">
+              <div className={styles['modal-actions']}>
                 <button
                   onClick={() => setShowArchiveModal(null)}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+                  className={`${styles['modal-button']} ${styles['modal-button--cancel']}`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleArchiveProperty(showArchiveModal)}
-                  className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  className={`${styles['modal-button']} ${styles['modal-button--archive']}`}
                 >
                   Archive Property
                 </button>

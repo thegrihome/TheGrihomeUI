@@ -919,3 +919,180 @@
 .image-viewer__image {
   transition: transform 0.2s;
 }
+
+/* Featured Sections */
+.featured-section {
+  padding: 3rem 0;
+}
+
+.featured-section--gray {
+  background-color: #f9fafb;
+}
+
+.featured-section--white {
+  background-color: white;
+}
+
+.featured-section__container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .featured-section__container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .featured-section__container {
+    padding: 0 2rem;
+  }
+}
+
+.featured-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.featured-section__title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111827;
+}
+
+.featured-section__register-button {
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.featured-section__register-button:hover {
+  background-color: #1d4ed8;
+}
+
+.featured-section__register-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.featured-section__scroll {
+  overflow-x: auto;
+}
+
+.featured-section__items {
+  display: flex;
+  gap: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* Featured Property Card */
+.featured-property-card {
+  min-width: 280px;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.featured-property-card__image {
+  height: 10rem;
+  background-color: #e5e7eb;
+  border-radius: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.featured-property-card__title {
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.featured-property-card__price {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+/* Featured Agent Card */
+.featured-agent-card {
+  min-width: 250px;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.featured-agent-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.featured-agent-card__avatar {
+  width: 3rem;
+  height: 3rem;
+  background-color: #d1d5db;
+  border-radius: 9999px;
+}
+
+.featured-agent-card__name {
+  font-weight: 500;
+  color: #111827;
+}
+
+.featured-agent-card__title {
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+.featured-agent-card__contact {
+  font-size: 0.875rem;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.featured-agent-card__experience {
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+/* Login Prompt */
+.featured-section__login-prompt {
+  text-align: center;
+  padding: 2rem 0;
+  background-color: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.featured-section__login-prompt--gray {
+  background-color: #f9fafb;
+}
+
+.featured-section__login-text {
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+.featured-section__login-button {
+  padding: 0.5rem 1.5rem;
+  background-color: #2563eb;
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.featured-section__login-button:hover {
+  background-color: #1d4ed8;
+}

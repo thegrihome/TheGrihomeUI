@@ -42,7 +42,6 @@ interface Filters {
   bedrooms: string
   bathrooms: string
   location: string
-  zipcode: string
   sortBy: string
 }
 
@@ -63,7 +62,6 @@ export default function PropertiesPage() {
     bedrooms: '',
     bathrooms: '',
     location: '',
-    zipcode: '',
     sortBy: '',
   })
 
@@ -87,12 +85,24 @@ export default function PropertiesPage() {
   // Initialize from URL query parameters
   useEffect(() => {
     if (router.isReady) {
-      const { location, zipcode, propertyType, bedrooms, bathrooms, sortBy } = router.query
+      const { city, state, locality, location, propertyType, bedrooms, bathrooms, sortBy } =
+        router.query
+
+      // Build location string from city, state, locality or use location directly
+      let locationString = ''
+      if (city || state || locality) {
+        const parts = []
+        if (locality) parts.push(locality)
+        if (city) parts.push(city)
+        if (state) parts.push(state)
+        locationString = parts.join(', ')
+      } else if (location) {
+        locationString = location as string
+      }
 
       setFilters(prev => ({
         ...prev,
-        location: (location as string) || '',
-        zipcode: (zipcode as string) || '',
+        location: locationString,
         propertyType: (propertyType as string) || '',
         bedrooms: (bedrooms as string) || '',
         bathrooms: (bathrooms as string) || '',
@@ -158,7 +168,6 @@ export default function PropertiesPage() {
         if (filters.bedrooms) queryParams.append('bedrooms', filters.bedrooms)
         if (filters.bathrooms) queryParams.append('bathrooms', filters.bathrooms)
         if (filters.location) queryParams.append('location', filters.location)
-        if (filters.zipcode) queryParams.append('zipcode', filters.zipcode)
         if (filters.sortBy) queryParams.append('sortBy', filters.sortBy)
 
         const response = await fetch(`/api/properties/list?${queryParams.toString()}`)
@@ -219,9 +228,25 @@ export default function PropertiesPage() {
   }
 
   const handleLocationSelect = (prediction: google.maps.places.AutocompletePrediction) => {
+    // Show the selected location in the input
     handleFilterChange('location', prediction.description)
     setShowLocationPredictions(false)
     setPredictions([])
+
+    // Extract location details using Places Service for better search
+    const placesService = new google.maps.places.PlacesService(document.createElement('div'))
+    placesService.getDetails(
+      {
+        placeId: prediction.place_id,
+        fields: ['address_components'],
+      },
+      (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+          // The location components are extracted but we just use the full description
+          // The backend will do fuzzy matching on the location string
+        }
+      }
+    )
   }
 
   const clearFilters = () => {
@@ -230,7 +255,6 @@ export default function PropertiesPage() {
       bedrooms: '',
       bathrooms: '',
       location: '',
-      zipcode: '',
       sortBy: '',
     })
   }
@@ -415,18 +439,6 @@ export default function PropertiesPage() {
                     ))}
                   </div>
                 )}
-              </div>
-
-              {/* Zipcode Filter */}
-              <div className="w-28">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Zipcode</label>
-                <input
-                  type="text"
-                  value={filters.zipcode}
-                  onChange={e => handleFilterChange('zipcode', e.target.value)}
-                  placeholder="Zipcode..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
               </div>
             </div>
           </div>

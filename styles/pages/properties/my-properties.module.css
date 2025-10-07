@@ -1,0 +1,478 @@
+/* My Properties Page */
+.my-properties-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+/* Header */
+.my-properties-header {
+  margin-bottom: 2rem;
+}
+
+.my-properties-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.my-properties-subtitle {
+  color: #4b5563;
+}
+
+/* Tabs */
+.my-properties-tabs {
+  margin-bottom: 1.5rem;
+}
+
+.my-properties-tabs-nav {
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 2rem;
+  margin-bottom: -1px;
+}
+
+.my-properties-tab {
+  padding: 0.5rem 0.25rem;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.my-properties-tab--active {
+  border-bottom-color: #3b82f6;
+  color: #2563eb;
+}
+
+.my-properties-tab--inactive {
+  border-bottom-color: transparent;
+  color: #6b7280;
+}
+
+.my-properties-tab--inactive:hover {
+  color: #374151;
+  border-bottom-color: #d1d5db;
+}
+
+/* Empty State */
+.my-properties-empty {
+  text-align: center;
+  padding: 4rem 0;
+}
+
+.my-properties-empty-title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.my-properties-empty-title-main {
+  color: #1f2937;
+}
+
+.my-properties-empty-title-highlight {
+  background: linear-gradient(to right, #ec4899, #8b5cf6, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.my-properties-empty-text {
+  color: #4b5563;
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+}
+
+.my-properties-empty-button {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.my-properties-empty-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Property Grid */
+.my-properties-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .my-properties-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .my-properties-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Property Card */
+.property-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+
+.property-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.property-card-image {
+  position: relative;
+  height: 12rem;
+}
+
+.property-card-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background-color: #2563eb;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.property-card-status {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: white;
+}
+
+.property-card-status--active {
+  background-color: #16a34a;
+}
+
+.property-card-status--sold {
+  background-color: #dc2626;
+}
+
+.property-card-status--pending {
+  background-color: #ca8a04;
+}
+
+.property-card-status--archived {
+  background-color: #4b5563;
+}
+
+.property-card-content {
+  padding: 1rem;
+}
+
+.property-card-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+  color: #1f2937;
+}
+
+.property-card-details {
+  color: #4b5563;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.property-card-location {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Sold Info */
+.property-sold-info {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+}
+
+.property-sold-info-buyer {
+  color: #991b1b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.property-sold-info-date {
+  color: #dc2626;
+  font-size: 0.75rem;
+}
+
+/* Interest Info */
+.property-interest-info {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.375rem;
+}
+
+.property-interest-count {
+  color: #1e40af;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.property-interest-link {
+  color: #2563eb;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  margin-top: 0.25rem;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* Property Actions */
+.property-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.property-card-date {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.property-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.property-action-button {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  transition: background-color 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.property-action-button--sold {
+  background-color: #dc2626;
+  color: white;
+}
+
+.property-action-button--sold:hover {
+  background-color: #b91c1c;
+}
+
+.property-action-button--archive {
+  background-color: #4b5563;
+  color: white;
+}
+
+.property-action-button--archive:hover {
+  background-color: #374151;
+}
+
+.property-action-button--reactivate {
+  background-color: #16a34a;
+  color: white;
+}
+
+.property-action-button--reactivate:hover {
+  background-color: #15803d;
+}
+
+.property-action-button--view {
+  background-color: #2563eb;
+  color: white;
+}
+
+.property-action-button--view:hover {
+  background-color: #1d4ed8;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-container {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 28rem;
+  width: 100%;
+  margin: 0 1rem;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.modal-close {
+  color: #6b7280;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #374151;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Interest Item */
+.interest-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+}
+
+.interest-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.interest-item-name {
+  font-weight: 500;
+}
+
+.interest-item-email,
+.interest-item-phone {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.interest-item-date {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Sold Modal */
+.sold-modal-input-group {
+  margin-bottom: 1rem;
+}
+
+.sold-modal-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.sold-modal-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.sold-modal-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.modal-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modal-button--cancel {
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  background-color: white;
+}
+
+.modal-button--cancel:hover {
+  background-color: #f9fafb;
+}
+
+.modal-button--confirm {
+  background-color: #dc2626;
+  color: white;
+}
+
+.modal-button--confirm:hover {
+  background-color: #b91c1c;
+}
+
+.modal-button--archive {
+  background-color: #4b5563;
+  color: white;
+}
+
+.modal-button--archive:hover {
+  background-color: #374151;
+}
+
+/* Archive Warning */
+.archive-warning {
+  background-color: #fefce8;
+  border: 1px solid #fde047;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+}
+
+.archive-warning-text {
+  color: #854d0e;
+  font-size: 0.875rem;
+}
+
+.archive-modal-text {
+  color: #4b5563;
+}

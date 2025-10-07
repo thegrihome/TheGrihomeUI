@@ -43,6 +43,9 @@
 
 /* Logo */
 .header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0;
   margin-bottom: 1rem;
   font-size: 1.5rem;
   font-weight: 500;
@@ -53,6 +56,88 @@
 
 .header-logo:hover {
   color: #4b5563;
+}
+
+.header-logo-image {
+  border-radius: 0.375rem;
+  object-fit: contain;
+  margin-top: -0.9rem;
+  margin-right: -0.35rem;
+}
+
+.header-logo-text {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+/* Add Property Link - Gradient Wavy Style */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(2deg);
+  }
+  75% {
+    transform: rotate(-2deg);
+  }
+}
+
+.header-add-property-link {
+  margin-left: 1rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-image: linear-gradient(to right, #ec4899, #8b5cf6, #6366f1);
+  text-decoration: none;
+  display: inline-block;
+  animation: wave 2s ease-in-out infinite;
+  position: relative;
+  border: 2px solid #000000;
+  border-radius: 50%;
+}
+
+.header-add-property-link:hover {
+  animation-play-state: paused;
+}
+
+.header-add-property-link-mobile {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-image: linear-gradient(to right, #ec4899, #8b5cf6, #6366f1);
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  background-origin: border-box;
+  background-image:
+    linear-gradient(white, white), linear-gradient(to right, #ec4899, #8b5cf6, #6366f1);
+  background-clip: padding-box, border-box;
+  animation:
+    float 3s ease-in-out infinite,
+    wave 2s ease-in-out infinite;
 }
 
 @media (min-width: 768px) {
@@ -97,7 +182,6 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  padding-top: 0.25rem;
   padding-left: 0.5rem;
   margin-left: 0.25rem;
   gap: 1.5rem;

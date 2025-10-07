@@ -14,6 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const {
       city,
       state,
+      locality,
+      location,
       minPrice,
       maxPrice,
       propertyType,
@@ -32,6 +34,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const filters = {
       ...(city && { city: city as string }),
       ...(state && { state: state as string }),
+      ...(locality && { locality: locality as string }),
+      ...(location && { location: location as string }),
       ...(minPrice && { minPrice: parseFloat(minPrice as string) }),
       ...(maxPrice && { maxPrice: parseFloat(maxPrice as string) }),
       ...(propertyType && { propertyType: propertyType as PropertyType }),

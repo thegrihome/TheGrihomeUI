@@ -1,0 +1,130 @@
+// Property Types
+export const PROPERTY_TYPES = {
+  SINGLE_FAMILY: 'SINGLE_FAMILY',
+  CONDO: 'CONDO',
+  TOWNHOUSE: 'TOWNHOUSE',
+  LAND: 'LAND',
+  LAND_RESIDENTIAL: 'LAND_RESIDENTIAL',
+  LAND_AGRICULTURE: 'LAND_AGRICULTURE',
+  COMMERCIAL: 'COMMERCIAL',
+} as const
+
+export const PROPERTY_TYPE_LABELS = {
+  [PROPERTY_TYPES.SINGLE_FAMILY]: 'Villa',
+  [PROPERTY_TYPES.CONDO]: 'Apartment',
+  [PROPERTY_TYPES.TOWNHOUSE]: 'House',
+  [PROPERTY_TYPES.LAND]: 'Land',
+  [PROPERTY_TYPES.LAND_RESIDENTIAL]: 'Residential Land',
+  [PROPERTY_TYPES.LAND_AGRICULTURE]: 'Agriculture Land',
+  [PROPERTY_TYPES.COMMERCIAL]: 'Commercial',
+} as const
+
+export const PROPERTY_TYPE_ICONS = {
+  [PROPERTY_TYPES.SINGLE_FAMILY]: '🏡',
+  [PROPERTY_TYPES.CONDO]: '🏢',
+  [PROPERTY_TYPES.TOWNHOUSE]: '🏘️',
+  [PROPERTY_TYPES.LAND]: '🏞️',
+  [PROPERTY_TYPES.LAND_RESIDENTIAL]: '🏞️',
+  [PROPERTY_TYPES.LAND_AGRICULTURE]: '🌾',
+  [PROPERTY_TYPES.COMMERCIAL]: '🏬',
+} as const
+
+export const PROPERTY_TYPE_OPTIONS = [
+  {
+    value: PROPERTY_TYPES.SINGLE_FAMILY,
+    label: PROPERTY_TYPE_LABELS[PROPERTY_TYPES.SINGLE_FAMILY],
+    icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.SINGLE_FAMILY],
+  },
+  {
+    value: PROPERTY_TYPES.CONDO,
+    label: PROPERTY_TYPE_LABELS[PROPERTY_TYPES.CONDO],
+    icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.CONDO],
+  },
+  {
+    value: PROPERTY_TYPES.TOWNHOUSE,
+    label: PROPERTY_TYPE_LABELS[PROPERTY_TYPES.TOWNHOUSE],
+    icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.TOWNHOUSE],
+  },
+  {
+    value: PROPERTY_TYPES.LAND,
+    label: PROPERTY_TYPE_LABELS[PROPERTY_TYPES.LAND],
+    icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.LAND],
+  },
+  {
+    value: PROPERTY_TYPES.COMMERCIAL,
+    label: PROPERTY_TYPE_LABELS[PROPERTY_TYPES.COMMERCIAL],
+    icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.COMMERCIAL],
+  },
+]
+
+// Listing Statuses
+export const LISTING_STATUS = {
+  ACTIVE: 'ACTIVE',
+  PENDING: 'PENDING',
+  SOLD: 'SOLD',
+  OFF_MARKET: 'OFF_MARKET',
+  DRAFT: 'DRAFT',
+  ARCHIVED: 'ARCHIVED',
+} as const
+
+export const LISTING_STATUS_LABELS = {
+  [LISTING_STATUS.ACTIVE]: 'Active',
+  [LISTING_STATUS.PENDING]: 'Pending',
+  [LISTING_STATUS.SOLD]: 'Sold',
+  [LISTING_STATUS.OFF_MARKET]: 'Off Market',
+  [LISTING_STATUS.DRAFT]: 'Draft',
+  [LISTING_STATUS.ARCHIVED]: 'Archived',
+} as const
+
+export const LISTING_STATUS_COLORS = {
+  [LISTING_STATUS.ACTIVE]: 'bg-green-600',
+  [LISTING_STATUS.PENDING]: 'bg-yellow-600',
+  [LISTING_STATUS.SOLD]: 'bg-red-600',
+  [LISTING_STATUS.OFF_MARKET]: 'bg-gray-600',
+  [LISTING_STATUS.DRAFT]: 'bg-gray-600',
+  [LISTING_STATUS.ARCHIVED]: 'bg-gray-600',
+} as const
+
+// Facing Directions
+export const FACING_DIRECTIONS = [
+  'East',
+  'West',
+  'North',
+  'South',
+  'North East',
+  'North West',
+  'South East',
+  'South West',
+] as const
+
+// Size Units
+export const SIZE_UNITS = {
+  SQ_FT: 'SQ_FT',
+  SQ_YARDS: 'SQ_YARDS',
+  ACRES: 'ACRES',
+} as const
+
+export const SIZE_UNIT_LABELS = {
+  [SIZE_UNITS.SQ_FT]: 'Sq Ft',
+  [SIZE_UNITS.SQ_YARDS]: 'Sq Yards',
+  [SIZE_UNITS.ACRES]: 'Acres',
+} as const
+
+export const SIZE_UNIT_OPTIONS = [
+  { value: SIZE_UNITS.SQ_FT, label: SIZE_UNIT_LABELS[SIZE_UNITS.SQ_FT] },
+  { value: SIZE_UNITS.SQ_YARDS, label: SIZE_UNIT_LABELS[SIZE_UNITS.SQ_YARDS] },
+  { value: SIZE_UNITS.ACRES, label: SIZE_UNIT_LABELS[SIZE_UNITS.ACRES] },
+]
+
+// User Roles
+export const USER_ROLES = {
+  BUYER: 'BUYER',
+  AGENT: 'AGENT',
+  ADMIN: 'ADMIN',
+} as const
+
+export const USER_ROLE_LABELS = {
+  [USER_ROLES.BUYER]: 'Buyer',
+  [USER_ROLES.AGENT]: 'Real Estate Agent',
+  [USER_ROLES.ADMIN]: 'Admin',
+} as const

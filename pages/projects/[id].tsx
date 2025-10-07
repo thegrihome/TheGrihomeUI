@@ -7,9 +7,11 @@ import { PrismaClient } from '@prisma/client'
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ExpressInterestButton from '@/components/properties/ExpressInterestButton'
+import styles from '@/styles/pages/projects/detail.module.css'
 
 interface ProjectDetails {
   id: string
@@ -55,8 +57,9 @@ export default function ProjectPage({ project }: ProjectPageProps) {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isRegistering, setIsRegistering] = useState(false)
 
-  const { status } = useSession()
+  const { data: session, status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const router = useRouter()
 
@@ -184,6 +187,35 @@ export default function ProjectPage({ project }: ProjectPageProps) {
       alert('Error deleting project. Please try again.')
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  const handleRegisterAsAgent = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please login to register as an agent')
+      router.push('/login')
+      return
+    }
+
+    setIsRegistering(true)
+    try {
+      const response = await fetch(`/api/projects/${project?.id}/register-agent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        toast.success('Successfully registered as an agent for this project!')
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Failed to register as agent')
+      }
+    } catch (error) {
+      toast.error('Error registering as agent. Please try again.')
+    } finally {
+      setIsRegistering(false)
     }
   }
 
@@ -791,6 +823,112 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Featured Properties Section */}
+        <div className={`${styles['featured-section']} ${styles['featured-section--gray']}`}>
+          <div className={styles['featured-section__container']}>
+            <div className={styles['featured-section__header']}>
+              <h2 className={styles['featured-section__title']}>Featured Properties</h2>
+              {isAuthenticated && session?.user?.role === 'AGENT' && (
+                <button
+                  onClick={handleRegisterAsAgent}
+                  disabled={isRegistering}
+                  className={styles['featured-section__register-button']}
+                >
+                  {isRegistering ? 'Registering...' : 'Register as Agent'}
+                </button>
+              )}
+            </div>
+            {isAuthenticated ? (
+              <div className={styles['featured-section__scroll']}>
+                <div className={styles['featured-section__items']}>
+                  {/* Placeholder for featured properties - will be loaded from API */}
+                  <div className={styles['featured-property-card']}>
+                    <div className={styles['featured-property-card__image']}></div>
+                    <h3 className={styles['featured-property-card__title']}>Property 1</h3>
+                    <p className={styles['featured-property-card__price']}>₹45 Lakhs</p>
+                  </div>
+                  <div className={styles['featured-property-card']}>
+                    <div className={styles['featured-property-card__image']}></div>
+                    <h3 className={styles['featured-property-card__title']}>Property 2</h3>
+                    <p className={styles['featured-property-card__price']}>₹52 Lakhs</p>
+                  </div>
+                  <div className={styles['featured-property-card']}>
+                    <div className={styles['featured-property-card__image']}></div>
+                    <h3 className={styles['featured-property-card__title']}>Property 3</h3>
+                    <p className={styles['featured-property-card__price']}>₹38 Lakhs</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={styles['featured-section__login-prompt']}>
+                <p className={styles['featured-section__login-text']}>
+                  Login to view featured properties
+                </p>
+                <button
+                  onClick={() => router.push('/login')}
+                  className={styles['featured-section__login-button']}
+                >
+                  Login
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Featured Agents Section */}
+        <div className={`${styles['featured-section']} ${styles['featured-section--white']}`}>
+          <div className={styles['featured-section__container']}>
+            <h2 className={styles['featured-section__title']}>Featured Agents</h2>
+            {isAuthenticated ? (
+              <div className={styles['featured-section__scroll']}>
+                <div className={styles['featured-section__items']}>
+                  {/* Placeholder for featured agents - will be loaded from API */}
+                  <div className={styles['featured-agent-card']}>
+                    <div className={styles['featured-agent-card__header']}>
+                      <div className={styles['featured-agent-card__avatar']}></div>
+                      <div>
+                        <h3 className={styles['featured-agent-card__name']}>Agent Name</h3>
+                        <p className={styles['featured-agent-card__title']}>Licensed Agent</p>
+                      </div>
+                    </div>
+                    <p className={styles['featured-agent-card__contact']}>
+                      Contact: +91 98765 43210
+                    </p>
+                    <p className={styles['featured-agent-card__experience']}>5+ years experience</p>
+                  </div>
+                  <div className={styles['featured-agent-card']}>
+                    <div className={styles['featured-agent-card__header']}>
+                      <div className={styles['featured-agent-card__avatar']}></div>
+                      <div>
+                        <h3 className={styles['featured-agent-card__name']}>Agent Name</h3>
+                        <p className={styles['featured-agent-card__title']}>Licensed Agent</p>
+                      </div>
+                    </div>
+                    <p className={styles['featured-agent-card__contact']}>
+                      Contact: +91 98765 43210
+                    </p>
+                    <p className={styles['featured-agent-card__experience']}>8+ years experience</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                className={`${styles['featured-section__login-prompt']} ${styles['featured-section__login-prompt--gray']}`}
+              >
+                <p className={styles['featured-section__login-text']}>
+                  Login to view featured agents
+                </p>
+                <button
+                  onClick={() => router.push('/login')}
+                  className={styles['featured-section__login-button']}
+                >
+                  Login
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </main>
