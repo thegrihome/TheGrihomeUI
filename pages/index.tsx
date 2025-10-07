@@ -152,7 +152,7 @@ export default function Home() {
       return
     }
 
-    router.push(`/purchase-ad?slot=${slotNumber}`)
+    router.push(`/ads/purchase-ad?slot=${slotNumber}`)
   }
 
   const handleRenewAd = (adId: string, slotNumber: number) => {
@@ -467,6 +467,9 @@ export default function Home() {
       {/* Featured Properties Section */}
       <section className="featured-properties-section">
         <div className="container mx-auto px-4 py-16">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+            Featured <span className="ad-slot-text-gradient">Properties</span>
+          </h2>
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -478,8 +481,9 @@ export default function Home() {
                   key={slot.slotNumber}
                   className="relative border-2 border-black rounded-lg p-8 min-h-[200px] flex items-center justify-center hover:shadow-lg transition-shadow duration-300 bg-white"
                 >
-                  <div className="absolute top-4 left-4 text-sm font-bold ad-slot-number">
-                    Slot #{slot.slotNumber}
+                  <div className="absolute top-4 left-4 text-sm font-bold">
+                    <span className="text-black">Slot </span>
+                    <span className="ad-slot-number">#{slot.slotNumber}</span>
                   </div>
                   <button onClick={() => handlePurchaseAd(slot.slotNumber)} className="text-center">
                     <div className="text-black text-base font-semibold">

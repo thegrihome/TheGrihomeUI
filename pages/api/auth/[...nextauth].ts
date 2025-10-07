@@ -64,6 +64,13 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role,
             image: user.image,
+            username: user.username,
+            mobileNumber: user.phone,
+            isEmailVerified: !!user.emailVerified,
+            isMobileVerified: !!user.mobileVerified,
+            isAgent: user.role === 'AGENT',
+            companyName: user.companyName,
+            imageLink: user.image,
           }
         }
 
@@ -95,6 +102,13 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           role: user.role,
           image: user.image,
+          username: user.username,
+          mobileNumber: user.phone,
+          isEmailVerified: !!user.emailVerified,
+          isMobileVerified: !!user.mobileVerified,
+          isAgent: user.role === 'AGENT',
+          companyName: user.companyName,
+          imageLink: user.image,
         }
       },
     }),
@@ -107,16 +121,38 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = user.role
         token.image = user.image
+        token.username = user.username
+        token.mobileNumber = user.mobileNumber
+        token.isEmailVerified = user.isEmailVerified
+        token.isMobileVerified = user.isMobileVerified
+        token.isAgent = user.isAgent
+        token.companyName = user.companyName
+        token.imageLink = user.imageLink
       }
-      // Refresh token data on update or when image is missing
-      if ((trigger === 'update' || !token.image) && token.sub) {
+      // Refresh token data on update or when username is missing (first login)
+      if ((trigger === 'update' || !token.username) && token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { role: true, image: true },
+          select: {
+            role: true,
+            image: true,
+            username: true,
+            phone: true,
+            emailVerified: true,
+            mobileVerified: true,
+            companyName: true,
+          },
         })
         if (dbUser) {
           token.role = dbUser.role
           token.image = dbUser.image
+          token.username = dbUser.username
+          token.mobileNumber = dbUser.phone
+          token.isEmailVerified = !!dbUser.emailVerified
+          token.isMobileVerified = !!dbUser.mobileVerified
+          token.isAgent = dbUser.role === 'AGENT'
+          token.companyName = dbUser.companyName
+          token.imageLink = dbUser.image
         }
       }
       return token
@@ -126,6 +162,13 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub
         session.user.role = token.role as string
         session.user.image = token.image as string
+        session.user.username = token.username as string
+        session.user.mobileNumber = token.mobileNumber as string
+        session.user.isEmailVerified = token.isEmailVerified as boolean
+        session.user.isMobileVerified = token.isMobileVerified as boolean
+        session.user.isAgent = token.isAgent as boolean
+        session.user.companyName = token.companyName as string
+        session.user.imageLink = token.imageLink as string
       }
       return session
     },

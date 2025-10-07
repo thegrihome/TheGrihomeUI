@@ -193,7 +193,7 @@ const Header: NextPage = () => {
                         <Link href="/userinfo" className="dropdown-link">
                           My Information
                         </Link>
-                        <Link href="/my-properties" className="dropdown-link">
+                        <Link href="/properties/my-properties" className="dropdown-link">
                           My Properties
                         </Link>
                         <button onClick={handleLogout} className="logout-button">
@@ -338,7 +338,7 @@ const Header: NextPage = () => {
                           My Information
                         </Link>
                         <Link
-                          href="/my-properties"
+                          href="/properties/my-properties"
                           onClick={() => setNavbarOpen(false)}
                           className="mobile-user-link"
                         >

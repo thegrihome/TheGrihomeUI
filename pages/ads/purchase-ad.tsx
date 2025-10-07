@@ -343,6 +343,12 @@ export default function PurchaseAdPage() {
               </button>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Purchase Ad Slots</h1>
               <p className="text-gray-600">Feature your properties on the home page</p>
+              <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  <strong>Pricing:</strong> Row 1 (Slots 1-3): ₹1,000/day • Row 2 (Slots 4-6):
+                  ₹900/day
+                </p>
+              </div>
             </div>
 
             {/* No Active Properties Banner */}

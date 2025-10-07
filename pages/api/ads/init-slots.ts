@@ -14,10 +14,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ message: 'Ad slots already initialized' })
     }
 
-    // Create 21 ad slots with pricing: slot 21 = 500, slot 20 = 550, ..., slot 1 = 1500
+    // Create 6 ad slots with row-based pricing
+    // Row 1 (slots 1-3): ₹1000/day
+    // Row 2 (slots 4-6): ₹900/day
     const slots = []
-    for (let i = 1; i <= 21; i++) {
-      const basePrice = 500 + (21 - i) * 50 // slot 21 = 500, slot 1 = 1500
+    for (let i = 1; i <= 6; i++) {
+      let basePrice
+      if (i <= 3) {
+        basePrice = 1000 // Row 1: slots 1-3
+      } else {
+        basePrice = 900 // Row 2: slots 4-6
+      }
+
       slots.push({
         slotNumber: i,
         basePrice: basePrice,
@@ -31,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(201).json({
       message: 'Ad slots initialized successfully',
-      totalSlots: 21,
+      totalSlots: 6,
     })
   } catch (error) {
     // Log error for debugging but don't expose details to client

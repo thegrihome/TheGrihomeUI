@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -23,6 +23,13 @@ export default function Login() {
   const [userExists, setUserExists] = useState(false)
   const [validationError, setValidationError] = useState('')
   const router = useRouter()
+  const { data: session, status } = useSession()
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/auth/userinfo')
+    }
+  }, [status, router])
 
   const handleSendOTP = async () => {
     if (loginMethod === 'email' && !email) {
