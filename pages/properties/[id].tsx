@@ -60,6 +60,9 @@ export default function PropertyDetailPage() {
   const [expressing, setExpressing] = useState(false)
   const [hasExpressedInterest, setHasExpressedInterest] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [showSoldModal, setShowSoldModal] = useState(false)
+  const [buyerName, setBuyerName] = useState('')
+  const [processing, setProcessing] = useState(false)
 
   const propertyTypes = [
     { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
@@ -144,12 +147,48 @@ export default function PropertyDetailPage() {
     }
   }
 
+  const handleMarkAsSold = async () => {
+    setProcessing(true)
+    try {
+      const response = await fetch(`/api/properties/${property?.id}/archive`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          markAsSold: true,
+          soldTo: buyerName || undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to mark property as sold')
+      }
+
+      toast.success('Property marked as sold!')
+      router.push('/my-properties')
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to mark property as sold')
+    } finally {
+      setProcessing(false)
+      setShowSoldModal(false)
+      setBuyerName('')
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     })
+  }
+
+  const formatIndianCurrency = (amount: string) => {
+    const num = parseFloat(amount)
+    if (isNaN(num)) return amount
+    return num.toLocaleString('en-IN')
   }
 
   const isOwner = session?.user?.email === property?.userEmail
@@ -281,9 +320,34 @@ export default function PropertyDetailPage() {
 
               {/* Property Details */}
               <div className="property-details-section">
-                <div className="property-details-header">
-                  <span className="property-details-icon">{propertyTypeInfo?.icon}</span>
-                  <h1 className="property-details-title">{property.project}</h1>
+                <div className="property-details-header flex justify-between items-center">
+                  <div className="flex items-center gap-4">
+                    <span className="property-details-icon">{propertyTypeInfo?.icon}</span>
+                    <h1 className="property-details-title">{property.project}</h1>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    {property.price && (
+                      <span className="property-details-title">
+                        ₹{formatIndianCurrency(property.price)}
+                      </span>
+                    )}
+                    {isOwner && property.listingStatus === 'ACTIVE' && (
+                      <button
+                        onClick={() => setShowSoldModal(true)}
+                        disabled={processing}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Mark as Sold
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="property-location">
@@ -476,6 +540,67 @@ export default function PropertyDetailPage() {
           </div>
         </div>
       </main>
+
+      {/* Mark as Sold Modal */}
+      {showSoldModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">Mark Property as Sold</h3>
+              <button
+                onClick={() => {
+                  setShowSoldModal(false)
+                  setBuyerName('')
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Buyer Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={buyerName}
+                onChange={e => setBuyerName(e.target.value)}
+                placeholder="Enter buyer name..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 mt-1">Leave blank if sold to an external buyer</p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowSoldModal(false)
+                  setBuyerName('')
+                }}
+                disabled={processing}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleMarkAsSold}
+                disabled={processing}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {processing ? 'Processing...' : 'Mark as Sold'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

@@ -127,8 +127,8 @@ const Header: NextPage = () => {
                 Contact Us
               </Link>
               {isAuthenticated && user && (
-                <Link href="/add-property" className="header-add-property-link">
-                  Add Property
+                <Link href="/properties/add-property" className="header-add-property-link">
+                  Post property for free
                 </Link>
               )}
             </div>
@@ -289,11 +289,11 @@ const Header: NextPage = () => {
                   </Link>
                   {isAuthenticated && user && (
                     <Link
-                      href="/add-property"
+                      href="/properties/add-property"
                       className="header-add-property-link-mobile"
                       onClick={() => setNavbarOpen(false)}
                     >
-                      Add Property
+                      Post property for free
                     </Link>
                   )}
                 </nav>

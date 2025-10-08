@@ -17,6 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const { id } = req.query
+    const { markAsSold, soldTo, soldToUserId } = req.body
 
     if (!id || typeof id !== 'string') {
       return res.status(400).json({ message: 'Property ID is required' })
@@ -44,16 +45,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Only active properties can be archived' })
     }
 
-    // Archive the property
-    await prisma.property.update({
-      where: { id },
-      data: {
-        listingStatus: LISTING_STATUS.ARCHIVED,
-        updatedAt: new Date(),
-      },
-    })
+    // Determine status and additional fields based on markAsSold flag
+    const newStatus = markAsSold ? LISTING_STATUS.SOLD : LISTING_STATUS.ARCHIVED
+    const updateData: any = {
+      listingStatus: newStatus,
+      updatedAt: new Date(),
+    }
 
-    res.status(200).json({ message: 'Property archived successfully' })
+    if (markAsSold) {
+      updateData.soldTo = soldTo || 'External Buyer'
+      updateData.soldToUserId = soldToUserId || null
+      updateData.soldDate = new Date()
+    }
+
+    // Archive/Sell the property and expire any active ads
+    await prisma.$transaction([
+      prisma.property.update({
+        where: { id },
+        data: updateData,
+      }),
+      prisma.ad.updateMany({
+        where: {
+          propertyId: id,
+          status: 'ACTIVE',
+        },
+        data: {
+          status: 'EXPIRED',
+        },
+      }),
+    ])
+
+    res.status(200).json({
+      message: markAsSold
+        ? 'Property marked as sold successfully'
+        : 'Property archived successfully',
+    })
   } catch (error) {
     // Log error in development only
     if (process.env.NODE_ENV === 'development') {

@@ -13,6 +13,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ? (await prisma.user.findUnique({ where: { email: session.user.email } }))?.id
       : null
 
+    // Clean up expired ads - mark them as EXPIRED
+    await prisma.ad.updateMany({
+      where: {
+        status: 'ACTIVE',
+        endDate: {
+          lt: new Date(),
+        },
+      },
+      data: {
+        status: 'EXPIRED',
+      },
+    })
+
     // Get all ad slots with their current active ads
     const slots = await prisma.adSlotConfig.findMany({
       orderBy: {
@@ -109,7 +122,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               property: currentAd.property
                 ? {
                     id: currentAd.property.id,
-                    title: currentAd.property.project?.name || 'Individual Property',
+                    title:
+                      currentAd.property.project?.name ||
+                      (currentAd.property.propertyDetails as any)?.title ||
+                      'Individual Property',
                     type: currentAd.property.propertyType,
                     sqFt: currentAd.property.sqFt,
                     details: currentAd.property.propertyDetails as any,

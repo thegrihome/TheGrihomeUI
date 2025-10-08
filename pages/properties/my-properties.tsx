@@ -315,7 +315,7 @@ export default function MyPropertiesPage() {
               </p>
               {activeTab === 'active' && (
                 <button
-                  onClick={() => router.push('/add-property')}
+                  onClick={() => router.push('/properties/add-property')}
                   className={styles['my-properties-empty-button']}
                 >
                   Add Your First Property

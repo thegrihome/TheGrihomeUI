@@ -4,5 +4,11 @@
     "pages/api/**/*.ts": {
       "maxDuration": 30
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/expire-ads",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }

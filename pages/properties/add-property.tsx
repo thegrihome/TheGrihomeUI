@@ -5,7 +5,6 @@ import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import toast from 'react-hot-toast'
-import { put } from '@vercel/blob'
 import {
   PROPERTY_TYPE_OPTIONS,
   PROPERTY_TYPES,
@@ -55,50 +54,63 @@ export default function AddProperty() {
 
   useEffect(() => {
     // Initialize Google Places Autocomplete
-    if (locationInputRef.current && window.google) {
-      autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
-        types: ['geocode'],
-        componentRestrictions: { country: 'in' },
-      })
-
-      autocompleteRef.current.addListener('place_changed', () => {
-        const place = autocompleteRef.current?.getPlace()
-        if (!place?.geometry?.location) return
-
-        const addressComponents = place.address_components || []
-        let city = ''
-        let state = ''
-        let country = ''
-        let zipcode = ''
-        let locality = ''
-
-        addressComponents.forEach(component => {
-          const types = component.types
-          if (types.includes('locality')) city = component.long_name
-          if (types.includes('administrative_area_level_1')) state = component.long_name
-          if (types.includes('country')) country = component.long_name
-          if (types.includes('postal_code')) zipcode = component.long_name
-          if (types.includes('sublocality_level_1') || types.includes('sublocality'))
-            locality = component.long_name
+    const initAutocomplete = () => {
+      if (locationInputRef.current && window.google?.maps?.places) {
+        autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
+          types: ['geocode'],
+          componentRestrictions: { country: 'in' },
         })
 
-        const location = place.geometry.location
+        autocompleteRef.current.addListener('place_changed', () => {
+          const place = autocompleteRef.current?.getPlace()
+          if (!place?.geometry?.location) return
 
-        setFormData(prev => ({
-          ...prev,
-          location: {
-            address: place.formatted_address || '',
-            city,
-            state,
-            country,
-            zipcode,
-            locality,
-            lat: location.lat(),
-            lng: location.lng(),
-          },
-        }))
-      })
+          const addressComponents = place.address_components || []
+          let city = ''
+          let state = ''
+          let country = ''
+          let zipcode = ''
+          let locality = ''
+
+          addressComponents.forEach(component => {
+            const types = component.types
+            if (types.includes('locality')) city = component.long_name
+            if (types.includes('administrative_area_level_1')) state = component.long_name
+            if (types.includes('country')) country = component.long_name
+            if (types.includes('postal_code')) zipcode = component.long_name
+            if (types.includes('sublocality_level_1') || types.includes('sublocality'))
+              locality = component.long_name
+          })
+
+          const location = place.geometry.location
+
+          setFormData(prev => ({
+            ...prev,
+            location: {
+              address: place.formatted_address || '',
+              city,
+              state,
+              country,
+              zipcode,
+              locality,
+              lat: location.lat(),
+              lng: location.lng(),
+            },
+          }))
+        })
+      }
     }
+
+    // Wait for Google Maps to fully load
+    const checkGoogle = setInterval(() => {
+      if (window.google?.maps?.places) {
+        clearInterval(checkGoogle)
+        initAutocomplete()
+      }
+    }, 100)
+
+    // Cleanup
+    return () => clearInterval(checkGoogle)
   }, [])
 
   const handleInputChange = (
@@ -140,22 +152,67 @@ export default function AddProperty() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
+    // eslint-disable-next-line no-console
+    console.log('handleSubmit function called!')
     e.preventDefault()
+    // eslint-disable-next-line no-console
+    console.log('Form submitted', { formData, images })
+
+    // Validate location
+    if (!formData.location.address) {
+      toast.error('Please select a location from the dropdown')
+      return
+    }
+
     setLoading(true)
 
     try {
-      // Upload images to Vercel Blob
+      // Upload images via API
       const imageUrls: string[] = []
-      for (const image of images) {
-        const filename = `properties/${session?.user?.id}-${Date.now()}-${image.name}`
-        const blob = await put(filename, image, {
-          access: 'public',
-          contentType: image.type,
+      if (images.length > 0) {
+        // eslint-disable-next-line no-console
+        console.log('Uploading images...', images.length)
+        toast.loading('Uploading images...', { id: 'upload' })
+
+        // Convert images to base64
+        const imageDataArray = await Promise.all(
+          images.map(
+            image =>
+              new Promise<{ name: string; type: string; data: string }>((resolve, reject) => {
+                const reader = new FileReader()
+                reader.onloadend = () => {
+                  resolve({
+                    name: image.name,
+                    type: image.type,
+                    data: reader.result as string,
+                  })
+                }
+                reader.onerror = reject
+                reader.readAsDataURL(image)
+              })
+          )
+        )
+
+        const uploadResponse = await fetch('/api/upload-images', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ images: imageDataArray }),
         })
-        imageUrls.push(blob.url)
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload images')
+        }
+
+        const { imageUrls: uploadedUrls } = await uploadResponse.json()
+        imageUrls.push(...uploadedUrls)
+
+        toast.dismiss('upload')
+        // eslint-disable-next-line no-console
+        console.log('All images uploaded successfully', imageUrls)
       }
 
       // Create property
+      toast.loading('Creating property...', { id: 'create' })
       const response = await fetch('/api/properties/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -166,6 +223,8 @@ export default function AddProperty() {
         }),
       })
 
+      toast.dismiss('create')
+
       if (!response.ok) {
         const error = await response.json()
         throw new Error(error.message || 'Failed to create property')
@@ -174,6 +233,8 @@ export default function AddProperty() {
       toast.success('Property added successfully!')
       router.push('/properties/my-properties')
     } catch (error) {
+      toast.dismiss('upload')
+      toast.dismiss('create')
       toast.error(error instanceof Error ? error.message : 'Failed to add property')
     } finally {
       setLoading(false)
@@ -200,11 +261,22 @@ export default function AddProperty() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Add New Property</h1>
+
+          {/* Loading Overlay */}
+          {loading && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-8 flex flex-col items-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
+                <p className="text-lg font-medium text-gray-900">Processing your property...</p>
+                <p className="text-sm text-gray-600 mt-2">Please wait, do not close this page</p>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Title */}
@@ -371,11 +443,16 @@ export default function AddProperty() {
                 ref={locationInputRef}
                 type="text"
                 placeholder="Search for location..."
-                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
-              {formData.location.address && (
-                <p className="mt-2 text-sm text-gray-600">{formData.location.address}</p>
+              {formData.location.address ? (
+                <p className="mt-2 text-sm text-gray-600">
+                  ✓ Selected: {formData.location.address}
+                </p>
+              ) : (
+                <p className="mt-2 text-sm text-red-600">
+                  * Please select a location from dropdown
+                </p>
               )}
             </div>
 
@@ -411,9 +488,17 @@ export default function AddProperty() {
 
             {/* Images */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Images (Max 20, Total 10MB)
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Images (Max 20, Total 10MB)
+                </label>
+                {images.length > 0 && (
+                  <span className="text-sm text-gray-600">
+                    {images.length} image{images.length !== 1 ? 's' : ''} •{' '}
+                    {(images.reduce((sum, img) => sum + img.size, 0) / (1024 * 1024)).toFixed(2)} MB
+                  </span>
+                )}
+              </div>
               <input
                 id="image-upload"
                 type="file"
@@ -481,6 +566,10 @@ export default function AddProperty() {
               <button
                 type="submit"
                 disabled={loading}
+                onClick={() => {
+                  // eslint-disable-next-line no-console
+                  console.log('Submit button clicked!')
+                }}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
                 {loading ? 'Adding Property...' : 'Add Property'}

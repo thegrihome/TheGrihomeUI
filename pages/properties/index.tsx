@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { NextSeo } from 'next-seo'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -35,6 +36,8 @@ interface Property {
   plotSize?: string
   plotSizeUnit?: string
   description?: string
+  userId: string
+  userEmail: string
 }
 
 interface Filters {
@@ -47,6 +50,7 @@ interface Filters {
 
 export default function PropertiesPage() {
   const router = useRouter()
+  const { data: session } = useSession()
   const [mounted, setMounted] = useState(false)
   const [properties, setProperties] = useState<Property[]>([])
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
@@ -56,6 +60,10 @@ export default function PropertiesPage() {
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
   const [showLocationPredictions, setShowLocationPredictions] = useState(false)
   const [showSortDropdown, setShowSortDropdown] = useState(false)
+  const [showSoldModal, setShowSoldModal] = useState(false)
+  const [buyerName, setBuyerName] = useState('')
+  const [processing, setProcessing] = useState(false)
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null)
 
   const [filters, setFilters] = useState<Filters>({
     propertyType: '',
@@ -259,6 +267,48 @@ export default function PropertiesPage() {
     })
   }
 
+  const formatIndianCurrency = (amount: string) => {
+    const num = parseFloat(amount)
+    if (isNaN(num)) return amount
+    return num.toLocaleString('en-IN')
+  }
+
+  const handleMarkAsSold = async () => {
+    if (!selectedPropertyId) return
+
+    setProcessing(true)
+    try {
+      const response = await fetch(`/api/properties/${selectedPropertyId}/archive`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          markAsSold: true,
+          soldTo: buyerName || undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to mark property as sold')
+      }
+
+      toast.success('Property marked as sold!')
+
+      // Remove property from list
+      setProperties(prev => prev.filter(p => p.id !== selectedPropertyId))
+      setFilteredProperties(prev => prev.filter(p => p.id !== selectedPropertyId))
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to mark property as sold')
+    } finally {
+      setProcessing(false)
+      setShowSoldModal(false)
+      setBuyerName('')
+      setSelectedPropertyId(null)
+    }
+  }
+
   const showBedroomsBathroomsFilters =
     !filters.propertyType ||
     filters.propertyType === 'SINGLE_FAMILY' ||
@@ -449,21 +499,6 @@ export default function PropertiesPage() {
               Showing {filteredProperties.length} of {properties.length} properties
             </p>
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push('/add-project-request')}
-                className="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Add Project
-              </button>
-
               {/* Sort Dropdown */}
               <div className="relative sort-dropdown">
                 <button
@@ -540,88 +575,184 @@ export default function PropertiesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProperties.map(property => (
-                <div
-                  key={property.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                >
-                  <div className="relative h-48">
-                    <Image
-                      src={
-                        property.thumbnailUrl ||
-                        property.imageUrls[0] ||
-                        'https://via.placeholder.com/400x300?text=Property'
-                      }
-                      alt={`${property.project} - ${property.propertyType}`}
-                      width={400}
-                      height={192}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-4 left-4 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                      {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
-                      {propertyTypes.find(t => t.value === property.propertyType)?.label}
-                    </div>
-                    {property.price && (
-                      <div className="absolute top-4 right-4 bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">
-                        ₹{property.price}L
+              {filteredProperties.map(property => {
+                const isOwner = session?.user?.email === property.userEmail
+                return (
+                  <div
+                    key={property.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  >
+                    <div className="relative h-48">
+                      <Image
+                        src={
+                          property.thumbnailUrl ||
+                          property.imageUrls[0] ||
+                          'https://via.placeholder.com/400x300?text=Property'
+                        }
+                        alt={`${property.project} - ${property.propertyType}`}
+                        width={400}
+                        height={192}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-4 left-4 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                        {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
+                        {propertyTypes.find(t => t.value === property.propertyType)?.label}
                       </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-2 text-gray-800">{property.project}</h3>
-                    <p className="text-gray-600 text-sm mb-2">
-                      {property.sqFt && `${property.sqFt} sq ft`}
-                      {property.bedrooms && ` • ${property.bedrooms} BHK`}
-                      {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                      {property.builder !== 'Independent' && ` • Built by ${property.builder}`}
-                    </p>
-                    <p className="text-gray-500 text-sm mb-3 flex items-center gap-1">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      {property.location.fullAddress}
-                    </p>
-                    {property.description && (
-                      <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-                        {property.description}
+                      {property.price && (
+                        <div className="absolute top-4 right-4 bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">
+                          ₹{property.price}L
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-semibold text-lg text-gray-800">{property.project}</h3>
+                        {property.price && (
+                          <span className="font-semibold text-lg text-gray-800">
+                            ₹{formatIndianCurrency(property.price)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-gray-600 text-sm mb-2">
+                        {property.sqFt && `${property.sqFt} sq ft`}
+                        {property.bedrooms && ` • ${property.bedrooms} BHK`}
+                        {property.bathrooms && ` • ${property.bathrooms} Bath`}
+                        {property.builder !== 'Independent' && ` • Built by ${property.builder}`}
                       </p>
-                    )}
-                    <div className="flex justify-between items-center">
-                      <div className="text-xs text-gray-500">
-                        <div>Zipcode: {property.location.zipcode}</div>
-                        <div>Posted by: {property.postedBy}</div>
-                        {property.companyName && <div>Company: {property.companyName}</div>}
+                      <p className="text-gray-500 text-sm mb-3 flex items-center gap-1">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                        {property.location.fullAddress}
+                      </p>
+                      {property.description && (
+                        <p className="text-gray-700 text-sm mb-3 line-clamp-2">
+                          {property.description}
+                        </p>
+                      )}
+                      <div className="flex justify-between items-center gap-2">
+                        <div className="text-xs text-gray-500 flex-1">
+                          <div>Zipcode: {property.location.zipcode}</div>
+                          <div>Posted by: {property.postedBy}</div>
+                          {property.companyName && <div>Company: {property.companyName}</div>}
+                        </div>
+                        <div className="flex gap-2 items-center">
+                          <button
+                            onClick={() => router.push(`/properties/${property.id}`)}
+                            className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
+                          >
+                            View Details
+                          </button>
+
+                          {/* Owner Actions - Mark as Sold */}
+                          {isOwner && property.listingStatus === 'ACTIVE' && (
+                            <button
+                              onClick={() => {
+                                setSelectedPropertyId(property.id)
+                                setShowSoldModal(true)
+                              }}
+                              disabled={processing}
+                              className="p-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Mark as Sold"
+                            >
+                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                  fillRule="evenodd"
+                                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <button
-                        onClick={() => router.push(`/properties/${property.id}`)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
-                      >
-                        View Details
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
       </main>
+
+      {/* Mark as Sold Modal */}
+      {showSoldModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">Mark Property as Sold</h3>
+              <button
+                onClick={() => {
+                  setShowSoldModal(false)
+                  setBuyerName('')
+                  setSelectedPropertyId(null)
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Buyer Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={buyerName}
+                onChange={e => setBuyerName(e.target.value)}
+                placeholder="Enter buyer name..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 mt-1">Leave blank if sold to an external buyer</p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowSoldModal(false)
+                  setBuyerName('')
+                  setSelectedPropertyId(null)
+                }}
+                disabled={processing}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleMarkAsSold}
+                disabled={processing}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {processing ? 'Processing...' : 'Mark as Sold'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

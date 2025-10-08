@@ -184,7 +184,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         user: {
           select: {
+            id: true,
             name: true,
+            email: true,
             companyName: true,
           },
         },
@@ -221,6 +223,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         createdAt: property.createdAt,
         postedBy: property.user.name || 'Agent',
         companyName: property.user.companyName,
+        userId: property.userId,
+        userEmail: property.user.email,
         // Property details from JSON
         bedrooms: propertyDetails?.bedrooms,
         bathrooms: propertyDetails?.bathrooms,

@@ -45,7 +45,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const propertyDetails = property.propertyDetails as any
       return {
         id: property.id,
-        title: property.project?.name || propertyDetails?.projectName || 'Individual Property',
+        title:
+          property.project?.name ||
+          propertyDetails?.title ||
+          propertyDetails?.projectName ||
+          'Individual Property',
         type: property.propertyType,
         sqFt: property.sqFt,
         location: {

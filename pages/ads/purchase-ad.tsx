@@ -42,6 +42,7 @@ export default function PurchaseAdPage() {
   const router = useRouter()
 
   const [availableSlots, setAvailableSlots] = useState<AdSlotConfig[]>([])
+  const [allSlots, setAllSlots] = useState<AdSlotConfig[]>([])
   const [activeListings, setActiveListings] = useState<{
     properties: ActiveListing[]
     projects: ActiveListing[]
@@ -58,6 +59,7 @@ export default function PurchaseAdPage() {
         throw new Error('Failed to fetch slots')
       }
       const data = await response.json()
+      setAllSlots(data.adSlots)
       const available = data.adSlots.filter((s: AdSlotConfig) => !s.hasAd)
       setAvailableSlots(available)
     } catch (error) {
@@ -94,27 +96,90 @@ export default function PurchaseAdPage() {
 
   // Auto-add slot if slot parameter is in URL
   useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('Auto-populate effect triggered:', {
+      isReady: router.isReady,
+      slot: router.query.slot,
+      propertyId: router.query.propertyId,
+      projectId: router.query.projectId,
+      availableSlotsLength: availableSlots.length,
+      hasActiveListings: !!activeListings,
+      selectedSlotsLength: selectedSlots.length,
+    })
+
     if (
       router.isReady &&
       router.query.slot &&
-      availableSlots.length > 0 &&
+      allSlots.length > 0 &&
+      activeListings &&
       selectedSlots.length === 0
     ) {
       const slotNumber = parseInt(router.query.slot as string)
-      const slot = availableSlots.find(s => s.slotNumber === slotNumber)
+      const isRenewal = !!router.query.renew
+      // For renewals, look in all slots; for new purchases, look in available slots
+      const slot = isRenewal
+        ? allSlots.find(s => s.slotNumber === slotNumber)
+        : availableSlots.find(s => s.slotNumber === slotNumber)
+      // eslint-disable-next-line no-console
+      console.log('Found slot:', slot, 'isRenewal:', isRenewal)
+
       if (slot) {
+        // Check if propertyId or projectId is in URL params
+        const propertyId = router.query.propertyId as string | undefined
+        const projectId = router.query.projectId as string | undefined
+
+        let propertyData = null
+        let finalPropertyId = null
+        let finalProjectId = null
+
+        if (propertyId) {
+          const property = activeListings.properties.find(p => p.id === propertyId)
+          // eslint-disable-next-line no-console
+          console.log('Looking for property:', propertyId, 'Found:', property)
+          if (property) {
+            propertyData = property
+            finalPropertyId = propertyId
+          }
+        } else if (projectId) {
+          const project = activeListings.projects.find(p => p.id === projectId)
+          // eslint-disable-next-line no-console
+          console.log('Looking for project:', projectId, 'Found:', project)
+          if (project) {
+            propertyData = project
+            finalProjectId = projectId
+          }
+        }
+
+        // eslint-disable-next-line no-console
+        console.log('Setting slot with:', {
+          slotNumber: slot.slotNumber,
+          propertyId: finalPropertyId,
+          projectId: finalProjectId,
+          propertyData,
+        })
+
         setSelectedSlots([
           {
             slotNumber: slot.slotNumber,
             days: 7,
-            propertyId: null,
-            projectId: null,
-            propertyData: null,
+            propertyId: finalPropertyId,
+            projectId: finalProjectId,
+            propertyData: propertyData,
           },
         ])
       }
     }
-  }, [router.isReady, router.query.slot, availableSlots, selectedSlots.length])
+  }, [
+    router.isReady,
+    router.query.slot,
+    router.query.renew,
+    router.query.propertyId,
+    router.query.projectId,
+    allSlots,
+    availableSlots,
+    activeListings,
+    selectedSlots.length,
+  ])
 
   const getUnselectedSlots = () => {
     const selectedSlotNumbers = selectedSlots.map(s => s.slotNumber)
@@ -146,19 +211,6 @@ export default function PurchaseAdPage() {
   const updateSlot = (index: number, updates: Partial<SlotPurchase>) => {
     const newSlots = [...selectedSlots]
     newSlots[index] = { ...newSlots[index], ...updates }
-
-    // Validate days if being updated
-    if (updates.days !== undefined) {
-      const days = updates.days
-      if (!days || days < 1) {
-        newSlots[index].daysError = 'Minimum 1 day required'
-      } else if (days > 30) {
-        newSlots[index].daysError = 'Maximum 30 days allowed'
-      } else {
-        newSlots[index].daysError = undefined
-      }
-    }
-
     setSelectedSlots(newSlots)
   }
 
@@ -178,15 +230,18 @@ export default function PurchaseAdPage() {
   }
 
   const getDiscount = (days: number): number => {
-    if (days >= 30) return 0.3
-    if (days >= 15) return 0.2
-    if (days >= 7) return 0.1
-    if (days >= 3) return 0.05
+    if (days >= 15) return 0.3
+    if (days >= 7) return 0.2
+    if (days >= 3) return 0.1
+    if (days > 0) return 0.05
     return 0
   }
 
   const calculateSlotCost = (slotNumber: number, days: number) => {
-    const slot = availableSlots.find(s => s.slotNumber === slotNumber)
+    // Look in all slots first (for renewals), then fall back to available slots
+    const slot =
+      allSlots.find(s => s.slotNumber === slotNumber) ||
+      availableSlots.find(s => s.slotNumber === slotNumber)
     if (!slot) return { baseAmount: 0, discount: 0, discountPercent: 0, finalAmount: 0 }
 
     const baseAmount = slot.basePrice * days
@@ -223,12 +278,6 @@ export default function PurchaseAdPage() {
       return
     }
 
-    const slotsWithErrors = selectedSlots.filter(s => s.daysError)
-    if (slotsWithErrors.length > 0) {
-      toast.error('Please fix day errors before purchasing')
-      return
-    }
-
     const invalidSlots = selectedSlots.filter(s => !s.propertyId && !s.projectId)
     if (invalidSlots.length > 0) {
       toast.error('Please select a property/project for all slots')
@@ -237,7 +286,7 @@ export default function PurchaseAdPage() {
 
     setPurchasing(true)
     try {
-      // Simulate purchase for all slots
+      // Purchase all slots
       for (const slot of selectedSlots) {
         const response = await fetch('/api/ads/purchase', {
           method: 'POST',
@@ -345,7 +394,8 @@ export default function PurchaseAdPage() {
               <p className="text-gray-600">Feature your properties on the home page</p>
               <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>Pricing:</strong> Row 1 (Slots 1-3): ₹1,000/day • Row 2 (Slots 4-6):
+                  <strong>Pricing:</strong> Row 1: ₹1,500/day • Row 2: ₹1,400/day • Row 3:
+                  ₹1,300/day • Row 4: ₹1,200/day • Row 5: ₹1,100/day • Row 6: ₹1,000/day • Row 7:
                   ₹900/day
                 </p>
               </div>
@@ -395,7 +445,7 @@ export default function PurchaseAdPage() {
                       Skip (Testing)
                     </button>
                     <button
-                      onClick={() => router.push('/add-property')}
+                      onClick={() => router.push('/properties/add-property')}
                       className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap"
                     >
                       Add Property
@@ -436,18 +486,18 @@ export default function PurchaseAdPage() {
 
                           return (
                             <div key={index} className="border rounded-lg p-4 bg-gray-50">
-                              <div className="flex justify-between items-start mb-4">
-                                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                  <div>
+                              <div className="mb-4">
+                                <div className="flex gap-4 mb-2">
+                                  <div className="flex-shrink-0">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                      Select Slot
+                                      Slot
                                     </label>
                                     <select
                                       value={slot.slotNumber}
                                       onChange={e =>
                                         updateSlot(index, { slotNumber: parseInt(e.target.value) })
                                       }
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                      className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     >
                                       {availableSlotsForDropdown.map(availSlot => (
                                         <option
@@ -460,36 +510,37 @@ export default function PurchaseAdPage() {
                                     </select>
                                   </div>
 
-                                  <div>
+                                  <div className="flex-shrink-0">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                      Number of Days
-                                    </label>
-                                    <input
-                                      type="text"
-                                      inputMode="numeric"
-                                      pattern="[0-9]*"
-                                      value={slot.days || ''}
-                                      onChange={e => {
-                                        const value = e.target.value.replace(/\D/g, '')
-                                        const numValue = value === '' ? 0 : parseInt(value)
-                                        updateSlot(index, { days: numValue })
-                                      }}
-                                      className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                                        slot.daysError ? 'border-red-500' : 'border-gray-300'
-                                      }`}
-                                      placeholder="Enter days (1-30)"
-                                    />
-                                    {slot.daysError && (
-                                      <p className="text-red-600 text-xs mt-1">{slot.daysError}</p>
-                                    )}
-                                  </div>
-
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                      Select Property/Project
+                                      Days
                                     </label>
                                     <select
-                                      value={slot.propertyId || slot.projectId || ''}
+                                      value={slot.days || 7}
+                                      onChange={e =>
+                                        updateSlot(index, { days: parseInt(e.target.value) })
+                                      }
+                                      className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                      {Array.from({ length: 30 }, (_, i) => i + 1).map(day => (
+                                        <option key={day} value={day}>
+                                          {day}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Property/Project
+                                    </label>
+                                    <select
+                                      value={
+                                        slot.propertyId
+                                          ? `property:${slot.propertyId}`
+                                          : slot.projectId
+                                            ? `project:${slot.projectId}`
+                                            : ''
+                                      }
                                       onChange={e => {
                                         const value = e.target.value
                                         const [type, id] = value.split(':')
@@ -499,7 +550,10 @@ export default function PurchaseAdPage() {
                                           id
                                         )
                                       }}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 truncate"
+                                      title={
+                                        slot.propertyData?.title || 'Select a property or project'
+                                      }
                                     >
                                       <option value="">Select...</option>
                                       {activeListings.properties.length > 0 && (
@@ -528,19 +582,26 @@ export default function PurchaseAdPage() {
                                       )}
                                     </select>
                                   </div>
+
+                                  <div className="flex-shrink-0 flex items-end">
+                                    <button
+                                      onClick={() => removeSlot(index)}
+                                      className="text-red-600 hover:text-red-800 p-2"
+                                    >
+                                      <svg
+                                        className="w-5 h-5"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                          clipRule="evenodd"
+                                        />
+                                      </svg>
+                                    </button>
+                                  </div>
                                 </div>
-                                <button
-                                  onClick={() => removeSlot(index)}
-                                  className="text-red-600 hover:text-red-800 ml-4"
-                                >
-                                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                </button>
                               </div>
 
                               {slot.propertyData && (
@@ -616,11 +677,7 @@ export default function PurchaseAdPage() {
 
                     <button
                       onClick={handlePurchase}
-                      disabled={
-                        selectedSlots.length === 0 ||
-                        purchasing ||
-                        selectedSlots.some(s => s.daysError || s.days < 1 || s.days > 30)
-                      }
+                      disabled={selectedSlots.length === 0 || purchasing}
                       className="w-full mt-6 bg-black text-white py-3 px-4 rounded font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {purchasing ? (

@@ -70,8 +70,6 @@ export default function Home() {
   const [adSlots, setAdSlots] = useState<AdSlot[]>([])
   const [activeListings, setActiveListings] = useState<ActiveListings | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showExpiringBanner, setShowExpiringBanner] = useState(false)
-  const [expiringAds, setExpiringAds] = useState<AdSlot[]>([])
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
@@ -110,21 +108,12 @@ export default function Home() {
       }
       const data = await response.json()
       setAdSlots(data.adSlots)
-
-      // Check for expiring ads for logged-in users
-      if (status === 'authenticated') {
-        const userExpiringAds = data.adSlots.filter(
-          (slot: AdSlot) => slot.isUserAd && slot.isExpiringSoon
-        )
-        setExpiringAds(userExpiringAds)
-        setShowExpiringBanner(userExpiringAds.length > 0)
-      }
     } catch (error) {
       toast.error('Failed to load ad slots')
     } finally {
       setLoading(false)
     }
-  }, [status])
+  }, [])
 
   const loadActiveListings = useCallback(async () => {
     try {
@@ -156,7 +145,37 @@ export default function Home() {
   }
 
   const handleRenewAd = (adId: string, slotNumber: number) => {
-    router.push(`/ads/${slotNumber}/purchase?renew=${adId}`)
+    // Find the ad to get property/project info
+    const slot = adSlots.find(s => s.ad?.id === adId)
+    // eslint-disable-next-line no-console
+    console.log('handleRenewAd called:', { adId, slotNumber, slot, adSlots })
+    if (!slot?.ad) {
+      // eslint-disable-next-line no-console
+      console.log('No slot or ad found')
+      return
+    }
+
+    const propertyId = slot.ad.property?.id
+    const projectId = slot.ad.project?.id
+
+    // eslint-disable-next-line no-console
+    console.log('Property/Project IDs:', { propertyId, projectId })
+
+    // Navigate to purchase-ad page with slot and property/project pre-filled
+    const params = new URLSearchParams({
+      slot: slotNumber.toString(),
+      renew: adId,
+    })
+
+    if (propertyId) {
+      params.append('propertyId', propertyId)
+    } else if (projectId) {
+      params.append('projectId', projectId)
+    }
+
+    // eslint-disable-next-line no-console
+    console.log('Navigating to:', `/ads/purchase-ad?${params.toString()}`)
+    router.push(`/ads/purchase-ad?${params.toString()}`)
   }
 
   const formatLocation = (location: any) => {
@@ -366,7 +385,7 @@ export default function Home() {
                     ref={searchInputRef}
                     type="text"
                     className="home-search-input"
-                    placeholder="Enter a property, locality or zip code"
+                    placeholder="browse properties for free"
                     onChange={handleSearchInput}
                     onFocus={() => predictions.length > 0 && setShowPredictions(true)}
                     onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
@@ -419,51 +438,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Expiry Warning Banner */}
-      {showExpiringBanner && expiringAds.length > 0 && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4">
-          <div className="container mx-auto px-4 flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-700">
-                  {expiringAds.length} of your ads {expiringAds.length === 1 ? 'is' : 'are'}{' '}
-                  expiring soon!
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => handleRenewAd(expiringAds[0].ad!.id, expiringAds[0].slotNumber)}
-                className="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 transition-colors"
-              >
-                Renew
-              </button>
-              <button
-                onClick={() => setShowExpiringBanner(false)}
-                className="text-red-400 hover:text-red-500"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fillRule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Featured Properties Section */}
       <section className="featured-properties-section">
         <div className="container mx-auto px-4 py-16">
@@ -479,17 +453,81 @@ export default function Home() {
               {adSlots.map(slot => (
                 <div
                   key={slot.slotNumber}
-                  className="relative border-2 border-black rounded-lg p-8 min-h-[200px] flex items-center justify-center hover:shadow-lg transition-shadow duration-300 bg-white"
+                  className="relative border-2 border-black rounded-lg min-h-[200px] hover:shadow-lg transition-shadow duration-300 bg-white overflow-hidden"
                 >
-                  <div className="absolute top-4 left-4 text-sm font-bold">
+                  <div className="absolute top-4 left-4 text-sm font-bold z-10 bg-white/90 px-2 py-1 rounded">
                     <span className="text-black">Slot </span>
                     <span className="ad-slot-number">#{slot.slotNumber}</span>
                   </div>
-                  <button onClick={() => handlePurchaseAd(slot.slotNumber)} className="text-center">
-                    <div className="text-black text-base font-semibold">
-                      Advertise your property <span className="ad-slot-text-gradient">here</span>
-                    </div>
-                  </button>
+                  {slot.isUserAd && slot.isExpiringSoon && slot.ad && (
+                    <button
+                      onClick={() => handleRenewAd(slot.ad!.id, slot.slotNumber)}
+                      className="absolute top-4 right-4 z-10 bg-red-600 text-white px-3 py-1 rounded text-xs font-semibold animate-pulse hover:bg-red-700"
+                    >
+                      Expiring Soon
+                    </button>
+                  )}
+                  {slot.hasAd && slot.ad?.property ? (
+                    <Link href={`/properties/${slot.ad.property.id}`} className="block h-full">
+                      <div className="relative h-full min-h-[200px]">
+                        <Image
+                          src={slot.ad.property.thumbnail || 'https://via.placeholder.com/400x300'}
+                          alt={slot.ad.property.title}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                          <h3 className="text-white font-semibold text-lg truncate">
+                            {slot.ad.property.title}
+                          </h3>
+                          <p className="text-white/90 text-sm">
+                            {slot.ad.property.location.city}, {slot.ad.property.location.state}
+                          </p>
+                          {slot.ad.user && (
+                            <p className="text-white/80 text-xs mt-1">
+                              Posted by {slot.ad.user.name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ) : slot.hasAd && slot.ad?.project ? (
+                    <Link href={`/projects/${slot.ad.project.id}`} className="block h-full">
+                      <div className="relative h-full min-h-[200px]">
+                        <Image
+                          src={slot.ad.project.thumbnail || 'https://via.placeholder.com/400x300'}
+                          alt={slot.ad.project.name}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                          <h3 className="text-white font-semibold text-lg truncate">
+                            {slot.ad.project.name}
+                          </h3>
+                          <p className="text-white/90 text-sm">
+                            {slot.ad.project.location.city}, {slot.ad.project.location.state}
+                          </p>
+                          {slot.ad.user && (
+                            <p className="text-white/80 text-xs mt-1">
+                              Posted by {slot.ad.user.name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => handlePurchaseAd(slot.slotNumber)}
+                      className="w-full h-full min-h-[200px] flex items-center justify-center p-8"
+                    >
+                      <div className="text-center">
+                        <div className="text-black text-base font-semibold">
+                          Advertise your property{' '}
+                          <span className="ad-slot-text-gradient">here</span>
+                        </div>
+                      </div>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
