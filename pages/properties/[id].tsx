@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import toast from 'react-hot-toast'
+import { SIZE_UNIT_LABELS } from '@/lib/constants'
 
 interface PropertyDetail {
   id: string
@@ -63,6 +64,8 @@ export default function PropertyDetailPage() {
   const [showSoldModal, setShowSoldModal] = useState(false)
   const [buyerName, setBuyerName] = useState('')
   const [processing, setProcessing] = useState(false)
+  const [contactMessage, setContactMessage] = useState('')
+  const [sendingMessage, setSendingMessage] = useState(false)
 
   const propertyTypes = [
     { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
@@ -289,7 +292,6 @@ export default function PropertyDetailPage() {
                   >
                     {property.listingStatus}
                   </div>
-                  {property.price && <div className="property-image-price">₹{property.price}L</div>}
                 </div>
 
                 {/* Image Thumbnails */}
@@ -320,17 +322,88 @@ export default function PropertyDetailPage() {
 
               {/* Property Details */}
               <div className="property-details-section">
-                <div className="property-details-header flex justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <span className="property-details-icon">{propertyTypeInfo?.icon}</span>
+                <div className="property-details-header flex items-center w-full">
+                  <div className="flex-1">
                     <h1 className="property-details-title">{property.project}</h1>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex-1 flex justify-center">
+                    {/* Express Interest Button */}
+                    {!isOwner && property.listingStatus === 'ACTIVE' && (
+                      <>
+                        {status === 'authenticated' ? (
+                          session.user?.isEmailVerified || session.user?.isMobileVerified ? (
+                            <button
+                              onClick={async () => {
+                                if (hasExpressedInterest) {
+                                  toast('You have already expressed interest in this property')
+                                  return
+                                }
+                                setSendingMessage(true)
+                                try {
+                                  const response = await fetch('/api/interests/express', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      propertyId: property.id,
+                                    }),
+                                  })
+                                  if (!response.ok) {
+                                    const errorData = await response.json()
+                                    throw new Error(
+                                      errorData.message || 'Failed to express interest'
+                                    )
+                                  }
+                                  toast.success('Interest sent to property owner!')
+                                  setHasExpressedInterest(true)
+                                  if (property) {
+                                    loadPropertyDetail(property.id)
+                                  }
+                                } catch (error: any) {
+                                  toast.error(error.message || 'Failed to express interest')
+                                } finally {
+                                  setSendingMessage(false)
+                                }
+                              }}
+                              disabled={sendingMessage || hasExpressedInterest}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                            >
+                              {hasExpressedInterest
+                                ? '✓ Interest Expressed'
+                                : sendingMessage
+                                  ? 'Sending...'
+                                  : 'Send Interest'}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => router.push('/auth/userinfo')}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
+                            >
+                              Verify Email/Mobile
+                            </button>
+                          )
+                        ) : (
+                          <button
+                            onClick={() => router.push('/auth/signin')}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
+                          >
+                            Sign In
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <div className="flex-1 flex justify-end">
                     {property.price && (
                       <span className="property-details-title">
                         ₹{formatIndianCurrency(property.price)}
                       </span>
                     )}
+                  </div>
+                </div>
+
+                <div className="property-details-header flex justify-between items-center">
+                  <div></div>
+                  <div className="flex items-center gap-4">
                     {isOwner && property.listingStatus === 'ACTIVE' && (
                       <button
                         onClick={() => setShowSoldModal(true)}
@@ -374,19 +447,12 @@ export default function PropertyDetailPage() {
                     {property.location.fullAddress}
                   </p>
                   <p className="property-location__meta">
-                    Zipcode: {property.location.zipcode} • Posted on{' '}
-                    {formatDate(property.createdAt)}
+                    Posted on {formatDate(property.createdAt)}
                   </p>
                 </div>
 
                 {/* Property Features */}
                 <div className="property-features-grid">
-                  {property.sqFt && (
-                    <div className="property-feature">
-                      <div className="property-feature__value">{property.sqFt}</div>
-                      <div className="property-feature__label">Sq Ft</div>
-                    </div>
-                  )}
                   {property.bedrooms && (
                     <div className="property-feature">
                       <div className="property-feature__value">{property.bedrooms}</div>
@@ -399,10 +465,22 @@ export default function PropertyDetailPage() {
                       <div className="property-feature__label">Bathrooms</div>
                     </div>
                   )}
+                  {property.size && (
+                    <div className="property-feature">
+                      <div className="property-feature__value">
+                        {property.size}{' '}
+                        {property.sizeUnit &&
+                          SIZE_UNIT_LABELS[property.sizeUnit as keyof typeof SIZE_UNIT_LABELS]}
+                      </div>
+                      <div className="property-feature__label">Unit Size</div>
+                    </div>
+                  )}
                   {property.plotSize && (
                     <div className="property-feature">
                       <div className="property-feature__value">
-                        {property.plotSize} {property.plotSizeUnit}
+                        {property.plotSize}{' '}
+                        {property.plotSizeUnit &&
+                          SIZE_UNIT_LABELS[property.plotSizeUnit as keyof typeof SIZE_UNIT_LABELS]}
                       </div>
                       <div className="property-feature__label">Plot Size</div>
                     </div>
@@ -443,73 +521,6 @@ export default function PropertyDetailPage() {
 
             {/* Sidebar */}
             <div className="property-detail-sidebar-column">
-              {/* Contact/Interest Card */}
-              <div className="property-contact-card">
-                <h3 className="property-contact-card__title">Property Owner</h3>
-                <div className="property-contact-card__owner">
-                  <p className="property-contact-card__name">{property.postedBy}</p>
-                  <p className="property-contact-card__email">{property.userEmail}</p>
-                  {property.userPhone && (
-                    <p className="property-contact-card__phone">{property.userPhone}</p>
-                  )}
-                </div>
-
-                {/* Express Interest Button */}
-                {!isOwner && status === 'authenticated' && property.listingStatus === 'ACTIVE' && (
-                  <div className="property-interest-section">
-                    {hasExpressedInterest ? (
-                      <div className="property-interest-expressed">
-                        <svg
-                          className="property-interest-expressed__icon"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        <p className="property-interest-expressed__title">Interest Expressed</p>
-                        <p className="property-interest-expressed__text">
-                          The owner has your contact details
-                        </p>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={handleExpressInterest}
-                        disabled={expressing}
-                        className="property-interest-button"
-                      >
-                        {expressing ? 'Expressing Interest...' : 'Express Interest'}
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {/* Login Prompt */}
-                {!isOwner &&
-                  status === 'unauthenticated' &&
-                  property.listingStatus === 'ACTIVE' && (
-                    <button
-                      onClick={() => router.push('/api/auth/signin')}
-                      className="property-login-prompt"
-                    >
-                      Sign In to Express Interest
-                    </button>
-                  )}
-
-                {/* Property Unavailable */}
-                {property.listingStatus !== 'ACTIVE' && (
-                  <div className="property-unavailable">
-                    <p className="property-unavailable__title">Property Not Available</p>
-                    <p className="property-unavailable__status">Status: {property.listingStatus}</p>
-                  </div>
-                )}
-              </div>
-
               {/* Interested Buyers (Owner Only) */}
               {isOwner && (
                 <div className="property-buyers-card">

@@ -27,7 +27,7 @@ export default function Login() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.push('/auth/userinfo')
+      router.push('/')
     }
   }, [status, router])
 
@@ -73,7 +73,7 @@ export default function Login() {
         toast.error('Invalid OTP or user not found')
       } else {
         toast.success('Login successful!')
-        router.push('/auth/userinfo')
+        router.push('/')
       }
     } catch (error) {
       toast.error('Login failed. Please try again.')
@@ -97,7 +97,7 @@ export default function Login() {
         toast.error('Invalid credentials')
       } else {
         toast.success('Login successful!')
-        router.push('/auth/userinfo')
+        router.push('/')
       }
     } catch (error) {
       toast.error('Login failed. Please try again.')
@@ -255,7 +255,15 @@ export default function Login() {
 
             {/* Email OTP Form */}
             {loginMethod === 'email' && (
-              <form onSubmit={handleOTPLogin} className="login-form">
+              <form
+                onSubmit={e => {
+                  e.preventDefault()
+                  if (otpSent) {
+                    handleOTPLogin(e)
+                  }
+                }}
+                className="login-form"
+              >
                 {!otpSent ? (
                   <>
                     <div className="login-form__field">
@@ -319,7 +327,15 @@ export default function Login() {
 
             {/* Mobile OTP Form */}
             {loginMethod === 'mobile' && (
-              <form onSubmit={handleOTPLogin} className="login-form">
+              <form
+                onSubmit={e => {
+                  e.preventDefault()
+                  if (otpSent) {
+                    handleOTPLogin(e)
+                  }
+                }}
+                className="login-form"
+              >
                 {!otpSent ? (
                   <>
                     <div className="login-form__field">

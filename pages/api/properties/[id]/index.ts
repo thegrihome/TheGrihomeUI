@@ -70,14 +70,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         state: property.location.state,
         zipcode: property.location.zipcode || '',
         locality: property.location.locality || '',
-        fullAddress: `${property.location.locality ? property.location.locality + ', ' : ''}${property.location.city}, ${property.location.state} ${property.location.zipcode || ''}`,
+        fullAddress: `${property.streetAddress}${property.location.locality ? ', ' + property.location.locality : ''}, ${property.location.city}, ${property.location.state}${property.location.zipcode ? ' ' + property.location.zipcode : ''}`,
       },
       builder: property.builder?.name || 'Independent',
-      project:
-        property.project?.name ||
-        propertyDetails?.title ||
-        propertyDetails?.projectName ||
-        'Individual Property',
+      project: propertyDetails?.title || property.project?.name || property.streetAddress,
       propertyType: property.propertyType,
       sqFt: property.sqFt,
       thumbnailUrl: property.thumbnailUrl,
@@ -94,8 +90,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       bedrooms: propertyDetails?.bedrooms,
       bathrooms: propertyDetails?.bathrooms,
       price: propertyDetails?.price,
-      size: propertyDetails?.size,
-      sizeUnit: propertyDetails?.sizeUnit,
+      size: propertyDetails?.propertySize || propertyDetails?.size,
+      sizeUnit: propertyDetails?.propertySizeUnit || propertyDetails?.sizeUnit,
       plotSize: propertyDetails?.plotSize,
       plotSizeUnit: propertyDetails?.plotSizeUnit,
       description: propertyDetails?.description,

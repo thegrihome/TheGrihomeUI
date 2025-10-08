@@ -63,14 +63,8 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
-            image: user.image,
             username: user.username,
             mobileNumber: user.phone,
-            isEmailVerified: !!user.emailVerified,
-            isMobileVerified: !!user.mobileVerified,
-            isAgent: user.role === 'AGENT',
-            companyName: user.companyName,
-            imageLink: user.image,
           }
         }
 
@@ -101,14 +95,8 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-          image: user.image,
           username: user.username,
           mobileNumber: user.phone,
-          isEmailVerified: !!user.emailVerified,
-          isMobileVerified: !!user.mobileVerified,
-          isAgent: user.role === 'AGENT',
-          companyName: user.companyName,
-          imageLink: user.image,
         }
       },
     }),
@@ -118,19 +106,34 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, trigger }) {
+      // On initial sign in, populate token from user object
       if (user) {
         token.role = user.role
-        token.image = user.image
         token.username = user.username
         token.mobileNumber = user.mobileNumber
-        token.isEmailVerified = user.isEmailVerified
-        token.isMobileVerified = user.isMobileVerified
-        token.isAgent = user.isAgent
-        token.companyName = user.companyName
-        token.imageLink = user.imageLink
+        // Fetch additional user data from database
+        if (token.sub) {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: {
+              image: true,
+              emailVerified: true,
+              mobileVerified: true,
+              companyName: true,
+            },
+          })
+          if (dbUser) {
+            token.image = dbUser.image
+            token.imageLink = dbUser.image
+            token.isEmailVerified = !!dbUser.emailVerified
+            token.isMobileVerified = !!dbUser.mobileVerified
+            token.isAgent = user.role === 'AGENT'
+            token.companyName = dbUser.companyName
+          }
+        }
       }
-      // Refresh token data on update or when username is missing (first login)
-      if ((trigger === 'update' || !token.username) && token.sub) {
+      // Refresh token data only on explicit update trigger
+      if (trigger === 'update' && token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
           select: {
@@ -148,11 +151,11 @@ export const authOptions: NextAuthOptions = {
           token.image = dbUser.image
           token.username = dbUser.username
           token.mobileNumber = dbUser.phone
+          token.imageLink = dbUser.image
           token.isEmailVerified = !!dbUser.emailVerified
           token.isMobileVerified = !!dbUser.mobileVerified
           token.isAgent = dbUser.role === 'AGENT'
           token.companyName = dbUser.companyName
-          token.imageLink = dbUser.image
         }
       }
       return token

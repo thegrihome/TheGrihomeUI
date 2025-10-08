@@ -43,6 +43,7 @@ export default function UserInfoPage() {
   const [mobileTimeLeft, setMobileTimeLeft] = useState(180)
   const [mobileCanResend, setMobileCanResend] = useState(false)
   const [countryCode, setCountryCode] = useState('')
+  const [userProfileImage, setUserProfileImage] = useState<string>('')
 
   useEffect(() => {
     setMounted(true)
@@ -59,11 +60,31 @@ export default function UserInfoPage() {
     }
   }, [user])
 
+  // Fetch user profile image from database
   useEffect(() => {
-    if (!isAuthenticated) {
+    const fetchUserProfile = async () => {
+      if (user?.email) {
+        try {
+          const response = await fetch(`/api/user/info?email=${user.email}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.user?.image) {
+              setUserProfileImage(data.user.image)
+            }
+          }
+        } catch (error) {
+          // Silent fail
+        }
+      }
+    }
+    fetchUserProfile()
+  }, [user?.email])
+
+  useEffect(() => {
+    if (!isAuthenticated && status !== 'loading') {
       router.push('/login')
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, status, router])
 
   // Email OTP timer
   useEffect(() => {
@@ -191,6 +212,7 @@ export default function UserInfoPage() {
       }
 
       await update()
+      setUserProfileImage(data.imageUrl || imagePreview)
       showToast('Avatar updated successfully', 'success')
       setImageFile(null)
       setImagePreview('')
@@ -759,9 +781,9 @@ export default function UserInfoPage() {
                 {/* Current Avatar */}
                 <div className="flex items-center space-x-4">
                   <div className="h-20 w-20 rounded-full overflow-hidden bg-gray-100">
-                    {user.imageLink || user.image ? (
+                    {userProfileImage ? (
                       <Image
-                        src={user.imageLink || user.image || ''}
+                        src={userProfileImage}
                         alt="Current avatar"
                         width={80}
                         height={80}

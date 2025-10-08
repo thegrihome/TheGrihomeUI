@@ -21,30 +21,34 @@ const Header: NextPage = () => {
     setMounted(true)
   }, [])
 
-  // Fetch user image from database if not in session
+  // Fetch and set user image
   useEffect(() => {
     const fetchUserImage = async () => {
-      if (isAuthenticated && user?.email && !user.image) {
+      if (isAuthenticated && user?.email) {
+        // First try to use image from session
+        if (user.image) {
+          setUserImage(user.image)
+          return
+        }
+
+        // If no image in session, fetch once from database
         try {
           const response = await fetch(`/api/user/info?email=${user.email}`)
           if (response.ok) {
             const data = await response.json()
             if (data.user?.image) {
               setUserImage(data.user.image)
-              // Update session with the image
-              await update()
             }
           }
         } catch (error) {
           // Silent fail
         }
-      } else if (user?.image) {
-        setUserImage(user.image)
       }
     }
 
     fetchUserImage()
-  }, [isAuthenticated, user?.email, user?.image, update, user])
+    // Only run when authentication status or email changes, not on every user object change
+  }, [isAuthenticated, user?.email, user?.image])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -110,6 +114,16 @@ const Header: NextPage = () => {
 
           {/* Desktop Navigation */}
           <div className="desktop-nav">
+            <Link href="/" className="header-logo">
+              <Image
+                src="/images/grihome-logo.png"
+                alt="Grihome Logo"
+                width={50}
+                height={50}
+                className="header-logo-image"
+              />
+              <span className="header-logo-text">GRIHOME</span>
+            </Link>
             <div className="desktop-nav-links flex items-center">
               <Link href="/agents" className="desktop-nav-link">
                 Agents

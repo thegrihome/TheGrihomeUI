@@ -115,25 +115,28 @@ export default function Home() {
     }
   }, [])
 
-  const loadActiveListings = useCallback(async () => {
-    try {
-      const response = await fetch('/api/user/active-listings')
-      if (!response.ok) {
-        throw new Error('Failed to fetch active listings')
-      }
-      const data = await response.json()
-      setActiveListings(data)
-    } catch (error) {
-      // Silent fail for active listings
-    }
-  }, [])
-
   useEffect(() => {
     loadAdSlots()
+  }, [loadAdSlots])
+
+  useEffect(() => {
+    const loadActiveListings = async () => {
+      try {
+        const response = await fetch('/api/user/active-listings')
+        if (!response.ok) {
+          throw new Error('Failed to fetch active listings')
+        }
+        const data = await response.json()
+        setActiveListings(data)
+      } catch (error) {
+        // Silent fail for active listings
+      }
+    }
+
     if (status === 'authenticated') {
       loadActiveListings()
     }
-  }, [status, loadAdSlots, loadActiveListings])
+  }, [status])
 
   const handlePurchaseAd = (slotNumber: number) => {
     if (status !== 'authenticated') {

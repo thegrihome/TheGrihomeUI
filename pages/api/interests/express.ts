@@ -52,11 +52,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: true,
         phone: true,
         username: true,
+        emailVerified: true,
+        mobileVerified: true,
       },
     })
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' })
+    }
+
+    // Check if user has at least one verified contact method
+    if (!user.emailVerified && !user.mobileVerified) {
+      return res
+        .status(403)
+        .json({ error: 'Please verify your email or mobile number before expressing interest' })
     }
 
     // Get project or property details for email
@@ -149,37 +158,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     // Send email notification
-    const emailSubject = `[Expression of Interest] ${user.name || user.username} is interested in ${projectOrPropertyName}`
+    const emailSubject = `${user.username || user.name} is interested in your property: ${projectOrPropertyName}`
+
+    // Build contact info with only verified details
+    const verifiedContactInfo = []
+    verifiedContactInfo.push(`<li><strong>Name:</strong> ${user.name || user.username}</li>`)
+    if (user.emailVerified) {
+      verifiedContactInfo.push(`<li><strong>Email:</strong> ${user.email}</li>`)
+    }
+    if (user.mobileVerified && user.phone) {
+      verifiedContactInfo.push(`<li><strong>Phone:</strong> ${user.phone}</li>`)
+    }
 
     const emailBody = `
-      <h2>New Expression of Interest</h2>
-      
-      <h3>User Details:</h3>
+      <h2>New Interest in Your Property</h2>
+
+      <p>${user.name || user.username} is interested in your property: <strong>${projectOrPropertyName}</strong></p>
+
+      <h3>Contact Information:</h3>
       <ul>
-        <li><strong>Name:</strong> ${user.name || user.username}</li>
-        <li><strong>Email:</strong> ${user.email}</li>
-        <li><strong>Phone:</strong> ${user.phone || 'Not provided'}</li>
-        <li><strong>Username:</strong> ${user.username}</li>
+        ${verifiedContactInfo.join('\n        ')}
       </ul>
-      
-      <h3>Interest Details:</h3>
-      <ul>
-        <li><strong>Property/Project:</strong> ${projectOrPropertyName}</li>
-        <li><strong>Type:</strong> ${projectId ? 'Project' : 'Property'}</li>
-        <li><strong>Date:</strong> ${new Date().toLocaleDateString()}</li>
-      </ul>
-      
-      ${
-        message
-          ? `
-      <h3>Message from User:</h3>
-      <p>${message}</p>
-      `
-          : ''
-      }
-      
+
+      <p>Date: ${new Date().toLocaleDateString()}</p>
+
       <hr>
-      <p><small>This email was sent automatically from TheGrihome platform.</small></p>
+      <p><small>This is an automated message from TheGrihome platform.</small></p>
     `
 
     try {

@@ -13,15 +13,32 @@ import {
   FACING_DIRECTIONS,
 } from '@/lib/constants'
 
+interface Project {
+  id: string
+  name: string
+  builder: {
+    name: string
+  }
+  location: {
+    city: string
+    state: string
+  }
+}
+
 export default function AddProperty() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [images, setImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [projectSearch, setProjectSearch] = useState('')
+  const [showProjectDropdown, setShowProjectDropdown] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     propertyType: '',
+    projectId: '',
+    projectName: '',
     bedrooms: '',
     bathrooms: '',
     propertySize: '',
@@ -45,12 +62,58 @@ export default function AddProperty() {
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
   const locationInputRef = useRef<HTMLInputElement>(null)
+  const projectDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
     }
   }, [status, router])
+
+  useEffect(() => {
+    // Typeahead search for projects
+    const searchProjects = async () => {
+      if (!projectSearch || projectSearch.length < 2) {
+        setProjects([])
+        return
+      }
+
+      try {
+        const response = await fetch(
+          `/api/projects/search?query=${encodeURIComponent(projectSearch)}`
+        )
+        if (response.ok) {
+          const data = await response.json()
+          setProjects(data.projects || [])
+        }
+      } catch (error) {
+        // Failed to search projects
+      }
+    }
+
+    const debounceTimer = setTimeout(searchProjects, 300)
+    return () => clearTimeout(debounceTimer)
+  }, [projectSearch])
+
+  useEffect(() => {
+    // Close project dropdown when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        projectDropdownRef.current &&
+        !projectDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowProjectDropdown(false)
+      }
+    }
+
+    if (showProjectDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showProjectDropdown])
 
   useEffect(() => {
     // Initialize Google Places Autocomplete
@@ -314,6 +377,69 @@ export default function AddProperty() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Project */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Project</label>
+              <div className="relative" ref={projectDropdownRef}>
+                <input
+                  type="text"
+                  value={projectSearch || formData.projectName}
+                  onChange={e => {
+                    setProjectSearch(e.target.value)
+                    setFormData(prev => ({ ...prev, projectName: '', projectId: '' }))
+                    setShowProjectDropdown(true)
+                  }}
+                  onFocus={() => setShowProjectDropdown(true)}
+                  placeholder="Search for a project or select 'Independent'"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+                {showProjectDropdown && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    <div
+                      className="px-3 py-2 hover:bg-blue-50 cursor-pointer bg-blue-600 text-white"
+                      onClick={() => {
+                        setFormData(prev => ({
+                          ...prev,
+                          projectId: '',
+                          projectName: 'Independent',
+                        }))
+                        setProjectSearch('Independent')
+                        setShowProjectDropdown(false)
+                      }}
+                    >
+                      <div className="font-medium">Independent</div>
+                      <div className="text-xs opacity-90">Not part of any project</div>
+                    </div>
+                    {projectSearch.length >= 2 && projects.length === 0 && (
+                      <div className="px-3 py-2 text-gray-500 text-sm">
+                        No projects found. Type to search or select &quot;Independent&quot;
+                      </div>
+                    )}
+                    {projects.map(project => (
+                      <div
+                        key={project.id}
+                        className="px-3 py-2 hover:bg-gray-100 cursor-pointer border-t"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            projectId: project.id,
+                            projectName: project.name,
+                          }))
+                          setProjectSearch('')
+                          setShowProjectDropdown(false)
+                        }}
+                      >
+                        <div className="font-medium">{project.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {project.builder.name} • {project.location.city}, {project.location.state}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Bedrooms & Bathrooms */}

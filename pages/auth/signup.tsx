@@ -39,7 +39,7 @@ export default function Signup() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.push('/auth/userinfo')
+      router.push('/')
     }
   }, [status, router])
 
