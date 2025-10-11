@@ -71,6 +71,10 @@ const cityIcons: { [key: string]: string } = {
   mumbai: '🏙️',
   delhi: '🏛️',
   kolkata: '🌉',
+  gurgaon: '🏢',
+  noida: '🌇',
+  pune: '🎓',
+  'other-cities': '🗺️',
 }
 
 export default function PropertyTypePage({
@@ -89,7 +93,18 @@ export default function PropertyTypePage({
   // Smart title formatter - determines which words should be gradient
   const formatTitle = (title: string) => {
     const gradientWords = ['Forum', 'Introductions', 'News', 'Deals'] // Removed 'Discussions'
-    const cityNames = ['Hyderabad', 'Chennai', 'Bengaluru', 'Mumbai', 'Delhi', 'Kolkata']
+    const cityNames = [
+      'Hyderabad',
+      'Chennai',
+      'Bengaluru',
+      'Mumbai',
+      'Delhi',
+      'Kolkata',
+      'Gurgaon',
+      'Noida',
+      'Pune',
+      'Other',
+    ]
 
     const words = title.split(' ')
 

@@ -309,7 +309,11 @@ export default function Login() {
                       />
                       <p className="login-form__hint">Default OTP: 123456</p>
                     </div>
-                    <button type="submit" disabled={loading} className="login-form__submit">
+                    <button
+                      type="submit"
+                      disabled={loading || !otp || otp.length !== 6}
+                      className="login-form__submit"
+                    >
                       {loading ? 'Verifying...' : 'Verify & Login'}
                     </button>
                     <button
@@ -384,7 +388,11 @@ export default function Login() {
                       />
                       <p className="login-form__hint">Default OTP: 123456</p>
                     </div>
-                    <button type="submit" disabled={loading} className="login-form__submit">
+                    <button
+                      type="submit"
+                      disabled={loading || !otp || otp.length !== 6}
+                      className="login-form__submit"
+                    >
                       {loading ? 'Verifying...' : 'Verify & Login'}
                     </button>
                     <button

@@ -37,6 +37,10 @@ const cityIcons: { [key: string]: string } = {
   mumbai: '🏙️',
   delhi: '🏛️',
   kolkata: '🌉',
+  gurgaon: '🏢',
+  noida: '🌇',
+  pune: '🎓',
+  'other-cities': '🗺️',
 }
 
 export default function GeneralDiscussionsPage({
@@ -46,7 +50,18 @@ export default function GeneralDiscussionsPage({
   // Smart title formatter - determines which words should be gradient
   const formatTitle = (title: string) => {
     const gradientWords = ['Forum', 'Introductions', 'News', 'Deals', 'Discussions'] // Added 'Discussions' back
-    const cityNames = ['Hyderabad', 'Chennai', 'Bengaluru', 'Mumbai', 'Delhi', 'Kolkata']
+    const cityNames = [
+      'Hyderabad',
+      'Chennai',
+      'Bengaluru',
+      'Mumbai',
+      'Delhi',
+      'Kolkata',
+      'Gurgaon',
+      'Noida',
+      'Pune',
+      'Other',
+    ]
 
     const words = title.split(' ')
 
@@ -134,7 +149,10 @@ export default function GeneralDiscussionsPage({
                     <div className="forum-city-details">
                       <h3 className="forum-city-name">{city.name}</h3>
                       <p className="forum-city-description">
-                        {`${city.name} Real Estate Discussions`}
+                        {city.description ||
+                          (city.name === 'Other Cities'
+                            ? 'Real Estate Discussions in cities, towns and villages across India ❤️'
+                            : `${city.name} Real Estate Discussions`)}
                       </p>
                     </div>
                   </div>

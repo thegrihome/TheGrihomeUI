@@ -71,10 +71,36 @@ export default function AddProperty() {
   }, [status, router])
 
   useEffect(() => {
+    // Load all projects on mount
+    const loadAllProjects = async () => {
+      try {
+        const response = await fetch('/api/projects/search?query=')
+        if (response.ok) {
+          const data = await response.json()
+          setProjects(data.projects || [])
+        }
+      } catch (error) {
+        // Failed to load projects
+      }
+    }
+
+    loadAllProjects()
+  }, [])
+
+  useEffect(() => {
     // Typeahead search for projects
     const searchProjects = async () => {
-      if (!projectSearch || projectSearch.length < 2) {
-        setProjects([])
+      if (!projectSearch) {
+        // Load all projects if search is cleared
+        try {
+          const response = await fetch('/api/projects/search?query=')
+          if (response.ok) {
+            const data = await response.json()
+            setProjects(data.projects || [])
+          }
+        } catch (error) {
+          // Failed to load projects
+        }
         return
       }
 
@@ -393,10 +419,12 @@ export default function AddProperty() {
                   }}
                   onFocus={() => setShowProjectDropdown(true)}
                   placeholder="Search for a project or select 'Independent'"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                    showProjectDropdown ? 'rounded-t-md' : 'rounded-md'
+                  }`}
                 />
                 {showProjectDropdown && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute z-50 w-full bg-white border border-gray-300 rounded-b-md shadow-lg max-h-60 overflow-y-auto top-full">
                     <div
                       className="px-3 py-2 hover:bg-blue-50 cursor-pointer bg-blue-600 text-white"
                       onClick={() => {

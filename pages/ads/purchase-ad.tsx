@@ -229,7 +229,18 @@ export default function PurchaseAdPage() {
     }
   }
 
+  // Check if pre-launch offer is active (till December 31, 2025)
+  const isPreLaunchActive = () => {
+    const today = new Date()
+    const offerEndDate = new Date('2025-12-31T23:59:59')
+    return today <= offerEndDate
+  }
+
   const getDiscount = (days: number): number => {
+    // During pre-launch, all ads are free
+    if (isPreLaunchActive()) {
+      return 1.0 // 100% discount
+    }
     if (days >= 15) return 0.3
     if (days >= 7) return 0.2
     if (days >= 3) return 0.1
@@ -288,6 +299,7 @@ export default function PurchaseAdPage() {
     try {
       // Purchase all slots
       for (const slot of selectedSlots) {
+        const slotCost = calculateSlotCost(slot.slotNumber, slot.days)
         const response = await fetch('/api/ads/purchase', {
           method: 'POST',
           headers: {
@@ -298,6 +310,8 @@ export default function PurchaseAdPage() {
             propertyId: slot.propertyId,
             projectId: slot.projectId,
             totalDays: slot.days,
+            totalAmount: slotCost.finalAmount,
+            discountApplied: slotCost.discount,
             paymentMethod: 'UPI',
             isRenewal: false,
             renewalAdId: null,
@@ -392,12 +406,45 @@ export default function PurchaseAdPage() {
               </button>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Purchase Ad Slots</h1>
               <p className="text-gray-600">Feature your properties on the home page</p>
-              <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800">
-                  <strong>Pricing:</strong> Row 1: ₹1,500/day • Row 2: ₹1,400/day • Row 3:
-                  ₹1,300/day • Row 4: ₹1,200/day • Row 5: ₹1,100/day • Row 6: ₹1,000/day • Row 7:
-                  ₹900/day
-                </p>
+              {isPreLaunchActive() && (
+                <div className="mt-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-4">
+                  <p className="text-sm text-green-800 font-semibold text-center">
+                    🎉 <strong>Pre-launch Offer!</strong> Advertise for FREE till December 31, 2025
+                    • Max 3 days per ad
+                  </p>
+                </div>
+              )}
+              <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-300 rounded-lg p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-3 text-center">
+                  📊 Slot Pricing
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="text-center p-2 bg-white rounded-md shadow-sm">
+                    <div className="text-xs text-gray-600 font-medium">Row 1-2</div>
+                    <div className="text-sm font-bold text-blue-600">₹1,500-1,400</div>
+                    <div className="text-xs text-gray-500">per day</div>
+                  </div>
+                  <div className="text-center p-2 bg-white rounded-md shadow-sm">
+                    <div className="text-xs text-gray-600 font-medium">Row 3-4</div>
+                    <div className="text-sm font-bold text-blue-600">₹1,300-1,200</div>
+                    <div className="text-xs text-gray-500">per day</div>
+                  </div>
+                  <div className="text-center p-2 bg-white rounded-md shadow-sm">
+                    <div className="text-xs text-gray-600 font-medium">Row 5-6</div>
+                    <div className="text-sm font-bold text-blue-600">₹1,100-1,000</div>
+                    <div className="text-xs text-gray-500">per day</div>
+                  </div>
+                  <div className="text-center p-2 bg-white rounded-md shadow-sm">
+                    <div className="text-xs text-gray-600 font-medium">Row 7</div>
+                    <div className="text-sm font-bold text-blue-600">₹900</div>
+                    <div className="text-xs text-gray-500">per day</div>
+                  </div>
+                </div>
+                <div className="mt-3 text-center">
+                  <p className="text-xs text-gray-600">
+                    💡 <strong>Save more!</strong> Get up to 30% discount on longer durations
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -477,9 +524,11 @@ export default function PurchaseAdPage() {
                       <div className="space-y-4">
                         {selectedSlots.map((slot, index) => {
                           const unselectedSlots = getUnselectedSlots()
-                          const currentSlot = availableSlots.find(
-                            s => s.slotNumber === slot.slotNumber
-                          )
+                          // Check if this is a renewal - the slot might be in allSlots but not availableSlots
+                          const isRenewal = !!router.query.renew
+                          const currentSlot = isRenewal
+                            ? allSlots.find(s => s.slotNumber === slot.slotNumber)
+                            : availableSlots.find(s => s.slotNumber === slot.slotNumber)
                           const availableSlotsForDropdown = currentSlot
                             ? [currentSlot, ...unselectedSlots]
                             : unselectedSlots
@@ -521,12 +570,20 @@ export default function PurchaseAdPage() {
                                       }
                                       className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                      {Array.from({ length: 30 }, (_, i) => i + 1).map(day => (
+                                      {Array.from(
+                                        { length: isPreLaunchActive() ? 3 : 30 },
+                                        (_, i) => i + 1
+                                      ).map(day => (
                                         <option key={day} value={day}>
                                           {day}
                                         </option>
                                       ))}
                                     </select>
+                                    {isPreLaunchActive() && (
+                                      <p className="text-xs text-green-600 mt-1 font-medium">
+                                        Pre-launch: Max 3 days
+                                      </p>
+                                    )}
                                   </div>
 
                                   <div className="flex-1">
@@ -652,17 +709,26 @@ export default function PurchaseAdPage() {
                           </div>
                           <div className="flex justify-between text-sm text-gray-600 mb-1">
                             <span>Base:</span>
-                            <span>₹{item.baseAmount}</span>
+                            <span className={isPreLaunchActive() ? 'line-through' : ''}>
+                              ₹{item.baseAmount}
+                            </span>
                           </div>
                           {item.discount > 0 && (
                             <div className="flex justify-between text-sm text-green-600">
-                              <span>Discount ({item.discountPercent}%):</span>
+                              <span>
+                                {isPreLaunchActive()
+                                  ? 'Pre-launch Offer (100%)'
+                                  : `Discount (${item.discountPercent}%)`}
+                                :
+                              </span>
                               <span>-₹{item.discount}</span>
                             </div>
                           )}
                           <div className="flex justify-between text-sm font-medium mt-1">
                             <span>Subtotal:</span>
-                            <span>₹{item.finalAmount}</span>
+                            <span className={isPreLaunchActive() ? 'text-green-600 font-bold' : ''}>
+                              ₹{item.finalAmount.toFixed(2)}
+                            </span>
                           </div>
                         </div>
                       ))}
@@ -670,29 +736,38 @@ export default function PurchaseAdPage() {
                       <div className="border-t pt-4">
                         <div className="flex justify-between text-lg font-bold">
                           <span>Total Amount</span>
-                          <span>₹{billData.total}</span>
+                          <span className={isPreLaunchActive() ? 'text-green-600' : ''}>
+                            ₹{billData.total.toFixed(2)}
+                          </span>
                         </div>
+                        {isPreLaunchActive() && (
+                          <p className="text-sm text-green-600 mt-2 text-center font-semibold">
+                            🎉 FREE during pre-launch offer!
+                          </p>
+                        )}
                       </div>
                     </div>
 
                     <button
                       onClick={handlePurchase}
                       disabled={selectedSlots.length === 0 || purchasing}
-                      className="w-full mt-6 bg-black text-white py-3 px-4 rounded font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={`w-full mt-6 py-3 px-4 rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed ${
+                        isPreLaunchActive()
+                          ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
+                          : 'bg-black text-white hover:bg-gray-800'
+                      }`}
                     >
                       {purchasing ? (
                         <span className="flex items-center justify-center">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                           Processing...
                         </span>
+                      ) : isPreLaunchActive() ? (
+                        `Post for FREE`
                       ) : (
                         `Purchase`
                       )}
                     </button>
-
-                    <p className="text-xs text-gray-500 mt-3 text-center">
-                      This is a demo payment. No actual charges will be made.
-                    </p>
                   </div>
                 </div>
               )}

@@ -5,10 +5,13 @@ import { NextSeo } from 'next-seo'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
+import { GetServerSideProps } from 'next'
+import { getSession } from 'next-auth/react'
 import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import toast from 'react-hot-toast'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface AdSlot {
   slotNumber: number
@@ -59,7 +62,11 @@ interface ActiveListings {
   hasActiveListings: boolean
 }
 
-export default function Home() {
+interface HomeProps {
+  initialAdSlots: AdSlot[]
+}
+
+export default function Home({ initialAdSlots }: HomeProps) {
   const router = useRouter()
   const { data: session, status } = useSession()
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -67,9 +74,8 @@ export default function Home() {
   const [showPredictions, setShowPredictions] = useState(false)
   const [autocompleteService, setAutocompleteService] =
     useState<google.maps.places.AutocompleteService | null>(null)
-  const [adSlots, setAdSlots] = useState<AdSlot[]>([])
+  const [adSlots, setAdSlots] = useState<AdSlot[]>(initialAdSlots)
   const [activeListings, setActiveListings] = useState<ActiveListings | null>(null)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
@@ -100,6 +106,7 @@ export default function Home() {
       })
   }, [])
 
+  // Refresh ad slots when user performs actions
   const loadAdSlots = useCallback(async () => {
     try {
       const response = await fetch('/api/ads/slots')
@@ -110,14 +117,8 @@ export default function Home() {
       setAdSlots(data.adSlots)
     } catch (error) {
       toast.error('Failed to load ad slots')
-    } finally {
-      setLoading(false)
     }
   }, [])
-
-  useEffect(() => {
-    loadAdSlots()
-  }, [loadAdSlots])
 
   useEffect(() => {
     const loadActiveListings = async () => {
@@ -333,38 +334,55 @@ export default function Home() {
               </h1>
 
               <div className="home-cities-container">
-                <div className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/hyderabad"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">💎</div>
                   <span className="home-city-name">Hyderabad</span>
-                </div>
-                <div className="home-city-item">
+                </Link>
+                <Link href="/forum/category/general-discussions/chennai" className="home-city-item">
                   <div className="home-city-icon">🏖️</div>
                   <span className="home-city-name">Chennai</span>
-                </div>
-                <div className="home-city-item">
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/bengaluru"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">🌳</div>
                   <span className="home-city-name">Bengaluru</span>
-                </div>
-                <div className="home-city-item">
+                </Link>
+                <Link href="/forum/category/general-discussions/mumbai" className="home-city-item">
                   <div className="home-city-icon">🏙️</div>
                   <span className="home-city-name">Mumbai</span>
-                </div>
-                <div className="home-city-item">
+                </Link>
+                <Link href="/forum/category/general-discussions/delhi" className="home-city-item">
                   <div className="home-city-icon">🏛️</div>
                   <span className="home-city-name">Delhi</span>
-                </div>
-                <div className="home-city-item">
+                </Link>
+                <Link href="/forum/category/general-discussions/kolkata" className="home-city-item">
                   <div className="home-city-icon">🌉</div>
                   <span className="home-city-name">Kolkata</span>
-                </div>
-                <div className="home-city-item">
+                </Link>
+                <Link href="/forum/category/general-discussions/gurgaon" className="home-city-item">
                   <div className="home-city-icon">🏢</div>
                   <span className="home-city-name">Gurgaon</span>
-                </div>
-                <div className="home-city-item">
+                </Link>
+                <Link href="/forum/category/general-discussions/noida" className="home-city-item">
                   <div className="home-city-icon">🌇</div>
                   <span className="home-city-name">Noida</span>
-                </div>
+                </Link>
+                <Link href="/forum/category/general-discussions/pune" className="home-city-item">
+                  <div className="home-city-icon">🎓</div>
+                  <span className="home-city-name">Pune</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/other-cities"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🗺️</div>
+                  <span className="home-city-name">Others</span>
+                </Link>
               </div>
 
               <div className="home-search-container">
@@ -388,7 +406,7 @@ export default function Home() {
                     ref={searchInputRef}
                     type="text"
                     className="home-search-input"
-                    placeholder="browse properties for free"
+                    placeholder="Browse properties for free"
                     onChange={handleSearchInput}
                     onFocus={() => predictions.length > 0 && setShowPredictions(true)}
                     onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
@@ -441,104 +459,287 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Properties Section */}
+      {/* Featured Projects Section */}
       <section className="featured-properties-section">
         <div className="container mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+          <h2 className="text-3xl font-bold text-center mb-4 text-gray-900">
             Featured <span className="ad-slot-text-gradient">Properties</span>
           </h2>
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="flex justify-center mb-8">
+            <div className="bg-green-50 border border-green-200 rounded px-3 py-1.5 max-w-4xl">
+              <p className="text-black text-xs text-center">
+                <span className="font-semibold">
+                  Grihome pre-launch offer: Advertise below for free
+                </span>
+                {' · '}
+                Offer valid on a first come first serve basis and only till December 31, 2025
+              </p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-              {adSlots.map(slot => (
-                <div
-                  key={slot.slotNumber}
-                  className="relative border-2 border-black rounded-lg min-h-[200px] hover:shadow-lg transition-shadow duration-300 bg-white overflow-hidden"
-                >
-                  <div className="absolute top-4 left-4 text-sm font-bold z-10 bg-white/90 px-2 py-1 rounded">
-                    <span className="text-black">Slot </span>
-                    <span className="ad-slot-number">#{slot.slotNumber}</span>
-                  </div>
-                  {slot.isUserAd && slot.isExpiringSoon && slot.ad && (
-                    <button
-                      onClick={() => handleRenewAd(slot.ad!.id, slot.slotNumber)}
-                      className="absolute top-4 right-4 z-10 bg-red-600 text-white px-3 py-1 rounded text-xs font-semibold animate-pulse hover:bg-red-700"
-                    >
-                      Expiring Soon
-                    </button>
-                  )}
-                  {slot.hasAd && slot.ad?.property ? (
-                    <Link href={`/properties/${slot.ad.property.id}`} className="block h-full">
-                      <div className="relative h-full min-h-[200px]">
-                        <Image
-                          src={slot.ad.property.thumbnail || 'https://via.placeholder.com/400x300'}
-                          alt={slot.ad.property.title}
-                          fill
-                          className="object-cover"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                          <h3 className="text-white font-semibold text-lg truncate">
-                            {slot.ad.property.title}
-                          </h3>
-                          <p className="text-white/90 text-sm">
-                            {slot.ad.property.location.city}, {slot.ad.property.location.state}
-                          </p>
-                          {slot.ad.user && (
-                            <p className="text-white/80 text-xs mt-1">
-                              Posted by {slot.ad.user.name}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </Link>
-                  ) : slot.hasAd && slot.ad?.project ? (
-                    <Link href={`/projects/${slot.ad.project.id}`} className="block h-full">
-                      <div className="relative h-full min-h-[200px]">
-                        <Image
-                          src={slot.ad.project.thumbnail || 'https://via.placeholder.com/400x300'}
-                          alt={slot.ad.project.name}
-                          fill
-                          className="object-cover"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                          <h3 className="text-white font-semibold text-lg truncate">
-                            {slot.ad.project.name}
-                          </h3>
-                          <p className="text-white/90 text-sm">
-                            {slot.ad.project.location.city}, {slot.ad.project.location.state}
-                          </p>
-                          {slot.ad.user && (
-                            <p className="text-white/80 text-xs mt-1">
-                              Posted by {slot.ad.user.name}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={() => handlePurchaseAd(slot.slotNumber)}
-                      className="w-full h-full min-h-[200px] flex items-center justify-center p-8"
-                    >
-                      <div className="text-center">
-                        <div className="text-black text-base font-semibold">
-                          Advertise your property{' '}
-                          <span className="ad-slot-text-gradient">here</span>
-                        </div>
-                      </div>
-                    </button>
-                  )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {adSlots.map(slot => (
+              <div
+                key={slot.slotNumber}
+                className="relative border-2 border-black rounded-lg min-h-[200px] hover:shadow-lg transition-shadow duration-300 bg-white overflow-hidden"
+              >
+                <div className="absolute top-4 left-4 text-sm font-bold z-10 bg-white/90 px-2 py-1 rounded">
+                  <span className="text-black">Slot </span>
+                  <span className="ad-slot-number">#{slot.slotNumber}</span>
                 </div>
-              ))}
-            </div>
-          )}
+                {slot.isUserAd && slot.isExpiringSoon && slot.ad && (
+                  <button
+                    onClick={() => handleRenewAd(slot.ad!.id, slot.slotNumber)}
+                    className="absolute top-4 right-4 z-10 bg-red-600 text-white px-3 py-1 rounded text-xs font-semibold animate-pulse hover:bg-red-700"
+                  >
+                    Expiring Soon
+                  </button>
+                )}
+                {slot.hasAd && slot.ad?.property ? (
+                  <Link
+                    href={
+                      slot.isUserAd
+                        ? `/ads/details/${slot.ad.id}`
+                        : `/properties/${slot.ad.property.id}`
+                    }
+                    className="block h-full"
+                  >
+                    <div className="relative h-full min-h-[200px]">
+                      <Image
+                        src={slot.ad.property.thumbnail || 'https://via.placeholder.com/400x300'}
+                        alt={slot.ad.property.title}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                        <h3 className="text-white font-semibold text-lg truncate">
+                          {slot.ad.property.title}
+                        </h3>
+                        <p className="text-white/90 text-sm">
+                          {slot.ad.property.location.city}, {slot.ad.property.location.state}
+                        </p>
+                        {slot.ad.user && (
+                          <p className="text-white/80 text-xs mt-1">
+                            Posted by {slot.ad.user.name}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ) : slot.hasAd && slot.ad?.project ? (
+                  <Link
+                    href={
+                      slot.isUserAd
+                        ? `/ads/details/${slot.ad.id}`
+                        : `/projects/${slot.ad.project.id}`
+                    }
+                    className="block h-full"
+                  >
+                    <div className="relative h-full min-h-[200px]">
+                      <Image
+                        src={slot.ad.project.thumbnail || 'https://via.placeholder.com/400x300'}
+                        alt={slot.ad.project.name}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                        <h3 className="text-white font-semibold text-lg truncate">
+                          {slot.ad.project.name}
+                        </h3>
+                        <p className="text-white/90 text-sm">
+                          {slot.ad.project.location.city}, {slot.ad.project.location.state}
+                        </p>
+                        {slot.ad.user && (
+                          <p className="text-white/80 text-xs mt-1">
+                            Posted by {slot.ad.user.name}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => handlePurchaseAd(slot.slotNumber)}
+                    className="w-full h-full min-h-[200px] flex items-center justify-center p-8"
+                  >
+                    <div className="text-center">
+                      <div className="text-black text-base font-semibold">
+                        Advertise your property <span className="ad-slot-text-gradient">here</span>
+                      </div>
+                    </div>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       <Footer />
     </div>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  try {
+    const session = await getSession(context)
+    const userId = session?.user?.email
+      ? (await prisma.user.findUnique({ where: { email: session.user.email } }))?.id
+      : null
+
+    // Clean up expired ads - mark them as EXPIRED
+    await prisma.ad.updateMany({
+      where: {
+        status: 'ACTIVE',
+        endDate: {
+          lt: new Date(),
+        },
+      },
+      data: {
+        status: 'EXPIRED',
+      },
+    })
+
+    // Get all ad slots with their current active ads
+    const slots = await prisma.adSlotConfig.findMany({
+      orderBy: {
+        slotNumber: 'asc',
+      },
+      include: {
+        ads: {
+          where: {
+            status: 'ACTIVE',
+            endDate: {
+              gte: new Date(),
+            },
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+              },
+            },
+            property: {
+              select: {
+                id: true,
+                project: {
+                  select: {
+                    name: true,
+                  },
+                },
+                propertyDetails: true,
+                propertyType: true,
+                sqFt: true,
+                thumbnailUrl: true,
+                imageUrls: true,
+                location: {
+                  select: {
+                    city: true,
+                    state: true,
+                    locality: true,
+                  },
+                },
+              },
+            },
+            project: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                thumbnailUrl: true,
+                imageUrls: true,
+                location: {
+                  select: {
+                    city: true,
+                    state: true,
+                    locality: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1,
+        },
+      },
+    })
+
+    // Transform the data for frontend
+    const adSlots = slots.map(slot => {
+      const currentAd = slot.ads[0] || null
+      const isExpiringSoon = currentAd
+        ? new Date(currentAd.endDate).getTime() - new Date().getTime() <= 3 * 24 * 60 * 60 * 1000
+        : false
+      const isUserAd = currentAd && userId ? currentAd.userId === userId : false
+
+      return {
+        slotNumber: slot.slotNumber,
+        basePrice: slot.basePrice,
+        isActive: slot.isActive,
+        hasAd: !!currentAd,
+        isExpiringSoon,
+        isUserAd,
+        ad: currentAd
+          ? {
+              id: currentAd.id,
+              endDate: currentAd.endDate.toISOString(),
+              totalDays: currentAd.totalDays,
+              totalAmount: currentAd.totalAmount,
+              user: {
+                id: currentAd.user.id,
+                name: currentAd.user.name || currentAd.user.username,
+              },
+              property: currentAd.property
+                ? {
+                    id: currentAd.property.id,
+                    title:
+                      currentAd.property.project?.name ||
+                      (currentAd.property.propertyDetails as any)?.title ||
+                      'Individual Property',
+                    type: currentAd.property.propertyType,
+                    sqFt: currentAd.property.sqFt,
+                    details: currentAd.property.propertyDetails as any,
+                    thumbnail: currentAd.property.thumbnailUrl || currentAd.property.imageUrls[0],
+                    location: {
+                      locality: currentAd.property.location.locality,
+                      city: currentAd.property.location.city,
+                      state: currentAd.property.location.state,
+                    },
+                  }
+                : null,
+              project: currentAd.project
+                ? {
+                    id: currentAd.project.id,
+                    name: currentAd.project.name,
+                    description: currentAd.project.description,
+                    thumbnail: currentAd.project.thumbnailUrl || currentAd.project.imageUrls[0],
+                    location: {
+                      locality: currentAd.project.location.locality,
+                      city: currentAd.project.location.city,
+                      state: currentAd.project.location.state,
+                    },
+                  }
+                : null,
+            }
+          : null,
+      }
+    })
+
+    return {
+      props: {
+        initialAdSlots: JSON.parse(JSON.stringify(adSlots)),
+      },
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching ad slots:', error)
+    return {
+      props: {
+        initialAdSlots: [],
+      },
+    }
+  }
 }

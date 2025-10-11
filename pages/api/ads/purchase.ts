@@ -15,8 +15,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Unauthorized' })
     }
 
-    const { slotNumber, propertyId, projectId, totalDays, paymentMethod, isRenewal, renewalAdId } =
-      req.body
+    const {
+      slotNumber,
+      propertyId,
+      projectId,
+      totalDays,
+      paymentMethod,
+      isRenewal,
+      renewalAdId,
+      totalAmount: clientTotalAmount,
+      discountApplied,
+    } = req.body
 
     if (!slotNumber || !totalDays || (!propertyId && !projectId)) {
       return res.status(400).json({ message: 'Missing required fields' })
@@ -95,7 +104,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const endDate = new Date()
     endDate.setDate(startDate.getDate() + parseInt(totalDays))
 
-    const totalAmount = slotConfig.basePrice * parseInt(totalDays)
+    // Calculate discount based on duration (same logic as frontend)
+    const getDiscount = (days: number): number => {
+      // Check if pre-launch offer is active (till December 31, 2025)
+      const today = new Date()
+      const offerEndDate = new Date('2025-12-31T23:59:59')
+      if (today <= offerEndDate) {
+        return 1.0 // 100% discount during pre-launch
+      }
+      if (days >= 15) return 0.3
+      if (days >= 7) return 0.2
+      if (days >= 3) return 0.1
+      if (days > 0) return 0.05
+      return 0
+    }
+
+    const days = parseInt(totalDays)
+    const baseAmount = slotConfig.basePrice * days
+    const discountPercent = getDiscount(days)
+    const discount = baseAmount * discountPercent
+    const totalAmount = baseAmount - discount
+
+    // Verify the client-sent amount matches our calculation (security check)
+    if (clientTotalAmount !== undefined && Math.abs(clientTotalAmount - totalAmount) > 0.01) {
+      return res.status(400).json({
+        message: 'Payment amount mismatch. Please refresh and try again.',
+      })
+    }
 
     // If this is a renewal, expire the old ad
     if (isRenewal && renewalAdId) {
@@ -105,7 +140,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    // Create new ad
+    // Create new ad with accurate payment details
     const ad = await prisma.ad.create({
       data: {
         slotNumber: parseInt(slotNumber),
@@ -115,8 +150,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         startDate,
         endDate,
         totalDays: parseInt(totalDays),
-        pricePerDay: slotConfig.basePrice,
-        totalAmount,
+        pricePerDay: slotConfig.basePrice, // Original price per day (before discount)
+        totalAmount, // Actual amount paid after discount
         status: 'ACTIVE',
         paymentStatus: 'COMPLETED', // Demo: Auto-complete payment
         paymentMethod: paymentMethod || 'UPI',

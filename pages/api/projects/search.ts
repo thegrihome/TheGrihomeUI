@@ -9,43 +9,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { query } = req.query
 
-    if (!query || typeof query !== 'string') {
-      return res.status(400).json({ message: 'Search query is required' })
-    }
+    // Allow empty query to get all projects
+    const searchQuery = query && typeof query === 'string' ? query.trim() : ''
 
-    const searchQuery = query.trim()
-
-    if (searchQuery.length < 2) {
-      return res.status(400).json({ message: 'Search query must be at least 2 characters' })
-    }
+    const whereClause =
+      searchQuery.length >= 2
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: searchQuery,
+                  mode: 'insensitive' as const,
+                },
+              },
+              {
+                builder: {
+                  name: {
+                    contains: searchQuery,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              },
+              {
+                location: {
+                  city: {
+                    contains: searchQuery,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              },
+            ],
+          }
+        : {} // Return all projects if no search query
 
     const projects = await prisma.project.findMany({
-      where: {
-        OR: [
-          {
-            name: {
-              contains: searchQuery,
-              mode: 'insensitive',
-            },
-          },
-          {
-            builder: {
-              name: {
-                contains: searchQuery,
-                mode: 'insensitive',
-              },
-            },
-          },
-          {
-            location: {
-              city: {
-                contains: searchQuery,
-                mode: 'insensitive',
-              },
-            },
-          },
-        ],
-      },
+      where: whereClause,
       select: {
         id: true,
         name: true,
@@ -61,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         },
       },
-      take: 10,
+      take: searchQuery.length >= 2 ? 10 : 50, // Show more results when showing all
       orderBy: {
         name: 'asc',
       },
