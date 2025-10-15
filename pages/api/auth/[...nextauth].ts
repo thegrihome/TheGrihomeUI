@@ -60,11 +60,11 @@ export const authOptions: NextAuthOptions = {
 
           return {
             id: user.id,
-            email: user.email,
-            name: user.name,
+            email: user.email || '',
+            name: user.name || '',
             role: user.role,
             username: user.username,
-            mobileNumber: user.phone,
+            mobileNumber: user.phone || '',
           }
         }
 
@@ -111,26 +111,6 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role
         token.username = user.username
         token.mobileNumber = user.mobileNumber
-        // Fetch additional user data from database
-        if (token.sub) {
-          const dbUser = await prisma.user.findUnique({
-            where: { id: token.sub },
-            select: {
-              image: true,
-              emailVerified: true,
-              mobileVerified: true,
-              companyName: true,
-            },
-          })
-          if (dbUser) {
-            token.image = dbUser.image
-            token.imageLink = dbUser.image
-            token.isEmailVerified = !!dbUser.emailVerified
-            token.isMobileVerified = !!dbUser.mobileVerified
-            token.isAgent = user.role === 'AGENT'
-            token.companyName = dbUser.companyName
-          }
-        }
       }
       // Refresh token data only on explicit update trigger
       if (trigger === 'update' && token.sub) {
@@ -138,40 +118,44 @@ export const authOptions: NextAuthOptions = {
           where: { id: token.sub },
           select: {
             role: true,
-            image: true,
             username: true,
             phone: true,
-            emailVerified: true,
-            mobileVerified: true,
-            companyName: true,
           },
         })
         if (dbUser) {
           token.role = dbUser.role
-          token.image = dbUser.image
           token.username = dbUser.username
           token.mobileNumber = dbUser.phone
-          token.imageLink = dbUser.image
-          token.isEmailVerified = !!dbUser.emailVerified
-          token.isMobileVerified = !!dbUser.mobileVerified
-          token.isAgent = dbUser.role === 'AGENT'
-          token.companyName = dbUser.companyName
         }
       }
       return token
     },
     async session({ session, token }) {
       if (token && token.sub) {
+        // Fetch user data from database for each session request
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: {
+            image: true,
+            emailVerified: true,
+            mobileVerified: true,
+            companyName: true,
+            role: true,
+            username: true,
+            phone: true,
+          },
+        })
+
         session.user.id = token.sub
-        session.user.role = token.role as string
-        session.user.image = token.image as string
-        session.user.username = token.username as string
-        session.user.mobileNumber = token.mobileNumber as string
-        session.user.isEmailVerified = token.isEmailVerified as boolean
-        session.user.isMobileVerified = token.isMobileVerified as boolean
-        session.user.isAgent = token.isAgent as boolean
-        session.user.companyName = token.companyName as string
-        session.user.imageLink = token.imageLink as string
+        session.user.role = (token.role || dbUser?.role) as string
+        session.user.username = (token.username || dbUser?.username) as string
+        session.user.mobileNumber = (token.mobileNumber || dbUser?.phone) as string
+        session.user.image = dbUser?.image as string
+        session.user.imageLink = dbUser?.image as string
+        session.user.isEmailVerified = !!dbUser?.emailVerified
+        session.user.isMobileVerified = !!dbUser?.mobileVerified
+        session.user.isAgent = (token.role || dbUser?.role) === 'AGENT'
+        session.user.companyName = dbUser?.companyName as string
       }
       return session
     },
