@@ -18,7 +18,8 @@ interface ProjectRequestForm {
   builderName: string
   projectName: string
   location: string
-  contactPersonName: string
+  contactPersonFirstName: string
+  contactPersonLastName: string
   contactPersonEmail: string
   contactPersonPhone: string
   builderWebsite: string
@@ -43,7 +44,8 @@ export default function AddProjectPage() {
     builderName: '',
     projectName: '',
     location: '',
-    contactPersonName: '',
+    contactPersonFirstName: '',
+    contactPersonLastName: '',
     contactPersonEmail: '',
     contactPersonPhone: '',
     builderWebsite: '',
@@ -72,10 +74,15 @@ export default function AddProjectPage() {
       if (response.ok) {
         const data = await response.json()
         setUserData(data.user)
-        // Auto-populate form
+        // Auto-populate form - split name into first and last
+        const nameParts = (data.user.name || '').trim().split(' ')
+        const firstName = nameParts[0] || ''
+        const lastName = nameParts.slice(1).join(' ') || ''
+
         setFormData(prev => ({
           ...prev,
-          contactPersonName: data.user.name || '',
+          contactPersonFirstName: firstName,
+          contactPersonLastName: lastName,
           contactPersonEmail: data.user.email || '',
           contactPersonPhone: data.user.phone || '',
         }))
@@ -176,7 +183,8 @@ export default function AddProjectPage() {
       'builderName',
       'projectName',
       'location',
-      'contactPersonName',
+      'contactPersonFirstName',
+      'contactPersonLastName',
       'contactPersonEmail',
       'contactPersonPhone',
       'projectType',
@@ -400,19 +408,33 @@ export default function AddProjectPage() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contact Person Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="contactPersonName"
-                    value={formData.contactPersonName}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="Contact person name"
-                    required
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      First Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="contactPersonFirstName"
+                      value={formData.contactPersonFirstName}
+                      readOnly
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Last Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="contactPersonLastName"
+                      value={formData.contactPersonLastName}
+                      readOnly
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+                      required
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -427,11 +449,9 @@ export default function AddProjectPage() {
                     type="email"
                     name="contactPersonEmail"
                     value={formData.contactPersonEmail}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="contact@example.com"
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
                     required
-                    disabled={!!userData?.emailVerified}
                   />
                   {!userData?.emailVerified && (
                     <div className="mt-2">
@@ -480,11 +500,9 @@ export default function AddProjectPage() {
                     type="tel"
                     name="contactPersonPhone"
                     value={formData.contactPersonPhone}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="+91 98765 43210"
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
                     required
-                    disabled={!!userData?.mobileVerified}
                   />
                   {!userData?.mobileVerified && (
                     <div className="mt-2">

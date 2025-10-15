@@ -8,6 +8,7 @@ import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import UserStats from '@/components/forum/UserStats'
+import ContentRenderer from '@/components/forum/ContentRenderer'
 import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface ForumReply {
@@ -222,7 +223,7 @@ export default function ThreadPage({ post }: ThreadPageProps) {
               <div className="forum-reply-date">{formatDate(reply.createdAt)}</div>
 
               <div className="forum-reply-body">
-                <div dangerouslySetInnerHTML={{ __html: reply.content }} />
+                <ContentRenderer content={reply.content} />
               </div>
 
               <div className="forum-reply-actions">
@@ -310,7 +311,7 @@ export default function ThreadPage({ post }: ThreadPageProps) {
 
             <div className="forum-thread-content">
               <div className="forum-post-content">
-                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                <ContentRenderer content={post.content} />
               </div>
 
               <div className="forum-post-actions">

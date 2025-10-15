@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -116,8 +114,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     })
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching projects:', error)
     res.status(500).json({ error: 'Internal server error' })
-  } finally {
-    await prisma.$disconnect()
   }
 }

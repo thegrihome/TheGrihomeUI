@@ -2,11 +2,13 @@ import { GetServerSideProps } from 'next'
 import { NextSeo } from 'next-seo'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/router'
+import dynamic from 'next/dynamic'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { prisma } from '@/lib/cockroachDB/prisma'
+import 'react-quill/dist/quill.snow.css'
 
 interface ForumCategory {
   id: string
@@ -20,6 +22,9 @@ interface NewPostPageProps {
   selectedCategoryId?: string
 }
 
+// Dynamic import to avoid SSR issues with ReactQuill
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
+
 export default function NewPostPage({ categories, selectedCategoryId }: NewPostPageProps) {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -28,6 +33,33 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
   const [categoryId, setCategoryId] = useState(selectedCategoryId || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  // Configure rich text editor modules
+  const modules = useMemo(
+    () => ({
+      toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link', 'image', 'video'],
+        ['clean'],
+      ],
+    }),
+    []
+  )
+
+  const formats = [
+    'header',
+    'bold',
+    'italic',
+    'underline',
+    'strike',
+    'list',
+    'bullet',
+    'link',
+    'image',
+    'video',
+  ]
 
   useEffect(() => {
     if (status === 'loading') return
@@ -88,7 +120,7 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
     let selectableCategories: ForumCategory[] = []
 
     categories.forEach(category => {
-      if (category.children.length === 0) {
+      if (!category.children || category.children.length === 0) {
         selectableCategories.push(category)
       } else {
         selectableCategories = [
@@ -180,15 +212,24 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
               <label htmlFor="content" className="forum-label">
                 Content *
               </label>
-              <textarea
-                id="content"
+              <ReactQuill
+                theme="snow"
                 value={content}
-                onChange={e => setContent(e.target.value)}
-                placeholder="Write your post content here..."
-                className="forum-rich-text-editor w-full min-h-[300px] p-3 border rounded"
-                rows={12}
-                required
+                onChange={setContent}
+                modules={modules}
+                formats={formats}
+                placeholder="Write your post content here... You can add links, images, and videos!"
+                className="bg-white"
+                style={{ height: '400px' }}
               />
+            </div>
+
+            <div className="forum-posting-guidelines" style={{ marginBottom: '2rem' }}>
+              <ul>
+                <li>
+                  <strong>Be respectful and courteous to other community members</strong>
+                </li>
+              </ul>
             </div>
 
             <div className="forum-form-actions">
@@ -209,17 +250,6 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
               </button>
             </div>
           </form>
-
-          <div className="forum-posting-guidelines">
-            <h3>Posting Guidelines</h3>
-            <ul>
-              <li>Be respectful and courteous to other community members</li>
-              <li>Stay on topic and choose the appropriate category</li>
-              <li>Use clear, descriptive titles for your threads</li>
-              <li>Provide detailed information to help others understand your question or point</li>
-              <li>Search existing threads before posting to avoid duplicates</li>
-            </ul>
-          </div>
         </div>
       </main>
 

@@ -71,6 +71,26 @@ export default function AddProperty() {
   }, [status, router])
 
   useEffect(() => {
+    const checkVerification = async () => {
+      if (status === 'authenticated' && session?.user?.email) {
+        try {
+          const response = await fetch('/api/user/info')
+          if (response.ok) {
+            const data = await response.json()
+            if (!data.user.emailVerified || !data.user.mobileVerified) {
+              toast.error('Please verify your email and mobile number before posting a property')
+              router.push('/auth/userinfo')
+            }
+          }
+        } catch (error) {
+          // Handle error silently
+        }
+      }
+    }
+    checkVerification()
+  }, [status, session, router])
+
+  useEffect(() => {
     // Load all projects on mount
     const loadAllProjects = async () => {
       try {

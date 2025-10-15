@@ -63,6 +63,7 @@ model User {
   ads              Ad[]
   projectRequests  ProjectRequest[]
   projectAgents    ProjectAgent[]
+  postedProjects   Project[]         @relation("ProjectPostedBy")
 
   @@index([email])
   @@index([phone])
@@ -110,34 +111,41 @@ model Builder {
 }
 
 model Project {
-  id                  String            @id @default(cuid())
-  builderId           String
-  locationId          String
-  name                String
-  description         String
-  type                ProjectType
-  numberOfUnits       Int?
-  size                Float?
-  density             Float?
-  googlePin           String?
-  thumbnailUrl        String?
-  imageUrls           String[]
-  projectDetails      Json?
-  builderPageUrl      String?
+  id                   String            @id @default(cuid())
+  builderId            String
+  locationId           String
+  name                 String
+  description          String
+  type                 ProjectType
+  numberOfUnits        Int?
+  size                 Float?
+  density              Float?
+  googlePin            String?
+  thumbnailUrl         String?
+  imageUrls            String[]
+  projectDetails       Json?
+  builderPageUrl       String?
   builderProspectusUrl String?
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-  builder             Builder           @relation(fields: [builderId], references: [id], onDelete: Cascade)
-  location            Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  properties          Property[]
-  interests           Interest[]
-  ads                 Ad[]
-  projectAgents       ProjectAgent[]
-  projectProperties   ProjectProperty[]
+  postedByUserId       String?
+  contactPersonFirstName String?
+  contactPersonLastName  String?
+  contactPersonEmail   String?
+  contactPersonPhone   String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  builder              Builder           @relation(fields: [builderId], references: [id], onDelete: Cascade)
+  location             Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  postedBy             User?             @relation("ProjectPostedBy", fields: [postedByUserId], references: [id], onDelete: SetNull)
+  properties           Property[]
+  interests            Interest[]
+  ads                  Ad[]
+  projectAgents        ProjectAgent[]
+  projectProperties    ProjectProperty[]
 
   @@index([builderId])
   @@index([locationId])
   @@index([type])
+  @@index([postedByUserId])
 }
 
 model Property {

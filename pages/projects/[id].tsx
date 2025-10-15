@@ -24,6 +24,10 @@ interface ProjectDetails {
   projectDetails: any
   builderPageUrl: string | null
   builderProspectusUrl: string | null
+  contactPersonFirstName: string | null
+  contactPersonLastName: string | null
+  contactPersonEmail: string | null
+  contactPersonPhone: string | null
   builder: {
     id: string
     name: string
@@ -40,6 +44,12 @@ interface ProjectDetails {
     locality: string | null
     zipcode: string | null
   }
+  postedBy: {
+    id: string
+    name: string | null
+    email: string
+    phone: string | null
+  } | null
 }
 
 interface Property {
@@ -69,6 +79,8 @@ interface Agent {
     phone: string | null
     image: string | null
     companyName: string | null
+    emailVerified: boolean
+    mobileVerified: boolean
   }
   registeredAt: Date
   isFeatured: boolean
@@ -321,7 +333,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
             </div>
             <p className="text-gray-600 mb-2">by {project.builder.name}</p>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-sm mb-3">
               {project.location.locality && `${project.location.locality}, `}
               {project.location.city}, {project.location.state}
             </p>
@@ -598,6 +610,32 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             </div>
           </div>
 
+          {/* Posted By Section */}
+          {isAuthenticated &&
+            (project.postedBy ||
+              (project.contactPersonFirstName && project.contactPersonEmail)) && (
+              <div className="sidebar-section">
+                <h3 className="sidebar-section-title">Posted By</h3>
+                <div className="posted-by-card">
+                  <div className="posted-by-info">
+                    <div className="posted-by-name">
+                      {project.contactPersonFirstName && project.contactPersonLastName
+                        ? `${project.contactPersonFirstName} ${project.contactPersonLastName}`
+                        : project.postedBy?.name || 'N/A'}
+                    </div>
+                    <div className="posted-by-detail">
+                      <span className="posted-by-label">Email:</span>{' '}
+                      {project.contactPersonEmail || project.postedBy?.email || 'N/A'}
+                    </div>
+                    <div className="posted-by-detail">
+                      <span className="posted-by-label">Phone:</span>{' '}
+                      {project.contactPersonPhone || project.postedBy?.phone || 'N/A'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
           {/* Featured Properties */}
           <div className="sidebar-section">
             <h3 className="sidebar-section-title">
@@ -633,8 +671,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                     </div>
                     {isAuthenticated &&
                       session?.user?.email &&
-                      property.propertyDetails?.agentEmail === session.user.email &&
-                      !property.isFeatured && (
+                      property.propertyDetails?.agentEmail === session.user.email && (
                         <button
                           onClick={e => {
                             e.preventDefault()
@@ -642,7 +679,9 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                           }}
                           className="promote-button"
                         >
-                          ⭐ Promote Property
+                          {property.isFeatured
+                            ? '⭐ Promote Again (5 days)'
+                            : '⭐ Promote Property (₹0 for 5 days)'}
                         </button>
                       )}
                   </div>
@@ -682,7 +721,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                           }}
                           className="promote-button"
                         >
-                          ⭐ Promote Property
+                          ⭐ Promote Property (₹0 for 5 days)
                         </button>
                       )}
                   </div>
@@ -733,9 +772,18 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         </div>
                       </div>
                     </div>
-                    {agentData.agent.phone && (
-                      <div className="agent-contact">Contact: {agentData.agent.phone}</div>
-                    )}
+                    <div className="agent-contact-info">
+                      {agentData.agent.emailVerified && agentData.agent.email && (
+                        <div className="agent-contact">
+                          <span className="text-gray-600">Email:</span> {agentData.agent.email}
+                        </div>
+                      )}
+                      {agentData.agent.mobileVerified && agentData.agent.phone && (
+                        <div className="agent-contact">
+                          <span className="text-gray-600">Phone:</span> {agentData.agent.phone}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -769,9 +817,31 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         </div>
                       </div>
                     </div>
-                    {agentData.agent.phone && (
-                      <div className="agent-contact">Contact: {agentData.agent.phone}</div>
-                    )}
+                    <div className="agent-contact-info">
+                      {agentData.agent.emailVerified && agentData.agent.email && (
+                        <div className="agent-contact">
+                          <span className="text-gray-600">Email:</span> {agentData.agent.email}
+                        </div>
+                      )}
+                      {agentData.agent.mobileVerified && agentData.agent.phone && (
+                        <div className="agent-contact">
+                          <span className="text-gray-600">Phone:</span> {agentData.agent.phone}
+                        </div>
+                      )}
+                    </div>
+                    {isAuthenticated &&
+                      session?.user?.email &&
+                      agentData.agent.email === session.user.email && (
+                        <button
+                          onClick={e => {
+                            e.preventDefault()
+                            handlePromoteAgent()
+                          }}
+                          className="promote-button"
+                        >
+                          ⭐ Promote Yourself (₹0 for 5 days)
+                        </button>
+                      )}
                   </div>
                 </Link>
               ))}
@@ -815,6 +885,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
             country: true,
             locality: true,
             zipcode: true,
+          },
+        },
+        postedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
           },
         },
       },

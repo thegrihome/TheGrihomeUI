@@ -229,8 +229,8 @@ export default function PropertyTypePage({
             <div className="forum-empty-state">
               <h3>No threads yet</h3>
               <p>
-                Be the first to start a discussion about {category.name.toLowerCase()} in{' '}
-                {city.name}! Use the &ldquo;New Thread&rdquo; button above to get started.
+                Be the first to start a discussion about {category.name}! Use the &ldquo;New
+                Thread&rdquo; button above to get started.
               </p>
             </div>
           ) : (

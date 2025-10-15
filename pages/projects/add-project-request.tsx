@@ -2,21 +2,28 @@ import React, { useState, useEffect } from 'react'
 import { NextSeo } from 'next-seo'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
+import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import toast from 'react-hot-toast'
 
 interface ProjectRequestForm {
-  builderName: string
+  builderId: string
   projectName: string
   location: string
-  contactPersonName: string
+  contactPersonFirstName: string
+  contactPersonLastName: string
   contactPersonEmail: string
   contactPersonPhone: string
-  builderWebsite: string
   projectDescription: string
   projectType: string
   additionalInfo: string
+}
+
+interface Builder {
+  id: string
+  name: string
+  logoUrl: string | null
 }
 
 interface UserData {
@@ -36,14 +43,17 @@ export default function AddProjectRequestPage() {
   const [showMobileOTP, setShowMobileOTP] = useState(false)
   const [emailOTP, setEmailOTP] = useState('')
   const [mobileOTP, setMobileOTP] = useState('')
+  const [builders, setBuilders] = useState<Builder[]>([])
+  const [builderSearch, setBuilderSearch] = useState('')
+  const [showBuilderDropdown, setShowBuilderDropdown] = useState(false)
   const [formData, setFormData] = useState<ProjectRequestForm>({
-    builderName: '',
+    builderId: '',
     projectName: '',
     location: '',
-    contactPersonName: '',
+    contactPersonFirstName: '',
+    contactPersonLastName: '',
     contactPersonEmail: '',
     contactPersonPhone: '',
-    builderWebsite: '',
     projectDescription: '',
     projectType: 'RESIDENTIAL',
     additionalInfo: '',
@@ -55,19 +65,79 @@ export default function AddProjectRequestPage() {
     }
   }, [session])
 
-  const fetchUserData = async () => {
+  useEffect(() => {
+    const checkVerification = async () => {
+      if (status === 'authenticated' && session?.user?.email) {
+        try {
+          const response = await fetch('/api/user/info')
+          if (response.ok) {
+            const data = await response.json()
+            if (!data.user.emailVerified || !data.user.mobileVerified) {
+              toast.error(
+                'Please verify your email and mobile number before submitting a project request'
+              )
+              router.push('/auth/userinfo')
+            }
+          }
+        } catch (error) {
+          // Handle error silently
+        }
+      }
+    }
+    checkVerification()
+  }, [status, session, router])
+
+  useEffect(() => {
+    fetchBuilders()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [builderSearch])
+
+  const fetchBuilders = async () => {
     try {
-      const response = await fetch(`/api/user/verification-status`)
+      const params = new URLSearchParams({
+        limit: '100',
+      })
+      if (builderSearch.trim()) {
+        params.append('search', builderSearch.trim())
+      }
+      const response = await fetch(`/api/builders?${params}`)
       if (!response.ok) return
       const data = await response.json()
-      setUserData(data)
-      // Auto-populate form
-      setFormData(prev => ({
-        ...prev,
-        contactPersonName: data.name || '',
-        contactPersonEmail: data.email || '',
-        contactPersonPhone: data.phone || '',
-      }))
+      setBuilders(data.builders || [])
+    } catch (error) {
+      // Error fetching builders
+    }
+  }
+
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch(`/api/user/info`)
+      if (!response.ok) return
+      const data = await response.json()
+
+      if (data.user) {
+        setUserData({
+          name: data.user.name,
+          email: data.user.email,
+          phone: data.user.phone,
+          emailVerified: data.user.emailVerified,
+          mobileVerified: data.user.mobileVerified,
+        })
+
+        // Split name into first and last
+        const nameParts = (data.user.name || '').trim().split(' ')
+        const firstName = nameParts[0] || ''
+        const lastName = nameParts.slice(1).join(' ') || ''
+
+        // Auto-populate form
+        setFormData(prev => ({
+          ...prev,
+          contactPersonFirstName: firstName,
+          contactPersonLastName: lastName,
+          contactPersonEmail: data.user.email || '',
+          contactPersonPhone: data.user.phone || '',
+        }))
+      }
     } catch (error) {
       // Error fetching user data
     }
@@ -138,11 +208,16 @@ export default function AddProjectRequestPage() {
       return false
     }
 
+    if (!formData.builderId) {
+      toast.error('Please select a builder')
+      return false
+    }
+
     const requiredFields = [
-      'builderName',
       'projectName',
       'location',
-      'contactPersonName',
+      'contactPersonFirstName',
+      'contactPersonLastName',
       'contactPersonEmail',
       'contactPersonPhone',
       'projectType',
@@ -263,32 +338,57 @@ export default function AddProjectRequestPage() {
               {/* Builder Information */}
               <div className="form-section">
                 <h2 className="form-section__title">Builder Information</h2>
-                <div className="form-section__grid">
-                  <div>
-                    <label className="request-field__label">
-                      Builder Name <span className="request-field__required">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="builderName"
-                      value={formData.builderName}
-                      onChange={handleInputChange}
-                      className="request-field__textarea"
-                      placeholder="Enter builder/developer name"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="request-field__label">Builder Website</label>
-                    <input
-                      type="url"
-                      name="builderWebsite"
-                      value={formData.builderWebsite}
-                      onChange={handleInputChange}
-                      className="request-field__textarea"
-                      placeholder="https://builder-website.com"
-                    />
-                  </div>
+                <div className="relative">
+                  <label className="request-field__label">
+                    Select Builder <span className="request-field__required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={builderSearch}
+                    onChange={e => {
+                      setBuilderSearch(e.target.value)
+                      setShowBuilderDropdown(true)
+                    }}
+                    onFocus={() => setShowBuilderDropdown(true)}
+                    className={`request-field__textarea ${showBuilderDropdown ? 'rounded-b-none' : ''}`}
+                    placeholder="Search for a builder..."
+                    required
+                  />
+                  {showBuilderDropdown && (
+                    <div className="absolute z-10 w-full bg-white border border-gray-300 border-t-0 rounded-b-md shadow-lg max-h-60 overflow-y-auto">
+                      {builders.length > 0 ? (
+                        builders.map(builder => (
+                          <button
+                            key={builder.id}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, builderId: builder.id }))
+                              setBuilderSearch(builder.name)
+                              setShowBuilderDropdown(false)
+                            }}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-3"
+                          >
+                            {builder.logoUrl ? (
+                              <Image
+                                src={builder.logoUrl}
+                                alt={builder.name}
+                                width={32}
+                                height={32}
+                                className="w-8 h-8 object-contain rounded"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center text-gray-600 font-semibold">
+                                {builder.name.charAt(0)}
+                              </div>
+                            )}
+                            <span>{builder.name}</span>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="px-4 py-2 text-gray-500">No builders found</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -364,15 +464,27 @@ export default function AddProjectRequestPage() {
                 <div className="form-section__grid--three">
                   <div>
                     <label className="request-field__label">
-                      Contact Person Name <span className="request-field__required">*</span>
+                      First Name <span className="request-field__required">*</span>
                     </label>
                     <input
                       type="text"
-                      name="contactPersonName"
-                      value={formData.contactPersonName}
-                      onChange={handleInputChange}
-                      className="request-field__textarea"
-                      placeholder="Contact person name"
+                      name="contactPersonFirstName"
+                      value={formData.contactPersonFirstName}
+                      readOnly
+                      className="request-field__textarea bg-gray-100 cursor-not-allowed"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="request-field__label">
+                      Last Name <span className="request-field__required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="contactPersonLastName"
+                      value={formData.contactPersonLastName}
+                      readOnly
+                      className="request-field__textarea bg-gray-100 cursor-not-allowed"
                       required
                     />
                   </div>
@@ -385,10 +497,8 @@ export default function AddProjectRequestPage() {
                         type="email"
                         name="contactPersonEmail"
                         value={formData.contactPersonEmail}
-                        onChange={handleInputChange}
-                        className="request-field__textarea verification-input"
-                        placeholder="contact@example.com"
-                        disabled={userData?.emailVerified}
+                        readOnly
+                        className="request-field__textarea verification-input bg-gray-100 cursor-not-allowed"
                         required
                       />
                       {userData?.emailVerified ? (
@@ -432,10 +542,8 @@ export default function AddProjectRequestPage() {
                         type="tel"
                         name="contactPersonPhone"
                         value={formData.contactPersonPhone}
-                        onChange={handleInputChange}
-                        className="request-field__textarea verification-input"
-                        placeholder="+91 98765 43210"
-                        disabled={userData?.mobileVerified}
+                        readOnly
+                        className="request-field__textarea verification-input bg-gray-100 cursor-not-allowed"
                         required
                       />
                       {userData?.mobileVerified ? (

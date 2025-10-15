@@ -348,12 +348,9 @@ export default function ProjectsPage() {
                             )}
                           </div>
                           <div className="ml-3">
-                            <Link
-                              href={`/builders/${project.builder.id}`}
-                              className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
-                            >
+                            <div className="text-sm text-gray-900 font-medium">
                               {project.builder.name}
-                            </Link>
+                            </div>
                           </div>
                         </div>
                       </td>

@@ -128,6 +128,9 @@ const Header: NextPage = () => {
               <Link href="/agents" className="desktop-nav-link">
                 Agents
               </Link>
+              <Link href="/builders" className="desktop-nav-link">
+                Builders
+              </Link>
               <Link href="/projects" className="desktop-nav-link">
                 Projects
               </Link>
@@ -138,7 +141,7 @@ const Header: NextPage = () => {
                 Forum
               </Link>
               <Link href="/contactUs/contact" className="desktop-nav-link">
-                Contact Us
+                Contact
               </Link>
               {isAuthenticated && user && (
                 <Link href="/properties/add-property" className="header-add-property-link">
@@ -274,6 +277,13 @@ const Header: NextPage = () => {
                     Agents
                   </Link>
                   <Link
+                    href="/builders"
+                    className="mobile-nav-link"
+                    onClick={() => setNavbarOpen(false)}
+                  >
+                    Builders
+                  </Link>
+                  <Link
                     href="/projects"
                     className="mobile-nav-link"
                     onClick={() => setNavbarOpen(false)}
@@ -299,7 +309,7 @@ const Header: NextPage = () => {
                     className="mobile-nav-link"
                     onClick={() => setNavbarOpen(false)}
                   >
-                    Contact Us
+                    Contact
                   </Link>
                   {isAuthenticated && user && (
                     <Link
