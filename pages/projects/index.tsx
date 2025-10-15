@@ -46,7 +46,6 @@ export default function ProjectsPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [deletingProjects, setDeletingProjects] = useState<Set<string>>(new Set())
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -105,45 +104,6 @@ export default function ProjectsPage() {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       fetchProjects(newPage, debouncedSearch)
       window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }
-
-  // Handle delete project
-  const handleDeleteProject = async (projectId: string, projectName: string) => {
-    if (
-      !confirm(`Are you sure you want to delete "${projectName}"? This action cannot be undone.`)
-    ) {
-      return
-    }
-
-    setDeletingProjects(prev => new Set([...prev, projectId]))
-    try {
-      const response = await fetch('/api/projects/delete', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ projectId }),
-      })
-
-      if (response.ok) {
-        // Remove the project from the list
-        setProjects(prev => prev.filter(p => p.id !== projectId))
-        // Update pagination count
-        setPagination(prev => ({ ...prev, totalCount: prev.totalCount - 1 }))
-        alert('Project deleted successfully!')
-      } else {
-        const data = await response.json()
-        alert(`Error: ${data.message}`)
-      }
-    } catch (error) {
-      alert('Error deleting project. Please try again.')
-    } finally {
-      setDeletingProjects(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(projectId)
-        return newSet
-      })
     }
   }
 
@@ -261,9 +221,6 @@ export default function ProjectsPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Type
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -331,9 +288,6 @@ export default function ProjectsPage() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -420,39 +374,6 @@ export default function ProjectsPage() {
                         <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                           {project.type}
                         </span>
-                      </td>
-
-                      {/* Actions Column */}
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleDeleteProject(project.id, project.name)}
-                          disabled={deletingProjects.has(project.id)}
-                          className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
-                        >
-                          {deletingProjects.has(project.id) ? (
-                            <>
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-1 border-white"></div>
-                              <span>Deleting...</span>
-                            </>
-                          ) : (
-                            <>
-                              <svg
-                                className="w-3 h-3"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                />
-                              </svg>
-                              <span>Delete</span>
-                            </>
-                          )}
-                        </button>
                       </td>
                     </tr>
                   ))}

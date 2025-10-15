@@ -12,6 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **NEVER** assume a file is unused without searching for all references
 - **NEVER** create tsx files with inline css styling
 - **ALWAYS** create css code in styles and make sure it works across all screens like mobile, ipad, desktop and ultra wide monitor
+- **NEVER** waste tokens to run the build or start the dev server. Ask the user to do it.
 - Common regression areas: navigation links, API endpoints, component imports, route redirects
 
 ### 2. File Organization - Use Appropriate Subfolders

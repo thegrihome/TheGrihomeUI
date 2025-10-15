@@ -1,17 +1,15 @@
+import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
 import { NextSeo } from 'next-seo'
 import { GetServerSideProps } from 'next'
-import { PrismaClient } from '@prisma/client'
-import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import ExpressInterestButton from '@/components/properties/ExpressInterestButton'
-import styles from '@/styles/pages/projects/detail.module.css'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface ProjectDetails {
   id: string
@@ -24,6 +22,8 @@ interface ProjectDetails {
   thumbnailUrl: string | null
   imageUrls: string[]
   projectDetails: any
+  builderPageUrl: string | null
+  builderProspectusUrl: string | null
   builder: {
     id: string
     name: string
@@ -42,53 +42,107 @@ interface ProjectDetails {
   }
 }
 
+interface Property {
+  id: string
+  streetAddress: string
+  propertyType: string
+  sqFt: number | null
+  thumbnailUrl: string | null
+  imageUrls: string[]
+  propertyDetails: any
+  location: {
+    city: string
+    state: string
+    locality: string | null
+  }
+  isFeatured: boolean
+  projectPropertyId: string | null
+}
+
+interface Agent {
+  id: string
+  agent: {
+    id: string
+    name: string | null
+    username: string
+    email: string
+    phone: string | null
+    image: string | null
+    companyName: string | null
+  }
+  registeredAt: Date
+  isFeatured: boolean
+}
+
 interface ProjectPageProps {
   project: ProjectDetails | null
 }
 
 export default function ProjectPage({ project }: ProjectPageProps) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [zoom, setZoom] = useState(1)
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 })
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [isRegistering, setIsRegistering] = useState(false)
+  const [featuredProperties, setFeaturedProperties] = useState<Property[]>([])
+  const [regularProperties, setRegularProperties] = useState<Property[]>([])
+  const [featuredAgents, setFeaturedAgents] = useState<Agent[]>([])
+  const [regularAgents, setRegularAgents] = useState<Agent[]>([])
+  const [isRegisteredAgent, setIsRegisteredAgent] = useState(false)
+  const [showAgentBanner, setShowAgentBanner] = useState(false)
+  const [isExpressingInterest, setIsExpressingInterest] = useState(false)
+  const [isRegisteringAgent, setIsRegisteringAgent] = useState(false)
 
   const { data: session, status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const router = useRouter()
 
   const details = project?.projectDetails || {}
-  const allImages = project
-    ? [...(project.thumbnailUrl ? [project.thumbnailUrl] : []), ...project.imageUrls]
-    : []
 
+  // Fetch properties and agents
   useEffect(() => {
-    if (!isAutoPlaying || allImages.length <= 1) return
+    if (!project) return
 
-    const interval = setInterval(() => {
-      setCurrentImageIndex(prev => (prev + 1) % allImages.length)
-    }, 4000)
+    const fetchData = async () => {
+      try {
+        // Fetch properties
+        const propsRes = await fetch(`/api/projects/${project.id}/properties`)
+        if (propsRes.ok) {
+          const propsData = await propsRes.json()
+          setFeaturedProperties(propsData.featuredProperties || [])
+          setRegularProperties(propsData.regularProperties || [])
+        }
 
-    return () => clearInterval(interval)
-  }, [allImages.length, isAutoPlaying])
+        // Fetch agents
+        const agentsRes = await fetch(`/api/projects/${project.id}/agents`)
+        if (agentsRes.ok) {
+          const agentsData = await agentsRes.json()
+          setFeaturedAgents(agentsData.featuredAgents || [])
+          setRegularAgents(agentsData.regularAgents || [])
+
+          // Check if current user is registered
+          if (session?.user?.email) {
+            const allAgents = [...agentsData.featuredAgents, ...agentsData.regularAgents]
+            const isRegistered = allAgents.some((a: Agent) => a.agent.email === session.user.email)
+            setIsRegisteredAgent(isRegistered)
+            if (isRegistered) {
+              setShowAgentBanner(true)
+            }
+          }
+        }
+      } catch (error) {
+        // Error fetching project data
+      }
+    }
+
+    fetchData()
+  }, [project, session])
 
   if (!project) {
     return (
-      <div className="project-not-found">
+      <div className="project-detail-container">
         <Header />
-        <div className="project-not-found__content">
-          <div className="project-not-found__icon">🏗️</div>
-          <h1 className="project-not-found__title">Project Not Found</h1>
-          <p className="project-not-found__text">
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h1>
+          <p className="text-gray-600 mb-4">
             The project you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
-          <Link href="/projects" className="project-not-found__button">
+          <Link href="/projects" className="text-blue-600 hover:text-blue-800">
             Browse All Projects
           </Link>
         </div>
@@ -97,96 +151,32 @@ export default function ProjectPage({ project }: ProjectPageProps) {
     )
   }
 
-  const nextImage = () => {
-    setCurrentImageIndex(prev => (prev + 1) % allImages.length)
-    setIsAutoPlaying(false)
-  }
-
-  const prevImage = () => {
-    setCurrentImageIndex(prev => (prev - 1 + allImages.length) % allImages.length)
-    setIsAutoPlaying(false)
-  }
-
-  const openImageModal = (imageUrl: string) => {
-    setSelectedImage(imageUrl)
-    setZoom(1)
-    setImagePosition({ x: 0, y: 0 })
-  }
-
-  const closeImageModal = () => {
-    setSelectedImage(null)
-    setZoom(1)
-    setImagePosition({ x: 0, y: 0 })
-  }
-
-  const handleZoomIn = () => {
-    setZoom(prev => Math.min(prev * 1.5, 5))
-  }
-
-  const handleZoomOut = () => {
-    setZoom(prev => Math.max(prev / 1.5, 0.5))
-  }
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (zoom > 1) {
-      setIsDragging(true)
-      setDragStart({ x: e.clientX - imagePosition.x, y: e.clientY - imagePosition.y })
-    }
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && zoom > 1) {
-      setImagePosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y,
-      })
-    }
-  }
-
-  const handleMouseUp = () => {
-    setIsDragging(false)
-  }
-
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault()
-    if (e.deltaY < 0) {
-      handleZoomIn()
-    } else {
-      handleZoomOut()
-    }
-  }
-
-  const handleAuthRequired = () => {
-    setAuthMode('login')
-    setShowAuthModal(true)
-  }
-
-  const handleDeleteProject = async () => {
-    if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+  const handleExpressInterest = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please login to express interest')
+      router.push('/login')
       return
     }
 
-    setIsDeleting(true)
+    setIsExpressingInterest(true)
     try {
-      const response = await fetch('/api/projects/delete', {
-        method: 'DELETE',
+      const response = await fetch(`/api/projects/${project.id}/express-interest`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ projectId: project.id }),
       })
 
       if (response.ok) {
-        alert('Project deleted successfully!')
-        router.push('/projects')
+        toast.success('Interest expressed successfully!')
       } else {
         const data = await response.json()
-        alert(`Error: ${data.message}`)
+        toast.error(data.message || 'Failed to express interest')
       }
     } catch (error) {
-      alert('Error deleting project. Please try again.')
+      toast.error('Error expressing interest. Please try again.')
     } finally {
-      setIsDeleting(false)
+      setIsExpressingInterest(false)
     }
   }
 
@@ -197,9 +187,9 @@ export default function ProjectPage({ project }: ProjectPageProps) {
       return
     }
 
-    setIsRegistering(true)
+    setIsRegisteringAgent(true)
     try {
-      const response = await fetch(`/api/projects/${project?.id}/register-agent`, {
+      const response = await fetch(`/api/projects/${project.id}/register-agent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -208,6 +198,15 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
       if (response.ok) {
         toast.success('Successfully registered as an agent for this project!')
+        setIsRegisteredAgent(true)
+        setShowAgentBanner(true)
+        // Refresh agents list
+        const agentsRes = await fetch(`/api/projects/${project.id}/agents`)
+        if (agentsRes.ok) {
+          const agentsData = await agentsRes.json()
+          setFeaturedAgents(agentsData.featuredAgents || [])
+          setRegularAgents(agentsData.regularAgents || [])
+        }
       } else {
         const data = await response.json()
         toast.error(data.message || 'Failed to register as agent')
@@ -215,12 +214,68 @@ export default function ProjectPage({ project }: ProjectPageProps) {
     } catch (error) {
       toast.error('Error registering as agent. Please try again.')
     } finally {
-      setIsRegistering(false)
+      setIsRegisteringAgent(false)
+    }
+  }
+
+  const handlePromoteProperty = async (propertyId: string) => {
+    try {
+      const response = await fetch(`/api/projects/${project.id}/promote-property`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ propertyId, totalDays: 5 }),
+      })
+
+      if (response.ok) {
+        toast.success('Property promoted successfully!')
+        // Refresh properties
+        const propsRes = await fetch(`/api/projects/${project.id}/properties`)
+        if (propsRes.ok) {
+          const propsData = await propsRes.json()
+          setFeaturedProperties(propsData.featuredProperties || [])
+          setRegularProperties(propsData.regularProperties || [])
+        }
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Failed to promote property')
+      }
+    } catch (error) {
+      toast.error('Error promoting property. Please try again.')
+    }
+  }
+
+  const handlePromoteAgent = async () => {
+    try {
+      const response = await fetch(`/api/projects/${project.id}/promote-agent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ totalDays: 5 }),
+      })
+
+      if (response.ok) {
+        toast.success('Agent promoted successfully!')
+        // Refresh agents
+        const agentsRes = await fetch(`/api/projects/${project.id}/agents`)
+        if (agentsRes.ok) {
+          const agentsData = await agentsRes.json()
+          setFeaturedAgents(agentsData.featuredAgents || [])
+          setRegularAgents(agentsData.regularAgents || [])
+        }
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Failed to promote agent')
+      }
+    } catch (error) {
+      toast.error('Error promoting agent. Please try again.')
     }
   }
 
   return (
-    <div className="project-page-container">
+    <div className="project-detail-container">
       <NextSeo
         title={`${project.name} - ${project.builder.name} | Grihome`}
         description={project.description}
@@ -248,783 +303,494 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
       <Header />
 
-      <main className="project-main">
-        {/* Project Header */}
-        <div className="project-header">
-          <div className="project-header__content">
-            <div className="project-header__layout">
-              <div className="project-title-section">
-                <h1 className="project-title">{project.name}</h1>
-                <div className="project-meta">
-                  <div className="builder-info">
-                    <span className="builder-info__text">by </span>
-                    <Link href={`/builders/${project.builder.id}`} className="builder-info__link">
-                      {project.builder.name}
-                    </Link>
-                  </div>
-                  <div className="location-info">
-                    <svg
-                      className="location-info__icon"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                    </svg>
-                    <span className="location-info__text">
-                      {project.location.locality && `${project.location.locality}, `}
-                      {project.location.city}, {project.location.state}
-                    </span>
-                  </div>
-                  <div className="project-type">
-                    <span className="project-type-badge">{project.type}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="project-actions">
-                <ExpressInterestButton
-                  projectId={project.id}
-                  projectName={project.name}
-                  onAuthRequired={handleAuthRequired}
+      <main className="project-detail-layout">
+        {/* Left Column */}
+        <div className="project-detail-left">
+          {/* Project Title */}
+          <div>
+            <div className="flex items-center gap-4 mb-2">
+              {project.builder.logoUrl && (
+                <Image
+                  src={project.builder.logoUrl}
+                  alt={project.builder.name}
+                  width={80}
+                  height={40}
+                  className="object-contain"
                 />
+              )}
+              <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
+            </div>
+            <p className="text-gray-600 mb-2">by {project.builder.name}</p>
+            <p className="text-gray-500 text-sm">
+              {project.location.locality && `${project.location.locality}, `}
+              {project.location.city}, {project.location.state}
+            </p>
 
-                {/* Admin Delete Button */}
+            {/* Registered Agent Banner */}
+            {showAgentBanner && (
+              <div className="registered-agent-banner">
+                <span className="registered-agent-banner-text">
+                  You are registered as an agent for this project
+                </span>
                 <button
-                  onClick={handleDeleteProject}
-                  disabled={isDeleting}
-                  className="project-action-button project-action-button--delete"
+                  className="registered-agent-banner-close"
+                  onClick={() => setShowAgentBanner(false)}
                 >
-                  {isDeleting ? (
-                    <>
-                      <div className="project-action-spinner"></div>
-                      Deleting...
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        className="project-action-icon"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                      Delete
-                    </>
-                  )}
+                  ×
                 </button>
+              </div>
+            )}
 
-                {details.assets?.documents?.[0]?.url && (
-                  <a
-                    href={details.assets.documents[0].url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="project-action-button project-action-button--download"
+            {/* Header Actions */}
+            <div className="project-header-actions">
+              <button
+                onClick={handleExpressInterest}
+                disabled={isExpressingInterest}
+                className="action-button action-button-primary"
+              >
+                {isExpressingInterest ? 'Sending...' : 'Express Interest'}
+              </button>
+
+              {isAuthenticated &&
+                session?.user &&
+                (session.user as any).role === 'AGENT' &&
+                !isRegisteredAgent && (
+                  <button
+                    onClick={handleRegisterAsAgent}
+                    disabled={isRegisteringAgent}
+                    className="action-button action-button-secondary"
                   >
-                    <svg
-                      className="project-action-icon"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    Download Brochure
-                  </a>
+                    {isRegisteringAgent ? 'Registering...' : 'Register as Agent'}
+                  </button>
                 )}
 
+              {isAuthenticated &&
+                session?.user &&
+                (session.user as any).role === 'AGENT' &&
+                isRegisteredAgent && (
+                  <button
+                    onClick={handlePromoteAgent}
+                    className="action-button action-button-outline"
+                  >
+                    Promote Yourself
+                  </button>
+                )}
+
+              {project.builderPageUrl && (
                 <a
-                  href={details.routes?.builderWebsite || project.builder.website || '#'}
+                  href={project.builderPageUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="project-action-button project-action-button--visit"
+                  className="action-button action-button-outline"
                 >
-                  <svg
-                    className="project-action-icon"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
                   Visit Builder Page
                 </a>
-              </div>
+              )}
+
+              {project.builderProspectusUrl && (
+                <a
+                  href={project.builderProspectusUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="action-button action-button-outline"
+                >
+                  Download Brochure
+                </a>
+              )}
             </div>
           </div>
+
+          {/* Banner Image */}
+          {project.thumbnailUrl && (
+            <div className="project-banner">
+              <Image
+                src={project.thumbnailUrl}
+                alt={project.name}
+                width={1200}
+                height={500}
+                className="w-full"
+              />
+            </div>
+          )}
+
+          {/* Description */}
+          <div className="project-section">
+            <h2 className="project-section-title">Description</h2>
+            <div className="project-section-content">
+              {details.reraNumber && (
+                <p className="mb-4">
+                  <strong>TS RERA Regn No. {details.reraNumber}</strong>
+                </p>
+              )}
+              <p style={{ whiteSpace: 'pre-line' }}>{project.description}</p>
+            </div>
+          </div>
+
+          {/* Highlights */}
+          {details.highlights && details.highlights.length > 0 && (
+            <div className="project-section">
+              <h2 className="project-section-title">Highlights</h2>
+              <div className="highlights-grid">
+                {details.highlights.map((highlight: any, index: number) => (
+                  <div key={index} className="highlight-item">
+                    {highlight.icon && (
+                      <div className="highlight-icon">
+                        <Image src={highlight.icon} alt={highlight.label} width={60} height={60} />
+                      </div>
+                    )}
+                    <div className="highlight-value">
+                      {highlight.value}
+                      {highlight.unit && <span> {highlight.unit}</span>}
+                    </div>
+                    <div className="highlight-label">{highlight.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Amenities */}
+          {(details.amenities?.outdoorImages || details.amenities?.indoorImages) && (
+            <div className="project-section">
+              <h2 className="project-section-title">Amenities</h2>
+              <div className="amenities-grid">
+                {details.amenities.outdoorImages?.map((amenity: any, index: number) => (
+                  <div key={`outdoor-${index}`} className="amenity-item">
+                    {amenity.icon && (
+                      <div className="amenity-icon">
+                        <Image src={amenity.icon} alt={amenity.name} width={50} height={50} />
+                      </div>
+                    )}
+                    <div className="amenity-label">{amenity.name}</div>
+                  </div>
+                ))}
+                {details.amenities.indoorImages?.map((amenity: any, index: number) => (
+                  <div key={`indoor-${index}`} className="amenity-item">
+                    {amenity.icon && (
+                      <div className="amenity-icon">
+                        <Image src={amenity.icon} alt={amenity.name} width={50} height={50} />
+                      </div>
+                    )}
+                    <div className="amenity-label">{amenity.name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Layout */}
+          {details.assets?.layout && (
+            <div className="project-section">
+              <h2 className="project-section-title">Layout</h2>
+              <div className="images-grid">
+                <div className="image-item">
+                  <Image
+                    src={details.assets.layout.url}
+                    alt={details.assets.layout.title || 'Layout'}
+                    width={800}
+                    height={600}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Floor Plans */}
+          {details.floorPlans && details.floorPlans.length > 0 && (
+            <div className="project-section">
+              <h2 className="project-section-title">Floor Plans</h2>
+              <div className="images-grid">
+                {details.floorPlans.map((floorPlan: any, index: number) => (
+                  <div key={index} className="image-item">
+                    <Image
+                      src={floorPlan.image}
+                      alt={floorPlan.name}
+                      width={400}
+                      height={300}
+                      className="w-full"
+                    />
+                    <p className="text-center mt-2 font-medium">{floorPlan.name}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Clubhouse */}
+          {(details.clubhouse?.description || details.clubhouse?.images) && (
+            <div className="project-section">
+              <h2 className="project-section-title">Clubhouse</h2>
+              {details.clubhouse?.description && (
+                <div className="project-section-content mb-6">
+                  <p style={{ whiteSpace: 'pre-line' }}>{details.clubhouse.description}</p>
+                </div>
+              )}
+              {details.clubhouse?.images && details.clubhouse.images.length > 0 && (
+                <div className="clubhouse-images-grid">
+                  {details.clubhouse.images.map((img: any, index: number) => (
+                    <div key={index} className="clubhouse-image-card">
+                      <Image
+                        src={img.url}
+                        alt={img.name}
+                        width={400}
+                        height={300}
+                        className="w-full"
+                      />
+                      <div className="clubhouse-image-info">
+                        <p className="clubhouse-image-name">{img.name}</p>
+                        {img.details && <p className="clubhouse-image-details">{img.details}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Gallery */}
+          {details.gallery && details.gallery.length > 0 && (
+            <div className="project-section">
+              <h2 className="project-section-title">Gallery</h2>
+              <div className="images-grid">
+                {details.gallery.map((img: any, index: number) => (
+                  <div key={index} className="image-item">
+                    <Image
+                      src={img.image}
+                      alt={img.name}
+                      width={400}
+                      height={300}
+                      className="w-full"
+                    />
+                    <p className="text-center mt-2 font-medium">{img.name}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Project Image & Sidebar */}
-        <div className="project-image-section">
-          <div className="project-image-section__content">
-            <div className="project-image-layout">
-              {/* Left Side - Project Image */}
-              {allImages.length > 0 && (
-                <div className="project-image-container">
-                  <div>
-                    <Image
-                      src={allImages[currentImageIndex]}
-                      alt={`${project.name} - Image ${currentImageIndex + 1}`}
-                      width={600}
-                      height={400}
-                      className="project-image-main"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 60vw"
-                    />
+        {/* Right Column - Sidebar */}
+        <div className="project-detail-right">
+          {/* Location */}
+          <div className="sidebar-section">
+            <h3 className="sidebar-section-title">Location</h3>
+            <div className="location-map">
+              <iframe
+                src={
+                  project.googlePin ||
+                  `https://maps.google.com/maps?q=${encodeURIComponent(
+                    `${project.name}, ${project.location.locality ? project.location.locality + ', ' : ''}${project.location.city}, ${project.location.state}`
+                  )}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+                }
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                title={`${project.name} Location`}
+              />
+            </div>
+            <div className="location-address">
+              {project.location.locality && `${project.location.locality}, `}
+              {project.location.city}, {project.location.state}
+              {project.location.zipcode && `, ${project.location.zipcode}`}
+            </div>
+          </div>
 
-                    {/* Image Navigation */}
-                    {allImages.length > 1 && (
-                      <>
+          {/* Featured Properties */}
+          <div className="sidebar-section">
+            <h3 className="sidebar-section-title">
+              Featured Properties ({featuredProperties.length + regularProperties.length})
+            </h3>
+            <div className="featured-items-container">
+              {featuredProperties.map(property => (
+                <Link key={property.id} href={`/properties/${property.id}`}>
+                  <div
+                    className={`featured-property-card ${property.isFeatured ? 'featured' : ''}`}
+                  >
+                    {property.isFeatured && <span className="featured-badge">FEATURED ✨</span>}
+                    {property.thumbnailUrl && (
+                      <Image
+                        src={property.thumbnailUrl}
+                        alt={property.streetAddress}
+                        width={300}
+                        height={120}
+                        className="property-thumbnail"
+                      />
+                    )}
+                    <div className="property-info">
+                      <div className="property-title">{property.streetAddress}</div>
+                      <div className="property-price">
+                        {property.propertyDetails?.price
+                          ? `₹${(property.propertyDetails.price / 100000).toFixed(2)} Lakhs`
+                          : 'Price on Request'}
+                      </div>
+                      <div className="property-location">
+                        {property.location.locality && `${property.location.locality}, `}
+                        {property.location.city}
+                      </div>
+                    </div>
+                    {isAuthenticated &&
+                      session?.user?.email &&
+                      property.propertyDetails?.agentEmail === session.user.email &&
+                      !property.isFeatured && (
                         <button
-                          onClick={prevImage}
-                          className="project-image-nav project-image-nav--prev"
+                          onClick={e => {
+                            e.preventDefault()
+                            handlePromoteProperty(property.id)
+                          }}
+                          className="promote-button"
                         >
-                          <svg
-                            className="project-image-nav__icon"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M15 19l-7-7 7-7"
-                            />
-                          </svg>
+                          ⭐ Promote Property
                         </button>
+                      )}
+                  </div>
+                </Link>
+              ))}
+              {regularProperties.map(property => (
+                <Link key={property.id} href={`/properties/${property.id}`}>
+                  <div className="featured-property-card">
+                    {property.thumbnailUrl && (
+                      <Image
+                        src={property.thumbnailUrl}
+                        alt={property.streetAddress}
+                        width={300}
+                        height={120}
+                        className="property-thumbnail"
+                      />
+                    )}
+                    <div className="property-info">
+                      <div className="property-title">{property.streetAddress}</div>
+                      <div className="property-price">
+                        {property.propertyDetails?.price
+                          ? `₹${(property.propertyDetails.price / 100000).toFixed(2)} Lakhs`
+                          : 'Price on Request'}
+                      </div>
+                      <div className="property-location">
+                        {property.location.locality && `${property.location.locality}, `}
+                        {property.location.city}
+                      </div>
+                    </div>
+                    {isAuthenticated &&
+                      session?.user?.email &&
+                      property.propertyDetails?.agentEmail === session.user.email && (
                         <button
-                          onClick={nextImage}
-                          className="project-image-nav project-image-nav--next"
+                          onClick={e => {
+                            e.preventDefault()
+                            handlePromoteProperty(property.id)
+                          }}
+                          className="promote-button"
                         >
-                          <svg
-                            className="project-image-nav__icon"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
+                          ⭐ Promote Property
                         </button>
+                      )}
+                  </div>
+                </Link>
+              ))}
+              {featuredProperties.length === 0 && regularProperties.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">
+                  No properties available for this project yet.
+                </p>
+              )}
+            </div>
+          </div>
 
-                        {/* Image Dots */}
-                        <div className="project-image-dots">
-                          {allImages.map((_, index) => (
-                            <button
-                              key={index}
-                              onClick={() => setCurrentImageIndex(index)}
-                              className={`project-image-dot ${
-                                index === currentImageIndex
-                                  ? 'project-image-dot--active'
-                                  : 'project-image-dot--inactive'
-                              }`}
-                            />
-                          ))}
+          {/* Featured Agents */}
+          <div className="sidebar-section">
+            <h3 className="sidebar-section-title">
+              Featured Agents ({featuredAgents.length + regularAgents.length})
+            </h3>
+            <div className="featured-items-container">
+              {featuredAgents.map(agentData => (
+                <Link key={agentData.id} href={`/agents/${agentData.agent.id}`}>
+                  <div className={`featured-agent-card ${agentData.isFeatured ? 'featured' : ''}`}>
+                    {agentData.isFeatured && <span className="featured-badge">FEATURED ✨</span>}
+                    <div className="agent-header">
+                      {agentData.agent.image ? (
+                        <Image
+                          src={agentData.agent.image}
+                          alt={agentData.agent.name || agentData.agent.username}
+                          width={50}
+                          height={50}
+                          className="agent-avatar"
+                        />
+                      ) : (
+                        <div className="agent-avatar flex items-center justify-center">
+                          <span className="text-gray-500">
+                            {(agentData.agent.name || agentData.agent.username)
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
                         </div>
-                      </>
+                      )}
+                      <div className="agent-info">
+                        <div className="agent-name">
+                          {agentData.agent.name || agentData.agent.username}
+                        </div>
+                        <div className="agent-role">
+                          {agentData.agent.companyName || 'Real Estate Agent'}
+                        </div>
+                      </div>
+                    </div>
+                    {agentData.agent.phone && (
+                      <div className="agent-contact">Contact: {agentData.agent.phone}</div>
                     )}
                   </div>
-                </div>
-              )}
-
-              {/* Right Side - Location & Highlights */}
-              <div className="project-sidebar">
-                {/* Google Maps */}
-                {(details.googleMaps?.embedUrl ||
-                  project.googlePin ||
-                  details.overview?.location) && (
-                  <div className="map-card">
-                    <h3 className="map-card__title">Location</h3>
-                    <div className="map-container">
-                      <iframe
-                        src={
-                          details.googleMaps?.embedUrl ||
-                          project.googlePin ||
-                          `https://maps.google.com/maps?q=${encodeURIComponent(
-                            details.overview?.location ||
-                              `${project.name}, ${project.location.locality ? project.location.locality + ', ' : ''}${project.location.city}, ${project.location.state}`
-                          )}&t=&z=15&ie=UTF8&iwloc=&output=embed`
-                        }
-                        width="100%"
-                        height="250"
-                        style={{ border: 0 }}
-                        allowFullScreen
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                        className="map-container__iframe"
-                        title={`${project.name} Location`}
-                      />
-                    </div>
-                    <div className="map-card__address">
-                      <span className="map-card__address-label">Address:</span>{' '}
-                      {details.overview?.location ||
-                        `${project.location.locality ? project.location.locality + ', ' : ''}${project.location.city}, ${project.location.state}`}
-                    </div>
-                  </div>
-                )}
-
-                {/* Highlights */}
-                {details.highlights && (
-                  <div className="highlights-card">
-                    <h3 className="highlights-card__title">Highlights</h3>
-                    <div className="highlights-grid">
-                      {details.highlights.map((highlight: any, index: number) => (
-                        <div key={index} className="highlight-item">
-                          {highlight.icon && (
-                            <div className="highlight-icon">
-                              <Image
-                                src={highlight.icon}
-                                alt={`${highlight.value} ${highlight.label}`}
-                                width={50}
-                                height={50}
-                                className="highlight-icon__img"
-                              />
-                            </div>
-                          )}
-                          <div className="highlight-text">
-                            <div className="highlight-text__value">
-                              {highlight.value}
-                              {highlight.unit && <span> {highlight.unit}</span>}
-                            </div>
-                            <div className="highlight-text__label">
-                              {highlight.label}
-                              {highlight.labelLine2 && (
-                                <>
-                                  <br />
-                                  {highlight.labelLine2}
-                                </>
-                              )}
-                            </div>
-                          </div>
+                </Link>
+              ))}
+              {regularAgents.map(agentData => (
+                <Link key={agentData.id} href={`/agents/${agentData.agent.id}`}>
+                  <div className="featured-agent-card">
+                    <div className="agent-header">
+                      {agentData.agent.image ? (
+                        <Image
+                          src={agentData.agent.image}
+                          alt={agentData.agent.name || agentData.agent.username}
+                          width={50}
+                          height={50}
+                          className="agent-avatar"
+                        />
+                      ) : (
+                        <div className="agent-avatar flex items-center justify-center">
+                          <span className="text-gray-500">
+                            {(agentData.agent.name || agentData.agent.username)
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Project Walkthrough Video */}
-                {details.assets?.videos?.[0] && (
-                  <div className="video-card">
-                    <h3 className="video-card__title">Project Walkthrough</h3>
-                    <div className="video-container">
-                      <video
-                        width="100%"
-                        height="200"
-                        controls
-                        className="video-container__player"
-                        poster={details.assets.videos[0].poster || project.thumbnailUrl}
-                      >
-                        <source src={details.assets.videos[0].url} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Project Content */}
-        <div className="project-content">
-          <div className="project-image-section__content">
-            <div className="space-y-8">
-              {/* Overview Section */}
-              <div className="overview-section">
-                <h2 className="overview-section__title">Overview</h2>
-                <div className="overview-section__content">
-                  <div>
-                    <h3 className="overview-section__subtitle">Project Description</h3>
-                    <div className="overview-section__text">
-                      <p>{project.description}</p>
-                      {details.overview?.description && (
-                        <p>
-                          {typeof details.overview.description === 'string'
-                            ? details.overview.description
-                            : String(details.overview.description)}
-                        </p>
                       )}
+                      <div className="agent-info">
+                        <div className="agent-name">
+                          {agentData.agent.name || agentData.agent.username}
+                        </div>
+                        <div className="agent-role">
+                          {agentData.agent.companyName || 'Real Estate Agent'}
+                        </div>
+                      </div>
                     </div>
+                    {agentData.agent.phone && (
+                      <div className="agent-contact">Contact: {agentData.agent.phone}</div>
+                    )}
                   </div>
-                </div>
-              </div>
-
-              {/* Amenities Section */}
-              {(details.amenities?.outdoorImages || details.amenities?.indoorImages) && (
-                <div className="amenities-section">
-                  <h2 className="amenities-section__title">Amenities</h2>
-                  <div className="amenities-grid">
-                    {details.amenities?.outdoorImages?.map((amenity: any, index: number) => (
-                      <div key={`outdoor-${index}`} className="amenity-item">
-                        <div className="amenity-icon">
-                          <Image
-                            src={amenity.icon}
-                            alt={amenity.name}
-                            width={50}
-                            height={50}
-                            className="amenity-icon__img"
-                          />
-                        </div>
-                        <p className="amenity-name">
-                          {typeof amenity.name === 'string' ? amenity.name : String(amenity.name)}
-                        </p>
-                      </div>
-                    ))}
-
-                    {details.amenities?.indoorImages?.map((amenity: any, index: number) => (
-                      <div key={`indoor-${index}`} className="amenity-item">
-                        <div className="amenity-icon">
-                          <Image
-                            src={amenity.icon}
-                            alt={amenity.name}
-                            width={50}
-                            height={50}
-                            className="amenity-icon__img"
-                          />
-                        </div>
-                        <p className="amenity-name">
-                          {typeof amenity.name === 'string' ? amenity.name : String(amenity.name)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Specifications Section */}
-              {details.specifications && (
-                <div className="specifications-section">
-                  <h2 className="text-2xl font-bold mb-8 text-gray-800 text-center">
-                    SPECIFICATIONS
-                  </h2>
-                  <div className="specifications-grid">
-                    {Array.isArray(details.specifications)
-                      ? details.specifications.map((specGroup: any, index: number) => (
-                          <div key={index} className="spec-item">
-                            <details className="group">
-                              <summary className="spec-summary">
-                                {specGroup.category || `Specification ${index + 1}`}
-                              </summary>
-                              <div className="spec-content">
-                                {Array.isArray(specGroup.items) ? (
-                                  <ul className="spec-list">
-                                    {specGroup.items.map((item: string, idx: number) => (
-                                      <li key={idx} dangerouslySetInnerHTML={{ __html: item }} />
-                                    ))}
-                                  </ul>
-                                ) : (
-                                  <div
-                                    dangerouslySetInnerHTML={{
-                                      __html: String(specGroup.items || ''),
-                                    }}
-                                  />
-                                )}
-                              </div>
-                            </details>
-                          </div>
-                        ))
-                      : Object.entries(details.specifications).map(
-                          ([category, specs]: [string, any]) => (
-                            <div key={category} className="spec-item">
-                              <details className="group">
-                                <summary className="spec-summary">
-                                  {category
-                                    .replace(/([A-Z])/g, ' $1')
-                                    .replace(/^./, str => str.toUpperCase())}
-                                </summary>
-                                <div className="spec-content">
-                                  {Array.isArray(specs) ? (
-                                    <ul className="spec-list">
-                                      {specs.map((spec: string, index: number) => (
-                                        <li
-                                          key={index}
-                                          dangerouslySetInnerHTML={{ __html: spec }}
-                                        />
-                                      ))}
-                                    </ul>
-                                  ) : typeof specs === 'object' && specs !== null ? (
-                                    <div className="spec-details">
-                                      {Object.entries(specs).map(([key, value]: [string, any]) => (
-                                        <div key={key}>
-                                          <strong className="spec-details__label">
-                                            {key.toUpperCase()}:
-                                          </strong>{' '}
-                                          {Array.isArray(value) ? (
-                                            <ul className="spec-details__sublist">
-                                              {value.map((item: any, idx: number) => (
-                                                <li
-                                                  key={idx}
-                                                  dangerouslySetInnerHTML={{ __html: String(item) }}
-                                                />
-                                              ))}
-                                            </ul>
-                                          ) : (
-                                            <span
-                                              dangerouslySetInnerHTML={{ __html: String(value) }}
-                                            />
-                                          )}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  ) : (
-                                    <div dangerouslySetInnerHTML={{ __html: String(specs) }} />
-                                  )}
-                                </div>
-                              </details>
-                            </div>
-                          )
-                        )}
-                  </div>
-                </div>
-              )}
-
-              {/* Layout Section */}
-              {details.assets?.layout && (
-                <div className="layout-section">
-                  <h2 className="layout-section__title">Layout</h2>
-                  <div className="layout-image-container">
-                    <div
-                      className="layout-image-wrapper"
-                      onClick={() => openImageModal(details.assets.layout.url)}
-                    >
-                      <Image
-                        src={details.assets.layout.url}
-                        alt={details.assets.layout.title || `${project.name} Site Layout`}
-                        width={800}
-                        height={600}
-                        className="layout-image"
-                        sizes="100vw"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Floor Plans Section */}
-              {details.floorPlans && details.floorPlans.length > 0 && (
-                <div className="floor-plans-section">
-                  <h2 className="floor-plans-section__title">Floor Plans</h2>
-                  <div className="floor-plans-grid">
-                    {details.floorPlans.map((floorPlan: any, index: number) => (
-                      <div key={`floorplan-${index}`} className="fp">
-                        <div
-                          className="layout-image-wrapper"
-                          onClick={() => openImageModal(floorPlan.image)}
-                        >
-                          <Image
-                            src={floorPlan.image}
-                            alt={floorPlan.name}
-                            width={400}
-                            height={300}
-                            className="w-full h-auto object-cover rounded-lg"
-                          />
-                        </div>
-                        <div className="text-center mt-3 font-medium text-gray-800">
-                          {typeof floorPlan.name === 'string'
-                            ? floorPlan.name
-                            : String(floorPlan.name)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Gallery Section */}
-              {details.gallery && details.gallery.length > 0 && (
-                <div className="gallery-section">
-                  <h2 className="gallery-section__title">Gallery</h2>
-                  <div className="floor-plans-grid">
-                    {details.gallery.map((galleryItem: any, index: number) => (
-                      <div key={`gallery-${index}`} className="gallery-item">
-                        <div
-                          className="layout-image-wrapper"
-                          onClick={() => openImageModal(galleryItem.image)}
-                        >
-                          <Image
-                            src={galleryItem.image}
-                            alt={galleryItem.name}
-                            width={400}
-                            height={300}
-                            className="w-full h-auto object-cover rounded-lg"
-                          />
-                        </div>
-                        <h3 className="text-center mt-3 font-medium text-gray-800">
-                          {typeof galleryItem.name === 'string'
-                            ? galleryItem.name
-                            : String(galleryItem.name)}
-                        </h3>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Project Status Section */}
-              {details.projectStatus && details.projectStatus.length > 0 && (
-                <div className="project-status-section">
-                  <h2 className="project-status-section__title">Project Status</h2>
-                  {details.projectStatusDate && (
-                    <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-                      <p className="text-blue-800 font-medium">
-                        {typeof details.projectStatusDate === 'string'
-                          ? details.projectStatusDate
-                          : String(details.projectStatusDate)}
-                      </p>
-                    </div>
-                  )}
-                  <div className="floor-plans-grid">
-                    {details.projectStatus.map((statusItem: any, index: number) => (
-                      <div key={`status-${index}`} className="status-item">
-                        <div
-                          className="layout-image-wrapper"
-                          onClick={() => openImageModal(statusItem.image)}
-                        >
-                          <Image
-                            src={statusItem.image}
-                            alt={statusItem.name}
-                            width={400}
-                            height={300}
-                            className="w-full h-auto object-cover rounded-lg"
-                          />
-                        </div>
-                        <p className="text-center mt-3 text-sm text-gray-700">
-                          {typeof statusItem.name === 'string'
-                            ? statusItem.name
-                            : String(statusItem.name)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                </Link>
+              ))}
+              {featuredAgents.length === 0 && regularAgents.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">
+                  No agents registered for this project yet.
+                </p>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Featured Properties Section */}
-        <div className={`${styles['featured-section']} ${styles['featured-section--gray']}`}>
-          <div className={styles['featured-section__container']}>
-            <div className={styles['featured-section__header']}>
-              <h2 className={styles['featured-section__title']}>Featured Properties</h2>
-              {isAuthenticated && session?.user?.role === 'AGENT' && (
-                <button
-                  onClick={handleRegisterAsAgent}
-                  disabled={isRegistering}
-                  className={styles['featured-section__register-button']}
-                >
-                  {isRegistering ? 'Registering...' : 'Register as Agent'}
-                </button>
-              )}
-            </div>
-            {isAuthenticated ? (
-              <div className={styles['featured-section__scroll']}>
-                <div className={styles['featured-section__items']}>
-                  {/* Placeholder for featured properties - will be loaded from API */}
-                  <div className={styles['featured-property-card']}>
-                    <div className={styles['featured-property-card__image']}></div>
-                    <h3 className={styles['featured-property-card__title']}>Property 1</h3>
-                    <p className={styles['featured-property-card__price']}>₹45 Lakhs</p>
-                  </div>
-                  <div className={styles['featured-property-card']}>
-                    <div className={styles['featured-property-card__image']}></div>
-                    <h3 className={styles['featured-property-card__title']}>Property 2</h3>
-                    <p className={styles['featured-property-card__price']}>₹52 Lakhs</p>
-                  </div>
-                  <div className={styles['featured-property-card']}>
-                    <div className={styles['featured-property-card__image']}></div>
-                    <h3 className={styles['featured-property-card__title']}>Property 3</h3>
-                    <p className={styles['featured-property-card__price']}>₹38 Lakhs</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className={styles['featured-section__login-prompt']}>
-                <p className={styles['featured-section__login-text']}>
-                  Login to view featured properties
-                </p>
-                <button
-                  onClick={() => router.push('/login')}
-                  className={styles['featured-section__login-button']}
-                >
-                  Login
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Featured Agents Section */}
-        <div className={`${styles['featured-section']} ${styles['featured-section--white']}`}>
-          <div className={styles['featured-section__container']}>
-            <h2 className={styles['featured-section__title']}>Featured Agents</h2>
-            {isAuthenticated ? (
-              <div className={styles['featured-section__scroll']}>
-                <div className={styles['featured-section__items']}>
-                  {/* Placeholder for featured agents - will be loaded from API */}
-                  <div className={styles['featured-agent-card']}>
-                    <div className={styles['featured-agent-card__header']}>
-                      <div className={styles['featured-agent-card__avatar']}></div>
-                      <div>
-                        <h3 className={styles['featured-agent-card__name']}>Agent Name</h3>
-                        <p className={styles['featured-agent-card__title']}>Licensed Agent</p>
-                      </div>
-                    </div>
-                    <p className={styles['featured-agent-card__contact']}>
-                      Contact: +91 98765 43210
-                    </p>
-                    <p className={styles['featured-agent-card__experience']}>5+ years experience</p>
-                  </div>
-                  <div className={styles['featured-agent-card']}>
-                    <div className={styles['featured-agent-card__header']}>
-                      <div className={styles['featured-agent-card__avatar']}></div>
-                      <div>
-                        <h3 className={styles['featured-agent-card__name']}>Agent Name</h3>
-                        <p className={styles['featured-agent-card__title']}>Licensed Agent</p>
-                      </div>
-                    </div>
-                    <p className={styles['featured-agent-card__contact']}>
-                      Contact: +91 98765 43210
-                    </p>
-                    <p className={styles['featured-agent-card__experience']}>8+ years experience</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div
-                className={`${styles['featured-section__login-prompt']} ${styles['featured-section__login-prompt--gray']}`}
-              >
-                <p className={styles['featured-section__login-text']}>
-                  Login to view featured agents
-                </p>
-                <button
-                  onClick={() => router.push('/login')}
-                  className={styles['featured-section__login-button']}
-                >
-                  Login
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </main>
 
       <Footer />
-
-      {/* Image Modal */}
-      {selectedImage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
-          onClick={closeImageModal}
-        >
-          <div className="relative max-w-full max-h-full">
-            <button
-              className="absolute top-4 right-4 z-10 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 text-white transition-colors"
-              onClick={closeImageModal}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-            <div className="absolute top-4 left-4 z-10 flex gap-2">
-              <button
-                className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 text-white transition-colors"
-                onClick={handleZoomIn}
-              >
-                <svg
-                  className="project-image-nav__icon"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-              </button>
-              <button
-                className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 text-white transition-colors"
-                onClick={handleZoomOut}
-              >
-                <svg
-                  className="project-image-nav__icon"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
-                </svg>
-              </button>
-              <div className="bg-white bg-opacity-20 rounded-full px-3 py-2 text-white text-sm">
-                {Math.round(zoom * 100)}%
-              </div>
-            </div>
-
-            <div
-              className="overflow-hidden max-w-[90vw] max-h-[90vh] cursor-move"
-              onClick={e => e.stopPropagation()}
-              onWheel={handleWheel}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              <Image
-                src={selectedImage}
-                alt="Enlarged view"
-                width={1200}
-                height={900}
-                className="transition-transform duration-200"
-                style={{
-                  transform: `scale(${zoom}) translate(${imagePosition.x / zoom}px, ${imagePosition.y / zoom}px)`,
-                  cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
-                }}
-                sizes="90vw"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const prisma = new PrismaClient()
-
   try {
     const projectId = params?.id as string
 
@@ -1073,7 +839,5 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
         project: null,
       },
     }
-  } finally {
-    await prisma.$disconnect()
   }
 }

@@ -16,6 +16,7 @@
 @import './pages/properties/detail.css';
 @import './pages/properties/add-property.css';
 @import './pages/projects/add-project-request.css';
+@import './pages/projects/detail.css';
 
 html {
   min-width: 360px;

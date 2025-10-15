@@ -62,6 +62,7 @@ model User {
   interests        Interest[]
   ads              Ad[]
   projectRequests  ProjectRequest[]
+  projectAgents    ProjectAgent[]
 
   @@index([email])
   @@index([phone])
@@ -109,26 +110,30 @@ model Builder {
 }
 
 model Project {
-  id            String      @id @default(cuid())
-  builderId     String
-  locationId    String
-  name          String
-  description   String
-  type          ProjectType
-  numberOfUnits Int?
-  size          Float?
-  density       Float?
-  googlePin     String?
-  thumbnailUrl  String?
-  imageUrls     String[]
-  projectDetails Json?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  builder       Builder     @relation(fields: [builderId], references: [id], onDelete: Cascade)
-  location      Location    @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  properties    Property[]
-  interests     Interest[]
-  ads           Ad[]
+  id                  String            @id @default(cuid())
+  builderId           String
+  locationId          String
+  name                String
+  description         String
+  type                ProjectType
+  numberOfUnits       Int?
+  size                Float?
+  density             Float?
+  googlePin           String?
+  thumbnailUrl        String?
+  imageUrls           String[]
+  projectDetails      Json?
+  builderPageUrl      String?
+  builderProspectusUrl String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  builder             Builder           @relation(fields: [builderId], references: [id], onDelete: Cascade)
+  location            Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  properties          Property[]
+  interests           Interest[]
+  ads                 Ad[]
+  projectAgents       ProjectAgent[]
+  projectProperties   ProjectProperty[]
 
   @@index([builderId])
   @@index([locationId])
@@ -162,9 +167,10 @@ model Property {
   user           User            @relation("AgentProperties", fields: [userId], references: [id], onDelete: Cascade)
   soldToUser     User?           @relation("SoldProperties", fields: [soldToUserId], references: [id])
   images         PropertyImage[]
-  savedBy        SavedProperty[]
-  interests      Interest[]
-  ads            Ad[]
+  savedBy           SavedProperty[]
+  interests         Interest[]
+  ads               Ad[]
+  projectProperties ProjectProperty[]
 
   @@index([builderId])
   @@index([locationId])
@@ -462,4 +468,46 @@ enum ProjectRequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model ProjectAgent {
+  id                      String    @id @default(cuid())
+  projectId               String
+  userId                  String
+  registeredAt            DateTime  @default(now())
+  isPromoted              Boolean   @default(false)
+  promotionStartDate      DateTime?
+  promotionEndDate        DateTime?
+  promotionPaymentAmount  Float     @default(0)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  project                 Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([promotionEndDate])
+  @@index([isPromoted])
+}
+
+model ProjectProperty {
+  id                      String    @id @default(cuid())
+  projectId               String
+  propertyId              String
+  addedAt                 DateTime  @default(now())
+  isPromoted              Boolean   @default(false)
+  promotionStartDate      DateTime?
+  promotionEndDate        DateTime?
+  promotionPaymentAmount  Float     @default(0)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  project                 Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  property                Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, propertyId])
+  @@index([projectId])
+  @@index([propertyId])
+  @@index([promotionEndDate])
+  @@index([isPromoted])
 }
