@@ -68,7 +68,6 @@ export default function MyPropertiesPage() {
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active')
   const [showInterestModal, setShowInterestModal] = useState<string | null>(null)
   const [showSoldModal, setShowSoldModal] = useState<string | null>(null)
-  const [showArchiveModal, setShowArchiveModal] = useState<string | null>(null)
   const [soldToName, setSoldToName] = useState('')
 
   const propertyTypes = [
@@ -157,27 +156,6 @@ export default function MyPropertiesPage() {
       loadMyProperties()
     } catch (error) {
       toast.error('Failed to mark property as sold')
-    }
-  }
-
-  const handleArchiveProperty = async (propertyId: string) => {
-    try {
-      const response = await fetch(`/api/properties/${propertyId}/archive`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to archive property')
-      }
-
-      toast.success('Property archived successfully')
-      setShowArchiveModal(null)
-      loadMyProperties()
-    } catch (error) {
-      toast.error('Failed to archive property')
     }
   }
 
@@ -426,20 +404,12 @@ export default function MyPropertiesPage() {
                       </div>
                       <div className={styles['property-card-actions']}>
                         {activeTab === 'active' && (
-                          <>
-                            <button
-                              onClick={() => setShowSoldModal(property.id)}
-                              className={`${styles['property-action-button']} ${styles['property-action-button--sold']}`}
-                            >
-                              Mark as Sold
-                            </button>
-                            <button
-                              onClick={() => setShowArchiveModal(property.id)}
-                              className={`${styles['property-action-button']} ${styles['property-action-button--archive']}`}
-                            >
-                              Archive
-                            </button>
-                          </>
+                          <button
+                            onClick={() => setShowSoldModal(property.id)}
+                            className={`${styles['property-action-button']} ${styles['property-action-button--sold']}`}
+                          >
+                            Mark as Sold
+                          </button>
                         )}
                         {activeTab === 'archived' &&
                           property.listingStatus === LISTING_STATUS.ARCHIVED && (
@@ -540,46 +510,6 @@ export default function MyPropertiesPage() {
                   className={`${styles['modal-button']} ${styles['modal-button--confirm']}`}
                 >
                   Mark as Sold
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Archive Property Modal */}
-      {showArchiveModal && (
-        <div className={styles['modal-overlay']}>
-          <div className={styles['modal-container']}>
-            <div className={styles['modal-header']}>
-              <h3 className={styles['modal-title']}>Archive Property</h3>
-              <button onClick={() => setShowArchiveModal(null)} className={styles['modal-close']}>
-                ✕
-              </button>
-            </div>
-            <div className={styles['modal-content']}>
-              <div className={styles['archive-warning']}>
-                <p className={styles['archive-warning-text']}>
-                  <strong>Note:</strong> This property will be moved to your archived properties and
-                  will no longer be visible to buyers. You can reactivate it later from the Archived
-                  Properties tab.
-                </p>
-              </div>
-              <p className={styles['archive-modal-text']}>
-                Are you sure you want to archive this property?
-              </p>
-              <div className={styles['modal-actions']}>
-                <button
-                  onClick={() => setShowArchiveModal(null)}
-                  className={`${styles['modal-button']} ${styles['modal-button--cancel']}`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleArchiveProperty(showArchiveModal)}
-                  className={`${styles['modal-button']} ${styles['modal-button--archive']}`}
-                >
-                  Archive Property
                 </button>
               </div>
             </div>

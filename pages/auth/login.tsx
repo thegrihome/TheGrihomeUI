@@ -31,97 +31,6 @@ export default function Login() {
     }
   }, [status, router])
 
-  const handleSendOTP = async () => {
-    if (loginMethod === 'email' && !email) {
-      toast.error('Please enter your email address')
-      return
-    }
-    if (loginMethod === 'mobile' && !mobileNumber) {
-      toast.error('Please enter your mobile number')
-      return
-    }
-
-    setLoading(true)
-    try {
-      // In production, this would send actual OTP
-      // For now, we'll just simulate it
-      await new Promise(resolve => setTimeout(resolve, 500))
-      setOtpSent(true)
-      toast.success('OTP sent! Use 123456 for testing')
-    } catch (error) {
-      toast.error('Failed to send OTP')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleOTPLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-
-    try {
-      const identifier = loginMethod === 'email' ? email : `${countryCode}${mobileNumber}`
-
-      const result = await signIn('credentials', {
-        identifier,
-        otp,
-        loginType: 'otp',
-        redirect: false,
-      })
-
-      if (result?.error) {
-        toast.error('Invalid OTP or user not found')
-      } else {
-        toast.success('Login successful!')
-        router.push('/')
-      }
-    } catch (error) {
-      toast.error('Login failed. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handlePasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-
-    try {
-      const result = await signIn('credentials', {
-        identifier: username,
-        password: password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        toast.error('Invalid credentials')
-      } else {
-        toast.success('Login successful!')
-        router.push('/')
-      }
-    } catch (error) {
-      toast.error('Login failed. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const resetForm = () => {
-    setOtpSent(false)
-    setOtp('')
-    setEmail('')
-    setMobileNumber('')
-    setUsername('')
-    setPassword('')
-    setUserExists(false)
-    setValidationError('')
-  }
-
-  const handleMethodChange = (method: LoginMethod) => {
-    setLoginMethod(method)
-    resetForm()
-  }
-
   // Check if email exists in database
   useEffect(() => {
     const checkEmail = async () => {
@@ -218,6 +127,109 @@ export default function Login() {
     }, 500)
     return () => clearTimeout(timer)
   }, [mobileNumber, countryCode, loginMethod])
+
+  // Show loading while checking authentication
+  if (status === 'loading' || status === 'authenticated') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const handleSendOTP = async () => {
+    if (loginMethod === 'email' && !email) {
+      toast.error('Please enter your email address')
+      return
+    }
+    if (loginMethod === 'mobile' && !mobileNumber) {
+      toast.error('Please enter your mobile number')
+      return
+    }
+
+    setLoading(true)
+    try {
+      // In production, this would send actual OTP
+      // For now, we'll just simulate it
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setOtpSent(true)
+      toast.success('OTP sent! Use 123456 for testing')
+    } catch (error) {
+      toast.error('Failed to send OTP')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleOTPLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      const identifier = loginMethod === 'email' ? email : `${countryCode}${mobileNumber}`
+
+      const result = await signIn('credentials', {
+        identifier,
+        otp,
+        loginType: 'otp',
+        redirect: false,
+      })
+
+      if (result?.error) {
+        toast.error('Invalid OTP or user not found')
+      } else {
+        toast.success('Login successful!')
+        router.push('/')
+      }
+    } catch (error) {
+      toast.error('Login failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      const result = await signIn('credentials', {
+        identifier: username,
+        password: password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        toast.error('Invalid credentials')
+      } else {
+        toast.success('Login successful!')
+        router.push('/')
+      }
+    } catch (error) {
+      toast.error('Login failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const resetForm = () => {
+    setOtpSent(false)
+    setOtp('')
+    setEmail('')
+    setMobileNumber('')
+    setUsername('')
+    setPassword('')
+    setUserExists(false)
+    setValidationError('')
+  }
+
+  const handleMethodChange = (method: LoginMethod) => {
+    setLoginMethod(method)
+    resetForm()
+  }
 
   return (
     <div className="login-container">

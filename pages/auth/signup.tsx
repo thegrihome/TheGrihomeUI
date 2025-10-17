@@ -43,90 +43,6 @@ export default function Signup() {
     }
   }, [status, router])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // Check for validation errors
-    if (validationErrors.username || validationErrors.email || validationErrors.mobileNumber) {
-      toast.error('Please fix all validation errors before submitting')
-      return
-    }
-
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match')
-      return
-    }
-
-    if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters long')
-      return
-    }
-
-    if (formData.username.length < 3) {
-      toast.error('Username must be at least 3 characters long')
-      return
-    }
-
-    if (formData.isAgent && !formData.companyName.trim()) {
-      toast.error('Company name is required for agents')
-      return
-    }
-
-    setLoading(true)
-
-    try {
-      // Create user
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          username: formData.username,
-          email: formData.email,
-          mobileNumber: `${countryCode}${formData.mobileNumber}`,
-          password: formData.password,
-          isAgent: formData.isAgent,
-          companyName: formData.companyName,
-          imageLink: avatarPreview || null,
-        }),
-      })
-
-      if (response.ok) {
-        toast.success('Account created successfully! Please login.')
-        router.push('/auth/login')
-      } else {
-        const error = await response.json()
-        toast.error(error.message || 'Signup failed')
-      }
-    } catch (error) {
-      toast.error('Signup failed. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    })
-  }
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setAvatar(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
   // Debounced uniqueness check for username
   useEffect(() => {
     const checkUniqueness = async () => {
@@ -264,6 +180,102 @@ export default function Signup() {
     }, 500)
     return () => clearTimeout(timer)
   }, [formData.mobileNumber, countryCode])
+
+  // Show loading while checking authentication
+  if (status === 'loading' || status === 'authenticated') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Check for validation errors
+    if (validationErrors.username || validationErrors.email || validationErrors.mobileNumber) {
+      toast.error('Please fix all validation errors before submitting')
+      return
+    }
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match')
+      return
+    }
+
+    if (formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters long')
+      return
+    }
+
+    if (formData.username.length < 3) {
+      toast.error('Username must be at least 3 characters long')
+      return
+    }
+
+    if (formData.isAgent && !formData.companyName.trim()) {
+      toast.error('Company name is required for agents')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      // Create user
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          username: formData.username,
+          email: formData.email,
+          mobileNumber: `${countryCode}${formData.mobileNumber}`,
+          password: formData.password,
+          isAgent: formData.isAgent,
+          companyName: formData.companyName,
+          imageLink: avatarPreview || null,
+        }),
+      })
+
+      if (response.ok) {
+        toast.success('Account created successfully! Please login.')
+        router.push('/auth/login')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Signup failed')
+      }
+    } catch (error) {
+      toast.error('Signup failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value,
+    })
+  }
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setAvatar(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   return (
     <div className="signup-container">

@@ -21,7 +21,6 @@ interface ForumReply {
     image: string | null
     createdAt: string
   }
-  children: ForumReply[]
   reactions: Array<{
     id: string
     type: string
@@ -52,6 +51,17 @@ interface ForumPost {
     id: string
     name: string
     slug: string
+    city: string | null
+    parent: {
+      id: string
+      name: string
+      slug: string
+      parent: {
+        id: string
+        name: string
+        slug: string
+      } | null
+    } | null
   }
   replies: ForumReply[]
   reactions: Array<{
@@ -77,12 +87,14 @@ const reactionEmojis = {
   LOVE: '❤️',
 }
 
-export default function ThreadPage({ post }: ThreadPageProps) {
+export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
   const { data: session } = useSession()
   const router = useRouter()
+  const [post, setPost] = useState(initialPost)
   const [replyContent, setReplyContent] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [displayedReplies, setDisplayedReplies] = useState(20)
   const [userVerification, setUserVerification] = useState<{
     emailVerified?: boolean
     mobileVerified?: boolean
@@ -144,7 +156,49 @@ export default function ThreadPage({ post }: ThreadPageProps) {
       })
 
       if (response.ok) {
-        router.reload()
+        const result = await response.json()
+
+        // Update local state instead of full page reload
+        if (targetType === 'post') {
+          setPost(prev => ({
+            ...prev,
+            reactions:
+              result.action === 'added'
+                ? [
+                    ...prev.reactions,
+                    {
+                      id: result.reaction.id,
+                      type,
+                      user: { id: session.user.id, username: session.user.name || '' },
+                    },
+                  ]
+                : prev.reactions.filter(r => !(r.type === type && r.user.id === session.user.id)),
+          }))
+        } else {
+          setPost(prev => ({
+            ...prev,
+            replies: prev.replies.map(reply =>
+              reply.id === targetId
+                ? {
+                    ...reply,
+                    reactions:
+                      result.action === 'added'
+                        ? [
+                            ...reply.reactions,
+                            {
+                              id: result.reaction.id,
+                              type,
+                              user: { id: session.user.id, username: session.user.name || '' },
+                            },
+                          ]
+                        : reply.reactions.filter(
+                            r => !(r.type === type && r.user.id === session.user.id)
+                          ),
+                  }
+                : reply
+            ),
+          }))
+        }
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -172,9 +226,31 @@ export default function ThreadPage({ post }: ThreadPageProps) {
       })
 
       if (response.ok) {
+        const newReply = await response.json()
+
+        // Add new reply to local state
+        setPost(prev => ({
+          ...prev,
+          replies: [
+            ...prev.replies,
+            {
+              id: newReply.id,
+              content: newReply.content,
+              createdAt: newReply.createdAt,
+              author: {
+                id: session!.user.id,
+                username: session!.user.name || '',
+                image: session!.user.image || null,
+                createdAt: newReply.author.createdAt,
+              },
+              reactions: [],
+            },
+          ],
+          replyCount: prev.replyCount + 1,
+        }))
+
         setReplyContent('')
         setReplyingTo(null)
-        router.reload()
       } else {
         const error = await response.json()
         alert(error.error || 'Failed to post reply')
@@ -201,12 +277,12 @@ export default function ThreadPage({ post }: ThreadPageProps) {
     return new Set(reactions.filter(r => r.user.id === session.user.id).map(r => r.type))
   }
 
-  const renderReply = (reply: ForumReply, level = 0) => {
+  const renderReply = (reply: ForumReply) => {
     const userReactions = getUserReactions(reply.reactions)
     const reactionCounts = getReactionCounts(reply.reactions)
 
     return (
-      <div key={reply.id} className={`forum-reply level-${Math.min(level, 3)}`}>
+      <div key={reply.id} className="forum-reply">
         <div className="forum-reply-layout">
           <div className="forum-reply-sidebar">
             <UserStats
@@ -240,8 +316,22 @@ export default function ThreadPage({ post }: ThreadPageProps) {
                   ))}
                 </div>
 
-                {canReply && level < 3 && (
-                  <button className="forum-reply-btn" onClick={() => setReplyingTo(reply.id)}>
+                {canReply && (
+                  <button
+                    className="forum-reply-btn"
+                    onClick={() => {
+                      setReplyingTo(reply.id)
+                      setReplyContent(
+                        `> ${reply.author.username} wrote:\n> ${reply.content
+                          .replace(/<[^>]+>/g, '')
+                          .replace(/&nbsp;/g, ' ')
+                          .substring(0, 200)}...\n\n`
+                      )
+                      document
+                        .querySelector('.forum-reply-form')
+                        ?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                  >
                     Reply
                   </button>
                 )}
@@ -249,12 +339,6 @@ export default function ThreadPage({ post }: ThreadPageProps) {
             </div>
           </div>
         </div>
-
-        {reply.children.length > 0 && (
-          <div className="forum-nested-replies">
-            {reply.children.map(childReply => renderReply(childReply, level + 1))}
-          </div>
-        )}
       </div>
     )
   }
@@ -278,7 +362,36 @@ export default function ThreadPage({ post }: ThreadPageProps) {
             Forum
           </Link>
           <span className="forum-breadcrumb-separator">›</span>
-          <Link href={`/forum/category/${post.category.slug}`} className="forum-breadcrumb-link">
+          {post.category.parent?.parent && (
+            <>
+              <Link
+                href={`/forum/category/${post.category.parent.parent.slug}`}
+                className="forum-breadcrumb-link"
+              >
+                {post.category.parent.parent.name}
+              </Link>
+              <span className="forum-breadcrumb-separator">›</span>
+            </>
+          )}
+          {post.category.parent && (
+            <>
+              <Link
+                href={`/forum/category/general-discussions/${post.category.city}`}
+                className="forum-breadcrumb-link"
+              >
+                {post.category.parent.name}
+              </Link>
+              <span className="forum-breadcrumb-separator">›</span>
+            </>
+          )}
+          <Link
+            href={
+              post.category.parent?.parent
+                ? `/forum/category/general-discussions/${post.category.city}/${post.category.slug.replace(`${post.category.city}-`, '')}`
+                : `/forum/category/${post.category.slug}`
+            }
+            className="forum-breadcrumb-link"
+          >
             {post.category.name}
           </Link>
           <span className="forum-breadcrumb-separator">›</span>
@@ -327,6 +440,25 @@ export default function ThreadPage({ post }: ThreadPageProps) {
                     </button>
                   ))}
                 </div>
+                {canReply && (
+                  <button
+                    className="forum-reply-btn"
+                    onClick={() => {
+                      setReplyingTo(post.id)
+                      setReplyContent(
+                        `> ${post.author.username} wrote:\n> ${post.content
+                          .replace(/<[^>]+>/g, '')
+                          .replace(/&nbsp;/g, ' ')
+                          .substring(0, 200)}...\n\n`
+                      )
+                      document
+                        .querySelector('.forum-reply-form')
+                        ?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                  >
+                    Reply
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -336,19 +468,24 @@ export default function ThreadPage({ post }: ThreadPageProps) {
               <h3 className="forum-replies-title">
                 {post.replies.length} {post.replies.length === 1 ? 'Reply' : 'Replies'}
               </h3>
-              {post.replies.map(reply => renderReply(reply))}
+              {post.replies.slice(0, displayedReplies).map(reply => renderReply(reply))}
+
+              {post.replies.length > displayedReplies && (
+                <div className="forum-load-more">
+                  <button
+                    onClick={() => setDisplayedReplies(prev => prev + 20)}
+                    className="forum-load-more-btn"
+                  >
+                    Load More Replies ({post.replies.length - displayedReplies} remaining)
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
           {canReply && (
             <div className="forum-reply-form">
               <h3>Post a Reply</h3>
-              {replyingTo && (
-                <div className="forum-replying-to">
-                  <span>Replying to a comment</span>
-                  <button onClick={() => setReplyingTo(null)}>Cancel</button>
-                </div>
-              )}
               <form onSubmit={handleSubmitReply}>
                 <textarea
                   value={replyContent}
@@ -418,10 +555,24 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
           id: true,
           name: true,
           slug: true,
+          city: true,
+          parent: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              parent: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                },
+              },
+            },
+          },
         },
       },
       replies: {
-        where: { parentId: null },
         include: {
           author: {
             select: {
@@ -430,26 +581,6 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
               image: true,
               createdAt: true,
             },
-          },
-          children: {
-            include: {
-              author: {
-                select: {
-                  id: true,
-                  username: true,
-                  image: true,
-                  createdAt: true,
-                },
-              },
-              reactions: {
-                include: {
-                  user: {
-                    select: { id: true, username: true },
-                  },
-                },
-              },
-            },
-            orderBy: { createdAt: 'asc' },
           },
           reactions: {
             include: {

@@ -36,6 +36,9 @@ export default function UserStats({
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Immediately set loading to false to prevent blocking render
+    setLoading(false)
+
     const fetchStats = async () => {
       try {
         const response = await fetch(`/api/forum/user/${userId}/stats`)
@@ -52,8 +55,6 @@ export default function UserStats({
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error fetching user stats:', error)
-      } finally {
-        setLoading(false)
       }
     }
 
@@ -98,17 +99,11 @@ export default function UserStats({
       </div>
 
       <div className="user-stats-metrics">
-        {loading ? (
-          <div className="user-stats-loading">Loading...</div>
-        ) : stats ? (
+        {stats ? (
           <>
             <div className="user-stats-row">
               <span className="user-stats-label">Posts:</span>
               <span className="user-stats-value">{stats.totalPosts}</span>
-            </div>
-            <div className="user-stats-row">
-              <span className="user-stats-label">Likes:</span>
-              <span className="user-stats-value">{getTotalLikes()}</span>
             </div>
 
             {showFullStats && (
@@ -123,14 +118,17 @@ export default function UserStats({
                   <span className="user-stats-value">{stats.replyCount}</span>
                 </div>
                 <div className="user-stats-row">
-                  <span className="user-stats-label">All Reactions:</span>
+                  <span className="user-stats-label">Reactions:</span>
                   <span className="user-stats-value">{stats.totalReactionsReceived}</span>
                 </div>
               </>
             )}
           </>
         ) : (
-          <div className="user-stats-error">Failed to load stats</div>
+          <div className="user-stats-row">
+            <span className="user-stats-label">Posts:</span>
+            <span className="user-stats-value">-</span>
+          </div>
         )}
       </div>
     </div>

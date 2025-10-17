@@ -8,6 +8,19 @@ export default function ContentRenderer({ content }: ContentRendererProps) {
   const processContent = (html: string): string => {
     let processed = html
 
+    // Parse quoted content - pattern: > username wrote:\n> content...\n\nactual reply
+    const quoteRegex = /^>\s*(.+?)\s+wrote:\s*\n>\s*(.+?)\.{3}\s*\n\n(.+)$/s
+    const quoteMatch = processed.match(quoteRegex)
+
+    if (quoteMatch) {
+      const [, username, quotedContent, replyContent] = quoteMatch
+      processed = `<div class="forum-quoted-post">
+        <div class="forum-quoted-header">Posted by ${username}</div>
+        <div class="forum-quoted-content">${quotedContent}...</div>
+      </div>
+      <div class="forum-reply-content-text">${replyContent}</div>`
+    }
+
     // YouTube embed pattern - handles both plain URLs and URLs in anchor tags
     const youtubeRegex =
       /(?:<a[^>]*>)?(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11}))(?:<\/a>)?/g
@@ -46,6 +59,12 @@ export default function ContentRenderer({ content }: ContentRendererProps) {
     const imageRegex = /https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp|bmp)/gi
     processed = processed.replace(imageRegex, match => {
       return `<img src="${match}" alt="Embedded image" style="max-width: 100%; height: auto; margin: 1rem 0; border-radius: 8px;" />`
+    })
+
+    // Convert remaining plain URLs to clickable links (not already in <a> tags or embeds)
+    const urlRegex = /(?<!["'>])(https?:\/\/[^\s<]+)(?![^<]*<\/a>)/g
+    processed = processed.replace(urlRegex, match => {
+      return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="forum-link">${match}</a>`
     })
 
     return processed

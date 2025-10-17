@@ -39,6 +39,17 @@ interface ForumCategory {
   name: string
   slug: string
   description: string | null
+  city: string | null
+  parent: {
+    id: string
+    name: string
+    slug: string
+    parent: {
+      id: string
+      name: string
+      slug: string
+    } | null
+  } | null
 }
 
 interface CategoryPageProps {
@@ -133,6 +144,28 @@ export default function CategoryPage({
               Forum
             </Link>
             <span className="forum-breadcrumb-separator">›</span>
+            {category.parent?.parent && (
+              <>
+                <Link
+                  href={`/forum/category/${category.parent.parent.slug}`}
+                  className="forum-breadcrumb-link"
+                >
+                  {category.parent.parent.name}
+                </Link>
+                <span className="forum-breadcrumb-separator">›</span>
+              </>
+            )}
+            {category.parent && (
+              <>
+                <Link
+                  href={`/forum/category/general-discussions/${category.city}`}
+                  className="forum-breadcrumb-link"
+                >
+                  {category.parent.name}
+                </Link>
+                <span className="forum-breadcrumb-separator">›</span>
+              </>
+            )}
             <span className="forum-breadcrumb-current">{category.name}</span>
           </div>
           <div className="forum-breadcrumb-search">
@@ -184,69 +217,74 @@ export default function CategoryPage({
             </div>
           ) : (
             <>
-              {posts.map(post => (
-                <div key={post.id} className={`forum-post-item ${post.isSticky ? 'sticky' : ''}`}>
-                  <div className="forum-post-info">
-                    <div className="forum-post-flags">
-                      {post.isSticky && <span className="forum-flag sticky">📌 Sticky</span>}
-                      {post.isLocked && <span className="forum-flag locked">🔒 Locked</span>}
-                    </div>
+              {posts.map(post => {
+                const totalPages = Math.ceil(post.replyCount / 20)
+                const pageNumbers = []
 
-                    <h3 className="forum-post-title">
-                      <Link href={`/forum/thread/${post.slug}`}>{post.title}</Link>
-                    </h3>
+                if (totalPages > 1) {
+                  if (totalPages <= 5) {
+                    for (let i = 1; i <= totalPages; i++) {
+                      pageNumbers.push(i)
+                    }
+                  } else {
+                    pageNumbers.push(1, 2, 3, '...', totalPages)
+                  }
+                }
 
-                    <div className="forum-post-meta">
-                      <div className="forum-post-author">
-                        <div className="forum-avatar">
-                          {post.author.image ? (
-                            <Image
-                              src={post.author.image}
-                              alt={post.author.username}
-                              width={40}
-                              height={40}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="forum-avatar-placeholder">
-                              {post.author.username.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                        </div>
-                        <div className="forum-author-info">
-                          <Link href={`/forum/user/${post.author.id}`} className="forum-username">
-                            {post.author.username}
-                          </Link>
-                          <span className="forum-post-date">{formatDate(post.createdAt)}</span>
-                        </div>
+                return (
+                  <div key={post.id} className={`forum-post-item ${post.isSticky ? 'sticky' : ''}`}>
+                    <div className="forum-post-row-1">
+                      <h3 className="forum-post-title">
+                        {post.isSticky && <span className="forum-flag sticky">📌</span>}
+                        {post.isLocked && <span className="forum-flag locked">🔒</span>}
+                        <Link href={`/forum/thread/${post.slug}`}>{post.title}</Link>
+                        {pageNumbers.length > 0 && (
+                          <span className="forum-thread-pages">
+                            {pageNumbers.map((page, idx) =>
+                              page === '...' ? (
+                                <span key={idx} className="forum-thread-page-ellipsis">
+                                  ...
+                                </span>
+                              ) : (
+                                <Link
+                                  key={idx}
+                                  href={`/forum/thread/${post.slug}#reply-${(page - 1) * 20}`}
+                                  className="forum-thread-page-link"
+                                >
+                                  {page}
+                                </Link>
+                              )
+                            )}
+                          </span>
+                        )}
+                      </h3>
+                      <div className="forum-post-stats">
+                        <span className="forum-stat">
+                          <span className="forum-stat-number">{post.replyCount}</span> replies
+                        </span>
+                        <span className="forum-stat">
+                          <span className="forum-stat-number">{post._count.reactions}</span>{' '}
+                          reactions
+                        </span>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="forum-post-stats">
-                    <div className="forum-stat-item">
-                      <span className="forum-stat-number">{post.replyCount}</span>
-                      <span className="forum-stat-label">replies</span>
-                    </div>
-                    <div className="forum-stat-item">
-                      <span className="forum-stat-number">{post.viewCount}</span>
-                      <span className="forum-stat-label">views</span>
-                    </div>
-                    <div className="forum-stat-item">
-                      <span className="forum-stat-number">{post._count.reactions}</span>
-                      <span className="forum-stat-label">reactions</span>
-                    </div>
-                  </div>
-
-                  {post.lastReplyAt && (
-                    <div className="forum-last-reply">
-                      <span className="forum-last-reply-date">
-                        Last reply: {formatDate(post.lastReplyAt)}
+                    <div className="forum-post-row-2">
+                      <span className="forum-post-meta">
+                        Posted by{' '}
+                        <Link href={`/forum/user/${post.author.id}`} className="forum-username">
+                          {post.author.username}
+                        </Link>{' '}
+                        on {formatDate(post.createdAt)}
                       </span>
+                      {post.lastReplyAt && (
+                        <span className="forum-last-reply">
+                          Last reply: {formatDate(post.lastReplyAt)}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                )
+              })}
 
               {totalPages > 1 && (
                 <div className="forum-pagination">
@@ -295,6 +333,21 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       name: true,
       slug: true,
       description: true,
+      city: true,
+      parent: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          parent: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
     },
   })
 

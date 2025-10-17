@@ -46,6 +46,7 @@
     "react-hot-toast": "^2.6.0",
     "react-quill": "^2.0.0",
     "react-quill-new": "^3.6.0",
+    "react-social-media-embed": "^2.5.18",
     "resend": "^6.0.1",
     "validator": "^13.15.15"
   },

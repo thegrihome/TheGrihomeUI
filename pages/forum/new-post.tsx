@@ -2,7 +2,7 @@ import { GetServerSideProps } from 'next'
 import { NextSeo } from 'next-seo'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import Header from '@/components/Header'
@@ -20,12 +20,17 @@ interface ForumCategory {
 interface NewPostPageProps {
   categories: ForumCategory[]
   selectedCategoryId?: string
+  selectedCategory?: { id: string; name: string } | null
 }
 
 // Dynamic import to avoid SSR issues with ReactQuill
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 
-export default function NewPostPage({ categories, selectedCategoryId }: NewPostPageProps) {
+export default function NewPostPage({
+  categories,
+  selectedCategoryId,
+  selectedCategory,
+}: NewPostPageProps) {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [title, setTitle] = useState('')
@@ -33,33 +38,45 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
   const [categoryId, setCategoryId] = useState(selectedCategoryId || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [userVerification, setUserVerification] = useState<{
+    emailVerified?: boolean
+    mobileVerified?: boolean
+  } | null>(null)
+
+  // Fetch user verification status
+  useEffect(() => {
+    const fetchUserVerification = async () => {
+      if (session?.user?.id) {
+        try {
+          const response = await fetch(`/api/user/verification-status`)
+          if (response.ok) {
+            const data = await response.json()
+            setUserVerification(data)
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error fetching user verification:', error)
+        }
+      }
+    }
+
+    fetchUserVerification()
+  }, [session?.user?.id])
 
   // Configure rich text editor modules
   const modules = useMemo(
     () => ({
       toolbar: [
-        [{ header: [1, 2, 3, false] }],
         ['bold', 'italic', 'underline', 'strike'],
         [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link', 'image', 'video'],
+        ['link'],
         ['clean'],
       ],
     }),
     []
   )
 
-  const formats = [
-    'header',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'list',
-    'bullet',
-    'link',
-    'image',
-    'video',
-  ]
+  const formats = ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'link']
 
   useEffect(() => {
     if (status === 'loading') return
@@ -141,6 +158,7 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
     return null
   }
 
+  const isUserVerified = userVerification?.emailVerified || userVerification?.mobileVerified
   const selectableCategories = getSelectableCategories(categories)
 
   return (
@@ -159,6 +177,43 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
             Forum
           </Link>
           <span className="forum-breadcrumb-separator">›</span>
+          {selectedCategory?.parent?.parent && (
+            <>
+              <Link
+                href={`/forum/category/${selectedCategory.parent.parent.slug}`}
+                className="forum-breadcrumb-link"
+              >
+                {selectedCategory.parent.parent.name}
+              </Link>
+              <span className="forum-breadcrumb-separator">›</span>
+            </>
+          )}
+          {selectedCategory?.parent && (
+            <>
+              <Link
+                href={`/forum/category/general-discussions/${selectedCategory.city}`}
+                className="forum-breadcrumb-link"
+              >
+                {selectedCategory.parent.name}
+              </Link>
+              <span className="forum-breadcrumb-separator">›</span>
+            </>
+          )}
+          {selectedCategory && (
+            <>
+              <Link
+                href={
+                  selectedCategory.parent?.parent
+                    ? `/forum/category/general-discussions/${selectedCategory.city}/${selectedCategory.slug.replace(`${selectedCategory.city}-`, '')}`
+                    : `/forum/category/${selectedCategory.slug}`
+                }
+                className="forum-breadcrumb-link"
+              >
+                {selectedCategory.name}
+              </Link>
+              <span className="forum-breadcrumb-separator">›</span>
+            </>
+          )}
           <span className="forum-breadcrumb-current">New Thread</span>
         </div>
 
@@ -170,86 +225,110 @@ export default function NewPostPage({ categories, selectedCategoryId }: NewPostP
 
           {error && <div className="forum-error-message">{error}</div>}
 
-          <form onSubmit={handleSubmit} className="forum-new-post-form">
-            <div className="forum-form-group">
-              <label htmlFor="category" className="forum-label">
-                Category *
-              </label>
-              <select
-                id="category"
-                value={categoryId}
-                onChange={e => setCategoryId(e.target.value)}
-                className="forum-select"
-                required
-              >
-                <option value="">Select a category</option>
-                {selectableCategories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+          {!isUserVerified ? (
+            <div className="forum-verification-prompt">
+              <h3>Verification Required</h3>
+              <p>
+                You need to verify your email or mobile number to create threads. Please verify your
+                account to participate in discussions.
+              </p>
+              <Link href="/userinfo" className="forum-verify-btn">
+                Verify Account
+              </Link>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="forum-new-post-form">
+              <div className="forum-form-group">
+                <label htmlFor="category" className="forum-label">
+                  Category
+                </label>
+                {selectedCategory ? (
+                  <input
+                    type="text"
+                    value={selectedCategory.name}
+                    className="forum-input"
+                    disabled
+                    style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
+                  />
+                ) : (
+                  <select
+                    id="category"
+                    value={categoryId}
+                    onChange={e => setCategoryId(e.target.value)}
+                    className="forum-select"
+                    required
+                  >
+                    <option value="">Select a category</option>
+                    {selectableCategories.map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
 
-            <div className="forum-form-group">
-              <label htmlFor="title" className="forum-label">
-                Thread Title *
-              </label>
-              <input
-                type="text"
-                id="title"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                placeholder="Enter a descriptive title for your thread"
-                className="forum-input"
-                maxLength={200}
-                required
-              />
-              <div className="forum-form-help">{title.length}/200 characters</div>
-            </div>
+              <div className="forum-form-group">
+                <label htmlFor="title" className="forum-label">
+                  Thread Title *
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  placeholder="Enter a descriptive title for your thread"
+                  className="forum-input"
+                  maxLength={200}
+                  required
+                />
+                <div className="forum-form-help">{title.length}/200 characters</div>
+              </div>
 
-            <div className="forum-form-group">
-              <label htmlFor="content" className="forum-label">
-                Content *
-              </label>
-              <ReactQuill
-                theme="snow"
-                value={content}
-                onChange={setContent}
-                modules={modules}
-                formats={formats}
-                placeholder="Write your post content here... You can add links, images, and videos!"
-                className="bg-white"
-                style={{ height: '400px' }}
-              />
-            </div>
+              <div className="forum-form-group" style={{ marginBottom: '2rem' }}>
+                <label htmlFor="content" className="forum-label">
+                  Content *
+                </label>
+                <div style={{ marginBottom: '5rem' }}>
+                  <ReactQuill
+                    theme="snow"
+                    value={content}
+                    onChange={setContent}
+                    modules={modules}
+                    formats={formats}
+                    placeholder="Write your post content here... Paste YouTube/Instagram/X links or images - they'll auto-embed on publish!"
+                    className="bg-white"
+                    style={{ height: '400px' }}
+                  />
+                </div>
+              </div>
 
-            <div className="forum-posting-guidelines" style={{ marginBottom: '2rem' }}>
-              <ul>
-                <li>
-                  <strong>Be respectful and courteous to other community members</strong>
-                </li>
-              </ul>
-            </div>
-
-            <div className="forum-form-actions">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="forum-cancel-btn"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="forum-submit-btn"
-                disabled={!title.trim() || !content.trim() || !categoryId || isSubmitting}
-              >
-                {isSubmitting ? 'Creating...' : 'Create Thread'}
-              </button>
-            </div>
-          </form>
+              <div className="forum-form-actions">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="forum-cancel-btn"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="forum-submit-btn"
+                  disabled={!title.trim() || !content.trim() || !categoryId || isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="forum-button-spinner"></span>
+                      Creating...
+                    </>
+                  ) : (
+                    'Create Thread'
+                  )}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </main>
 
@@ -281,10 +360,38 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     orderBy: { displayOrder: 'asc' },
   })
 
+  let selectedCategory = null
+  if (selectedCategoryId) {
+    selectedCategory = await prisma.forumCategory.findUnique({
+      where: { id: selectedCategoryId },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        city: true,
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            parent: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    })
+  }
+
   return {
     props: {
       categories: JSON.parse(JSON.stringify(categories)),
       selectedCategoryId,
+      selectedCategory: selectedCategory ? JSON.parse(JSON.stringify(selectedCategory)) : null,
     },
   }
 }

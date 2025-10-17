@@ -15,6 +15,7 @@ interface City {
   _count: {
     posts: number
   }
+  totalPosts: number
   children: Array<{
     id: string
     name: string
@@ -159,7 +160,7 @@ export default function GeneralDiscussionsPage({
 
                   <div className="forum-city-list-stats">
                     <div className="forum-city-stat">
-                      <span className="forum-stat-number">{city._count.posts}</span>
+                      <span className="forum-stat-number">{city.totalPosts}</span>
                       <span className="forum-stat-label">threads</span>
                     </div>
                     <div className="forum-city-stat">
@@ -219,12 +220,18 @@ export const getStaticProps: GetStaticProps = async () => {
     orderBy: { displayOrder: 'asc' },
   })
 
+  // Calculate total posts for each city by summing posts from all property type children
+  const citiesWithTotals = cities.map(city => ({
+    ...city,
+    totalPosts: city.children.reduce((sum, child) => sum + child._count.posts, 0),
+  }))
+
   // Calculate total posts across all cities
-  const totalPosts = cities.reduce((sum, city) => sum + city._count.posts, 0)
+  const totalPosts = citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0)
 
   return {
     props: {
-      cities: JSON.parse(JSON.stringify(cities)),
+      cities: JSON.parse(JSON.stringify(citiesWithTotals)),
       totalPosts,
     },
     revalidate: 300, // Revalidate every 5 minutes
