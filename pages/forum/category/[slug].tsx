@@ -248,7 +248,7 @@ export default function CategoryPage({
                               ) : (
                                 <Link
                                   key={idx}
-                                  href={`/forum/thread/${post.slug}#reply-${(page - 1) * 20}`}
+                                  href={`/forum/thread/${post.slug}#reply-${((page as number) - 1) * 20}`}
                                   className="forum-thread-page-link"
                                 >
                                   {page}

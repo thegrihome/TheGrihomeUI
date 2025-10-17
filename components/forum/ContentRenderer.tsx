@@ -9,7 +9,7 @@ export default function ContentRenderer({ content }: ContentRendererProps) {
     let processed = html
 
     // Parse quoted content - pattern: > username wrote:\n> content...\n\nactual reply
-    const quoteRegex = /^>\s*(.+?)\s+wrote:\s*\n>\s*(.+?)\.{3}\s*\n\n(.+)$/s
+    const quoteRegex = /^>\s*(.+?)\s+wrote:\s*\n>\s*(.+?)\.{3}\s*\n\n([\s\S]+)$/
     const quoteMatch = processed.match(quoteRegex)
 
     if (quoteMatch) {

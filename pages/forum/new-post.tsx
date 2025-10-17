@@ -20,7 +20,22 @@ interface ForumCategory {
 interface NewPostPageProps {
   categories: ForumCategory[]
   selectedCategoryId?: string
-  selectedCategory?: { id: string; name: string } | null
+  selectedCategory?: {
+    id: string
+    name: string
+    slug: string
+    city: string | null
+    parent: {
+      id: string
+      name: string
+      slug: string
+      parent: {
+        id: string
+        name: string
+        slug: string
+      } | null
+    } | null
+  } | null
 }
 
 // Dynamic import to avoid SSR issues with ReactQuill
