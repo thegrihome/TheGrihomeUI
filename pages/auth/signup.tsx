@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { useSession } from 'next-auth/react'
+import { useSession, signIn } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -110,7 +110,7 @@ export default function Signup() {
         } else if (!data.isUnique) {
           setValidationErrors(prev => ({
             ...prev,
-            email: 'Email is already registered and verified',
+            email: 'Email is already registered',
           }))
         } else {
           setValidationErrors(prev => ({ ...prev, email: '' }))
@@ -161,7 +161,7 @@ export default function Signup() {
         } else if (!data.isUnique) {
           setValidationErrors(prev => ({
             ...prev,
-            mobileNumber: 'Mobile number is already registered and verified',
+            mobileNumber: 'Mobile number is already registered',
           }))
         } else {
           setValidationErrors(prev => ({ ...prev, mobileNumber: '' }))
@@ -244,8 +244,24 @@ export default function Signup() {
       })
 
       if (response.ok) {
-        toast.success('Account created successfully! Please login.')
-        router.push('/auth/login')
+        toast.success('Account created successfully!')
+
+        // Auto-login the user with their credentials
+        const result = await signIn('credentials', {
+          identifier: formData.username,
+          password: formData.password,
+          loginType: 'password',
+          redirect: false,
+        })
+
+        if (result?.ok) {
+          // Redirect to home screen
+          router.push('/')
+        } else {
+          // Fallback to login page if auto-login fails
+          toast.error('Please login with your credentials')
+          router.push('/auth/login')
+        }
       } else {
         const error = await response.json()
         toast.error(error.message || 'Signup failed')
