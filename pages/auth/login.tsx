@@ -199,11 +199,12 @@ export default function Login() {
       const result = await signIn('credentials', {
         identifier: username,
         password: password,
+        loginType: 'password',
         redirect: false,
       })
 
       if (result?.error) {
-        toast.error('Invalid credentials')
+        toast.error('Invalid username or password')
       } else {
         toast.success('Login successful!')
         router.push('/')
@@ -424,13 +425,13 @@ export default function Login() {
             {loginMethod === 'password' && (
               <form onSubmit={handlePasswordLogin} className="login-form">
                 <div className="login-form__field">
-                  <label className="login-form__label">Username</label>
+                  <label className="login-form__label">Username or Email</label>
                   <input
                     type="text"
                     value={username}
                     onChange={e => setUsername(e.target.value)}
                     className="login-form__input"
-                    placeholder="Your username"
+                    placeholder="Enter username or email"
                     required
                   />
                 </div>

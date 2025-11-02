@@ -21,14 +21,6 @@ interface ForumReply {
     image: string | null
     createdAt: string
   }
-  reactions: Array<{
-    id: string
-    type: string
-    user: {
-      id: string
-      username: string
-    }
-  }>
 }
 
 interface ForumPost {
@@ -64,27 +56,10 @@ interface ForumPost {
     } | null
   }
   replies: ForumReply[]
-  reactions: Array<{
-    id: string
-    type: string
-    user: {
-      id: string
-      username: string
-    }
-  }>
 }
 
 interface ThreadPageProps {
   post: ForumPost
-}
-
-const reactionEmojis = {
-  THANKS: '🙏',
-  LAUGH: '😂',
-  CONFUSED: '😕',
-  SAD: '😢',
-  ANGRY: '😠',
-  LOVE: '❤️',
 }
 
 export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
@@ -132,80 +107,6 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
   const isUserVerified = userVerification?.emailVerified || userVerification?.mobileVerified
   const canReply = session?.user && !post.isLocked && isUserVerified
 
-  const handleReaction = async (type: string, targetType: 'post' | 'reply', targetId: string) => {
-    if (!session?.user) {
-      router.push('/login')
-      return
-    }
-
-    try {
-      const endpoint =
-        targetType === 'post' ? '/api/forum/reactions/posts' : '/api/forum/reactions/replies'
-
-      const bodyField = targetType === 'post' ? 'postId' : 'replyId'
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          [bodyField]: targetId,
-          type,
-        }),
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-
-        // Update local state instead of full page reload
-        if (targetType === 'post') {
-          setPost(prev => ({
-            ...prev,
-            reactions:
-              result.action === 'added'
-                ? [
-                    ...prev.reactions,
-                    {
-                      id: result.reaction.id,
-                      type,
-                      user: { id: session.user.id, username: session.user.name || '' },
-                    },
-                  ]
-                : prev.reactions.filter(r => !(r.type === type && r.user.id === session.user.id)),
-          }))
-        } else {
-          setPost(prev => ({
-            ...prev,
-            replies: prev.replies.map(reply =>
-              reply.id === targetId
-                ? {
-                    ...reply,
-                    reactions:
-                      result.action === 'added'
-                        ? [
-                            ...reply.reactions,
-                            {
-                              id: result.reaction.id,
-                              type,
-                              user: { id: session.user.id, username: session.user.name || '' },
-                            },
-                          ]
-                        : reply.reactions.filter(
-                            r => !(r.type === type && r.user.id === session.user.id)
-                          ),
-                  }
-                : reply
-            ),
-          }))
-        }
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error handling reaction:', error)
-    }
-  }
-
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!replyContent.trim() || isSubmitting) return
@@ -243,7 +144,6 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
                 image: session!.user.image || null,
                 createdAt: newReply.author.createdAt,
               },
-              reactions: [],
             },
           ],
           replyCount: prev.replyCount + 1,
@@ -264,23 +164,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
     }
   }
 
-  const getReactionCounts = (reactions: any[]) => {
-    const counts: { [key: string]: number } = {}
-    reactions.forEach(reaction => {
-      counts[reaction.type] = (counts[reaction.type] || 0) + 1
-    })
-    return counts
-  }
-
-  const getUserReactions = (reactions: any[]) => {
-    if (!session?.user) return new Set()
-    return new Set(reactions.filter(r => r.user.id === session.user.id).map(r => r.type))
-  }
-
   const renderReply = (reply: ForumReply) => {
-    const userReactions = getUserReactions(reply.reactions)
-    const reactionCounts = getReactionCounts(reply.reactions)
-
     return (
       <div key={reply.id} className="forum-reply">
         <div className="forum-reply-layout">
@@ -303,19 +187,6 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
               </div>
 
               <div className="forum-reply-actions">
-                <div className="forum-reactions">
-                  {Object.entries(reactionEmojis).map(([type, emoji]) => (
-                    <button
-                      key={type}
-                      className={`forum-reaction-btn ${userReactions.has(type) ? 'active' : ''}`}
-                      onClick={() => handleReaction(type, 'reply', reply.id)}
-                      disabled={!session?.user}
-                    >
-                      {emoji} {reactionCounts[type] || 0}
-                    </button>
-                  ))}
-                </div>
-
                 {canReply && (
                   <button
                     className="forum-reply-btn"
@@ -342,9 +213,6 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
       </div>
     )
   }
-
-  const postUserReactions = getUserReactions(post.reactions)
-  const postReactionCounts = getReactionCounts(post.reactions)
 
   return (
     <div className="forum-container">
@@ -428,18 +296,6 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
               </div>
 
               <div className="forum-post-actions">
-                <div className="forum-reactions">
-                  {Object.entries(reactionEmojis).map(([type, emoji]) => (
-                    <button
-                      key={type}
-                      className={`forum-reaction-btn ${postUserReactions.has(type) ? 'active' : ''}`}
-                      onClick={() => handleReaction(type, 'post', post.id)}
-                      disabled={!session?.user}
-                    >
-                      {emoji} {postReactionCounts[type] || 0}
-                    </button>
-                  ))}
-                </div>
                 {canReply && (
                   <button
                     className="forum-reply-btn"
@@ -485,7 +341,6 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
 
           {canReply && (
             <div className="forum-reply-form">
-              <h3>Post a Reply</h3>
               <form onSubmit={handleSubmitReply}>
                 <textarea
                   value={replyContent}
@@ -500,7 +355,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
                     className="forum-submit-btn"
                     disabled={!replyContent.trim() || isSubmitting}
                   >
-                    {isSubmitting ? 'Posting...' : 'Post Reply'}
+                    {isSubmitting ? 'Posting...' : 'Submit'}
                   </button>
                 </div>
               </form>
@@ -521,7 +376,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
               <h3>Verification Required</h3>
               <p>
                 You need to verify your email or mobile number to participate in discussions. Please
-                verify your account to post replies and reactions.
+                verify your account to post replies.
               </p>
               <Link href="/userinfo" className="forum-verify-btn">
                 Verify Account
@@ -582,22 +437,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
               createdAt: true,
             },
           },
-          reactions: {
-            include: {
-              user: {
-                select: { id: true, username: true },
-              },
-            },
-          },
         },
         orderBy: { createdAt: 'asc' },
-      },
-      reactions: {
-        include: {
-          user: {
-            select: { id: true, username: true },
-          },
-        },
       },
     },
   })

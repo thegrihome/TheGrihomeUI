@@ -70,6 +70,12 @@ export default function AddProperty() {
     }
   }, [status, router])
 
+  const [isVerified, setIsVerified] = useState(true)
+  const [verificationStatus, setVerificationStatus] = useState({
+    emailVerified: false,
+    mobileVerified: false,
+  })
+
   useEffect(() => {
     const checkVerification = async () => {
       if (status === 'authenticated' && session?.user?.email) {
@@ -77,10 +83,10 @@ export default function AddProperty() {
           const response = await fetch('/api/user/info')
           if (response.ok) {
             const data = await response.json()
-            if (!data.user.emailVerified || !data.user.mobileVerified) {
-              toast.error('Please verify your email and mobile number before posting a property')
-              router.push('/auth/userinfo')
-            }
+            const emailVerified = !!data.user.emailVerified
+            const mobileVerified = !!data.user.mobileVerified
+            setVerificationStatus({ emailVerified, mobileVerified })
+            setIsVerified(emailVerified || mobileVerified)
           }
         } catch (error) {
           // Handle error silently
@@ -88,7 +94,7 @@ export default function AddProperty() {
       }
     }
     checkVerification()
-  }, [status, session, router])
+  }, [status, session])
 
   useEffect(() => {
     // Load all projects on mount
@@ -375,6 +381,38 @@ export default function AddProperty() {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Add New Property</h1>
+
+          {/* Verification Warning Banner */}
+          {!isVerified && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3 flex-1">
+                  <h3 className="text-sm font-medium text-red-800">Verification Required</h3>
+                  <p className="mt-2 text-sm text-red-700">
+                    You need to verify at least your email or mobile number to post a property.
+                    Please verify your account to continue.
+                  </p>
+                  <div className="mt-4">
+                    <button
+                      onClick={() => router.push('/auth/userinfo')}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    >
+                      Verify Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Loading Overlay */}
           {loading && (
@@ -739,12 +777,12 @@ export default function AddProperty() {
               </button>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !isVerified}
                 onClick={() => {
                   // eslint-disable-next-line no-console
                   console.log('Submit button clicked!')
                 }}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Adding Property...' : 'Add Property'}
               </button>

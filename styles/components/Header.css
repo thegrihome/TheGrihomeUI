@@ -181,7 +181,7 @@
 .desktop-nav-links {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
   flex: 1;
   justify-content: center;
   margin-left: 2rem;

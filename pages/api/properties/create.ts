@@ -31,6 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       location,
       imageUrls,
       thumbnailUrl,
+      projectId,
     } = req.body
 
     // Validate required fields
@@ -113,6 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         sqFt,
         thumbnailUrl: thumbnailUrl || null,
         imageUrls: imageUrls || [],
+        projectId: projectId && projectId.trim() !== '' ? projectId : null,
       },
     })
 

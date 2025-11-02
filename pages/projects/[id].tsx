@@ -636,10 +636,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               </div>
             )}
 
-          {/* Featured Properties */}
+          {/* Properties */}
           <div className="sidebar-section">
             <h3 className="sidebar-section-title">
-              Featured Properties ({featuredProperties.length + regularProperties.length})
+              Properties ({featuredProperties.length + regularProperties.length})
             </h3>
             <div className="featured-items-container">
               {featuredProperties.map(property => (
@@ -671,7 +671,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                     </div>
                     {isAuthenticated &&
                       session?.user?.email &&
-                      property.propertyDetails?.agentEmail === session.user.email && (
+                      (property as any).agent?.email === session.user.email && (
                         <button
                           onClick={e => {
                             e.preventDefault()
@@ -713,7 +713,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                     </div>
                     {isAuthenticated &&
                       session?.user?.email &&
-                      property.propertyDetails?.agentEmail === session.user.email && (
+                      (property as any).agent?.email === session.user.email && (
                         <button
                           onClick={e => {
                             e.preventDefault()
@@ -735,16 +735,15 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             </div>
           </div>
 
-          {/* Featured Agents */}
+          {/* Agents */}
           <div className="sidebar-section">
             <h3 className="sidebar-section-title">
-              Featured Agents ({featuredAgents.length + regularAgents.length})
+              Agents ({featuredAgents.length + regularAgents.length})
             </h3>
             <div className="featured-items-container">
               {featuredAgents.map(agentData => (
                 <Link key={agentData.id} href={`/agents/${agentData.agent.id}`}>
-                  <div className={`featured-agent-card ${agentData.isFeatured ? 'featured' : ''}`}>
-                    {agentData.isFeatured && <span className="featured-badge">FEATURED ✨</span>}
+                  <div className="featured-agent-card">
                     <div className="agent-header">
                       {agentData.agent.image ? (
                         <Image
@@ -766,6 +765,11 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                       <div className="agent-info">
                         <div className="agent-name">
                           {agentData.agent.name || agentData.agent.username}
+                          {agentData.isFeatured && (
+                            <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                              FEATURED ✨
+                            </span>
+                          )}
                         </div>
                         <div className="agent-role">
                           {agentData.agent.companyName || 'Real Estate Agent'}

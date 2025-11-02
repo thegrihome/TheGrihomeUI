@@ -158,7 +158,9 @@ export default function Forum({ categories }: ForumProps) {
                     </div>
                   </div>
                   <div className="forum-category-stats">
-                    <span className="forum-post-count">{category._count.posts} posts</span>
+                    <span className="forum-post-count">
+                      {category._count.posts} {category._count.posts === 1 ? 'thread' : 'threads'}
+                    </span>
                     <div className="forum-expand-icon">→</div>
                   </div>
                 </div>
@@ -183,13 +185,52 @@ export const getStaticProps: GetStaticProps = async () => {
       _count: {
         select: { posts: true },
       },
+      children: {
+        include: {
+          _count: {
+            select: { posts: true },
+          },
+          children: {
+            include: {
+              _count: {
+                select: { posts: true },
+              },
+            },
+          },
+        },
+      },
     },
     orderBy: { displayOrder: 'asc' },
   })
 
+  // Calculate cumulative post counts for parent categories
+  const categoriesWithCumulativeCounts = categories.map(category => {
+    let totalPosts = category._count.posts
+
+    // Add posts from direct children
+    if (category.children) {
+      category.children.forEach(child => {
+        totalPosts += child._count.posts
+        // Add posts from grandchildren
+        if (child.children) {
+          child.children.forEach(grandchild => {
+            totalPosts += grandchild._count.posts
+          })
+        }
+      })
+    }
+
+    return {
+      ...category,
+      _count: {
+        posts: totalPosts,
+      },
+    }
+  })
+
   return {
     props: {
-      categories: JSON.parse(JSON.stringify(categories)),
+      categories: JSON.parse(JSON.stringify(categoriesWithCumulativeCounts)),
     },
     revalidate: 300, // Revalidate every 5 minutes
   }
