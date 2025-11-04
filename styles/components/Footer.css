@@ -7,6 +7,14 @@
   border-top: 1px solid #9333ea;
 }
 
+@media (min-width: 1024px) {
+  .footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+}
+
 .footer-container {
   max-width: 80rem;
   display: flex;

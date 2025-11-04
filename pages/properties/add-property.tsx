@@ -457,7 +457,7 @@ export default function AddProperty() {
                 <option value="">Select Type</option>
                 {PROPERTY_TYPE_OPTIONS.map(type => (
                   <option key={type.value} value={type.value}>
-                    {type.icon} {type.label}
+                    {type.label}
                   </option>
                 ))}
               </select>
