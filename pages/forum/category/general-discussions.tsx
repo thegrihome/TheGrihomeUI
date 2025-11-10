@@ -140,70 +140,68 @@ export default function GeneralDiscussionsPage({
 
         <div className="forum-content">
           <div className="forum-cities-list">
-            {cities.map(city => (
+            {cities
+              .filter(city => city.city !== 'other-cities' && city.name !== 'Other Cities')
+              .map(city => (
+                <Link
+                  key={city.id}
+                  href={`/forum/category/general-discussions/${city.city}`}
+                  className="forum-city-list-item"
+                >
+                  <div className="forum-city-list-content">
+                    <div className="forum-city-list-info">
+                      <div className="forum-city-icon">{cityIcons[city.city || ''] || '🏛️'}</div>
+                      <div className="forum-city-details">
+                        <h3 className="forum-city-name">{city.name}</h3>
+                        <p className="forum-city-description">
+                          {city.description || `${city.name} Real Estate Discussions`}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="forum-city-list-stats">
+                      <div className="forum-city-stat">
+                        <span className="forum-stat-number">{city.totalPosts}</span>
+                        <span className="forum-stat-label">threads</span>
+                      </div>
+                      <div className="forum-city-stat">
+                        <span className="forum-stat-number">{city.children.length}</span>
+                        <span className="forum-stat-label">categories</span>
+                      </div>
+                      <div className="forum-city-arrow">→</div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+
+            {/* States and Union Territories Entry */}
+            {statesCount > 0 && (
               <Link
-                key={city.id}
-                href={`/forum/category/general-discussions/${city.city}`}
+                href="/forum/category/general-discussions/states"
                 className="forum-city-list-item"
               >
                 <div className="forum-city-list-content">
                   <div className="forum-city-list-info">
-                    <div className="forum-city-icon">{cityIcons[city.city || ''] || '🏛️'}</div>
+                    <div className="forum-city-icon">🇮🇳</div>
                     <div className="forum-city-details">
-                      <h3 className="forum-city-name">{city.name}</h3>
+                      <h3 className="forum-city-name">States & Union Territories</h3>
                       <p className="forum-city-description">
-                        {city.description ||
-                          (city.name === 'Other Cities'
-                            ? 'Real Estate Discussions in cities, towns and villages across India ❤️'
-                            : `${city.name} Real Estate Discussions`)}
+                        Real estate discussions across all Indian states and union territories
                       </p>
                     </div>
                   </div>
 
                   <div className="forum-city-list-stats">
                     <div className="forum-city-stat">
-                      <span className="forum-stat-number">{city.totalPosts}</span>
-                      <span className="forum-stat-label">threads</span>
-                    </div>
-                    <div className="forum-city-stat">
-                      <span className="forum-stat-number">{city.children.length}</span>
-                      <span className="forum-stat-label">categories</span>
+                      <span className="forum-stat-number">{statesCount}</span>
+                      <span className="forum-stat-label">states/UTs</span>
                     </div>
                     <div className="forum-city-arrow">→</div>
                   </div>
                 </div>
               </Link>
-            ))}
+            )}
           </div>
-
-          {/* States and Union Territories Entry */}
-          {statesCount > 0 && (
-            <Link
-              href="/forum/category/general-discussions/states"
-              className="forum-city-list-item"
-              style={{ marginTop: '1rem' }}
-            >
-              <div className="forum-city-list-content">
-                <div className="forum-city-list-info">
-                  <div className="forum-city-icon">🇮🇳</div>
-                  <div className="forum-city-details">
-                    <h3 className="forum-city-name">States & Union Territories</h3>
-                    <p className="forum-city-description">
-                      Real estate discussions across all Indian states and union territories
-                    </p>
-                  </div>
-                </div>
-
-                <div className="forum-city-list-stats">
-                  <div className="forum-city-stat">
-                    <span className="forum-stat-number">{statesCount}</span>
-                    <span className="forum-stat-label">states/UTs</span>
-                  </div>
-                  <div className="forum-city-arrow">→</div>
-                </div>
-              </div>
-            </Link>
-          )}
         </div>
       </main>
 
