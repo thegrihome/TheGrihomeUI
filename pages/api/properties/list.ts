@@ -1,9 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '@/lib/cockroachDB/prisma'
-import { PropertyType, ListingStatus } from '@prisma/client'
+import { PropertyType, ListingType, ListingStatus } from '@prisma/client'
 
 interface QueryParams {
   propertyType?: string
+  listingType?: string
   bedrooms?: string
   bathrooms?: string
   location?: string
@@ -21,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const {
       propertyType,
+      listingType,
       bedrooms,
       bathrooms,
       location,
@@ -49,6 +51,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       where.propertyType = dbPropertyType as PropertyType
+    }
+
+    // Listing type filter (SALE or RENT)
+    if (listingType) {
+      where.listingType = listingType as ListingType
     }
 
     // Location filters
@@ -216,6 +223,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         builder: property.builder?.name || 'Independent',
         project: propertyDetails?.title || property.project?.name || property.streetAddress,
         propertyType: property.propertyType,
+        listingType: property.listingType,
         sqFt: property.sqFt,
         thumbnailUrl: property.thumbnailUrl || property.images[0]?.imageUrl,
         imageUrls: property.imageUrls,

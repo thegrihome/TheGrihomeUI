@@ -29,6 +29,8 @@ interface City {
 interface GeneralDiscussionsPageProps {
   cities: City[]
   totalPosts: number
+  statesCount: number
+  statesTotalPosts: number
 }
 
 const cityIcons: { [key: string]: string } = {
@@ -47,6 +49,8 @@ const cityIcons: { [key: string]: string } = {
 export default function GeneralDiscussionsPage({
   cities,
   totalPosts,
+  statesCount,
+  statesTotalPosts,
 }: GeneralDiscussionsPageProps) {
   // Smart title formatter - determines which words should be gradient
   const formatTitle = (title: string) => {
@@ -138,40 +142,71 @@ export default function GeneralDiscussionsPage({
 
         <div className="forum-content">
           <div className="forum-cities-list">
-            {cities.map(city => (
+            {cities
+              .filter(city => city.city !== 'other-cities' && city.name !== 'Other Cities')
+              .map(city => (
+                <Link
+                  key={city.id}
+                  href={`/forum/category/general-discussions/${city.city}`}
+                  className="forum-city-list-item"
+                >
+                  <div className="forum-city-list-content">
+                    <div className="forum-city-list-info">
+                      <div className="forum-city-icon">{cityIcons[city.city || ''] || '🏛️'}</div>
+                      <div className="forum-city-details">
+                        <h3 className="forum-city-name">{city.name}</h3>
+                        <p className="forum-city-description">
+                          {city.description || `${city.name} Real Estate Discussions`}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="forum-city-list-stats">
+                      <div className="forum-city-stat">
+                        <span className="forum-stat-number">{city.totalPosts}</span>
+                        <span className="forum-stat-label">threads</span>
+                      </div>
+                      <div className="forum-city-stat">
+                        <span className="forum-stat-number">{city.children.length}</span>
+                        <span className="forum-stat-label">categories</span>
+                      </div>
+                      <div className="forum-city-arrow">→</div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+
+            {/* States and Union Territories Entry */}
+            {statesCount > 0 && (
               <Link
-                key={city.id}
-                href={`/forum/category/general-discussions/${city.city}`}
+                href="/forum/category/general-discussions/states"
                 className="forum-city-list-item"
               >
                 <div className="forum-city-list-content">
                   <div className="forum-city-list-info">
-                    <div className="forum-city-icon">{cityIcons[city.city || ''] || '🏛️'}</div>
+                    <div className="forum-city-icon">🇮🇳</div>
                     <div className="forum-city-details">
-                      <h3 className="forum-city-name">{city.name}</h3>
+                      <h3 className="forum-city-name">States & Union Territories</h3>
                       <p className="forum-city-description">
-                        {city.description ||
-                          (city.name === 'Other Cities'
-                            ? 'Real Estate Discussions in cities, towns and villages across India ❤️'
-                            : `${city.name} Real Estate Discussions`)}
+                        Real estate discussions across all Indian states and union territories
                       </p>
                     </div>
                   </div>
 
                   <div className="forum-city-list-stats">
                     <div className="forum-city-stat">
-                      <span className="forum-stat-number">{city.totalPosts}</span>
+                      <span className="forum-stat-number">{statesTotalPosts}</span>
                       <span className="forum-stat-label">threads</span>
                     </div>
                     <div className="forum-city-stat">
-                      <span className="forum-stat-number">{city.children.length}</span>
-                      <span className="forum-stat-label">categories</span>
+                      <span className="forum-stat-number">{statesCount}</span>
+                      <span className="forum-stat-label">states/UTs</span>
                     </div>
                     <div className="forum-city-arrow">→</div>
                   </div>
                 </div>
               </Link>
-            ))}
+            )}
           </div>
         </div>
       </main>
@@ -194,8 +229,8 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   }
 
-  // Get city subcategories
-  const cities = await prisma.forumCategory.findMany({
+  // Get all subcategories (cities and states)
+  const allCategories = await prisma.forumCategory.findMany({
     where: {
       isActive: true,
       parentId: generalDiscussions.id,
@@ -220,7 +255,12 @@ export const getStaticProps: GetStaticProps = async () => {
     orderBy: { displayOrder: 'asc' },
   })
 
-  // Calculate total posts for each city by summing posts from all property type children
+  // Separate cities and states based on the 'city' field
+  // Cities have the city field populated, states don't
+  const cities = allCategories.filter(cat => cat.city !== null)
+  const states = allCategories.filter(cat => cat.city === null)
+
+  // Calculate total posts for each category by summing posts from all property type children
   const citiesWithTotals = cities.map(city => ({
     ...city,
     totalPosts: city.children.reduce((sum, child) => sum + child._count.posts, 0),
@@ -229,10 +269,22 @@ export const getStaticProps: GetStaticProps = async () => {
   // Calculate total posts across all cities
   const totalPosts = citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0)
 
+  // Calculate total posts for all states by summing posts from all property type children
+  const statesTotalPosts = states.reduce(
+    (sum, state) =>
+      sum + state.children.reduce((childSum, child) => childSum + child._count.posts, 0),
+    0
+  )
+
+  // Get count of states for the States & UTs entry
+  const statesCount = states.length
+
   return {
     props: {
       cities: JSON.parse(JSON.stringify(citiesWithTotals)),
       totalPosts,
+      statesCount,
+      statesTotalPosts,
     },
     revalidate: 300, // Revalidate every 5 minutes
   }

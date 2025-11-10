@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
-import { PropertyType } from '@prisma/client'
+import { PropertyType, ListingType } from '@prisma/client'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -19,6 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const {
       title,
       propertyType,
+      listingType,
       bedrooms,
       bathrooms,
       propertySize,
@@ -111,6 +112,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         postedBy: session.user.name || session.user.email || 'Anonymous',
         propertyDetails,
         propertyType: propertyType as PropertyType,
+        listingType: (listingType || 'SALE') as ListingType,
         sqFt,
         thumbnailUrl: thumbnailUrl || null,
         imageUrls: imageUrls || [],

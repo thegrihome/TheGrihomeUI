@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Invalid project ID' })
     }
 
-    // Get user details
+    // Get user details including verification status
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: {
@@ -34,11 +34,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         username: true,
         email: true,
         phone: true,
+        emailVerified: true,
+        mobileVerified: true,
       },
     })
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' })
+    }
+
+    // Check if user has verified at least one contact method
+    if (!user.emailVerified && !user.mobileVerified) {
+      return res.status(400).json({
+        message: 'Please verify your email or mobile number to express interest',
+      })
     }
 
     // Get project details
@@ -84,8 +93,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     })
 
-    // Send email via Resend
-    const emailSubject = `New Project Interest: ${project.name}`
+    // Send email via Resend with only verified contact info
+    const emailSubject = `User has expressed interest in ${project.name}`
     const emailBody = `
       <h2>New Interest in Project</h2>
 
@@ -95,8 +104,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       <ul>
         <li><strong>Name:</strong> ${user.name || 'N/A'}</li>
         <li><strong>Username:</strong> ${user.username}</li>
-        <li><strong>Email:</strong> ${user.email}</li>
-        <li><strong>Mobile:</strong> ${user.phone || 'N/A'}</li>
+        ${user.emailVerified ? `<li><strong>Email:</strong> ${user.email} ✓</li>` : ''}
+        ${user.mobileVerified && user.phone ? `<li><strong>Mobile:</strong> ${user.phone} ✓</li>` : ''}
       </ul>
 
       ${userMessage ? `<h3>Message:</h3><p>${userMessage}</p>` : ''}
@@ -106,7 +115,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       <p><strong>Date:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
 
       <hr>
-      <p><small>This is an automated message from TheGrihome platform.</small></p>
+      <p><small>This is an automated message from TheGrihome platform. Only verified contact information is included.</small></p>
     `
 
     try {

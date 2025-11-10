@@ -355,38 +355,19 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
             {/* Header Actions */}
             <div className="project-header-actions">
-              <button
-                onClick={handleExpressInterest}
-                disabled={isExpressingInterest}
-                className="action-button action-button-primary"
-              >
-                {isExpressingInterest ? 'Sending...' : 'Express Interest'}
-              </button>
-
-              {isAuthenticated &&
-                session?.user &&
-                (session.user as any).role === 'AGENT' &&
-                !isRegisteredAgent && (
-                  <button
-                    onClick={handleRegisterAsAgent}
-                    disabled={isRegisteringAgent}
-                    className="action-button action-button-secondary"
-                  >
-                    {isRegisteringAgent ? 'Registering...' : 'Register as Agent'}
-                  </button>
-                )}
-
-              {isAuthenticated &&
-                session?.user &&
-                (session.user as any).role === 'AGENT' &&
-                isRegisteredAgent && (
-                  <button
-                    onClick={handlePromoteAgent}
-                    className="action-button action-button-outline"
-                  >
-                    Promote Yourself
-                  </button>
-                )}
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleExpressInterest}
+                  disabled={isExpressingInterest}
+                  className="action-button action-button-primary"
+                >
+                  {isExpressingInterest ? 'Sending...' : 'Express Interest'}
+                </button>
+                <p className="text-xs text-gray-600 max-w-sm">
+                  ℹ️ Grihome will contact you and ensure your interest is submitted to the builder
+                  to help you finalize a deal.
+                </p>
+              </div>
 
               {project.builderPageUrl && (
                 <a
@@ -641,13 +622,37 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             <h3 className="sidebar-section-title">
               Properties ({featuredProperties.length + regularProperties.length})
             </h3>
+
+            {/* Add Your Property as Verified Button */}
+            {isAuthenticated && session?.user && (
+              <div className="mb-4">
+                <button
+                  onClick={() => router.push(`/projects/${project.id}/promote-property`)}
+                  className="w-full bg-blue-600 text-white px-4 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Add your property as verified to this project
+                </button>
+              </div>
+            )}
+
             <div className="featured-items-container">
               {featuredProperties.map(property => (
                 <Link key={property.id} href={`/properties/${property.id}`}>
                   <div
                     className={`featured-property-card ${property.isFeatured ? 'featured' : ''}`}
                   >
-                    {property.isFeatured && <span className="featured-badge">FEATURED ✨</span>}
                     {property.thumbnailUrl && (
                       <Image
                         src={property.thumbnailUrl}
@@ -658,7 +663,24 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                       />
                     )}
                     <div className="property-info">
-                      <div className="property-title">{property.streetAddress}</div>
+                      <div className="property-title flex items-center gap-1">
+                        {property.streetAddress}
+                        {property.isFeatured && (
+                          <svg
+                            className="w-4 h-4 text-blue-500 flex-shrink-0"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-label="Verified Property"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </div>
                       <div className="property-price">
                         {property.propertyDetails?.price
                           ? `₹${(property.propertyDetails.price / 100000).toFixed(2)} Lakhs`
@@ -669,21 +691,6 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         {property.location.city}
                       </div>
                     </div>
-                    {isAuthenticated &&
-                      session?.user?.email &&
-                      (property as any).agent?.email === session.user.email && (
-                        <button
-                          onClick={e => {
-                            e.preventDefault()
-                            handlePromoteProperty(property.id)
-                          }}
-                          className="promote-button"
-                        >
-                          {property.isFeatured
-                            ? '⭐ Promote Again (5 days)'
-                            : '⭐ Promote Property (₹0 for 5 days)'}
-                        </button>
-                      )}
                   </div>
                 </Link>
               ))}
@@ -711,19 +718,6 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         {property.location.city}
                       </div>
                     </div>
-                    {isAuthenticated &&
-                      session?.user?.email &&
-                      (property as any).agent?.email === session.user.email && (
-                        <button
-                          onClick={e => {
-                            e.preventDefault()
-                            handlePromoteProperty(property.id)
-                          }}
-                          className="promote-button"
-                        >
-                          ⭐ Promote Property (₹0 for 5 days)
-                        </button>
-                      )}
                   </div>
                 </Link>
               ))}
@@ -740,6 +734,31 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             <h3 className="sidebar-section-title">
               Agents ({featuredAgents.length + regularAgents.length})
             </h3>
+
+            {/* Add Yourself as Verified Agent Button */}
+            {isAuthenticated && session?.user && (session.user as any).role === 'AGENT' && (
+              <div className="mb-4">
+                <button
+                  onClick={() => router.push(`/projects/${project.id}/promote-agent`)}
+                  className="w-full bg-blue-600 text-white px-4 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Add yourself as verified agent to this project
+                </button>
+              </div>
+            )}
+
             <div className="featured-items-container">
               {featuredAgents.map(agentData => (
                 <Link key={agentData.id} href={`/agents/${agentData.agent.id}`}>
@@ -763,12 +782,22 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         </div>
                       )}
                       <div className="agent-info">
-                        <div className="agent-name">
+                        <div className="agent-name flex items-center gap-1">
                           {agentData.agent.name || agentData.agent.username}
                           {agentData.isFeatured && (
-                            <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                              FEATURED ✨
-                            </span>
+                            <svg
+                              className="w-5 h-5 text-blue-500"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-label="Verified Agent"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
                           )}
                         </div>
                         <div className="agent-role">

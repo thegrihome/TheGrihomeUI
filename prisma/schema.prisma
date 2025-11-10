@@ -149,6 +149,7 @@ model Project {
 }
 
 model Property {
+<<<<<<< HEAD
   id                String            @id @default(cuid())
   streetAddress     String
   locationId        String
@@ -170,6 +171,37 @@ model Property {
   soldTo            String?
   soldToUserId      String?
   listingType       ListingType       @default(SALE)
+=======
+  id             String          @id @default(cuid())
+  streetAddress  String
+  locationId     String
+  projectId      String?
+  builderId      String?
+  userId         String
+  postedBy       String
+  postedDate     DateTime        @default(now())
+  propertyDetails Json
+  propertyType   PropertyType
+  listingType    ListingType     @default(SALE)
+  sqFt           Float?
+  thumbnailUrl   String?
+  imageUrls      String[]
+  thumbnailIndex Int             @default(0)
+  listingStatus  ListingStatus   @default(ACTIVE)
+  soldTo         String?
+  soldToUserId   String?
+  soldDate       DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  builder        Builder?        @relation("BuilderProperties", fields: [builderId], references: [id])
+  location       Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  project        Project?        @relation(fields: [projectId], references: [id])
+  user           User            @relation("AgentProperties", fields: [userId], references: [id], onDelete: Cascade)
+  soldToUser     User?           @relation("SoldProperties", fields: [soldToUserId], references: [id])
+  images         PropertyImage[]
+  savedBy           SavedProperty[]
+  interests         Interest[]
+>>>>>>> claude/fix-incomplete-description-011CUyTLF4KUpaYEWPB849En
   ads               Ad[]
   interests         Interest[]
   projectProperties ProjectProperty[]
@@ -187,6 +219,7 @@ model Property {
   @@index([userId])
   @@index([soldToUserId])
   @@index([propertyType])
+  @@index([listingType])
   @@index([listingStatus])
   @@index([listingType])
 }
@@ -470,6 +503,11 @@ enum ListingStatus {
   OFF_MARKET
   DRAFT
   ARCHIVED
+}
+
+enum ListingType {
+  SALE
+  RENT
 }
 
 enum ProjectType {

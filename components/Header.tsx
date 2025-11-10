@@ -125,24 +125,26 @@ const Header: NextPage = () => {
               <span className="header-logo-text">GRIHOME</span>
             </Link>
             <div className="desktop-nav-links flex items-center">
-              <Link href="/agents" className="desktop-nav-link">
-                Agents
+              <Link href="/properties?type=buy" className="desktop-nav-link">
+                Buy
               </Link>
-              <Link href="/builders" className="desktop-nav-link">
-                Builders
+              <Link href="/properties?type=rent" className="desktop-nav-link">
+                Rent
               </Link>
               <Link href="/projects" className="desktop-nav-link">
                 Projects
-              </Link>
-              <Link href="/properties" className="desktop-nav-link">
-                Properties
               </Link>
               <Link href="/forum" className="desktop-nav-link">
                 Forum
               </Link>
               <Link href="/contactUs/contact" className="desktop-nav-link">
-                Contact
+                Contact Us
               </Link>
+              {!isAuthenticated && (
+                <Link href="/login" className="header-add-property-link">
+                  Login to post property
+                </Link>
+              )}
               {isAuthenticated && user && (
                 <Link href="/properties/add-property" className="header-add-property-link">
                   Post property for free
@@ -270,18 +272,18 @@ const Header: NextPage = () => {
 
                 <nav className="mobile-nav-links">
                   <Link
-                    href="/agents"
+                    href="/properties?type=buy"
                     className="mobile-nav-link"
                     onClick={() => setNavbarOpen(false)}
                   >
-                    Agents
+                    Buy
                   </Link>
                   <Link
-                    href="/builders"
+                    href="/properties?type=rent"
                     className="mobile-nav-link"
                     onClick={() => setNavbarOpen(false)}
                   >
-                    Builders
+                    Rent
                   </Link>
                   <Link
                     href="/projects"
@@ -289,13 +291,6 @@ const Header: NextPage = () => {
                     onClick={() => setNavbarOpen(false)}
                   >
                     Projects
-                  </Link>
-                  <Link
-                    href="/properties"
-                    className="mobile-nav-link"
-                    onClick={() => setNavbarOpen(false)}
-                  >
-                    Properties
                   </Link>
                   <Link
                     href="/forum"
@@ -309,8 +304,17 @@ const Header: NextPage = () => {
                     className="mobile-nav-link"
                     onClick={() => setNavbarOpen(false)}
                   >
-                    Contact
+                    Contact Us
                   </Link>
+                  {!isAuthenticated && (
+                    <Link
+                      href="/login"
+                      className="header-add-property-link-mobile"
+                      onClick={() => setNavbarOpen(false)}
+                    >
+                      Login to post property
+                    </Link>
+                  )}
                   {isAuthenticated && user && (
                     <Link
                       href="/properties/add-property"

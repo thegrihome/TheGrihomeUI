@@ -21,6 +21,7 @@ interface Property {
   builder: string
   project: string
   propertyType: string
+  listingType: string
   sqFt: number
   thumbnailUrl?: string
   imageUrls: string[]
@@ -42,6 +43,7 @@ interface Property {
 
 interface Filters {
   propertyType: string
+  listingType: string
   bedrooms: string
   bathrooms: string
   location: string
@@ -67,6 +69,7 @@ export default function PropertiesPage() {
 
   const [filters, setFilters] = useState<Filters>({
     propertyType: '',
+    listingType: '',
     bedrooms: '',
     bathrooms: '',
     location: '',
@@ -93,7 +96,7 @@ export default function PropertiesPage() {
   // Initialize from URL query parameters
   useEffect(() => {
     if (router.isReady) {
-      const { city, state, locality, location, propertyType, bedrooms, bathrooms, sortBy } =
+      const { city, state, locality, location, propertyType, bedrooms, bathrooms, sortBy, type } =
         router.query
 
       // Build location string from city, state, locality or use location directly
@@ -108,10 +111,19 @@ export default function PropertiesPage() {
         locationString = location as string
       }
 
+      // Map 'buy' to 'SALE' and 'rent' to 'RENT'
+      let listingType = ''
+      if (type === 'buy') {
+        listingType = 'SALE'
+      } else if (type === 'rent') {
+        listingType = 'RENT'
+      }
+
       setFilters(prev => ({
         ...prev,
         location: locationString,
         propertyType: (propertyType as string) || '',
+        listingType,
         bedrooms: (bedrooms as string) || '',
         bathrooms: (bathrooms as string) || '',
         sortBy: (sortBy as string) || '',
@@ -173,6 +185,7 @@ export default function PropertiesPage() {
         const queryParams = new URLSearchParams()
 
         if (filters.propertyType) queryParams.append('propertyType', filters.propertyType)
+        if (filters.listingType) queryParams.append('listingType', filters.listingType)
         if (filters.bedrooms) queryParams.append('bedrooms', filters.bedrooms)
         if (filters.bathrooms) queryParams.append('bathrooms', filters.bathrooms)
         if (filters.location) queryParams.append('location', filters.location)
@@ -260,6 +273,7 @@ export default function PropertiesPage() {
   const clearFilters = () => {
     setFilters({
       propertyType: '',
+      listingType: '',
       bedrooms: '',
       bathrooms: '',
       location: '',
@@ -335,6 +349,46 @@ export default function PropertiesPage() {
 
           {/* Filters Section */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            {/* Buy/Rent Toggle */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">Listing Type</label>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleFilterChange('listingType', 'SALE')}
+                  className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
+                    filters.listingType === 'SALE'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Buy
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFilterChange('listingType', 'RENT')}
+                  className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
+                    filters.listingType === 'RENT'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Rent
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFilterChange('listingType', '')}
+                  className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
+                    filters.listingType === ''
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  All
+                </button>
+              </div>
+            </div>
+
             <div className="flex flex-wrap items-end gap-4">
               {/* Property Type Filter */}
               <div className="relative">
@@ -594,9 +648,16 @@ export default function PropertiesPage() {
                         height={192}
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-4 left-4 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                        {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
-                        {propertyTypes.find(t => t.value === property.propertyType)?.label}
+                      <div className="absolute top-4 left-4 flex gap-2">
+                        <div className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                          {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
+                          {propertyTypes.find(t => t.value === property.propertyType)?.label}
+                        </div>
+                        {property.listingType === 'RENT' && (
+                          <div className="bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
+                            For Rent
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="p-4">
