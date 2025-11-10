@@ -278,11 +278,17 @@ export default function Home() {
                   <div className="home-city-icon">🏔️</div>
                   <span className="home-city-name">Jammu and Kashmir</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/jharkhand" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/jharkhand"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">⛰️</div>
                   <span className="home-city-name">Jharkhand</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/karnataka" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/karnataka"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">🌳</div>
                   <span className="home-city-name">Karnataka</span>
                 </Link>
@@ -308,7 +314,10 @@ export default function Home() {
                   <div className="home-city-icon">🏔️</div>
                   <span className="home-city-name">Manipur</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/meghalaya" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/meghalaya"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">☁️</div>
                   <span className="home-city-name">Meghalaya</span>
                 </Link>
@@ -316,7 +325,10 @@ export default function Home() {
                   <div className="home-city-icon">🌄</div>
                   <span className="home-city-name">Mizoram</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/nagaland" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/nagaland"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">⛰️</div>
                   <span className="home-city-name">Nagaland</span>
                 </Link>
@@ -328,7 +340,10 @@ export default function Home() {
                   <div className="home-city-icon">🌾</div>
                   <span className="home-city-name">Punjab</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/rajasthan" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/rajasthan"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">🏜️</div>
                   <span className="home-city-name">Rajasthan</span>
                 </Link>
@@ -336,11 +351,17 @@ export default function Home() {
                   <div className="home-city-icon">🏔️</div>
                   <span className="home-city-name">Sikkim</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/tamil-nadu" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/tamil-nadu"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">🏛️</div>
                   <span className="home-city-name">Tamil Nadu</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/telangana" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/telangana"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">💎</div>
                   <span className="home-city-name">Telangana</span>
                 </Link>
@@ -348,7 +369,10 @@ export default function Home() {
                   <div className="home-city-icon">🌳</div>
                   <span className="home-city-name">Tripura</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/uttarakhand" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/uttarakhand"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">⛰️</div>
                   <span className="home-city-name">Uttarakhand</span>
                 </Link>
@@ -359,7 +383,10 @@ export default function Home() {
                   <div className="home-city-icon">🕌</div>
                   <span className="home-city-name">Uttar Pradesh</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/west-bengal" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/west-bengal"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">🎭</div>
                   <span className="home-city-name">West Bengal</span>
                 </Link>
@@ -370,7 +397,10 @@ export default function Home() {
                   <div className="home-city-icon">🏝️</div>
                   <span className="home-city-name">Andaman and Nicobar Islands</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/chandigarh" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/chandigarh"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">🏙️</div>
                   <span className="home-city-name">Chandigarh</span>
                 </Link>
@@ -388,11 +418,17 @@ export default function Home() {
                   <div className="home-city-icon">🏖️</div>
                   <span className="home-city-name">Daman and Diu</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/lakshadweep" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/lakshadweep"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">🏝️</div>
                   <span className="home-city-name">Lakshadweep</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/puducherry" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/puducherry"
+                  className="home-city-item"
+                >
                   <div className="home-city-icon">🌊</div>
                   <span className="home-city-name">Puducherry</span>
                 </Link>

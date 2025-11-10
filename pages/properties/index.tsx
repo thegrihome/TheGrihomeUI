@@ -351,9 +351,7 @@ export default function PropertiesPage() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             {/* Buy/Rent Toggle */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Listing Type
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Listing Type</label>
               <div className="flex gap-4">
                 <button
                   type="button"

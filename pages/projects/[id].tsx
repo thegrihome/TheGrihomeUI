@@ -364,7 +364,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   {isExpressingInterest ? 'Sending...' : 'Express Interest'}
                 </button>
                 <p className="text-xs text-gray-600 max-w-sm">
-                  ℹ️ Grihome will contact you and ensure your interest is submitted to the builder to help you finalize a deal.
+                  ℹ️ Grihome will contact you and ensure your interest is submitted to the builder
+                  to help you finalize a deal.
                 </p>
               </div>
 
