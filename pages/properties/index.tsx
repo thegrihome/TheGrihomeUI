@@ -273,6 +273,7 @@ export default function PropertiesPage() {
   const clearFilters = () => {
     setFilters({
       propertyType: '',
+      listingType: '',
       bedrooms: '',
       bathrooms: '',
       location: '',
