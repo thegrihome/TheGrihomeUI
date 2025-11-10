@@ -159,6 +159,7 @@ model Property {
   postedDate     DateTime        @default(now())
   propertyDetails Json
   propertyType   PropertyType
+  listingType    ListingType     @default(SALE)
   sqFt           Float?
   thumbnailUrl   String?
   imageUrls      String[]
@@ -186,6 +187,7 @@ model Property {
   @@index([userId])
   @@index([soldToUserId])
   @@index([propertyType])
+  @@index([listingType])
   @@index([listingStatus])
 }
 
@@ -361,6 +363,11 @@ enum ListingStatus {
   OFF_MARKET
   DRAFT
   ARCHIVED
+}
+
+enum ListingType {
+  SALE
+  RENT
 }
 
 enum ProjectType {

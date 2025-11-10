@@ -37,6 +37,7 @@ export default function AddProperty() {
   const [formData, setFormData] = useState({
     title: '',
     propertyType: '',
+    listingType: 'SALE' as 'SALE' | 'RENT',
     projectId: '',
     projectName: '',
     bedrooms: '',
@@ -380,7 +381,38 @@ export default function AddProperty() {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Add New Property</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Add New Property</h1>
+
+          {/* Listing Type Toggle */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Listing Type <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, listingType: 'SALE' }))}
+                className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
+                  formData.listingType === 'SALE'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Sell
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, listingType: 'RENT' }))}
+                className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
+                  formData.listingType === 'RENT'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Rent
+              </button>
+            </div>
+          </div>
 
           {/* Verification Warning Banner */}
           {!isVerified && (
