@@ -34,36 +34,36 @@ model Session {
 }
 
 model User {
-  id               String          @id @default(cuid())
-  username         String          @unique
-  name             String?
-  email            String          @unique
-  emailVerified    DateTime?
-  image            String?
-  password         String?
-  phone            String?         @unique
-  mobileVerified   DateTime?
-  role             UserRole        @default(BUYER)
-  isAdmin          Boolean         @default(false)
-  licenseNumber    String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  companyName      String?
-  accounts         Account[]
-  forumPosts       ForumPost[]
-  forumReplies     ForumReply[]
-  postReactions    PostReaction[]
-  listedProperties Property[]      @relation("AgentProperties")
-  purchasedProperties Property[]   @relation("SoldProperties")
-  replyReactions   ReplyReaction[]
-  savedProperties  SavedProperty[]
-  savedSearches    SavedSearch[]
-  sessions         Session[]
-  interests        Interest[]
-  ads              Ad[]
-  projectRequests  ProjectRequest[]
-  projectAgents    ProjectAgent[]
-  postedProjects   Project[]         @relation("ProjectPostedBy")
+  id                  String           @id @default(cuid())
+  username            String           @unique
+  name                String?
+  email               String           @unique
+  emailVerified       DateTime?
+  image               String?
+  password            String?
+  phone               String?          @unique
+  mobileVerified      DateTime?
+  role                UserRole         @default(BUYER)
+  licenseNumber       String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  companyName         String?
+  isAdmin             Boolean          @default(false)
+  accounts            Account[]
+  ads                 Ad[]
+  forumPosts          ForumPost[]
+  forumReplies        ForumReply[]
+  interests           Interest[]
+  postReactions       PostReaction[]
+  postedProjects      Project[]        @relation("ProjectPostedBy")
+  projectAgents       ProjectAgent[]
+  projectRequests     ProjectRequest[]
+  purchasedProperties Property[]       @relation("SoldProperties")
+  listedProperties    Property[]       @relation("AgentProperties")
+  replyReactions      ReplyReaction[]
+  savedProperties     SavedProperty[]
+  savedSearches       SavedSearch[]
+  sessions            Session[]
 
   @@index([email])
   @@index([phone])
@@ -95,15 +95,15 @@ model Location {
 }
 
 model Builder {
-  id             String    @id @default(cuid())
+  id             String     @id @default(cuid())
   name           String
   description    String?
   logoUrl        String?
   contactInfo    Json?
   website        String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
   builderDetails Json?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
   projects       Project[]
   properties     Property[] @relation("BuilderProperties")
 
@@ -111,36 +111,36 @@ model Builder {
 }
 
 model Project {
-  id                   String            @id @default(cuid())
-  builderId            String
-  locationId           String
-  name                 String
-  description          String
-  type                 ProjectType
-  numberOfUnits        Int?
-  size                 Float?
-  density              Float?
-  googlePin            String?
-  thumbnailUrl         String?
-  imageUrls            String[]
-  projectDetails       Json?
-  builderPageUrl       String?
-  builderProspectusUrl String?
-  postedByUserId       String?
+  id                     String            @id @default(cuid())
+  locationId             String
+  description            String
+  type                   ProjectType
+  numberOfUnits          Int?
+  size                   Float?
+  density                Float?
+  imageUrls              String[]
+  thumbnailUrl           String?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  builderId              String
+  googlePin              String?
+  name                   String
+  projectDetails         Json?
+  builderPageUrl         String?
+  builderProspectusUrl   String?
+  contactPersonEmail     String?
   contactPersonFirstName String?
   contactPersonLastName  String?
-  contactPersonEmail   String?
-  contactPersonPhone   String?
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-  builder              Builder           @relation(fields: [builderId], references: [id], onDelete: Cascade)
-  location             Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  postedBy             User?             @relation("ProjectPostedBy", fields: [postedByUserId], references: [id], onDelete: SetNull)
-  properties           Property[]
-  interests            Interest[]
-  ads                  Ad[]
-  projectAgents        ProjectAgent[]
-  projectProperties    ProjectProperty[]
+  contactPersonPhone     String?
+  postedByUserId         String?
+  ads                    Ad[]
+  interests              Interest[]
+  builder                Builder           @relation(fields: [builderId], references: [id], onDelete: Cascade)
+  location               Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  postedBy               User?             @relation("ProjectPostedBy", fields: [postedByUserId], references: [id])
+  projectAgents          ProjectAgent[]
+  projectProperties      ProjectProperty[]
+  properties             Property[]
 
   @@index([builderId])
   @@index([locationId])
@@ -149,36 +149,37 @@ model Project {
 }
 
 model Property {
-  id             String          @id @default(cuid())
-  streetAddress  String
-  locationId     String
-  projectId      String?
-  builderId      String?
-  userId         String
-  postedBy       String
-  postedDate     DateTime        @default(now())
-  propertyDetails Json
-  propertyType   PropertyType
-  sqFt           Float?
-  thumbnailUrl   String?
-  imageUrls      String[]
-  thumbnailIndex Int             @default(0)
-  listingStatus  ListingStatus   @default(ACTIVE)
-  soldTo         String?
-  soldToUserId   String?
-  soldDate       DateTime?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  builder        Builder?        @relation("BuilderProperties", fields: [builderId], references: [id])
-  location       Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  project        Project?        @relation(fields: [projectId], references: [id])
-  user           User            @relation("AgentProperties", fields: [userId], references: [id], onDelete: Cascade)
-  soldToUser     User?           @relation("SoldProperties", fields: [soldToUserId], references: [id])
-  images         PropertyImage[]
-  savedBy           SavedProperty[]
-  interests         Interest[]
+  id                String            @id @default(cuid())
+  streetAddress     String
+  locationId        String
+  projectId         String?
+  userId            String
+  imageUrls         String[]
+  thumbnailIndex    Int               @default(0)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  builderId         String?
+  listingStatus     ListingStatus     @default(ACTIVE)
+  postedBy          String
+  postedDate        DateTime          @default(now())
+  propertyDetails   Json
+  propertyType      PropertyType
+  sqFt              Float?
+  thumbnailUrl      String?
+  soldDate          DateTime?
+  soldTo            String?
+  soldToUserId      String?
+  listingType       ListingType       @default(SALE)
   ads               Ad[]
+  interests         Interest[]
   projectProperties ProjectProperty[]
+  builder           Builder?          @relation("BuilderProperties", fields: [builderId], references: [id])
+  location          Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  project           Project?          @relation(fields: [projectId], references: [id])
+  soldToUser        User?             @relation("SoldProperties", fields: [soldToUserId], references: [id])
+  user              User              @relation("AgentProperties", fields: [userId], references: [id], onDelete: Cascade)
+  images            PropertyImage[]
+  savedBy           SavedProperty[]
 
   @@index([builderId])
   @@index([locationId])
@@ -187,6 +188,7 @@ model Property {
   @@index([soldToUserId])
   @@index([propertyType])
   @@index([listingStatus])
+  @@index([listingType])
 }
 
 model PropertyImage {
@@ -230,9 +232,9 @@ model Interest {
   message    String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   project    Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   property   Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, projectId])
   @@unique([userId, propertyId])
@@ -338,6 +340,113 @@ model ReplyReaction {
   @@index([userId])
 }
 
+model AdSlotConfig {
+  id         String   @id @default(cuid())
+  slotNumber Int      @unique
+  basePrice  Float
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  ads        Ad[]
+
+  @@index([slotNumber])
+}
+
+model Ad {
+  id            String         @id @default(cuid())
+  slotNumber    Int
+  userId        String
+  propertyId    String?
+  projectId     String?
+  startDate     DateTime
+  endDate       DateTime
+  totalDays     Int
+  pricePerDay   Float
+  totalAmount   Float
+  status        AdStatus       @default(ACTIVE)
+  paymentStatus PaymentStatus  @default(PENDING)
+  paymentMethod PaymentMethod?
+  paymentId     String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  project       Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  property      Property?      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  slotConfig    AdSlotConfig   @relation(fields: [slotNumber], references: [slotNumber], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([slotNumber])
+  @@index([userId])
+  @@index([status])
+  @@index([endDate])
+  @@index([startDate])
+}
+
+model ProjectRequest {
+  id                 String               @id @default(cuid())
+  userId             String
+  builderName        String
+  projectName        String
+  location           String
+  contactPersonName  String
+  contactPersonEmail String
+  contactPersonPhone String
+  builderWebsite     String?
+  projectDescription String?
+  projectType        ProjectType
+  additionalInfo     String?
+  status             ProjectRequestStatus @default(PENDING)
+  adminNotes         String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ProjectAgent {
+  id                     String    @id @default(cuid())
+  projectId              String
+  userId                 String
+  registeredAt           DateTime  @default(now())
+  isPromoted             Boolean   @default(false)
+  promotionStartDate     DateTime?
+  promotionEndDate       DateTime?
+  promotionPaymentAmount Float     @default(0.0)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  project                Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([promotionEndDate])
+  @@index([isPromoted])
+}
+
+model ProjectProperty {
+  id                     String    @id @default(cuid())
+  projectId              String
+  propertyId             String
+  addedAt                DateTime  @default(now())
+  isPromoted             Boolean   @default(false)
+  promotionStartDate     DateTime?
+  promotionEndDate       DateTime?
+  promotionPaymentAmount Float     @default(0.0)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  project                Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  property               Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, propertyId])
+  @@index([projectId])
+  @@index([propertyId])
+  @@index([promotionEndDate])
+  @@index([isPromoted])
+}
+
 enum UserRole {
   BUYER
   SELLER
@@ -407,115 +516,13 @@ enum PaymentMethod {
   BANK_ACCOUNT
 }
 
-model AdSlotConfig {
-  id          String   @id @default(cuid())
-  slotNumber  Int      @unique
-  basePrice   Float    // Price per day in rupees
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  ads         Ad[]
-
-  @@index([slotNumber])
-}
-
-model Ad {
-  id            String        @id @default(cuid())
-  slotNumber    Int
-  userId        String
-  propertyId    String?
-  projectId     String?
-  startDate     DateTime
-  endDate       DateTime
-  totalDays     Int
-  pricePerDay   Float
-  totalAmount   Float
-  status        AdStatus      @default(ACTIVE)
-  paymentStatus PaymentStatus @default(PENDING)
-  paymentMethod PaymentMethod?
-  paymentId     String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property      Property?     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  project       Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  slotConfig    AdSlotConfig  @relation(fields: [slotNumber], references: [slotNumber], onDelete: Cascade)
-
-  @@index([slotNumber])
-  @@index([userId])
-  @@index([status])
-  @@index([endDate])
-  @@index([startDate])
-}
-
-model ProjectRequest {
-  id              String              @id @default(cuid())
-  userId          String
-  builderName     String
-  projectName     String
-  location        String
-  contactPersonName String
-  contactPersonEmail String
-  contactPersonPhone String
-  builderWebsite  String?
-  projectDescription String?
-  projectType     ProjectType
-  additionalInfo  String?
-  status          ProjectRequestStatus @default(PENDING)
-  adminNotes      String?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([status])
-  @@index([createdAt])
-}
-
 enum ProjectRequestStatus {
   PENDING
   APPROVED
   REJECTED
 }
 
-model ProjectAgent {
-  id                      String    @id @default(cuid())
-  projectId               String
-  userId                  String
-  registeredAt            DateTime  @default(now())
-  isPromoted              Boolean   @default(false)
-  promotionStartDate      DateTime?
-  promotionEndDate        DateTime?
-  promotionPaymentAmount  Float     @default(0)
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  project                 Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([projectId, userId])
-  @@index([projectId])
-  @@index([userId])
-  @@index([promotionEndDate])
-  @@index([isPromoted])
-}
-
-model ProjectProperty {
-  id                      String    @id @default(cuid())
-  projectId               String
-  propertyId              String
-  addedAt                 DateTime  @default(now())
-  isPromoted              Boolean   @default(false)
-  promotionStartDate      DateTime?
-  promotionEndDate        DateTime?
-  promotionPaymentAmount  Float     @default(0)
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  project                 Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  property                Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  @@unique([projectId, propertyId])
-  @@index([projectId])
-  @@index([propertyId])
-  @@index([promotionEndDate])
-  @@index([isPromoted])
+enum ListingType {
+  SALE
+  RENT
 }
