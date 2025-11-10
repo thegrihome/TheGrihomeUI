@@ -44,6 +44,45 @@ const cityIcons: { [key: string]: string } = {
   'other-cities': '🗺️',
 }
 
+// States and Union Territories
+const statesAndUTs = [
+  { name: 'Andhra Pradesh', slug: 'andhra-pradesh', icon: '🌾' },
+  { name: 'Arunachal Pradesh', slug: 'arunachal-pradesh', icon: '🏔️' },
+  { name: 'Assam', slug: 'assam', icon: '🍵' },
+  { name: 'Bihar', slug: 'bihar', icon: '📚' },
+  { name: 'Chhattisgarh', slug: 'chhattisgarh', icon: '🌲' },
+  { name: 'Goa', slug: 'goa', icon: '🏖️' },
+  { name: 'Gujarat', slug: 'gujarat', icon: '🦁' },
+  { name: 'Haryana', slug: 'haryana', icon: '🌾' },
+  { name: 'Himachal Pradesh', slug: 'himachal-pradesh', icon: '⛰️' },
+  { name: 'Jammu and Kashmir', slug: 'jammu-and-kashmir', icon: '🏔️' },
+  { name: 'Jharkhand', slug: 'jharkhand', icon: '⛰️' },
+  { name: 'Karnataka', slug: 'karnataka', icon: '🌳' },
+  { name: 'Kerala', slug: 'kerala', icon: '🌴' },
+  { name: 'Madhya Pradesh', slug: 'madhya-pradesh', icon: '🐅' },
+  { name: 'Maharashtra', slug: 'maharashtra', icon: '🏙️' },
+  { name: 'Manipur', slug: 'manipur', icon: '🏔️' },
+  { name: 'Meghalaya', slug: 'meghalaya', icon: '☁️' },
+  { name: 'Mizoram', slug: 'mizoram', icon: '🌄' },
+  { name: 'Nagaland', slug: 'nagaland', icon: '⛰️' },
+  { name: 'Odisha', slug: 'odisha', icon: '🏛️' },
+  { name: 'Punjab', slug: 'punjab', icon: '🌾' },
+  { name: 'Rajasthan', slug: 'rajasthan', icon: '🏜️' },
+  { name: 'Sikkim', slug: 'sikkim', icon: '🏔️' },
+  { name: 'Tamil Nadu', slug: 'tamil-nadu', icon: '🏛️' },
+  { name: 'Telangana', slug: 'telangana', icon: '💎' },
+  { name: 'Tripura', slug: 'tripura', icon: '🌳' },
+  { name: 'Uttarakhand', slug: 'uttarakhand', icon: '⛰️' },
+  { name: 'Uttar Pradesh', slug: 'uttar-pradesh', icon: '🕌' },
+  { name: 'West Bengal', slug: 'west-bengal', icon: '🎭' },
+  { name: 'Andaman and Nicobar Islands', slug: 'andaman-and-nicobar-islands', icon: '🏝️' },
+  { name: 'Chandigarh', slug: 'chandigarh', icon: '🏙️' },
+  { name: 'Dadra and Nagar Haveli', slug: 'dadra-and-nagar-haveli', icon: '🌳' },
+  { name: 'Daman and Diu', slug: 'daman-and-diu', icon: '🏖️' },
+  { name: 'Lakshadweep', slug: 'lakshadweep', icon: '🏝️' },
+  { name: 'Puducherry', slug: 'puducherry', icon: '🌊' },
+]
+
 export default function GeneralDiscussionsPage({
   cities,
   totalPosts,
@@ -172,6 +211,45 @@ export default function GeneralDiscussionsPage({
                 </div>
               </Link>
             ))}
+          </div>
+
+          {/* States and Union Territories Section */}
+          <div style={{ marginTop: '3rem' }}>
+            <h2
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                marginBottom: '1.5rem',
+                color: '#1f2937',
+              }}
+            >
+              States and Union Territories
+            </h2>
+            <div className="forum-cities-list">
+              {statesAndUTs.map(state => (
+                <Link
+                  key={state.slug}
+                  href={`/forum/category/general-discussions/${state.slug}`}
+                  className="forum-city-list-item"
+                >
+                  <div className="forum-city-list-content">
+                    <div className="forum-city-list-info">
+                      <div className="forum-city-icon">{state.icon}</div>
+                      <div className="forum-city-details">
+                        <h3 className="forum-city-name">{state.name}</h3>
+                        <p className="forum-city-description">
+                          {state.name} Real Estate Discussions
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="forum-city-list-stats">
+                      <div className="forum-city-arrow">→</div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </main>
