@@ -225,7 +225,7 @@ export default function Home() {
                 {/* States */}
                 <Link href="/forum/category/general-discussions/states" className="home-city-item">
                   <div className="home-city-icon">🇮🇳</div>
-                  <span className="home-city-name">States</span>
+                  <span className="home-city-name">States & UTs</span>
                 </Link>
               </div>
 
