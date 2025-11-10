@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const { id: projectId } = req.query
-    const { propertyId, totalDays = 5 } = req.body
+    const { propertyId, duration = 30 } = req.body
 
     if (!projectId || typeof projectId !== 'string') {
       return res.status(400).json({ message: 'Invalid project ID' })
@@ -26,10 +26,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Property ID is required' })
     }
 
-    // Validate totalDays (max 5 days)
-    const days = parseInt(String(totalDays))
-    if (isNaN(days) || days < 1 || days > 5) {
-      return res.status(400).json({ message: 'Total days must be between 1 and 5' })
+    // Validate duration
+    const days = parseInt(String(duration))
+    if (isNaN(days) || days < 1 || days > 365) {
+      return res.status(400).json({ message: 'Duration must be between 1 and 365 days' })
     }
 
     // Get user

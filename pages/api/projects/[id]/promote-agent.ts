@@ -16,16 +16,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const { id: projectId } = req.query
-    const { totalDays = 5 } = req.body
+    const { duration = 30 } = req.body
 
     if (!projectId || typeof projectId !== 'string') {
       return res.status(400).json({ message: 'Invalid project ID' })
     }
 
-    // Validate totalDays (max 5 days)
-    const days = parseInt(String(totalDays))
-    if (isNaN(days) || days < 1 || days > 5) {
-      return res.status(400).json({ message: 'Total days must be between 1 and 5' })
+    // Validate duration
+    const days = parseInt(String(duration))
+    if (isNaN(days) || days < 1 || days > 365) {
+      return res.status(400).json({ message: 'Duration must be between 1 and 365 days' })
     }
 
     // Get user
@@ -46,8 +46,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ message: 'Only agents can promote themselves' })
     }
 
-    // Check if project agent registration exists
-    const projectAgent = await prisma.projectAgent.findUnique({
+    // Calculate dates
+    const startDate = new Date()
+    const endDate = new Date()
+    endDate.setDate(startDate.getDate() + days)
+
+    // Payment amount is 0 for now
+    const totalAmount = 0
+
+    // Check if project agent registration exists, if not create it
+    let projectAgent = await prisma.projectAgent.findUnique({
       where: {
         projectId_userId: {
           projectId,
@@ -57,37 +65,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     if (!projectAgent) {
-      return res
-        .status(404)
-        .json({ message: 'You must register as an agent for this project first' })
+      // Register the agent first
+      projectAgent = await prisma.projectAgent.create({
+        data: {
+          projectId,
+          userId: user.id,
+          isPromoted: true,
+          promotionStartDate: startDate,
+          promotionEndDate: endDate,
+          promotionPaymentAmount: totalAmount,
+        },
+      })
+    } else {
+      // Update existing registration with promotion
+      projectAgent = await prisma.projectAgent.update({
+        where: { id: projectAgent.id },
+        data: {
+          isPromoted: true,
+          promotionStartDate: startDate,
+          promotionEndDate: endDate,
+          promotionPaymentAmount: totalAmount,
+        },
+      })
     }
-
-    // Calculate dates
-    const startDate = new Date()
-    const endDate = new Date()
-    endDate.setDate(startDate.getDate() + days)
-
-    // Payment amount is 0 for now
-    const totalAmount = 0
-
-    // Update project agent with promotion
-    const updatedProjectAgent = await prisma.projectAgent.update({
-      where: { id: projectAgent.id },
-      data: {
-        isPromoted: true,
-        promotionStartDate: startDate,
-        promotionEndDate: endDate,
-        promotionPaymentAmount: totalAmount,
-      },
-    })
 
     return res.status(200).json({
       message: 'Agent promoted successfully',
       promotion: {
-        id: updatedProjectAgent.id,
-        startDate: updatedProjectAgent.promotionStartDate,
-        endDate: updatedProjectAgent.promotionEndDate,
-        totalAmount: updatedProjectAgent.promotionPaymentAmount,
+        id: projectAgent.id,
+        startDate: projectAgent.promotionStartDate,
+        endDate: projectAgent.promotionEndDate,
+        totalAmount: projectAgent.promotionPaymentAmount,
         totalDays: days,
       },
     })
