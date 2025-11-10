@@ -355,13 +355,18 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
             {/* Header Actions */}
             <div className="project-header-actions">
-              <button
-                onClick={handleExpressInterest}
-                disabled={isExpressingInterest}
-                className="action-button action-button-primary"
-              >
-                {isExpressingInterest ? 'Sending...' : 'Express Interest'}
-              </button>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleExpressInterest}
+                  disabled={isExpressingInterest}
+                  className="action-button action-button-primary"
+                >
+                  {isExpressingInterest ? 'Sending...' : 'Express Interest'}
+                </button>
+                <p className="text-xs text-gray-600 max-w-sm">
+                  ℹ️ Grihome will contact you and ensure your interest is submitted to the builder to help you finalize a deal.
+                </p>
+              </div>
 
               {isAuthenticated &&
                 session?.user &&
