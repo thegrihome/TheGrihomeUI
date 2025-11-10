@@ -221,12 +221,180 @@ export default function Home() {
                   <div className="home-city-icon">🎓</div>
                   <span className="home-city-name">Pune</span>
                 </Link>
+
+                {/* States and Union Territories */}
                 <Link
-                  href="/forum/category/general-discussions/other-cities"
+                  href="/forum/category/general-discussions/andhra-pradesh"
                   className="home-city-item"
                 >
-                  <div className="home-city-icon">🗺️</div>
-                  <span className="home-city-name">Others</span>
+                  <div className="home-city-icon">🌾</div>
+                  <span className="home-city-name">Andhra Pradesh</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/arunachal-pradesh"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🏔️</div>
+                  <span className="home-city-name">Arunachal Pradesh</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/assam" className="home-city-item">
+                  <div className="home-city-icon">🍵</div>
+                  <span className="home-city-name">Assam</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/bihar" className="home-city-item">
+                  <div className="home-city-icon">📚</div>
+                  <span className="home-city-name">Bihar</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/chhattisgarh"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🌲</div>
+                  <span className="home-city-name">Chhattisgarh</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/goa" className="home-city-item">
+                  <div className="home-city-icon">🏖️</div>
+                  <span className="home-city-name">Goa</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/gujarat" className="home-city-item">
+                  <div className="home-city-icon">🦁</div>
+                  <span className="home-city-name">Gujarat</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/haryana" className="home-city-item">
+                  <div className="home-city-icon">🌾</div>
+                  <span className="home-city-name">Haryana</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/himachal-pradesh"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">⛰️</div>
+                  <span className="home-city-name">Himachal Pradesh</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/jammu-and-kashmir"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🏔️</div>
+                  <span className="home-city-name">Jammu and Kashmir</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/jharkhand" className="home-city-item">
+                  <div className="home-city-icon">⛰️</div>
+                  <span className="home-city-name">Jharkhand</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/karnataka" className="home-city-item">
+                  <div className="home-city-icon">🌳</div>
+                  <span className="home-city-name">Karnataka</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/kerala" className="home-city-item">
+                  <div className="home-city-icon">🌴</div>
+                  <span className="home-city-name">Kerala</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/madhya-pradesh"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🐅</div>
+                  <span className="home-city-name">Madhya Pradesh</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/maharashtra"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🏙️</div>
+                  <span className="home-city-name">Maharashtra</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/manipur" className="home-city-item">
+                  <div className="home-city-icon">🏔️</div>
+                  <span className="home-city-name">Manipur</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/meghalaya" className="home-city-item">
+                  <div className="home-city-icon">☁️</div>
+                  <span className="home-city-name">Meghalaya</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/mizoram" className="home-city-item">
+                  <div className="home-city-icon">🌄</div>
+                  <span className="home-city-name">Mizoram</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/nagaland" className="home-city-item">
+                  <div className="home-city-icon">⛰️</div>
+                  <span className="home-city-name">Nagaland</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/odisha" className="home-city-item">
+                  <div className="home-city-icon">🏛️</div>
+                  <span className="home-city-name">Odisha</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/punjab" className="home-city-item">
+                  <div className="home-city-icon">🌾</div>
+                  <span className="home-city-name">Punjab</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/rajasthan" className="home-city-item">
+                  <div className="home-city-icon">🏜️</div>
+                  <span className="home-city-name">Rajasthan</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/sikkim" className="home-city-item">
+                  <div className="home-city-icon">🏔️</div>
+                  <span className="home-city-name">Sikkim</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/tamil-nadu" className="home-city-item">
+                  <div className="home-city-icon">🏛️</div>
+                  <span className="home-city-name">Tamil Nadu</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/telangana" className="home-city-item">
+                  <div className="home-city-icon">💎</div>
+                  <span className="home-city-name">Telangana</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/tripura" className="home-city-item">
+                  <div className="home-city-icon">🌳</div>
+                  <span className="home-city-name">Tripura</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/uttarakhand" className="home-city-item">
+                  <div className="home-city-icon">⛰️</div>
+                  <span className="home-city-name">Uttarakhand</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/uttar-pradesh"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🕌</div>
+                  <span className="home-city-name">Uttar Pradesh</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/west-bengal" className="home-city-item">
+                  <div className="home-city-icon">🎭</div>
+                  <span className="home-city-name">West Bengal</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/andaman-and-nicobar-islands"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🏝️</div>
+                  <span className="home-city-name">Andaman and Nicobar Islands</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/chandigarh" className="home-city-item">
+                  <div className="home-city-icon">🏙️</div>
+                  <span className="home-city-name">Chandigarh</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/dadra-and-nagar-haveli"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🌳</div>
+                  <span className="home-city-name">Dadra and Nagar Haveli</span>
+                </Link>
+                <Link
+                  href="/forum/category/general-discussions/daman-and-diu"
+                  className="home-city-item"
+                >
+                  <div className="home-city-icon">🏖️</div>
+                  <span className="home-city-name">Daman and Diu</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/lakshadweep" className="home-city-item">
+                  <div className="home-city-icon">🏝️</div>
+                  <span className="home-city-name">Lakshadweep</span>
+                </Link>
+                <Link href="/forum/category/general-discussions/puducherry" className="home-city-item">
+                  <div className="home-city-icon">🌊</div>
+                  <span className="home-city-name">Puducherry</span>
                 </Link>
               </div>
 
