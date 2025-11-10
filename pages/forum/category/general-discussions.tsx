@@ -30,6 +30,7 @@ interface GeneralDiscussionsPageProps {
   cities: City[]
   totalPosts: number
   statesCount: number
+  statesTotalPosts: number
 }
 
 const cityIcons: { [key: string]: string } = {
@@ -49,6 +50,7 @@ export default function GeneralDiscussionsPage({
   cities,
   totalPosts,
   statesCount,
+  statesTotalPosts,
 }: GeneralDiscussionsPageProps) {
   // Smart title formatter - determines which words should be gradient
   const formatTitle = (title: string) => {
@@ -193,6 +195,10 @@ export default function GeneralDiscussionsPage({
 
                   <div className="forum-city-list-stats">
                     <div className="forum-city-stat">
+                      <span className="forum-stat-number">{statesTotalPosts}</span>
+                      <span className="forum-stat-label">threads</span>
+                    </div>
+                    <div className="forum-city-stat">
                       <span className="forum-stat-number">{statesCount}</span>
                       <span className="forum-stat-label">states/UTs</span>
                     </div>
@@ -263,6 +269,12 @@ export const getStaticProps: GetStaticProps = async () => {
   // Calculate total posts across all cities
   const totalPosts = citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0)
 
+  // Calculate total posts for all states by summing posts from all property type children
+  const statesTotalPosts = states.reduce(
+    (sum, state) => sum + state.children.reduce((childSum, child) => childSum + child._count.posts, 0),
+    0
+  )
+
   // Get count of states for the States & UTs entry
   const statesCount = states.length
 
@@ -271,6 +283,7 @@ export const getStaticProps: GetStaticProps = async () => {
       cities: JSON.parse(JSON.stringify(citiesWithTotals)),
       totalPosts,
       statesCount,
+      statesTotalPosts,
     },
     revalidate: 300, // Revalidate every 5 minutes
   }
