@@ -26,29 +26,10 @@ interface City {
   }>
 }
 
-interface State {
-  id: string
-  name: string
-  slug: string
-  description: string | null
-  _count: {
-    posts: number
-  }
-  totalPosts: number
-  children: Array<{
-    id: string
-    name: string
-    slug: string
-    _count: {
-      posts: number
-    }
-  }>
-}
-
 interface GeneralDiscussionsPageProps {
   cities: City[]
-  states: State[]
   totalPosts: number
+  statesCount: number
 }
 
 const cityIcons: { [key: string]: string } = {
@@ -64,48 +45,10 @@ const cityIcons: { [key: string]: string } = {
   'other-cities': '🗺️',
 }
 
-const stateIcons: { [key: string]: string } = {
-  'andhra-pradesh': '🌾',
-  'arunachal-pradesh': '🏔️',
-  assam: '🍵',
-  bihar: '📚',
-  chhattisgarh: '🌲',
-  goa: '🏖️',
-  gujarat: '🦁',
-  haryana: '🌾',
-  'himachal-pradesh': '⛰️',
-  'jammu-and-kashmir': '🏔️',
-  jharkhand: '⛰️',
-  karnataka: '🌳',
-  kerala: '🌴',
-  'madhya-pradesh': '🐅',
-  maharashtra: '🏙️',
-  manipur: '🏔️',
-  meghalaya: '☁️',
-  mizoram: '🌄',
-  nagaland: '⛰️',
-  odisha: '🏛️',
-  punjab: '🌾',
-  rajasthan: '🏜️',
-  sikkim: '🏔️',
-  'tamil-nadu': '🏛️',
-  telangana: '💎',
-  tripura: '🌳',
-  uttarakhand: '⛰️',
-  'uttar-pradesh': '🕌',
-  'west-bengal': '🎭',
-  'andaman-and-nicobar-islands': '🏝️',
-  chandigarh: '🏙️',
-  'dadra-and-nagar-haveli': '🌳',
-  'daman-and-diu': '🏖️',
-  lakshadweep: '🏝️',
-  puducherry: '🌊',
-}
-
 export default function GeneralDiscussionsPage({
   cities,
-  states,
   totalPosts,
+  statesCount,
 }: GeneralDiscussionsPageProps) {
   // Smart title formatter - determines which words should be gradient
   const formatTitle = (title: string) => {
@@ -233,55 +176,33 @@ export default function GeneralDiscussionsPage({
             ))}
           </div>
 
-          {/* States and Union Territories Section */}
-          {states.length > 0 && (
-            <div style={{ marginTop: '3rem' }}>
-              <h2
-                style={{
-                  fontSize: '1.5rem',
-                  fontWeight: 'bold',
-                  marginBottom: '1.5rem',
-                  color: '#1f2937',
-                }}
-              >
-                States and Union Territories
-              </h2>
-              <div className="forum-cities-list">
-                {states.map(state => (
-                  <Link
-                    key={state.id}
-                    href={`/forum/category/general-discussions/${state.slug}`}
-                    className="forum-city-list-item"
-                  >
-                    <div className="forum-city-list-content">
-                      <div className="forum-city-list-info">
-                        <div className="forum-city-icon">
-                          {stateIcons[state.slug] || '🏛️'}
-                        </div>
-                        <div className="forum-city-details">
-                          <h3 className="forum-city-name">{state.name}</h3>
-                          <p className="forum-city-description">
-                            {state.description || `${state.name} Real Estate Discussions`}
-                          </p>
-                        </div>
-                      </div>
+          {/* States and Union Territories Entry */}
+          {statesCount > 0 && (
+            <Link
+              href="/forum/category/general-discussions/states"
+              className="forum-city-list-item"
+              style={{ marginTop: '1rem' }}
+            >
+              <div className="forum-city-list-content">
+                <div className="forum-city-list-info">
+                  <div className="forum-city-icon">🇮🇳</div>
+                  <div className="forum-city-details">
+                    <h3 className="forum-city-name">States & Union Territories</h3>
+                    <p className="forum-city-description">
+                      Real estate discussions across all Indian states and union territories
+                    </p>
+                  </div>
+                </div>
 
-                      <div className="forum-city-list-stats">
-                        <div className="forum-city-stat">
-                          <span className="forum-stat-number">{state.totalPosts}</span>
-                          <span className="forum-stat-label">threads</span>
-                        </div>
-                        <div className="forum-city-stat">
-                          <span className="forum-stat-number">{state.children.length}</span>
-                          <span className="forum-stat-label">categories</span>
-                        </div>
-                        <div className="forum-city-arrow">→</div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                <div className="forum-city-list-stats">
+                  <div className="forum-city-stat">
+                    <span className="forum-stat-number">{statesCount}</span>
+                    <span className="forum-stat-label">states/UTs</span>
+                  </div>
+                  <div className="forum-city-arrow">→</div>
+                </div>
               </div>
-            </div>
+            </Link>
           )}
         </div>
       </main>
@@ -341,21 +262,17 @@ export const getStaticProps: GetStaticProps = async () => {
     totalPosts: city.children.reduce((sum, child) => sum + child._count.posts, 0),
   }))
 
-  const statesWithTotals = states.map(state => ({
-    ...state,
-    totalPosts: state.children.reduce((sum, child) => sum + child._count.posts, 0),
-  }))
+  // Calculate total posts across all cities
+  const totalPosts = citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0)
 
-  // Calculate total posts across all categories
-  const totalPosts =
-    citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0) +
-    statesWithTotals.reduce((sum, state) => sum + state.totalPosts, 0)
+  // Get count of states for the States & UTs entry
+  const statesCount = states.length
 
   return {
     props: {
       cities: JSON.parse(JSON.stringify(citiesWithTotals)),
-      states: JSON.parse(JSON.stringify(statesWithTotals)),
       totalPosts,
+      statesCount,
     },
     revalidate: 300, // Revalidate every 5 minutes
   }
