@@ -670,7 +670,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                             fill="currentColor"
                             viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg"
-                            title="Verified Property"
+                            aria-label="Verified Property"
                           >
                             <path
                               fillRule="evenodd"
@@ -789,7 +789,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                               fill="currentColor"
                               viewBox="0 0 20 20"
                               xmlns="http://www.w3.org/2000/svg"
-                              title="Verified Agent"
+                              aria-label="Verified Agent"
                             >
                               <path
                                 fillRule="evenodd"
