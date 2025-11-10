@@ -26,8 +26,28 @@ interface City {
   }>
 }
 
+interface State {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  _count: {
+    posts: number
+  }
+  totalPosts: number
+  children: Array<{
+    id: string
+    name: string
+    slug: string
+    _count: {
+      posts: number
+    }
+  }>
+}
+
 interface GeneralDiscussionsPageProps {
   cities: City[]
+  states: State[]
   totalPosts: number
 }
 
@@ -44,47 +64,47 @@ const cityIcons: { [key: string]: string } = {
   'other-cities': '🗺️',
 }
 
-// States and Union Territories
-const statesAndUTs = [
-  { name: 'Andhra Pradesh', slug: 'andhra-pradesh', icon: '🌾' },
-  { name: 'Arunachal Pradesh', slug: 'arunachal-pradesh', icon: '🏔️' },
-  { name: 'Assam', slug: 'assam', icon: '🍵' },
-  { name: 'Bihar', slug: 'bihar', icon: '📚' },
-  { name: 'Chhattisgarh', slug: 'chhattisgarh', icon: '🌲' },
-  { name: 'Goa', slug: 'goa', icon: '🏖️' },
-  { name: 'Gujarat', slug: 'gujarat', icon: '🦁' },
-  { name: 'Haryana', slug: 'haryana', icon: '🌾' },
-  { name: 'Himachal Pradesh', slug: 'himachal-pradesh', icon: '⛰️' },
-  { name: 'Jammu and Kashmir', slug: 'jammu-and-kashmir', icon: '🏔️' },
-  { name: 'Jharkhand', slug: 'jharkhand', icon: '⛰️' },
-  { name: 'Karnataka', slug: 'karnataka', icon: '🌳' },
-  { name: 'Kerala', slug: 'kerala', icon: '🌴' },
-  { name: 'Madhya Pradesh', slug: 'madhya-pradesh', icon: '🐅' },
-  { name: 'Maharashtra', slug: 'maharashtra', icon: '🏙️' },
-  { name: 'Manipur', slug: 'manipur', icon: '🏔️' },
-  { name: 'Meghalaya', slug: 'meghalaya', icon: '☁️' },
-  { name: 'Mizoram', slug: 'mizoram', icon: '🌄' },
-  { name: 'Nagaland', slug: 'nagaland', icon: '⛰️' },
-  { name: 'Odisha', slug: 'odisha', icon: '🏛️' },
-  { name: 'Punjab', slug: 'punjab', icon: '🌾' },
-  { name: 'Rajasthan', slug: 'rajasthan', icon: '🏜️' },
-  { name: 'Sikkim', slug: 'sikkim', icon: '🏔️' },
-  { name: 'Tamil Nadu', slug: 'tamil-nadu', icon: '🏛️' },
-  { name: 'Telangana', slug: 'telangana', icon: '💎' },
-  { name: 'Tripura', slug: 'tripura', icon: '🌳' },
-  { name: 'Uttarakhand', slug: 'uttarakhand', icon: '⛰️' },
-  { name: 'Uttar Pradesh', slug: 'uttar-pradesh', icon: '🕌' },
-  { name: 'West Bengal', slug: 'west-bengal', icon: '🎭' },
-  { name: 'Andaman and Nicobar Islands', slug: 'andaman-and-nicobar-islands', icon: '🏝️' },
-  { name: 'Chandigarh', slug: 'chandigarh', icon: '🏙️' },
-  { name: 'Dadra and Nagar Haveli', slug: 'dadra-and-nagar-haveli', icon: '🌳' },
-  { name: 'Daman and Diu', slug: 'daman-and-diu', icon: '🏖️' },
-  { name: 'Lakshadweep', slug: 'lakshadweep', icon: '🏝️' },
-  { name: 'Puducherry', slug: 'puducherry', icon: '🌊' },
-]
+const stateIcons: { [key: string]: string } = {
+  'andhra-pradesh': '🌾',
+  'arunachal-pradesh': '🏔️',
+  assam: '🍵',
+  bihar: '📚',
+  chhattisgarh: '🌲',
+  goa: '🏖️',
+  gujarat: '🦁',
+  haryana: '🌾',
+  'himachal-pradesh': '⛰️',
+  'jammu-and-kashmir': '🏔️',
+  jharkhand: '⛰️',
+  karnataka: '🌳',
+  kerala: '🌴',
+  'madhya-pradesh': '🐅',
+  maharashtra: '🏙️',
+  manipur: '🏔️',
+  meghalaya: '☁️',
+  mizoram: '🌄',
+  nagaland: '⛰️',
+  odisha: '🏛️',
+  punjab: '🌾',
+  rajasthan: '🏜️',
+  sikkim: '🏔️',
+  'tamil-nadu': '🏛️',
+  telangana: '💎',
+  tripura: '🌳',
+  uttarakhand: '⛰️',
+  'uttar-pradesh': '🕌',
+  'west-bengal': '🎭',
+  'andaman-and-nicobar-islands': '🏝️',
+  chandigarh: '🏙️',
+  'dadra-and-nagar-haveli': '🌳',
+  'daman-and-diu': '🏖️',
+  lakshadweep: '🏝️',
+  puducherry: '🌊',
+}
 
 export default function GeneralDiscussionsPage({
   cities,
+  states,
   totalPosts,
 }: GeneralDiscussionsPageProps) {
   // Smart title formatter - determines which words should be gradient
@@ -214,43 +234,55 @@ export default function GeneralDiscussionsPage({
           </div>
 
           {/* States and Union Territories Section */}
-          <div style={{ marginTop: '3rem' }}>
-            <h2
-              style={{
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                marginBottom: '1.5rem',
-                color: '#1f2937',
-              }}
-            >
-              States and Union Territories
-            </h2>
-            <div className="forum-cities-list">
-              {statesAndUTs.map(state => (
-                <Link
-                  key={state.slug}
-                  href={`/forum/category/general-discussions/${state.slug}`}
-                  className="forum-city-list-item"
-                >
-                  <div className="forum-city-list-content">
-                    <div className="forum-city-list-info">
-                      <div className="forum-city-icon">{state.icon}</div>
-                      <div className="forum-city-details">
-                        <h3 className="forum-city-name">{state.name}</h3>
-                        <p className="forum-city-description">
-                          {state.name} Real Estate Discussions
-                        </p>
+          {states.length > 0 && (
+            <div style={{ marginTop: '3rem' }}>
+              <h2
+                style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  marginBottom: '1.5rem',
+                  color: '#1f2937',
+                }}
+              >
+                States and Union Territories
+              </h2>
+              <div className="forum-cities-list">
+                {states.map(state => (
+                  <Link
+                    key={state.id}
+                    href={`/forum/category/general-discussions/${state.slug}`}
+                    className="forum-city-list-item"
+                  >
+                    <div className="forum-city-list-content">
+                      <div className="forum-city-list-info">
+                        <div className="forum-city-icon">
+                          {stateIcons[state.slug] || '🏛️'}
+                        </div>
+                        <div className="forum-city-details">
+                          <h3 className="forum-city-name">{state.name}</h3>
+                          <p className="forum-city-description">
+                            {state.description || `${state.name} Real Estate Discussions`}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="forum-city-list-stats">
+                        <div className="forum-city-stat">
+                          <span className="forum-stat-number">{state.totalPosts}</span>
+                          <span className="forum-stat-label">threads</span>
+                        </div>
+                        <div className="forum-city-stat">
+                          <span className="forum-stat-number">{state.children.length}</span>
+                          <span className="forum-stat-label">categories</span>
+                        </div>
+                        <div className="forum-city-arrow">→</div>
                       </div>
                     </div>
-
-                    <div className="forum-city-list-stats">
-                      <div className="forum-city-arrow">→</div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
 
@@ -272,8 +304,8 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   }
 
-  // Get city subcategories
-  const cities = await prisma.forumCategory.findMany({
+  // Get all subcategories (cities and states)
+  const allCategories = await prisma.forumCategory.findMany({
     where: {
       isActive: true,
       parentId: generalDiscussions.id,
@@ -298,18 +330,31 @@ export const getStaticProps: GetStaticProps = async () => {
     orderBy: { displayOrder: 'asc' },
   })
 
-  // Calculate total posts for each city by summing posts from all property type children
+  // Separate cities and states based on the 'city' field
+  // Cities have the city field populated, states don't
+  const cities = allCategories.filter(cat => cat.city !== null)
+  const states = allCategories.filter(cat => cat.city === null)
+
+  // Calculate total posts for each category by summing posts from all property type children
   const citiesWithTotals = cities.map(city => ({
     ...city,
     totalPosts: city.children.reduce((sum, child) => sum + child._count.posts, 0),
   }))
 
-  // Calculate total posts across all cities
-  const totalPosts = citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0)
+  const statesWithTotals = states.map(state => ({
+    ...state,
+    totalPosts: state.children.reduce((sum, child) => sum + child._count.posts, 0),
+  }))
+
+  // Calculate total posts across all categories
+  const totalPosts =
+    citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0) +
+    statesWithTotals.reduce((sum, state) => sum + state.totalPosts, 0)
 
   return {
     props: {
       cities: JSON.parse(JSON.stringify(citiesWithTotals)),
+      states: JSON.parse(JSON.stringify(statesWithTotals)),
       totalPosts,
     },
     revalidate: 300, // Revalidate every 5 minutes
