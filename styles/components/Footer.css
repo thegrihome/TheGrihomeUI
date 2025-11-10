@@ -47,6 +47,30 @@
   }
 }
 
+.footer-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .footer-links {
+    margin-top: 0;
+    margin-left: 2rem;
+  }
+}
+
+.footer-link {
+  color: #000000;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.footer-link:hover {
+  opacity: 0.7;
+}
+
 .footer-social-links {
   display: inline-flex;
   justify-content: center;

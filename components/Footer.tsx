@@ -14,6 +14,15 @@ const Footer: NextPage = () => {
       <div className="footer-container">
         <div className="footer-copyright">Copyright: © Grihome. All rights reserved</div>
 
+        <div className="footer-links">
+          <Link href="/builders" className="footer-link">
+            Builders
+          </Link>
+          <Link href="/agents" className="footer-link">
+            Agents
+          </Link>
+        </div>
+
         <div className="footer-social-links">
           <a
             aria-label="mail"

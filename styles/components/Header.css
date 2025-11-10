@@ -109,7 +109,7 @@
   animation: wave 2s ease-in-out infinite;
   position: relative;
   border: 2px solid #000000;
-  border-radius: 50%;
+  border-radius: 0.375rem;
 }
 
 .header-add-property-link:hover {
