@@ -24,7 +24,8 @@ interface CityPageProps {
     name: string
     slug: string
     description: string | null
-    city: string
+    city: string | null
+    isState: boolean
   }
   propertyTypes: PropertyType[]
   totalPosts: number
@@ -105,6 +106,52 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
       'Pune',
       'Other',
     ]
+    const stateNames = [
+      'Andhra',
+      'Pradesh',
+      'Arunachal',
+      'Assam',
+      'Bihar',
+      'Chhattisgarh',
+      'Goa',
+      'Gujarat',
+      'Haryana',
+      'Himachal',
+      'Jammu',
+      'Kashmir',
+      'Jharkhand',
+      'Karnataka',
+      'Kerala',
+      'Madhya',
+      'Maharashtra',
+      'Manipur',
+      'Meghalaya',
+      'Mizoram',
+      'Nagaland',
+      'Odisha',
+      'Punjab',
+      'Rajasthan',
+      'Sikkim',
+      'Tamil',
+      'Nadu',
+      'Telangana',
+      'Tripura',
+      'Uttarakhand',
+      'Uttar',
+      'Bengal',
+      'Andaman',
+      'Nicobar',
+      'Islands',
+      'Chandigarh',
+      'Dadra',
+      'Nagar',
+      'Haveli',
+      'Daman',
+      'Diu',
+      'Lakshadweep',
+      'Puducherry',
+      'West',
+    ]
 
     const words = title.split(' ')
 
@@ -112,9 +159,10 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
       .map((word, index) => {
         const isGradientWord = gradientWords.some(gw => word.includes(gw))
         const isCityName = cityNames.some(city => word.includes(city))
+        const isStateName = stateNames.some(state => word.includes(state))
 
-        // For city pages: only city names should be gradient
-        if (isCityName) {
+        // For city/state pages: city names and state names should be gradient
+        if (isCityName || isStateName) {
           return (
             <span key={index} className="forum-title-gradient">
               {word}
@@ -156,6 +204,17 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
               General Discussions
             </Link>
             <span className="forum-breadcrumb-separator">›</span>
+            {city.isState && (
+              <>
+                <Link
+                  href="/forum/category/general-discussions/states"
+                  className="forum-breadcrumb-link"
+                >
+                  States & UTs
+                </Link>
+                <span className="forum-breadcrumb-separator">›</span>
+              </>
+            )}
             <span className="forum-breadcrumb-current">{city.name}</span>
           </div>
           <div className="forum-breadcrumb-search">
@@ -285,9 +344,12 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   // Calculate total posts across all property types
   const totalPosts = propertyTypes.reduce((sum, type) => sum + type._count.posts, 0)
 
+  // Determine if this is a state (city field is null)
+  const isState = location.city === null
+
   return {
     props: {
-      city: JSON.parse(JSON.stringify(location)),
+      city: { ...JSON.parse(JSON.stringify(location)), isState },
       propertyTypes: JSON.parse(JSON.stringify(propertyTypes)),
       totalPosts,
     },
