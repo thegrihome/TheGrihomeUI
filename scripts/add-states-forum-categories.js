@@ -70,7 +70,9 @@ async function addStatesToForumCategories() {
     })
 
     if (!generalDiscussions) {
-      console.error('General Discussions category not found. Please run init-forum-categories.js first.')
+      console.error(
+        'General Discussions category not found. Please run init-forum-categories.js first.'
+      )
       return
     }
 
