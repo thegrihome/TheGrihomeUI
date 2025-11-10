@@ -44,7 +44,8 @@ interface PropertyTypeCategory {
 
 interface CityInfo {
   name: string
-  city: string
+  slug: string
+  city: string | null
 }
 
 interface PropertyTypePageProps {
@@ -156,7 +157,7 @@ export default function PropertyTypePage({
       <NextSeo
         title={`${category.name} in ${city.name} - General Discussions - Forum - Grihome`}
         description={`Browse ${category.name.toLowerCase()} discussions and listings in ${city.name} on Grihome community forum`}
-        canonical={`https://grihome.vercel.app/forum/category/general-discussions/${city.city}/${router.query.propertyType}`}
+        canonical={`https://grihome.vercel.app/forum/category/general-discussions/${city.city || city.slug}/${router.query.propertyType}`}
       />
 
       <Header />
@@ -173,7 +174,7 @@ export default function PropertyTypePage({
             </Link>
             <span className="forum-breadcrumb-separator">›</span>
             <Link
-              href={`/forum/category/general-discussions/${city.city}`}
+              href={`/forum/category/general-discussions/${city.city || city.slug}`}
               className="forum-breadcrumb-link"
             >
               {city.name}
@@ -308,7 +309,7 @@ export default function PropertyTypePage({
                 <div className="forum-pagination">
                   {currentPage > 1 && (
                     <Link
-                      href={`/forum/category/general-discussions/${city.city}/${router.query.propertyType}?page=${currentPage - 1}`}
+                      href={`/forum/category/general-discussions/${city.city || city.slug}/${router.query.propertyType}?page=${currentPage - 1}`}
                       className="forum-pagination-btn"
                     >
                       ← Previous
@@ -321,7 +322,7 @@ export default function PropertyTypePage({
 
                   {currentPage < totalPages && (
                     <Link
-                      href={`/forum/category/general-discussions/${city.city}/${router.query.propertyType}?page=${currentPage + 1}`}
+                      href={`/forum/category/general-discussions/${city.city || city.slug}/${router.query.propertyType}?page=${currentPage + 1}`}
                       className="forum-pagination-btn"
                     >
                       Next →
@@ -344,8 +345,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
   const page = parseInt((query.page as string) || '1')
   const limit = 20
 
-  // Find the property type category
-  const category = await prisma.forumCategory.findFirst({
+  // Try to find property type category as a city first
+  let category = await prisma.forumCategory.findFirst({
     where: {
       slug: `${citySlug}-${propertyTypeSlug}`,
       city: citySlug as string,
@@ -359,14 +360,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
     },
   })
 
-  if (!category) {
-    return {
-      notFound: true,
-    }
-  }
-
-  // Get city info
-  const cityCategory = await prisma.forumCategory.findFirst({
+  // Try to find location as city first
+  let locationCategory = await prisma.forumCategory.findFirst({
     where: {
       city: citySlug as string,
       parent: {
@@ -375,11 +370,44 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
     },
     select: {
       name: true,
+      slug: true,
       city: true,
     },
   })
 
-  if (!cityCategory) {
+  // If not found as city, try as state
+  if (!category || !locationCategory) {
+    category = await prisma.forumCategory.findFirst({
+      where: {
+        slug: `${citySlug}-${propertyTypeSlug}`,
+        city: null,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        propertyType: true,
+      },
+    })
+
+    locationCategory = await prisma.forumCategory.findFirst({
+      where: {
+        slug: citySlug as string,
+        city: null,
+        parent: {
+          slug: 'general-discussions',
+        },
+      },
+      select: {
+        name: true,
+        slug: true,
+        city: true,
+      },
+    })
+  }
+
+  if (!category || !locationCategory) {
     return {
       notFound: true,
     }
@@ -418,7 +446,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
   return {
     props: {
       category: JSON.parse(JSON.stringify(category)),
-      city: JSON.parse(JSON.stringify(cityCategory)),
+      city: JSON.parse(JSON.stringify(locationCategory)),
       posts: JSON.parse(JSON.stringify(posts)),
       totalCount,
       currentPage: page,

@@ -51,6 +51,44 @@ const cityIcons: { [key: string]: string } = {
   'other-cities': '🗺️',
 }
 
+const stateIcons: { [key: string]: string } = {
+  'andhra-pradesh': '🏛️',
+  'arunachal-pradesh': '⛰️',
+  assam: '🌿',
+  bihar: '🏛️',
+  chhattisgarh: '🌲',
+  goa: '🏖️',
+  gujarat: '🦁',
+  haryana: '🌾',
+  'himachal-pradesh': '🏔️',
+  'jammu-and-kashmir': '🏔️',
+  jharkhand: '⛰️',
+  karnataka: '🌆',
+  kerala: '🥥',
+  'madhya-pradesh': '🐅',
+  maharashtra: '🏙️',
+  manipur: '🦌',
+  meghalaya: '☔',
+  mizoram: '🌺',
+  nagaland: '🎭',
+  odisha: '🏛️',
+  punjab: '🌾',
+  rajasthan: '🐪',
+  sikkim: '🏔️',
+  'tamil-nadu': '🏛️',
+  telangana: '🏛️',
+  tripura: '🌺',
+  uttarakhand: '⛰️',
+  'uttar-pradesh': '🕌',
+  'west-bengal': '🌉',
+  'andaman-and-nicobar-islands': '🏝️',
+  chandigarh: '🏛️',
+  'dadra-and-nagar-haveli': '🌳',
+  'daman-and-diu': '🏖️',
+  lakshadweep: '🏝️',
+  puducherry: '🏖️',
+}
+
 export default function CityPage({ city, propertyTypes, totalPosts }: CityPageProps) {
   // Smart title formatter - determines which words should be gradient
   const formatTitle = (title: string) => {
@@ -102,7 +140,7 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
       <NextSeo
         title={`${city.name} - General Discussions - Forum - Grihome`}
         description={`Real estate discussions and property insights for ${city.name} on Grihome community forum`}
-        canonical={`https://grihome.vercel.app/forum/category/general-discussions/${city.city}`}
+        canonical={`https://grihome.vercel.app/forum/category/general-discussions/${city.city || city.slug}`}
       />
 
       <Header />
@@ -128,7 +166,9 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
         <div className="forum-header">
           <div className="forum-header-content">
             <div className="forum-city-header-section">
-              <div className="forum-city-icon-large">{cityIcons[city.city] || '🏛️'}</div>
+              <div className="forum-city-icon-large">
+                {city.city ? cityIcons[city.city] || '🏛️' : stateIcons[city.slug] || '🏛️'}
+              </div>
               <div>
                 <h1 className="forum-title">
                   {formatTitle(`${city.name} Real Estate Discussions`)}
@@ -144,31 +184,35 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
 
         <div className="forum-content">
           <div className="forum-property-types-list">
-            {propertyTypes.map(propertyType => (
-              <Link
-                key={propertyType.id}
-                href={`/forum/category/general-discussions/${city.city}/${propertyType.slug.replace(`${city.city}-`, '')}`}
-                className="forum-property-type-list-item"
-                title={`${propertyType.name} discussions in ${city.name}`}
-              >
-                <div className="forum-simple-row">
-                  <div className="forum-simple-left">
-                    <div className="forum-property-type-icon">
-                      {propertyTypeIcons[propertyType.propertyType || ''] || '🏠'}
-                    </div>
-                    <div>
-                      <h3 className="forum-property-type-name">
-                        {propertyType.name.split(' in ')[0]}
-                      </h3>
-                      <div className="forum-simple-stats">
-                        {propertyType._count.posts} discussions
+            {propertyTypes.map(propertyType => {
+              const locationSlug = city.city || city.slug
+              const propertyTypeSlug = propertyType.slug.replace(`${locationSlug}-`, '')
+              return (
+                <Link
+                  key={propertyType.id}
+                  href={`/forum/category/general-discussions/${locationSlug}/${propertyTypeSlug}`}
+                  className="forum-property-type-list-item"
+                  title={`${propertyType.name} discussions in ${city.name}`}
+                >
+                  <div className="forum-simple-row">
+                    <div className="forum-simple-left">
+                      <div className="forum-property-type-icon">
+                        {propertyTypeIcons[propertyType.propertyType || ''] || '🏠'}
+                      </div>
+                      <div>
+                        <h3 className="forum-property-type-name">
+                          {propertyType.name.split(' in ')[0]}
+                        </h3>
+                        <div className="forum-simple-stats">
+                          {propertyType._count.posts} discussions
+                        </div>
                       </div>
                     </div>
+                    <div className="forum-simple-arrow">→</div>
                   </div>
-                  <div className="forum-simple-arrow">→</div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              )
+            })}
           </div>
         </div>
       </main>
@@ -181,8 +225,8 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const { city: citySlug } = params!
 
-  // Find the city category
-  const city = await prisma.forumCategory.findFirst({
+  // Try to find as a city first (has city field populated)
+  let location = await prisma.forumCategory.findFirst({
     where: {
       city: citySlug as string,
       parent: {
@@ -198,7 +242,27 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     },
   })
 
-  if (!city) {
+  // If not found as city, try as state (has city field as null, matches by slug)
+  if (!location) {
+    location = await prisma.forumCategory.findFirst({
+      where: {
+        slug: citySlug as string,
+        city: null,
+        parent: {
+          slug: 'general-discussions',
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        city: true,
+      },
+    })
+  }
+
+  if (!location) {
     return {
       notFound: true,
     }
@@ -208,7 +272,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const propertyTypes = await prisma.forumCategory.findMany({
     where: {
       isActive: true,
-      parentId: city.id,
+      parentId: location.id,
     },
     include: {
       _count: {
@@ -223,7 +287,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
   return {
     props: {
-      city: JSON.parse(JSON.stringify(city)),
+      city: JSON.parse(JSON.stringify(location)),
       propertyTypes: JSON.parse(JSON.stringify(propertyTypes)),
       totalPosts,
     },
