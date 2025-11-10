@@ -46,6 +46,7 @@ interface CityInfo {
   name: string
   slug: string
   city: string | null
+  isState: boolean
 }
 
 interface PropertyTypePageProps {
@@ -106,6 +107,52 @@ export default function PropertyTypePage({
       'Pune',
       'Other',
     ]
+    const stateNames = [
+      'Andhra',
+      'Pradesh',
+      'Arunachal',
+      'Assam',
+      'Bihar',
+      'Chhattisgarh',
+      'Goa',
+      'Gujarat',
+      'Haryana',
+      'Himachal',
+      'Jammu',
+      'Kashmir',
+      'Jharkhand',
+      'Karnataka',
+      'Kerala',
+      'Madhya',
+      'Maharashtra',
+      'Manipur',
+      'Meghalaya',
+      'Mizoram',
+      'Nagaland',
+      'Odisha',
+      'Punjab',
+      'Rajasthan',
+      'Sikkim',
+      'Tamil',
+      'Nadu',
+      'Telangana',
+      'Tripura',
+      'Uttarakhand',
+      'Uttar',
+      'Bengal',
+      'Andaman',
+      'Nicobar',
+      'Islands',
+      'Chandigarh',
+      'Dadra',
+      'Nagar',
+      'Haveli',
+      'Daman',
+      'Diu',
+      'Lakshadweep',
+      'Puducherry',
+      'West',
+    ]
 
     const words = title.split(' ')
 
@@ -113,9 +160,10 @@ export default function PropertyTypePage({
       .map((word, index) => {
         const isGradientWord = gradientWords.some(gw => word.includes(gw))
         const isCityName = cityNames.some(city => word.includes(city))
+        const isStateName = stateNames.some(state => word.includes(state))
 
-        // Special cases
-        if (isCityName) {
+        // For city/state pages: city names and state names should be gradient
+        if (isCityName || isStateName) {
           return (
             <span key={index} className="forum-title-gradient">
               {word}
@@ -173,6 +221,17 @@ export default function PropertyTypePage({
               General Discussions
             </Link>
             <span className="forum-breadcrumb-separator">›</span>
+            {city.isState && (
+              <>
+                <Link
+                  href="/forum/category/general-discussions/states"
+                  className="forum-breadcrumb-link"
+                >
+                  States & Union Territories
+                </Link>
+                <span className="forum-breadcrumb-separator">›</span>
+              </>
+            )}
             <Link
               href={`/forum/category/general-discussions/${city.city || city.slug}`}
               className="forum-breadcrumb-link"
@@ -413,6 +472,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
     }
   }
 
+  // Determine if this is a state (city field is null)
+  const isState = locationCategory.city === null
+
   const skip = (page - 1) * limit
 
   const [posts, totalCount] = await Promise.all([
@@ -446,7 +508,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
   return {
     props: {
       category: JSON.parse(JSON.stringify(category)),
-      city: JSON.parse(JSON.stringify(locationCategory)),
+      city: { ...JSON.parse(JSON.stringify(locationCategory)), isState },
       posts: JSON.parse(JSON.stringify(posts)),
       totalCount,
       currentPage: page,

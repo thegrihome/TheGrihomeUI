@@ -210,7 +210,7 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
                   href="/forum/category/general-discussions/states"
                   className="forum-breadcrumb-link"
                 >
-                  States & UTs
+                  States & Union Territories
                 </Link>
                 <span className="forum-breadcrumb-separator">›</span>
               </>
