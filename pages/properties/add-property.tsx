@@ -623,7 +623,11 @@ export default function AddProperty() {
                   style={{ backgroundColor: 'white' }}
                 >
                   {SIZE_UNIT_OPTIONS.map(unit => (
-                    <option key={unit.value} value={unit.value} style={{ backgroundColor: 'white' }}>
+                    <option
+                      key={unit.value}
+                      value={unit.value}
+                      style={{ backgroundColor: 'white' }}
+                    >
                       {unit.label}
                     </option>
                   ))}
@@ -653,7 +657,11 @@ export default function AddProperty() {
                     style={{ backgroundColor: 'white' }}
                   >
                     {SIZE_UNIT_OPTIONS.map(unit => (
-                      <option key={unit.value} value={unit.value} style={{ backgroundColor: 'white' }}>
+                      <option
+                        key={unit.value}
+                        value={unit.value}
+                        style={{ backgroundColor: 'white' }}
+                      >
                         {unit.label}
                       </option>
                     ))}

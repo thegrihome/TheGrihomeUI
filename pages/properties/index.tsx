@@ -418,7 +418,11 @@ export default function PropertiesPage() {
                     All Types
                   </option>
                   {propertyTypes.map(type => (
-                    <option key={type.value} value={type.value} style={{ backgroundColor: 'white' }}>
+                    <option
+                      key={type.value}
+                      value={type.value}
+                      style={{ backgroundColor: 'white' }}
+                    >
                       {type.icon} {type.label}
                     </option>
                   ))}
