@@ -369,7 +369,12 @@ export default function PropertiesPage() {
       <main className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Browse Properties</h1>
+            <h1 className="text-2xl font-bold">
+              <span className="text-gray-800">Browse</span>{' '}
+              <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Properties
+              </span>
+            </h1>
           </div>
 
           {/* Filters Section */}
