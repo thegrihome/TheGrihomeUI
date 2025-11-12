@@ -63,6 +63,9 @@ export default function PropertiesPage() {
   const [showLocationPredictions, setShowLocationPredictions] = useState(false)
   const [showSortDropdown, setShowSortDropdown] = useState(false)
   const [showSoldModal, setShowSoldModal] = useState(false)
+  const [showPropertyTypeDropdown, setShowPropertyTypeDropdown] = useState(false)
+  const [showBedroomsDropdown, setShowBedroomsDropdown] = useState(false)
+  const [showBathroomsDropdown, setShowBathroomsDropdown] = useState(false)
   const [buyerName, setBuyerName] = useState('')
   const [processing, setProcessing] = useState(false)
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null)
@@ -161,23 +164,37 @@ export default function PropertiesPage() {
       })
   }, [])
 
-  // Close sort dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element
       if (!target.closest('.sort-dropdown')) {
         setShowSortDropdown(false)
       }
+      if (!target.closest('.property-type-dropdown')) {
+        setShowPropertyTypeDropdown(false)
+      }
+      if (!target.closest('.bedrooms-dropdown')) {
+        setShowBedroomsDropdown(false)
+      }
+      if (!target.closest('.bathrooms-dropdown')) {
+        setShowBathroomsDropdown(false)
+      }
     }
 
-    if (showSortDropdown) {
+    if (
+      showSortDropdown ||
+      showPropertyTypeDropdown ||
+      showBedroomsDropdown ||
+      showBathroomsDropdown
+    ) {
       document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showSortDropdown])
+  }, [showSortDropdown, showPropertyTypeDropdown, showBedroomsDropdown, showBathroomsDropdown])
 
   // Load properties from database
   useEffect(() => {
@@ -405,28 +422,15 @@ export default function PropertiesPage() {
               </div>
 
               {/* Property Type Filter */}
-              <div className="relative">
-                <select
-                  value={filters.propertyType}
-                  onChange={e => handleFilterChange('propertyType', e.target.value)}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8 min-w-[160px]"
-                  style={{
-                    backgroundColor: 'white',
-                  }}
+              <div className="relative property-type-dropdown">
+                <button
+                  onClick={() => setShowPropertyTypeDropdown(!showPropertyTypeDropdown)}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[160px] text-left"
                 >
-                  <option value="" style={{ backgroundColor: 'white' }}>
-                    All Types
-                  </option>
-                  {propertyTypes.map(type => (
-                    <option
-                      key={type.value}
-                      value={type.value}
-                      style={{ backgroundColor: 'white' }}
-                    >
-                      {type.icon} {type.label}
-                    </option>
-                  ))}
-                </select>
+                  {filters.propertyType
+                    ? `${propertyTypes.find(t => t.value === filters.propertyType)?.icon} ${propertyTypes.find(t => t.value === filters.propertyType)?.label}`
+                    : 'All Types'}
+                </button>
                 <svg
                   className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
                   fill="none"
@@ -440,26 +444,42 @@ export default function PropertiesPage() {
                     d="M19 9l-7 7-7-7"
                   />
                 </svg>
+                {showPropertyTypeDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    <div
+                      className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                      onClick={() => {
+                        handleFilterChange('propertyType', '')
+                        setShowPropertyTypeDropdown(false)
+                      }}
+                    >
+                      All Types
+                    </div>
+                    {propertyTypes.map(type => (
+                      <div
+                        key={type.value}
+                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                        onClick={() => {
+                          handleFilterChange('propertyType', type.value)
+                          setShowPropertyTypeDropdown(false)
+                        }}
+                      >
+                        {type.icon} {type.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Bedrooms Filter */}
               {showBedroomsBathroomsFilters && (
-                <div className="relative">
-                  <select
-                    value={filters.bedrooms}
-                    onChange={e => handleFilterChange('bedrooms', e.target.value)}
-                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
-                    style={{ backgroundColor: 'white' }}
+                <div className="relative bedrooms-dropdown">
+                  <button
+                    onClick={() => setShowBedroomsDropdown(!showBedroomsDropdown)}
+                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[80px] text-left"
                   >
-                    <option value="" style={{ backgroundColor: 'white' }}>
-                      Beds
-                    </option>
-                    {bedroomOptions.map(option => (
-                      <option key={option} value={option} style={{ backgroundColor: 'white' }}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                    {filters.bedrooms || 'Beds'}
+                  </button>
                   <svg
                     className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
                     fill="none"
@@ -473,27 +493,43 @@ export default function PropertiesPage() {
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
+                  {showBedroomsDropdown && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      <div
+                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                        onClick={() => {
+                          handleFilterChange('bedrooms', '')
+                          setShowBedroomsDropdown(false)
+                        }}
+                      >
+                        All
+                      </div>
+                      {bedroomOptions.map(option => (
+                        <div
+                          key={option}
+                          className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                          onClick={() => {
+                            handleFilterChange('bedrooms', option)
+                            setShowBedroomsDropdown(false)
+                          }}
+                        >
+                          {option}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Bathrooms Filter */}
               {showBedroomsBathroomsFilters && (
-                <div className="relative">
-                  <select
-                    value={filters.bathrooms}
-                    onChange={e => handleFilterChange('bathrooms', e.target.value)}
-                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
-                    style={{ backgroundColor: 'white' }}
+                <div className="relative bathrooms-dropdown">
+                  <button
+                    onClick={() => setShowBathroomsDropdown(!showBathroomsDropdown)}
+                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[80px] text-left"
                   >
-                    <option value="" style={{ backgroundColor: 'white' }}>
-                      Baths
-                    </option>
-                    {bathroomOptions.map(option => (
-                      <option key={option} value={option} style={{ backgroundColor: 'white' }}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                    {filters.bathrooms || 'Baths'}
+                  </button>
                   <svg
                     className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
                     fill="none"
@@ -507,6 +543,31 @@ export default function PropertiesPage() {
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
+                  {showBathroomsDropdown && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      <div
+                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                        onClick={() => {
+                          handleFilterChange('bathrooms', '')
+                          setShowBathroomsDropdown(false)
+                        }}
+                      >
+                        All
+                      </div>
+                      {bathroomOptions.map(option => (
+                        <div
+                          key={option}
+                          className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                          onClick={() => {
+                            handleFilterChange('bathrooms', option)
+                            setShowBathroomsDropdown(false)
+                          }}
+                        >
+                          {option}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -678,49 +739,15 @@ export default function PropertiesPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-2">
-                      <div className="flex items-center justify-between gap-1 mb-1">
+                    <div className="p-2 flex flex-col" style={{ height: '110px' }}>
+                      <div className="flex items-start justify-between gap-1 mb-1">
                         <h3 className="font-semibold text-xs text-gray-900 truncate flex-1">
                           {property.project}
                         </h3>
                         {property.price && (
-                          <div className="flex flex-col items-end gap-0.5">
-                            <span className="font-bold text-sm text-blue-600 whitespace-nowrap">
-                              ₹{formatIndianCurrency(property.price)}
-                            </span>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => router.push(`/properties/${property.id}`)}
-                                className="bg-blue-600 text-white px-2 py-0.5 rounded text-[9px] font-medium hover:bg-blue-700 transition-colors"
-                              >
-                                View
-                              </button>
-                              {/* Owner Actions - Mark as Sold */}
-                              {isOwner && property.listingStatus === 'ACTIVE' && (
-                                <button
-                                  onClick={() => {
-                                    setSelectedPropertyId(property.id)
-                                    setShowSoldModal(true)
-                                  }}
-                                  disabled={processing}
-                                  className="p-0.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                  title="Mark as Sold"
-                                >
-                                  <svg
-                                    className="w-2.5 h-2.5"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                </button>
-                              )}
-                            </div>
-                          </div>
+                          <span className="font-bold text-sm text-blue-600 whitespace-nowrap">
+                            ₹{formatIndianCurrency(property.price)}
+                          </span>
                         )}
                       </div>
 
@@ -730,10 +757,39 @@ export default function PropertiesPage() {
                         {property.sqFt && ` • ${property.sqFt} sq ft`}
                       </p>
 
-                      <p className="text-gray-500 text-[10px] truncate">
+                      <p className="text-gray-500 text-[10px] mb-2 truncate">
                         {property.location.locality && `${property.location.locality}, `}
                         {property.location.city}
                       </p>
+
+                      <div className="mt-auto flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => router.push(`/properties/${property.id}`)}
+                          className="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors"
+                        >
+                          View Details
+                        </button>
+                        {/* Owner Actions - Mark as Sold */}
+                        {isOwner && property.listingStatus === 'ACTIVE' && (
+                          <button
+                            onClick={() => {
+                              setSelectedPropertyId(property.id)
+                              setShowSoldModal(true)
+                            }}
+                            disabled={processing}
+                            className="p-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Mark as Sold"
+                          >
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                              <path
+                                fillRule="evenodd"
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )
