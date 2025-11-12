@@ -445,7 +445,7 @@ export default function PropertiesPage() {
                   />
                 </svg>
                 {showPropertyTypeDropdown && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute z-10 w-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                     <div
                       className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
                       onClick={() => {
@@ -494,7 +494,7 @@ export default function PropertiesPage() {
                     />
                   </svg>
                   {showBedroomsDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                       <div
                         className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
                         onClick={() => {
@@ -544,7 +544,7 @@ export default function PropertiesPage() {
                     />
                   </svg>
                   {showBathroomsDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                       <div
                         className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
                         onClick={() => {
@@ -739,7 +739,7 @@ export default function PropertiesPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-2 flex flex-col" style={{ height: '110px' }}>
+                    <div className="p-2">
                       <div className="flex items-start justify-between gap-1 mb-1">
                         <h3 className="font-semibold text-xs text-gray-900 truncate flex-1">
                           {property.project}
@@ -757,38 +757,39 @@ export default function PropertiesPage() {
                         {property.sqFt && ` • ${property.sqFt} sq ft`}
                       </p>
 
-                      <p className="text-gray-500 text-[10px] mb-2 truncate">
-                        {property.location.locality && `${property.location.locality}, `}
-                        {property.location.city}
-                      </p>
-
-                      <div className="mt-auto flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => router.push(`/properties/${property.id}`)}
-                          className="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors"
-                        >
-                          View Details
-                        </button>
-                        {/* Owner Actions - Mark as Sold */}
-                        {isOwner && property.listingStatus === 'ACTIVE' && (
+                      <div className="flex items-center justify-between gap-1">
+                        <p className="text-gray-500 text-[10px] truncate flex-1">
+                          {property.location.locality && `${property.location.locality}, `}
+                          {property.location.city}
+                        </p>
+                        <div className="flex items-center gap-1 flex-shrink-0">
                           <button
-                            onClick={() => {
-                              setSelectedPropertyId(property.id)
-                              setShowSoldModal(true)
-                            }}
-                            disabled={processing}
-                            className="p-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Mark as Sold"
+                            onClick={() => router.push(`/properties/${property.id}`)}
+                            className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
                           >
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path
-                                fillRule="evenodd"
-                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
+                            View Details
                           </button>
-                        )}
+                          {/* Owner Actions - Mark as Sold */}
+                          {isOwner && property.listingStatus === 'ACTIVE' && (
+                            <button
+                              onClick={() => {
+                                setSelectedPropertyId(property.id)
+                                setShowSoldModal(true)
+                              }}
+                              disabled={processing}
+                              className="p-0.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Mark as Sold"
+                            >
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                  fillRule="evenodd"
+                                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
