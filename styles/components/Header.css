@@ -168,7 +168,7 @@
 .desktop-nav {
   display: none;
   width: 100%;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
 }
 
@@ -180,11 +180,11 @@
 
 .desktop-nav-links {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 2.5rem;
   flex: 1;
   justify-content: center;
-  margin-left: 2rem;
+  margin-left: 1rem;
 }
 
 .desktop-nav-link {
@@ -214,7 +214,7 @@
 /* Auth Buttons */
 .auth-section {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
 }
 
 .user-menu {
