@@ -142,7 +142,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const totalCount = await prisma.property.count({ where })
 
     // Fetch properties
-    let properties = await prisma.property.findMany({
+    const properties = await prisma.property.findMany({
       where,
       orderBy,
       skip: sortBy === 'price_asc' || sortBy === 'price_desc' ? undefined : skip,

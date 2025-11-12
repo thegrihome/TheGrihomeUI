@@ -760,9 +760,7 @@ export default function PropertiesPage() {
 
                     return (
                       <React.Fragment key={page}>
-                        {showEllipsis && (
-                          <span className="px-2 text-gray-400">...</span>
-                        )}
+                        {showEllipsis && <span className="px-2 text-gray-400">...</span>}
                         <button
                           onClick={() => setCurrentPage(page)}
                           className={`px-3 py-1.5 text-sm rounded-md ${
