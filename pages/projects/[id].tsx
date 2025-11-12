@@ -333,18 +333,12 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
             </div>
             <div className="flex flex-wrap items-center gap-2 mb-3">
-              {project.builder.website ? (
-                <a
-                  href={project.builder.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  {project.builder.name}
-                </a>
-              ) : (
-                <span className="text-gray-600 font-medium">{project.builder.name}</span>
-              )}
+              <Link
+                href={`/builders/${project.builder.id}`}
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                {project.builder.name}
+              </Link>
               <span className="text-gray-400">•</span>
               <span className="text-gray-500 text-sm">
                 {project.location.locality && `${project.location.locality}, `}
@@ -634,13 +628,13 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
           {/* Properties */}
           <div className="sidebar-section">
-            <h3 className="sidebar-section-title">
-              Properties ({featuredProperties.length + regularProperties.length})
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="sidebar-section-title mb-0">
+                Properties ({featuredProperties.length + regularProperties.length})
+              </h3>
 
-            {/* Add Your Property Button */}
-            {isAuthenticated && session?.user && (
-              <div className="mb-3">
+              {/* Add Your Property Button */}
+              {isAuthenticated && session?.user && (
                 <button
                   onClick={() => router.push(`/projects/${project.id}/promote-property`)}
                   className="bg-blue-600 text-white px-2.5 py-1.5 rounded text-xs font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-1"
@@ -659,8 +653,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   </svg>
                   Add property
                 </button>
-              </div>
-            )}
+              )}
+            </div>
 
             <div className="featured-items-container">
               {featuredProperties.map(property => (
@@ -738,7 +732,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               ))}
               {featuredProperties.length === 0 && regularProperties.length === 0 && (
                 <p className="text-sm text-gray-500 text-center py-4">
-                  No properties available for this project yet.
+                  No properties are tagged for this project yet.
                 </p>
               )}
             </div>
@@ -746,13 +740,13 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
           {/* Agents */}
           <div className="sidebar-section">
-            <h3 className="sidebar-section-title">
-              Agents ({featuredAgents.length + regularAgents.length})
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="sidebar-section-title mb-0">
+                Agents ({featuredAgents.length + regularAgents.length})
+              </h3>
 
-            {/* Add as Agent Button */}
-            {isAuthenticated && session?.user && (session.user as any).role === 'AGENT' && (
-              <div className="mb-3">
+              {/* Add as Agent Button */}
+              {isAuthenticated && session?.user && (session.user as any).role === 'AGENT' && (
                 <button
                   onClick={() => router.push(`/projects/${project.id}/promote-agent`)}
                   className="bg-blue-600 text-white px-2.5 py-1.5 rounded text-xs font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-1"
@@ -771,8 +765,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   </svg>
                   Add as Agent
                 </button>
-              </div>
-            )}
+              )}
+            </div>
 
             <div className="featured-items-container">
               {featuredAgents.map(agentData => (
@@ -784,13 +778,13 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                           <Image
                             src={agentData.agent.image}
                             alt={agentData.agent.name || agentData.agent.username}
-                            width={50}
-                            height={50}
+                            width={40}
+                            height={40}
                             className="agent-avatar"
                           />
                         ) : (
                           <div className="agent-avatar flex items-center justify-center">
-                            <span className="text-gray-500">
+                            <span className="text-gray-500 text-sm">
                               {(agentData.agent.name || agentData.agent.username)
                                 .charAt(0)
                                 .toUpperCase()}
@@ -840,13 +834,13 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                           <Image
                             src={agentData.agent.image}
                             alt={agentData.agent.name || agentData.agent.username}
-                            width={50}
-                            height={50}
+                            width={40}
+                            height={40}
                             className="agent-avatar"
                           />
                         ) : (
                           <div className="agent-avatar flex items-center justify-center">
-                            <span className="text-gray-500">
+                            <span className="text-gray-500 text-sm">
                               {(agentData.agent.name || agentData.agent.username)
                                 .charAt(0)
                                 .toUpperCase()}
