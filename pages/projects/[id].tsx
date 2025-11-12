@@ -355,7 +355,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
             {/* Header Actions */}
             <div className="project-header-actions">
-              <div className="flex flex-col gap-2">
+              <div className="relative group">
                 <button
                   onClick={handleExpressInterest}
                   disabled={isExpressingInterest}
@@ -363,10 +363,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 >
                   {isExpressingInterest ? 'Sending...' : 'Express Interest'}
                 </button>
-                <p className="text-xs text-gray-600 max-w-sm">
-                  ℹ️ Grihome will contact you and ensure your interest is submitted to the builder
-                  to help you finalize a deal.
-                </p>
+                <div className="absolute left-0 top-full mt-2 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                  <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                  ℹ️ Grihome will contact you and ensure your interest is submitted to the builder to help you finalize a deal.
+                </div>
               </div>
 
               {project.builderPageUrl && (
@@ -623,15 +623,15 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               Properties ({featuredProperties.length + regularProperties.length})
             </h3>
 
-            {/* Add Your Property as Verified Button */}
+            {/* Add Your Property Button */}
             {isAuthenticated && session?.user && (
               <div className="mb-4">
                 <button
                   onClick={() => router.push(`/projects/${project.id}/promote-property`)}
-                  className="w-full bg-blue-600 text-white px-4 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5"
                 >
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -642,7 +642,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Add your property as verified to this project
+                  Add your property here
                 </button>
               </div>
             )}
@@ -735,15 +735,15 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               Agents ({featuredAgents.length + regularAgents.length})
             </h3>
 
-            {/* Add Yourself as Verified Agent Button */}
+            {/* Add as Agent Button */}
             {isAuthenticated && session?.user && (session.user as any).role === 'AGENT' && (
               <div className="mb-4">
                 <button
                   onClick={() => router.push(`/projects/${project.id}/promote-agent`)}
-                  className="w-full bg-blue-600 text-white px-4 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5"
                 >
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -754,7 +754,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Add yourself as verified agent to this project
+                  Add as Agent
                 </button>
               </div>
             )}
@@ -862,19 +862,6 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         </div>
                       )}
                     </div>
-                    {isAuthenticated &&
-                      session?.user?.email &&
-                      agentData.agent.email === session.user.email && (
-                        <button
-                          onClick={e => {
-                            e.preventDefault()
-                            handlePromoteAgent()
-                          }}
-                          className="promote-button"
-                        >
-                          ⭐ Promote Yourself (₹0 for 5 days)
-                        </button>
-                      )}
                   </div>
                 </Link>
               ))}

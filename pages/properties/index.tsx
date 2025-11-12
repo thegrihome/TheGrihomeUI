@@ -349,17 +349,24 @@ export default function PropertiesPage() {
 
           {/* Filters Section */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            {/* Buy/Rent Toggle */}
+            {/* Buy/Rent/All Slider Toggle */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3">Listing Type</label>
-              <div className="flex gap-4">
+              <div className="relative inline-flex items-center bg-gray-200 rounded-full p-1 w-full max-w-md">
+                <div
+                  className="absolute top-1 bottom-1 bg-blue-600 rounded-full transition-all duration-300 ease-in-out"
+                  style={{
+                    left: filters.listingType === 'SALE' ? '4px' : filters.listingType === 'RENT' ? 'calc(33.33% + 2px)' : 'calc(66.66%)',
+                    width: 'calc(33.33% - 4px)',
+                  }}
+                />
                 <button
                   type="button"
                   onClick={() => handleFilterChange('listingType', 'SALE')}
-                  className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
+                  className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
                     filters.listingType === 'SALE'
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'text-white'
+                      : 'text-gray-700'
                   }`}
                 >
                   Buy
@@ -367,10 +374,10 @@ export default function PropertiesPage() {
                 <button
                   type="button"
                   onClick={() => handleFilterChange('listingType', 'RENT')}
-                  className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
+                  className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
                     filters.listingType === 'RENT'
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'text-white'
+                      : 'text-gray-700'
                   }`}
                 >
                   Rent
@@ -378,10 +385,10 @@ export default function PropertiesPage() {
                 <button
                   type="button"
                   onClick={() => handleFilterChange('listingType', '')}
-                  className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
+                  className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
                     filters.listingType === ''
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'text-white'
+                      : 'text-gray-700'
                   }`}
                 >
                   All
