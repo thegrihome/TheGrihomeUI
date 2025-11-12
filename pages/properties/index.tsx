@@ -342,33 +342,31 @@ export default function PropertiesPage() {
 
       <main className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Properties</h1>
-            <p className="text-gray-600">Find your perfect property with advanced filters</p>
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">Browse Properties</h1>
           </div>
 
           {/* Filters Section */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            {/* Buy/Rent/All Slider Toggle */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">Listing Type</label>
-              <div className="relative inline-flex items-center bg-gray-200 rounded-full p-1 w-full max-w-md">
+          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Buy/Rent/All Slider Toggle */}
+              <div className="relative inline-flex items-center bg-gray-200 rounded-full p-0.5" style={{ width: '180px' }}>
                 <div
-                  className="absolute top-1 bottom-1 bg-blue-600 rounded-full transition-all duration-300 ease-in-out"
+                  className="absolute top-0.5 bottom-0.5 bg-blue-600 rounded-full transition-all duration-300 ease-in-out"
                   style={{
                     left:
                       filters.listingType === 'SALE'
-                        ? '4px'
+                        ? '2px'
                         : filters.listingType === 'RENT'
-                          ? 'calc(33.33% + 2px)'
+                          ? 'calc(33.33% + 1px)'
                           : 'calc(66.66%)',
-                    width: 'calc(33.33% - 4px)',
+                    width: 'calc(33.33% - 2px)',
                   }}
                 />
                 <button
                   type="button"
                   onClick={() => handleFilterChange('listingType', 'SALE')}
-                  className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
+                  className={`flex-1 py-1 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
                     filters.listingType === 'SALE' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
@@ -377,7 +375,7 @@ export default function PropertiesPage() {
                 <button
                   type="button"
                   onClick={() => handleFilterChange('listingType', 'RENT')}
-                  className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
+                  className={`flex-1 py-1 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
                     filters.listingType === 'RENT' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
@@ -386,36 +384,60 @@ export default function PropertiesPage() {
                 <button
                   type="button"
                   onClick={() => handleFilterChange('listingType', '')}
-                  className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
+                  className={`flex-1 py-1 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
                     filters.listingType === '' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
                   All
                 </button>
               </div>
-            </div>
 
-            <div className="flex flex-wrap items-end gap-4">
               {/* Property Type Filter */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Property Type
-                </label>
+                <select
+                  value={filters.propertyType}
+                  onChange={e => handleFilterChange('propertyType', e.target.value)}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
+                >
+                  <option value="">All Types</option>
+                  {propertyTypes.map(type => (
+                    <option key={type.value} value={type.value}>
+                      {type.icon} {type.label}
+                    </option>
+                  ))}
+                </select>
+                <svg
+                  className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+
+              {/* Bedrooms Filter */}
+              {showBedroomsBathroomsFilters && (
                 <div className="relative">
                   <select
-                    value={filters.propertyType}
-                    onChange={e => handleFilterChange('propertyType', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-10"
+                    value={filters.bedrooms}
+                    onChange={e => handleFilterChange('bedrooms', e.target.value)}
+                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
                   >
-                    <option value="">All Types</option>
-                    {propertyTypes.map(type => (
-                      <option key={type.value} value={type.value}>
-                        {type.icon} {type.label}
+                    <option value="">Beds</option>
+                    {bedroomOptions.map(option => (
+                      <option key={option} value={option}>
+                        {option}
                       </option>
                     ))}
                   </select>
                   <svg
-                    className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                    className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -428,85 +450,47 @@ export default function PropertiesPage() {
                     />
                   </svg>
                 </div>
-              </div>
-
-              {/* Bedrooms Filter */}
-              {showBedroomsBathroomsFilters && (
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Bed(s)</label>
-                  <div className="relative">
-                    <select
-                      value={filters.bedrooms}
-                      onChange={e => handleFilterChange('bedrooms', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-10"
-                    >
-                      <option value="">Any</option>
-                      {bedroomOptions.map(option => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <svg
-                      className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                </div>
               )}
 
               {/* Bathrooms Filter */}
               {showBedroomsBathroomsFilters && (
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Bath(s)</label>
-                  <div className="relative">
-                    <select
-                      value={filters.bathrooms}
-                      onChange={e => handleFilterChange('bathrooms', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-10"
-                    >
-                      <option value="">Any</option>
-                      {bathroomOptions.map(option => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <svg
-                      className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
+                  <select
+                    value={filters.bathrooms}
+                    onChange={e => handleFilterChange('bathrooms', e.target.value)}
+                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
+                  >
+                    <option value="">Baths</option>
+                    {bathroomOptions.map(option => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <svg
+                    className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
                 </div>
               )}
 
               {/* Location Filter */}
-              <div className="relative flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+              <div className="relative flex-1 min-w-[250px]">
                 <input
                   type="text"
                   value={filters.location}
                   onChange={handleLocationSearch}
-                  placeholder="Enter location..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Location..."
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   onFocus={() => predictions.length > 0 && setShowLocationPredictions(true)}
                   onBlur={() => setTimeout(() => setShowLocationPredictions(false), 200)}
                 />
@@ -634,108 +618,98 @@ export default function PropertiesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-3">
               {filteredProperties.map(property => {
                 const isOwner = session?.user?.email === property.userEmail
                 return (
                   <div
                     key={property.id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
                   >
-                    <div className="relative h-48">
-                      <Image
-                        src={
-                          property.thumbnailUrl ||
-                          property.imageUrls[0] ||
-                          'https://via.placeholder.com/400x300?text=Property'
-                        }
-                        alt={`${property.project} - ${property.propertyType}`}
-                        width={400}
-                        height={192}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-4 left-4 flex gap-2">
-                        <div className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                    <div className="flex gap-4 p-3">
+                      {/* Image */}
+                      <div className="relative w-40 h-32 flex-shrink-0">
+                        <Image
+                          src={
+                            property.thumbnailUrl ||
+                            property.imageUrls[0] ||
+                            'https://via.placeholder.com/160x128?text=Property'
+                          }
+                          alt={`${property.project} - ${property.propertyType}`}
+                          width={160}
+                          height={128}
+                          className="w-full h-full object-cover rounded-md"
+                        />
+                        <div className="absolute top-2 left-2 bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-medium">
                           {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
                           {propertyTypes.find(t => t.value === property.propertyType)?.label}
                         </div>
                         {property.listingType === 'RENT' && (
-                          <div className="bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
-                            For Rent
+                          <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-0.5 rounded text-xs font-medium">
+                            Rent
                           </div>
                         )}
                       </div>
-                    </div>
-                    <div className="p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <h3 className="font-semibold text-lg text-gray-800">{property.project}</h3>
-                        {property.price && (
-                          <span className="font-semibold text-lg text-gray-800">
-                            ₹{formatIndianCurrency(property.price)}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-gray-600 text-sm mb-2">
-                        {property.sqFt && `${property.sqFt} sq ft`}
-                        {property.bedrooms && ` • ${property.bedrooms} BHK`}
-                        {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                        {property.builder !== 'Independent' && ` • Built by ${property.builder}`}
-                      </p>
-                      <p className="text-gray-500 text-sm mb-3 flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                        {property.location.fullAddress}
-                      </p>
-                      {property.description && (
-                        <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-                          {property.description}
-                        </p>
-                      )}
-                      <div className="flex justify-end items-center gap-2">
-                        <button
-                          onClick={() => router.push(`/properties/${property.id}`)}
-                          className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
-                        >
-                          View Details
-                        </button>
 
-                        {/* Owner Actions - Mark as Sold */}
-                        {isOwner && property.listingStatus === 'ACTIVE' && (
+                      {/* Content */}
+                      <div className="flex-1 flex flex-col justify-between min-w-0">
+                        <div>
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h3 className="font-semibold text-base text-gray-900 truncate">
+                              {property.project}
+                            </h3>
+                            {property.price && (
+                              <span className="font-bold text-lg text-blue-600 whitespace-nowrap">
+                                ₹{formatIndianCurrency(property.price)}
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-gray-600 text-xs mb-1">
+                            {property.bedrooms && `${property.bedrooms} BHK`}
+                            {property.bathrooms && ` • ${property.bathrooms} Bath`}
+                            {property.sqFt && ` • ${property.sqFt} sq ft`}
+                          </p>
+
+                          <p className="text-gray-500 text-xs mb-1 truncate">
+                            {property.location.locality && `${property.location.locality}, `}
+                            {property.location.city}, {property.location.state}
+                          </p>
+
+                          {property.description && (
+                            <p className="text-gray-600 text-xs line-clamp-1">{property.description}</p>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-end gap-2 mt-2">
                           <button
-                            onClick={() => {
-                              setSelectedPropertyId(property.id)
-                              setShowSoldModal(true)
-                            }}
-                            disabled={processing}
-                            className="p-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Mark as Sold"
+                            onClick={() => router.push(`/properties/${property.id}`)}
+                            className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-blue-700 transition-colors"
                           >
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                              <path
-                                fillRule="evenodd"
-                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
+                            View Details
                           </button>
-                        )}
+
+                          {/* Owner Actions - Mark as Sold */}
+                          {isOwner && property.listingStatus === 'ACTIVE' && (
+                            <button
+                              onClick={() => {
+                                setSelectedPropertyId(property.id)
+                                setShowSoldModal(true)
+                              }}
+                              disabled={processing}
+                              className="p-1.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Mark as Sold"
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                  fillRule="evenodd"
+                                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
