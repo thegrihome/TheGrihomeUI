@@ -410,10 +410,15 @@ export default function PropertiesPage() {
                   value={filters.propertyType}
                   onChange={e => handleFilterChange('propertyType', e.target.value)}
                   className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8 min-w-[160px]"
+                  style={{
+                    backgroundColor: 'white',
+                  }}
                 >
-                  <option value="">All Types</option>
+                  <option value="" style={{ backgroundColor: 'white' }}>
+                    All Types
+                  </option>
                   {propertyTypes.map(type => (
-                    <option key={type.value} value={type.value}>
+                    <option key={type.value} value={type.value} style={{ backgroundColor: 'white' }}>
                       {type.icon} {type.label}
                     </option>
                   ))}
@@ -440,10 +445,13 @@ export default function PropertiesPage() {
                     value={filters.bedrooms}
                     onChange={e => handleFilterChange('bedrooms', e.target.value)}
                     className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
+                    style={{ backgroundColor: 'white' }}
                   >
-                    <option value="">Beds</option>
+                    <option value="" style={{ backgroundColor: 'white' }}>
+                      Beds
+                    </option>
                     {bedroomOptions.map(option => (
-                      <option key={option} value={option}>
+                      <option key={option} value={option} style={{ backgroundColor: 'white' }}>
                         {option}
                       </option>
                     ))}
@@ -471,10 +479,13 @@ export default function PropertiesPage() {
                     value={filters.bathrooms}
                     onChange={e => handleFilterChange('bathrooms', e.target.value)}
                     className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
+                    style={{ backgroundColor: 'white' }}
                   >
-                    <option value="">Baths</option>
+                    <option value="" style={{ backgroundColor: 'white' }}>
+                      Baths
+                    </option>
                     {bathroomOptions.map(option => (
-                      <option key={option} value={option}>
+                      <option key={option} value={option} style={{ backgroundColor: 'white' }}>
                         {option}
                       </option>
                     ))}

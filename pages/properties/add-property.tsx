@@ -484,11 +484,14 @@ export default function AddProperty() {
                 value={formData.propertyType}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                style={{ backgroundColor: 'white' }}
               >
-                <option value="">Select Type</option>
+                <option value="" style={{ backgroundColor: 'white' }}>
+                  Select Type
+                </option>
                 {PROPERTY_TYPE_OPTIONS.map(type => (
-                  <option key={type.value} value={type.value}>
+                  <option key={type.value} value={type.value} style={{ backgroundColor: 'white' }}>
                     {type.label}
                   </option>
                 ))}
@@ -616,10 +619,11 @@ export default function AddProperty() {
                   name="propertySizeUnit"
                   value={formData.propertySizeUnit}
                   onChange={handleInputChange}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  style={{ backgroundColor: 'white' }}
                 >
                   {SIZE_UNIT_OPTIONS.map(unit => (
-                    <option key={unit.value} value={unit.value}>
+                    <option key={unit.value} value={unit.value} style={{ backgroundColor: 'white' }}>
                       {unit.label}
                     </option>
                   ))}
@@ -645,10 +649,11 @@ export default function AddProperty() {
                     name="plotSizeUnit"
                     value={formData.plotSizeUnit}
                     onChange={handleInputChange}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    style={{ backgroundColor: 'white' }}
                   >
                     {SIZE_UNIT_OPTIONS.map(unit => (
-                      <option key={unit.value} value={unit.value}>
+                      <option key={unit.value} value={unit.value} style={{ backgroundColor: 'white' }}>
                         {unit.label}
                       </option>
                     ))}
@@ -667,11 +672,14 @@ export default function AddProperty() {
                 value={formData.facing}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                style={{ backgroundColor: 'white' }}
               >
-                <option value="">Select Facing</option>
+                <option value="" style={{ backgroundColor: 'white' }}>
+                  Select Facing
+                </option>
                 {FACING_DIRECTIONS.map(facing => (
-                  <option key={facing} value={facing}>
+                  <option key={facing} value={facing} style={{ backgroundColor: 'white' }}>
                     {facing}
                   </option>
                 ))}
