@@ -88,7 +88,7 @@ export default function PropertiesPage() {
     { value: 'CONDO', label: 'Apartments', icon: '🏢' },
     { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
     { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
-    { value: 'COMMERCIAL', label: 'Commercial Properties', icon: '🏬' },
+    { value: 'COMMERCIAL', label: 'Commercial', icon: '🏬' },
   ]
 
   const bedroomOptions = ['1', '2', '3', '4', '5+']

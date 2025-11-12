@@ -93,7 +93,7 @@ export default function MyPropertiesPage() {
     },
     {
       value: PROPERTY_TYPES.COMMERCIAL,
-      label: 'Commercial Properties',
+      label: 'Commercial',
       icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.COMMERCIAL],
     },
   ]
