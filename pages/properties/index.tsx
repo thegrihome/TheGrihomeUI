@@ -645,100 +645,90 @@ export default function PropertiesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {filteredProperties.map(property => {
                 const isOwner = session?.user?.email === property.userEmail
                 return (
                   <div
                     key={property.id}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 flex flex-col"
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
                   >
-                    <div className="flex flex-col h-full">
-                      {/* Image */}
-                      <div className="relative w-full h-40 flex-shrink-0">
-                        <Image
-                          src={
-                            property.thumbnailUrl ||
-                            property.imageUrls[0] ||
-                            'https://via.placeholder.com/400x160?text=Property'
-                          }
-                          alt={`${property.project} - ${property.propertyType}`}
-                          width={400}
-                          height={160}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-2 left-2 bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-medium">
-                          {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
-                          {propertyTypes.find(t => t.value === property.propertyType)?.label}
+                    {/* Image */}
+                    <div className="relative w-full h-32">
+                      <Image
+                        src={
+                          property.thumbnailUrl ||
+                          property.imageUrls[0] ||
+                          'https://via.placeholder.com/400x160?text=Property'
+                        }
+                        alt={`${property.project} - ${property.propertyType}`}
+                        width={400}
+                        height={160}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-1.5 left-1.5 bg-blue-600 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
+                        {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
+                        {propertyTypes.find(t => t.value === property.propertyType)?.label}
+                      </div>
+                      {property.listingType === 'RENT' && (
+                        <div className="absolute top-1.5 right-1.5 bg-green-600 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
+                          Rent
                         </div>
-                        {property.listingType === 'RENT' && (
-                          <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-0.5 rounded text-xs font-medium">
-                            Rent
-                          </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-2">
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <h3 className="font-semibold text-xs text-gray-900 truncate flex-1">
+                          {property.project}
+                        </h3>
+                        {property.price && (
+                          <span className="font-bold text-sm text-blue-600 whitespace-nowrap">
+                            ₹{formatIndianCurrency(property.price)}
+                          </span>
                         )}
                       </div>
 
-                      {/* Content */}
-                      <div className="flex-1 flex flex-col p-3">
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <h3 className="font-semibold text-sm text-gray-900 line-clamp-1 flex-1">
-                              {property.project}
-                            </h3>
-                            {property.price && (
-                              <span className="font-bold text-base text-blue-600 whitespace-nowrap">
-                                ₹{formatIndianCurrency(property.price)}
-                              </span>
-                            )}
-                          </div>
+                      <p className="text-gray-600 text-[10px] mb-1 truncate">
+                        {property.bedrooms && `${property.bedrooms} BHK`}
+                        {property.bathrooms && ` • ${property.bathrooms} Bath`}
+                        {property.sqFt && ` • ${property.sqFt} sq ft`}
+                      </p>
 
-                          <p className="text-gray-600 text-xs mb-1">
-                            {property.bedrooms && `${property.bedrooms} BHK`}
-                            {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                            {property.sqFt && ` • ${property.sqFt} sq ft`}
-                          </p>
+                      <p className="text-gray-500 text-[10px] mb-2 truncate">
+                        {property.location.locality && `${property.location.locality}, `}
+                        {property.location.city}
+                      </p>
 
-                          <p className="text-gray-500 text-xs mb-1 line-clamp-1">
-                            {property.location.locality && `${property.location.locality}, `}
-                            {property.location.city}, {property.location.state}
-                          </p>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => router.push(`/properties/${property.id}`)}
+                          className="flex-1 bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors"
+                        >
+                          View Details
+                        </button>
 
-                          {property.description && (
-                            <p className="text-gray-600 text-xs line-clamp-2 mb-2">
-                              {property.description}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-end gap-2">
+                        {/* Owner Actions - Mark as Sold */}
+                        {isOwner && property.listingStatus === 'ACTIVE' && (
                           <button
-                            onClick={() => router.push(`/properties/${property.id}`)}
-                            className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-blue-700 transition-colors"
+                            onClick={() => {
+                              setSelectedPropertyId(property.id)
+                              setShowSoldModal(true)
+                            }}
+                            disabled={processing}
+                            className="p-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Mark as Sold"
                           >
-                            View Details
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                              <path
+                                fillRule="evenodd"
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
                           </button>
-
-                          {/* Owner Actions - Mark as Sold */}
-                          {isOwner && property.listingStatus === 'ACTIVE' && (
-                            <button
-                              onClick={() => {
-                                setSelectedPropertyId(property.id)
-                                setShowSoldModal(true)
-                              }}
-                              disabled={processing}
-                              className="p-1.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Mark as Sold"
-                            >
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                  fillRule="evenodd"
-                                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>

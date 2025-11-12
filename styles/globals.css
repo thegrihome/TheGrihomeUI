@@ -18,6 +18,20 @@
 @import './pages/projects/add-project-request.css';
 @import './pages/projects/detail.css';
 
+/* Fix dropdown backgrounds - force white background */
+select,
+select option {
+  background-color: white !important;
+  color: #374151 !important;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: #eff6ff !important;
+  color: #1f2937 !important;
+}
+
 html {
   min-width: 360px;
   scroll-behavior: smooth;
