@@ -147,6 +147,14 @@ export default function PropertiesPage() {
       return
     }
 
+    // Check if Google Maps is already loaded
+    if (window.google?.maps?.places?.AutocompleteService) {
+      const service = new google.maps.places.AutocompleteService()
+      setAutocompleteService(service)
+      return
+    }
+
+    // Only load if not already loaded
     const loader = new Loader({
       apiKey,
       version: 'weekly',

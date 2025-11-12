@@ -96,7 +96,7 @@
 
 .header-add-property-link {
   margin-left: 1rem;
-  padding: 0.375rem 0.75rem;
+  padding: 0.25rem 0.625rem;
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: -0.025em;
@@ -107,7 +107,7 @@
   text-decoration: none;
   display: inline-block;
   position: relative;
-  border: 3px double #000000;
+  border: 2.5px double #000000;
   border-radius: 0.375rem;
   transition: transform 0.2s ease;
 }

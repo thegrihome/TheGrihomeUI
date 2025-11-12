@@ -193,6 +193,60 @@ export default function AddProperty() {
       return
     }
 
+    const initializeAutocomplete = () => {
+      if (locationInputRef.current && window.google?.maps?.places?.Autocomplete) {
+        autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
+          types: ['geocode'],
+          componentRestrictions: { country: 'in' },
+        })
+
+        autocompleteRef.current.addListener('place_changed', () => {
+          const place = autocompleteRef.current?.getPlace()
+          if (!place?.geometry?.location) return
+
+          const addressComponents = place.address_components || []
+          let city = ''
+          let state = ''
+          let country = ''
+          let zipcode = ''
+          let locality = ''
+
+          addressComponents.forEach(component => {
+            const types = component.types
+            if (types.includes('locality')) city = component.long_name
+            if (types.includes('administrative_area_level_1')) state = component.long_name
+            if (types.includes('country')) country = component.long_name
+            if (types.includes('postal_code')) zipcode = component.long_name
+            if (types.includes('sublocality_level_1') || types.includes('sublocality'))
+              locality = component.long_name
+          })
+
+          const location = place.geometry.location
+
+          setFormData(prev => ({
+            ...prev,
+            location: {
+              address: place.formatted_address || '',
+              city,
+              state,
+              country,
+              zipcode,
+              locality,
+              lat: location.lat(),
+              lng: location.lng(),
+            },
+          }))
+        })
+      }
+    }
+
+    // Check if Google Maps is already loaded
+    if (window.google?.maps?.places?.Autocomplete) {
+      initializeAutocomplete()
+      return
+    }
+
+    // Only load if not already loaded
     const loader = new Loader({
       apiKey,
       version: 'weekly',
@@ -202,50 +256,7 @@ export default function AddProperty() {
     loader
       .load()
       .then(() => {
-        if (locationInputRef.current) {
-          autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
-            types: ['geocode'],
-            componentRestrictions: { country: 'in' },
-          })
-
-          autocompleteRef.current.addListener('place_changed', () => {
-            const place = autocompleteRef.current?.getPlace()
-            if (!place?.geometry?.location) return
-
-            const addressComponents = place.address_components || []
-            let city = ''
-            let state = ''
-            let country = ''
-            let zipcode = ''
-            let locality = ''
-
-            addressComponents.forEach(component => {
-              const types = component.types
-              if (types.includes('locality')) city = component.long_name
-              if (types.includes('administrative_area_level_1')) state = component.long_name
-              if (types.includes('country')) country = component.long_name
-              if (types.includes('postal_code')) zipcode = component.long_name
-              if (types.includes('sublocality_level_1') || types.includes('sublocality'))
-                locality = component.long_name
-            })
-
-            const location = place.geometry.location
-
-            setFormData(prev => ({
-              ...prev,
-              location: {
-                address: place.formatted_address || '',
-                city,
-                state,
-                country,
-                zipcode,
-                locality,
-                lat: location.lat(),
-                lng: location.lng(),
-              },
-            }))
-          })
-        }
+        initializeAutocomplete()
       })
       .catch(error => {
         // eslint-disable-next-line no-console
