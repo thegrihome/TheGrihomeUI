@@ -350,7 +350,10 @@ export default function PropertiesPage() {
           <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
             <div className="flex flex-wrap items-center gap-3">
               {/* Buy/Rent/All Slider Toggle */}
-              <div className="relative inline-flex items-center bg-gray-200 rounded-full p-0.5" style={{ width: '180px' }}>
+              <div
+                className="relative inline-flex items-center bg-gray-200 rounded-full p-0.5"
+                style={{ width: '180px' }}
+              >
                 <div
                   className="absolute top-0.5 bottom-0.5 bg-blue-600 rounded-full transition-all duration-300 ease-in-out"
                   style={{
@@ -677,7 +680,9 @@ export default function PropertiesPage() {
                           </p>
 
                           {property.description && (
-                            <p className="text-gray-600 text-xs line-clamp-1">{property.description}</p>
+                            <p className="text-gray-600 text-xs line-clamp-1">
+                              {property.description}
+                            </p>
                           )}
                         </div>
 
