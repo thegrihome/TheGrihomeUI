@@ -356,7 +356,12 @@ export default function PropertiesPage() {
                 <div
                   className="absolute top-1 bottom-1 bg-blue-600 rounded-full transition-all duration-300 ease-in-out"
                   style={{
-                    left: filters.listingType === 'SALE' ? '4px' : filters.listingType === 'RENT' ? 'calc(33.33% + 2px)' : 'calc(66.66%)',
+                    left:
+                      filters.listingType === 'SALE'
+                        ? '4px'
+                        : filters.listingType === 'RENT'
+                          ? 'calc(33.33% + 2px)'
+                          : 'calc(66.66%)',
                     width: 'calc(33.33% - 4px)',
                   }}
                 />
@@ -364,9 +369,7 @@ export default function PropertiesPage() {
                   type="button"
                   onClick={() => handleFilterChange('listingType', 'SALE')}
                   className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
-                    filters.listingType === 'SALE'
-                      ? 'text-white'
-                      : 'text-gray-700'
+                    filters.listingType === 'SALE' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
                   Buy
@@ -375,9 +378,7 @@ export default function PropertiesPage() {
                   type="button"
                   onClick={() => handleFilterChange('listingType', 'RENT')}
                   className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
-                    filters.listingType === 'RENT'
-                      ? 'text-white'
-                      : 'text-gray-700'
+                    filters.listingType === 'RENT' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
                   Rent
@@ -386,9 +387,7 @@ export default function PropertiesPage() {
                   type="button"
                   onClick={() => handleFilterChange('listingType', '')}
                   className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
-                    filters.listingType === ''
-                      ? 'text-white'
-                      : 'text-gray-700'
+                    filters.listingType === '' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
                   All
