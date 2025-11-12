@@ -395,7 +395,7 @@ export default function PropertiesPage() {
                 <button
                   type="button"
                   onClick={() => handleFilterChange('listingType', 'SALE')}
-                  className={`flex-1 py-1 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
+                  className={`flex-1 py-1.5 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
                     filters.listingType === 'SALE' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
@@ -404,7 +404,7 @@ export default function PropertiesPage() {
                 <button
                   type="button"
                   onClick={() => handleFilterChange('listingType', 'RENT')}
-                  className={`flex-1 py-1 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
+                  className={`flex-1 py-1.5 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
                     filters.listingType === 'RENT' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
@@ -413,7 +413,7 @@ export default function PropertiesPage() {
                 <button
                   type="button"
                   onClick={() => handleFilterChange('listingType', '')}
-                  className={`flex-1 py-1 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
+                  className={`flex-1 py-1.5 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
                     filters.listingType === '' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
@@ -635,7 +635,7 @@ export default function PropertiesPage() {
               <div className="relative sort-dropdown">
                 <button
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-2 px-4 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                 >
                   Sort: {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Default'}
                   <svg
@@ -654,7 +654,7 @@ export default function PropertiesPage() {
                 </button>
 
                 {showSortDropdown && (
-                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                  <div className="absolute right-0 mt-0 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
                     <button
                       onClick={() => {
                         handleFilterChange('sortBy', '')
