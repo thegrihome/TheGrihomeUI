@@ -332,11 +332,25 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               )}
               <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
             </div>
-            <p className="text-gray-600 mb-2">by {project.builder.name}</p>
-            <p className="text-gray-500 text-sm mb-3">
-              {project.location.locality && `${project.location.locality}, `}
-              {project.location.city}, {project.location.state}
-            </p>
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {project.builder.website ? (
+                <a
+                  href={project.builder.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  {project.builder.name}
+                </a>
+              ) : (
+                <span className="text-gray-600 font-medium">{project.builder.name}</span>
+              )}
+              <span className="text-gray-400">•</span>
+              <span className="text-gray-500 text-sm">
+                {project.location.locality && `${project.location.locality}, `}
+                {project.location.city}, {project.location.state}
+              </span>
+            </div>
 
             {/* Registered Agent Banner */}
             {showAgentBanner && (
@@ -377,7 +391,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   rel="noopener noreferrer"
                   className="action-button action-button-outline"
                 >
-                  Visit Builder Page
+                  Visit builder website
                 </a>
               )}
 
@@ -626,24 +640,24 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
             {/* Add Your Property Button */}
             {isAuthenticated && session?.user && (
-              <div className="mb-4">
+              <div className="mb-3">
                 <button
                   onClick={() => router.push(`/projects/${project.id}/promote-property`)}
-                  className="w-full bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5"
+                  className="bg-blue-600 text-white px-2.5 py-1.5 rounded text-xs font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-1"
                 >
                   <svg
-                    className="w-4 h-4"
+                    className="w-3 h-3"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       fillRule="evenodd"
-                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                       clipRule="evenodd"
                     />
                   </svg>
-                  Add your property here
+                  Add property
                 </button>
               </div>
             )}
@@ -738,20 +752,20 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
             {/* Add as Agent Button */}
             {isAuthenticated && session?.user && (session.user as any).role === 'AGENT' && (
-              <div className="mb-4">
+              <div className="mb-3">
                 <button
                   onClick={() => router.push(`/projects/${project.id}/promote-agent`)}
-                  className="w-full bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5"
+                  className="bg-blue-600 text-white px-2.5 py-1.5 rounded text-xs font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-1"
                 >
                   <svg
-                    className="w-4 h-4"
+                    className="w-3 h-3"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       fillRule="evenodd"
-                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                       clipRule="evenodd"
                     />
                   </svg>
@@ -764,30 +778,30 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               {featuredAgents.map(agentData => (
                 <Link key={agentData.id} href={`/agents/${agentData.agent.id}`}>
                   <div className="featured-agent-card">
-                    <div className="agent-header">
-                      {agentData.agent.image ? (
-                        <Image
-                          src={agentData.agent.image}
-                          alt={agentData.agent.name || agentData.agent.username}
-                          width={50}
-                          height={50}
-                          className="agent-avatar"
-                        />
-                      ) : (
-                        <div className="agent-avatar flex items-center justify-center">
-                          <span className="text-gray-500">
-                            {(agentData.agent.name || agentData.agent.username)
-                              .charAt(0)
-                              .toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <div className="agent-info">
-                        <div className="agent-name flex items-center gap-1">
-                          {agentData.agent.name || agentData.agent.username}
-                          {agentData.isFeatured && (
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="agent-header flex-shrink-0">
+                        {agentData.agent.image ? (
+                          <Image
+                            src={agentData.agent.image}
+                            alt={agentData.agent.name || agentData.agent.username}
+                            width={50}
+                            height={50}
+                            className="agent-avatar"
+                          />
+                        ) : (
+                          <div className="agent-avatar flex items-center justify-center">
+                            <span className="text-gray-500">
+                              {(agentData.agent.name || agentData.agent.username)
+                                .charAt(0)
+                                .toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div className="agent-info">
+                          <div className="agent-name flex items-center gap-1">
+                            {agentData.agent.name || agentData.agent.username}
                             <svg
-                              className="w-5 h-5 text-blue-500"
+                              className="w-4 h-4 text-blue-500 flex-shrink-0"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                               xmlns="http://www.w3.org/2000/svg"
@@ -799,24 +813,20 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                                 clipRule="evenodd"
                               />
                             </svg>
-                          )}
-                        </div>
-                        <div className="agent-role">
-                          {agentData.agent.companyName || 'Real Estate Agent'}
+                          </div>
+                          <div className="agent-role">
+                            {agentData.agent.companyName || 'Real Estate Agent'}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="agent-contact-info">
-                      {agentData.agent.emailVerified && agentData.agent.email && (
-                        <div className="agent-contact">
-                          <span className="text-gray-600">Email:</span> {agentData.agent.email}
-                        </div>
-                      )}
-                      {agentData.agent.mobileVerified && agentData.agent.phone && (
-                        <div className="agent-contact">
-                          <span className="text-gray-600">Phone:</span> {agentData.agent.phone}
-                        </div>
-                      )}
+                      <div className="agent-contact-info text-right text-xs flex-shrink-0">
+                        {agentData.agent.emailVerified && agentData.agent.email && (
+                          <div className="text-gray-600 mb-1">{agentData.agent.email}</div>
+                        )}
+                        {agentData.agent.mobileVerified && agentData.agent.phone && (
+                          <div className="text-gray-600">{agentData.agent.phone}</div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -824,44 +834,55 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               {regularAgents.map(agentData => (
                 <Link key={agentData.id} href={`/agents/${agentData.agent.id}`}>
                   <div className="featured-agent-card">
-                    <div className="agent-header">
-                      {agentData.agent.image ? (
-                        <Image
-                          src={agentData.agent.image}
-                          alt={agentData.agent.name || agentData.agent.username}
-                          width={50}
-                          height={50}
-                          className="agent-avatar"
-                        />
-                      ) : (
-                        <div className="agent-avatar flex items-center justify-center">
-                          <span className="text-gray-500">
-                            {(agentData.agent.name || agentData.agent.username)
-                              .charAt(0)
-                              .toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <div className="agent-info">
-                        <div className="agent-name">
-                          {agentData.agent.name || agentData.agent.username}
-                        </div>
-                        <div className="agent-role">
-                          {agentData.agent.companyName || 'Real Estate Agent'}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="agent-header flex-shrink-0">
+                        {agentData.agent.image ? (
+                          <Image
+                            src={agentData.agent.image}
+                            alt={agentData.agent.name || agentData.agent.username}
+                            width={50}
+                            height={50}
+                            className="agent-avatar"
+                          />
+                        ) : (
+                          <div className="agent-avatar flex items-center justify-center">
+                            <span className="text-gray-500">
+                              {(agentData.agent.name || agentData.agent.username)
+                                .charAt(0)
+                                .toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div className="agent-info">
+                          <div className="agent-name flex items-center gap-1">
+                            {agentData.agent.name || agentData.agent.username}
+                            <svg
+                              className="w-4 h-4 text-blue-500 flex-shrink-0"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-label="Verified Agent"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                          <div className="agent-role">
+                            {agentData.agent.companyName || 'Real Estate Agent'}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="agent-contact-info">
-                      {agentData.agent.emailVerified && agentData.agent.email && (
-                        <div className="agent-contact">
-                          <span className="text-gray-600">Email:</span> {agentData.agent.email}
-                        </div>
-                      )}
-                      {agentData.agent.mobileVerified && agentData.agent.phone && (
-                        <div className="agent-contact">
-                          <span className="text-gray-600">Phone:</span> {agentData.agent.phone}
-                        </div>
-                      )}
+                      <div className="agent-contact-info text-right text-xs flex-shrink-0">
+                        {agentData.agent.emailVerified && agentData.agent.email && (
+                          <div className="text-gray-600 mb-1">{agentData.agent.email}</div>
+                        )}
+                        {agentData.agent.mobileVerified && agentData.agent.phone && (
+                          <div className="text-gray-600">{agentData.agent.phone}</div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>
