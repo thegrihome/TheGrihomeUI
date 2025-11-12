@@ -66,6 +66,10 @@ export default function PropertiesPage() {
   const [buyerName, setBuyerName] = useState('')
   const [processing, setProcessing] = useState(false)
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const propertiesPerPage = 15
 
   const [filters, setFilters] = useState<Filters>({
     propertyType: '',
@@ -190,6 +194,8 @@ export default function PropertiesPage() {
         if (filters.bathrooms) queryParams.append('bathrooms', filters.bathrooms)
         if (filters.location) queryParams.append('location', filters.location)
         if (filters.sortBy) queryParams.append('sortBy', filters.sortBy)
+        queryParams.append('page', currentPage.toString())
+        queryParams.append('limit', propertiesPerPage.toString())
 
         const response = await fetch(`/api/properties/list?${queryParams.toString()}`)
 
@@ -200,6 +206,8 @@ export default function PropertiesPage() {
         const data = await response.json()
         setProperties(data.properties)
         setFilteredProperties(data.properties)
+        setTotalPages(data.pagination.totalPages)
+        setTotalCount(data.pagination.totalCount)
       } catch (error) {
         toast.error('Failed to load properties')
         setProperties([])
@@ -212,13 +220,14 @@ export default function PropertiesPage() {
     // Debounce API calls to avoid too many requests
     const timeoutId = setTimeout(loadProperties, 300)
     return () => clearTimeout(timeoutId)
-  }, [filters, mounted])
+  }, [filters, mounted, currentPage, propertiesPerPage])
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
     }))
+    setCurrentPage(1) // Reset to first page when filters change
   }
 
   const handleLocationSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -351,7 +360,7 @@ export default function PropertiesPage() {
             <div className="flex flex-wrap items-center gap-3">
               {/* Buy/Rent/All Slider Toggle */}
               <div
-                className="relative inline-flex items-center bg-gray-200 rounded-full p-0.5"
+                className="relative inline-flex items-center bg-white border border-gray-300 rounded-full p-0.5"
                 style={{ width: '180px' }}
               >
                 <div
@@ -400,7 +409,7 @@ export default function PropertiesPage() {
                 <select
                   value={filters.propertyType}
                   onChange={e => handleFilterChange('propertyType', e.target.value)}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8"
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-8 min-w-[160px]"
                 >
                   <option value="">All Types</option>
                   {propertyTypes.map(type => (
@@ -621,27 +630,27 @@ export default function PropertiesPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProperties.map(property => {
                 const isOwner = session?.user?.email === property.userEmail
                 return (
                   <div
                     key={property.id}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 flex flex-col"
                   >
-                    <div className="flex gap-4 p-3">
+                    <div className="flex flex-col h-full">
                       {/* Image */}
-                      <div className="relative w-40 h-32 flex-shrink-0">
+                      <div className="relative w-full h-40 flex-shrink-0">
                         <Image
                           src={
                             property.thumbnailUrl ||
                             property.imageUrls[0] ||
-                            'https://via.placeholder.com/160x128?text=Property'
+                            'https://via.placeholder.com/400x160?text=Property'
                           }
                           alt={`${property.project} - ${property.propertyType}`}
-                          width={160}
-                          height={128}
-                          className="w-full h-full object-cover rounded-md"
+                          width={400}
+                          height={160}
+                          className="w-full h-full object-cover"
                         />
                         <div className="absolute top-2 left-2 bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-medium">
                           {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
@@ -655,14 +664,14 @@ export default function PropertiesPage() {
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 flex flex-col justify-between min-w-0">
-                        <div>
+                      <div className="flex-1 flex flex-col p-3">
+                        <div className="flex-1">
                           <div className="flex items-start justify-between gap-2 mb-1">
-                            <h3 className="font-semibold text-base text-gray-900 truncate">
+                            <h3 className="font-semibold text-sm text-gray-900 line-clamp-1 flex-1">
                               {property.project}
                             </h3>
                             {property.price && (
-                              <span className="font-bold text-lg text-blue-600 whitespace-nowrap">
+                              <span className="font-bold text-base text-blue-600 whitespace-nowrap">
                                 ₹{formatIndianCurrency(property.price)}
                               </span>
                             )}
@@ -674,19 +683,19 @@ export default function PropertiesPage() {
                             {property.sqFt && ` • ${property.sqFt} sq ft`}
                           </p>
 
-                          <p className="text-gray-500 text-xs mb-1 truncate">
+                          <p className="text-gray-500 text-xs mb-1 line-clamp-1">
                             {property.location.locality && `${property.location.locality}, `}
                             {property.location.city}, {property.location.state}
                           </p>
 
                           {property.description && (
-                            <p className="text-gray-600 text-xs line-clamp-1">
+                            <p className="text-gray-600 text-xs line-clamp-2 mb-2">
                               {property.description}
                             </p>
                           )}
                         </div>
 
-                        <div className="flex items-center justify-end gap-2 mt-2">
+                        <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => router.push(`/properties/${property.id}`)}
                             className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-blue-700 transition-colors"
@@ -720,6 +729,66 @@ export default function PropertiesPage() {
                   </div>
                 )
               })}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {!loading && filteredProperties.length > 0 && totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    // Show first page, last page, current page, and pages around current
+                    return (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    )
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipsis if there's a gap
+                    const prevPage = array[index - 1]
+                    const showEllipsis = prevPage && page - prevPage > 1
+
+                    return (
+                      <React.Fragment key={page}>
+                        {showEllipsis && (
+                          <span className="px-2 text-gray-400">...</span>
+                        )}
+                        <button
+                          onClick={() => setCurrentPage(page)}
+                          className={`px-3 py-1.5 text-sm rounded-md ${
+                            currentPage === page
+                              ? 'bg-blue-600 text-white'
+                              : 'border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      </React.Fragment>
+                    )
+                  })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+
+              <span className="text-sm text-gray-600 ml-4">
+                Page {currentPage} of {totalPages} ({totalCount} properties)
+              </span>
             </div>
           )}
         </div>

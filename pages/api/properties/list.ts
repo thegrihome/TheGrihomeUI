@@ -129,47 +129,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Build order clause
+    // Build order clause based on sortBy
     let orderBy: any = { createdAt: 'desc' } // default newest first
 
-    switch (sortBy) {
-      case 'price_asc':
-        orderBy = [
-          {
-            propertyDetails: {
-              path: ['price'],
-              sort: 'asc',
-            },
-          },
-        ]
-        break
-      case 'price_desc':
-        orderBy = [
-          {
-            propertyDetails: {
-              path: ['price'],
-              sort: 'desc',
-            },
-          },
-        ]
-        break
-      case 'newest':
-        orderBy = { createdAt: 'desc' }
-        break
-      case 'oldest':
-        orderBy = { createdAt: 'asc' }
-        break
+    if (sortBy === 'newest') {
+      orderBy = { createdAt: 'desc' }
+    } else if (sortBy === 'oldest') {
+      orderBy = { createdAt: 'asc' }
     }
 
     // Get total count for pagination
     const totalCount = await prisma.property.count({ where })
 
     // Fetch properties
-    const properties = await prisma.property.findMany({
+    let properties = await prisma.property.findMany({
       where,
       orderBy,
-      skip,
-      take: limitNum,
+      skip: sortBy === 'price_asc' || sortBy === 'price_desc' ? undefined : skip,
+      take: sortBy === 'price_asc' || sortBy === 'price_desc' ? undefined : limitNum,
       include: {
         location: {
           select: {
@@ -207,7 +184,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     // Transform properties for frontend
-    const transformedProperties = properties.map(property => {
+    let transformedProperties = properties.map(property => {
       const propertyDetails = property.propertyDetails as any
 
       return {
@@ -244,6 +221,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         description: propertyDetails?.description,
       }
     })
+
+    // Sort by price if requested (in-memory sorting since Prisma doesn't support JSON field sorting well)
+    if (sortBy === 'price_asc' || sortBy === 'price_desc') {
+      transformedProperties = transformedProperties.sort((a, b) => {
+        const priceA = a.price ? parseFloat(a.price) : 0
+        const priceB = b.price ? parseFloat(b.price) : 0
+        return sortBy === 'price_asc' ? priceA - priceB : priceB - priceA
+      })
+
+      // Apply pagination after sorting
+      transformedProperties = transformedProperties.slice(skip, skip + limitNum)
+    }
 
     res.status(200).json({
       properties: transformedProperties,
