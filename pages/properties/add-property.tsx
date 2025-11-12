@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
+import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import toast from 'react-hot-toast'
@@ -34,6 +35,8 @@ export default function AddProperty() {
   const [projects, setProjects] = useState<Project[]>([])
   const [projectSearch, setProjectSearch] = useState('')
   const [showProjectDropdown, setShowProjectDropdown] = useState(false)
+  const [showPropertyTypeDropdown, setShowPropertyTypeDropdown] = useState(false)
+  const [showFacingDropdown, setShowFacingDropdown] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     propertyType: '',
@@ -149,84 +152,105 @@ export default function AddProperty() {
   }, [projectSearch])
 
   useEffect(() => {
-    // Close project dropdown when clicking outside
+    // Close dropdowns when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+
       if (
         projectDropdownRef.current &&
         !projectDropdownRef.current.contains(event.target as Node)
       ) {
         setShowProjectDropdown(false)
       }
+
+      if (!target.closest('.property-type-dropdown')) {
+        setShowPropertyTypeDropdown(false)
+      }
+
+      if (!target.closest('.facing-dropdown')) {
+        setShowFacingDropdown(false)
+      }
     }
 
-    if (showProjectDropdown) {
+    if (showProjectDropdown || showPropertyTypeDropdown || showFacingDropdown) {
       document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showProjectDropdown])
+  }, [showProjectDropdown, showPropertyTypeDropdown, showFacingDropdown])
 
   useEffect(() => {
     // Initialize Google Places Autocomplete
-    const initAutocomplete = () => {
-      if (locationInputRef.current && window.google?.maps?.places) {
-        autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
-          types: ['geocode'],
-          componentRestrictions: { country: 'in' },
-        })
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
-        autocompleteRef.current.addListener('place_changed', () => {
-          const place = autocompleteRef.current?.getPlace()
-          if (!place?.geometry?.location) return
-
-          const addressComponents = place.address_components || []
-          let city = ''
-          let state = ''
-          let country = ''
-          let zipcode = ''
-          let locality = ''
-
-          addressComponents.forEach(component => {
-            const types = component.types
-            if (types.includes('locality')) city = component.long_name
-            if (types.includes('administrative_area_level_1')) state = component.long_name
-            if (types.includes('country')) country = component.long_name
-            if (types.includes('postal_code')) zipcode = component.long_name
-            if (types.includes('sublocality_level_1') || types.includes('sublocality'))
-              locality = component.long_name
-          })
-
-          const location = place.geometry.location
-
-          setFormData(prev => ({
-            ...prev,
-            location: {
-              address: place.formatted_address || '',
-              city,
-              state,
-              country,
-              zipcode,
-              locality,
-              lat: location.lat(),
-              lng: location.lng(),
-            },
-          }))
-        })
-      }
+    if (!apiKey) {
+      // eslint-disable-next-line no-console
+      console.error(
+        'Google Maps API key is missing. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.'
+      )
+      return
     }
 
-    // Wait for Google Maps to fully load
-    const checkGoogle = setInterval(() => {
-      if (window.google?.maps?.places) {
-        clearInterval(checkGoogle)
-        initAutocomplete()
-      }
-    }, 100)
+    const loader = new Loader({
+      apiKey,
+      version: 'weekly',
+      libraries: ['places'],
+    })
 
-    // Cleanup
-    return () => clearInterval(checkGoogle)
+    loader
+      .load()
+      .then(() => {
+        if (locationInputRef.current) {
+          autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
+            types: ['geocode'],
+            componentRestrictions: { country: 'in' },
+          })
+
+          autocompleteRef.current.addListener('place_changed', () => {
+            const place = autocompleteRef.current?.getPlace()
+            if (!place?.geometry?.location) return
+
+            const addressComponents = place.address_components || []
+            let city = ''
+            let state = ''
+            let country = ''
+            let zipcode = ''
+            let locality = ''
+
+            addressComponents.forEach(component => {
+              const types = component.types
+              if (types.includes('locality')) city = component.long_name
+              if (types.includes('administrative_area_level_1')) state = component.long_name
+              if (types.includes('country')) country = component.long_name
+              if (types.includes('postal_code')) zipcode = component.long_name
+              if (types.includes('sublocality_level_1') || types.includes('sublocality'))
+                locality = component.long_name
+            })
+
+            const location = place.geometry.location
+
+            setFormData(prev => ({
+              ...prev,
+              location: {
+                address: place.formatted_address || '',
+                city,
+                state,
+                country,
+                zipcode,
+                locality,
+                lat: location.lat(),
+                lng: location.lng(),
+              },
+            }))
+          })
+        }
+      })
+      .catch(error => {
+        // eslint-disable-next-line no-console
+        console.error('Error loading Google Maps API:', error)
+      })
   }, [])
 
   const handleInputChange = (
@@ -381,21 +405,36 @@ export default function AddProperty() {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Add New Property</h1>
+          <h1 className="text-2xl font-bold mb-6">
+            <span className="text-gray-800">Add New</span>{' '}
+            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Property
+            </span>
+          </h1>
 
           {/* Listing Type Toggle */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Listing Type <span className="text-red-500">*</span>
             </label>
-            <div className="flex gap-4">
+            <div
+              className="relative inline-flex items-center bg-white border border-gray-300 rounded-full p-0.5"
+              style={{ minWidth: '200px' }}
+            >
+              <div
+                className="absolute bg-blue-600 rounded-full h-[calc(100%-4px)] transition-all duration-300 ease-in-out"
+                style={{
+                  left: '2px',
+                  top: '2px',
+                  transform: formData.listingType === 'SALE' ? 'translateX(0)' : 'translateX(100%)',
+                  width: 'calc(50% - 2px)',
+                }}
+              />
               <button
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, listingType: 'SALE' }))}
-                className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
-                  formData.listingType === 'SALE'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                className={`flex-1 py-1.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
+                  formData.listingType === 'SALE' ? 'text-white' : 'text-gray-700'
                 }`}
               >
                 Sell
@@ -403,10 +442,8 @@ export default function AddProperty() {
               <button
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, listingType: 'RENT' }))}
-                className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
-                  formData.listingType === 'RENT'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                className={`flex-1 py-1.5 px-4 rounded-full font-medium text-sm transition-colors relative z-10 ${
+                  formData.listingType === 'RENT' ? 'text-white' : 'text-gray-700'
                 }`}
               >
                 Rent
@@ -479,23 +516,55 @@ export default function AddProperty() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Property Type <span className="text-red-500">*</span>
               </label>
-              <select
-                name="propertyType"
-                value={formData.propertyType}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                style={{ backgroundColor: 'white' }}
-              >
-                <option value="" style={{ backgroundColor: 'white' }}>
-                  Select Type
-                </option>
-                {PROPERTY_TYPE_OPTIONS.map(type => (
-                  <option key={type.value} value={type.value} style={{ backgroundColor: 'white' }}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+              <div className="relative property-type-dropdown">
+                <button
+                  type="button"
+                  onClick={() => setShowPropertyTypeDropdown(!showPropertyTypeDropdown)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 text-left"
+                >
+                  {formData.propertyType
+                    ? PROPERTY_TYPE_OPTIONS.find(t => t.value === formData.propertyType)?.label
+                    : 'Select Type'}
+                </button>
+                <svg
+                  className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+                {showPropertyTypeDropdown && (
+                  <div className="absolute z-10 w-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    <div
+                      className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, propertyType: '' }))
+                        setShowPropertyTypeDropdown(false)
+                      }}
+                    >
+                      Select Type
+                    </div>
+                    {PROPERTY_TYPE_OPTIONS.map(type => (
+                      <div
+                        key={type.value}
+                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, propertyType: type.value }))
+                          setShowPropertyTypeDropdown(false)
+                        }}
+                      >
+                        {type.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Project */}
@@ -675,23 +744,53 @@ export default function AddProperty() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Facing <span className="text-red-500">*</span>
               </label>
-              <select
-                name="facing"
-                value={formData.facing}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                style={{ backgroundColor: 'white' }}
-              >
-                <option value="" style={{ backgroundColor: 'white' }}>
-                  Select Facing
-                </option>
-                {FACING_DIRECTIONS.map(facing => (
-                  <option key={facing} value={facing} style={{ backgroundColor: 'white' }}>
-                    {facing}
-                  </option>
-                ))}
-              </select>
+              <div className="relative facing-dropdown">
+                <button
+                  type="button"
+                  onClick={() => setShowFacingDropdown(!showFacingDropdown)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 text-left"
+                >
+                  {formData.facing || 'Select Facing'}
+                </button>
+                <svg
+                  className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+                {showFacingDropdown && (
+                  <div className="absolute z-10 w-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    <div
+                      className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, facing: '' }))
+                        setShowFacingDropdown(false)
+                      }}
+                    >
+                      Select Facing
+                    </div>
+                    {FACING_DIRECTIONS.map(facing => (
+                      <div
+                        key={facing}
+                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, facing: facing }))
+                          setShowFacingDropdown(false)
+                        }}
+                      >
+                        {facing}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Location */}
