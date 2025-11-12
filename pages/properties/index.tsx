@@ -757,12 +757,12 @@ export default function PropertiesPage() {
                         {property.sqFt && ` • ${property.sqFt} sq ft`}
                       </p>
 
-                      <div className="flex items-center justify-between gap-1">
+                      <div className="flex items-end justify-between gap-1">
                         <p className="text-gray-500 text-[10px] truncate flex-1">
                           {property.location.locality && `${property.location.locality}, `}
                           {property.location.city}
                         </p>
-                        <div className="flex items-center gap-1 flex-shrink-0">
+                        <div className="flex items-end gap-1 flex-shrink-0">
                           <button
                             onClick={() => router.push(`/properties/${property.id}`)}
                             className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
