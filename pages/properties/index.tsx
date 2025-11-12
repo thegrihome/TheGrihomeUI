@@ -684,52 +684,52 @@ export default function PropertiesPage() {
                           {property.project}
                         </h3>
                         {property.price && (
-                          <span className="font-bold text-sm text-blue-600 whitespace-nowrap">
-                            ₹{formatIndianCurrency(property.price)}
-                          </span>
+                          <div className="flex flex-col items-end gap-0.5">
+                            <span className="font-bold text-sm text-blue-600 whitespace-nowrap">
+                              ₹{formatIndianCurrency(property.price)}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => router.push(`/properties/${property.id}`)}
+                                className="bg-blue-600 text-white px-2 py-0.5 rounded text-[9px] font-medium hover:bg-blue-700 transition-colors"
+                              >
+                                View
+                              </button>
+                              {/* Owner Actions - Mark as Sold */}
+                              {isOwner && property.listingStatus === 'ACTIVE' && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedPropertyId(property.id)
+                                    setShowSoldModal(true)
+                                  }}
+                                  disabled={processing}
+                                  className="p-0.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  title="Mark as Sold"
+                                >
+                                  <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         )}
                       </div>
 
-                      <p className="text-gray-600 text-[10px] mb-1 truncate">
+                      <p className="text-gray-600 text-[10px] mb-0.5 truncate">
                         {property.bedrooms && `${property.bedrooms} BHK`}
                         {property.bathrooms && ` • ${property.bathrooms} Bath`}
                         {property.sqFt && ` • ${property.sqFt} sq ft`}
                       </p>
 
-                      <p className="text-gray-500 text-[10px] mb-2 truncate">
+                      <p className="text-gray-500 text-[10px] truncate">
                         {property.location.locality && `${property.location.locality}, `}
                         {property.location.city}
                       </p>
-
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => router.push(`/properties/${property.id}`)}
-                          className="flex-1 bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors"
-                        >
-                          View Details
-                        </button>
-
-                        {/* Owner Actions - Mark as Sold */}
-                        {isOwner && property.listingStatus === 'ACTIVE' && (
-                          <button
-                            onClick={() => {
-                              setSelectedPropertyId(property.id)
-                              setShowSoldModal(true)
-                            }}
-                            disabled={processing}
-                            className="p-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Mark as Sold"
-                          >
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path
-                                fillRule="evenodd"
-                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </button>
-                        )}
-                      </div>
                     </div>
                   </div>
                 )
