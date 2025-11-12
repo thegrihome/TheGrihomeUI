@@ -320,7 +320,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
         <div className="project-detail-left">
           {/* Project Title */}
           <div>
-            <div className="flex items-center gap-4 mb-2">
+            <div className="flex items-center gap-2 mb-2">
               {project.builder.logoUrl && (
                 <Image
                   src={project.builder.logoUrl}
