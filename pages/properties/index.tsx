@@ -596,7 +596,7 @@ export default function PropertiesPage() {
                   onBlur={() => setTimeout(() => setShowLocationPredictions(false), 200)}
                 />
                 {showLocationPredictions && predictions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute z-10 w-full top-full -mt-px bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                     {predictions.map(prediction => (
                       <div
                         key={prediction.place_id}
