@@ -362,9 +362,7 @@ export default function PropertyDetailPage() {
                 {/* Location/Posted and Action Button Row */}
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex-1">
-                    <p className="text-sm text-gray-600">
-                      {property.location.fullAddress}
-                    </p>
+                    <p className="text-sm text-gray-600">{property.location.fullAddress}</p>
                     <p className="property-location__meta">
                       Posted on {formatDate(property.createdAt)}
                     </p>
@@ -400,7 +398,9 @@ export default function PropertyDetailPage() {
                                   })
                                   if (!response.ok) {
                                     const errorData = await response.json()
-                                    throw new Error(errorData.message || 'Failed to express interest')
+                                    throw new Error(
+                                      errorData.message || 'Failed to express interest'
+                                    )
                                   }
                                   toast.success('Interest sent to property owner!')
                                   setHasExpressedInterest(true)
