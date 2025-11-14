@@ -590,20 +590,35 @@ export default function AddProperty() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Project</label>
               <div className="relative" ref={projectDropdownRef}>
-                <input
-                  type="text"
-                  value={projectSearch || formData.projectName}
-                  onChange={e => {
-                    setProjectSearch(e.target.value)
-                    setFormData(prev => ({ ...prev, projectName: '', projectId: '' }))
-                    setShowProjectDropdown(true)
-                  }}
-                  onFocus={() => setShowProjectDropdown(true)}
-                  placeholder="Search for a project or select 'Independent'"
-                  className={`w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                    showProjectDropdown ? 'rounded-t-md' : 'rounded-md'
-                  }`}
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={projectSearch || formData.projectName}
+                    onChange={e => {
+                      setProjectSearch(e.target.value)
+                      setFormData(prev => ({ ...prev, projectName: '', projectId: '' }))
+                      setShowProjectDropdown(true)
+                    }}
+                    onFocus={() => setShowProjectDropdown(true)}
+                    placeholder="Search for a project or select 'Independent'"
+                    className={`w-full px-3 py-2 pr-10 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                      showProjectDropdown ? 'rounded-t-md' : 'rounded-md'
+                    }`}
+                  />
+                  <svg
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
                 {showProjectDropdown && (
                   <div className="absolute z-50 w-full bg-white border border-gray-300 rounded-b-md shadow-lg max-h-60 overflow-y-auto top-full">
                     <div
