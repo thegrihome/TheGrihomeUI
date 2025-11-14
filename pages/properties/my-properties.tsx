@@ -386,7 +386,7 @@ export default function MyPropertiesPage() {
                           </div>
                           <button
                             onClick={() => router.push(`/properties/${property.id}`)}
-                            className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
+                            className={`${styles['property-action-button']} ${styles['property-action-button--view']} ${styles['property-action-button--compact']}`}
                           >
                             View Details
                           </button>
