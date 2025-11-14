@@ -370,53 +370,65 @@ export default function MyPropertiesPage() {
                       </div>
                     </div>
 
-                    {/* Sold Information */}
-                    {property.listingStatus === LISTING_STATUS.SOLD && (
-                      <div className={styles['property-sold-info']}>
-                        <p className={styles['property-sold-info-buyer']}>
-                          Sold to: {property.soldTo || 'External Buyer'}
-                        </p>
-                        {property.soldDate && (
-                          <p className={styles['property-sold-info-date']}>
-                            Sold on: {formatDate(property.soldDate)}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
                     <div className={styles['property-card-actions']}>
-                      {activeTab === 'active' && property.interests.length > 0 && (
-                        <button
-                          onClick={() => setShowInterestModal(property.id)}
-                          className={styles['property-interest-button']}
-                        >
-                          {property.interests.length} interested buyer
-                          {property.interests.length !== 1 ? 's' : ''}
-                        </button>
-                      )}
-                      <button
-                        onClick={() => router.push(`/properties/${property.id}`)}
-                        className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
-                      >
-                        View Details
-                      </button>
-                      {activeTab === 'active' && (
-                        <button
-                          onClick={() => setShowSoldModal(property.id)}
-                          className={`${styles['property-action-button']} ${styles['property-action-button--sold']}`}
-                        >
-                          Sold
-                        </button>
-                      )}
-                      {activeTab === 'archived' &&
-                        property.listingStatus === LISTING_STATUS.ARCHIVED && (
+                      {/* Sold Property: Sold info on left, View Details on right */}
+                      {property.listingStatus === LISTING_STATUS.SOLD ? (
+                        <>
+                          <div className={styles['property-sold-info-inline']}>
+                            <p className="text-[10px] text-gray-700 leading-tight">
+                              Sold to: {property.soldTo || 'External Buyer'}
+                            </p>
+                            {property.soldDate && (
+                              <p className="text-[10px] text-gray-500 leading-tight">
+                                Sold on: {formatDate(property.soldDate)}
+                              </p>
+                            )}
+                          </div>
                           <button
-                            onClick={() => handleReactivateProperty(property.id)}
-                            className={`${styles['property-action-button']} ${styles['property-action-button--reactivate']}`}
+                            onClick={() => router.push(`/properties/${property.id}`)}
+                            className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
                           >
-                            Reactivate
+                            View Details
                           </button>
-                        )}
+                        </>
+                      ) : (
+                        <>
+                          {/* Active properties: interested buyers, View Details, Sold */}
+                          {activeTab === 'active' && property.interests.length > 0 && (
+                            <button
+                              onClick={() => setShowInterestModal(property.id)}
+                              className={styles['property-interest-button']}
+                            >
+                              {property.interests.length} interested buyer
+                              {property.interests.length !== 1 ? 's' : ''}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => router.push(`/properties/${property.id}`)}
+                            className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
+                          >
+                            View Details
+                          </button>
+                          {activeTab === 'active' && (
+                            <button
+                              onClick={() => setShowSoldModal(property.id)}
+                              className={`${styles['property-action-button']} ${styles['property-action-button--sold']}`}
+                            >
+                              Sold
+                            </button>
+                          )}
+                          {/* Archived properties: Reactivate */}
+                          {activeTab === 'archived' &&
+                            property.listingStatus === LISTING_STATUS.ARCHIVED && (
+                              <button
+                                onClick={() => handleReactivateProperty(property.id)}
+                                className={`${styles['property-action-button']} ${styles['property-action-button--reactivate']}`}
+                              >
+                                Reactivate
+                              </button>
+                            )}
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
