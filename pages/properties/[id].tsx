@@ -351,37 +351,18 @@ export default function PropertyDetailPage() {
               <div className="property-details-section">
                 {/* Title and Price Row */}
                 <div className="flex items-start justify-between gap-4 mb-3">
-                  <h1 className="property-details-title flex-1">{property.project}</h1>
+                  <h1 className="text-xl font-bold text-gray-900 flex-1">{property.project}</h1>
                   {property.price && (
-                    <span className="property-details-title whitespace-nowrap">
+                    <span className="text-xl font-bold text-gray-900 whitespace-nowrap">
                       ₹{formatIndianCurrency(property.price)}
                     </span>
                   )}
                 </div>
 
-                {/* Location/Posted and Mark as Sold Row */}
+                {/* Location/Posted and Action Button Row */}
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex-1">
-                    <p className="property-location__address">
-                      <svg
-                        className="property-location__icon"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
+                    <p className="text-sm text-gray-600">
                       {property.location.fullAddress}
                     </p>
                     <p className="property-location__meta">
@@ -393,10 +374,71 @@ export default function PropertyDetailPage() {
                       <button
                         onClick={() => setShowSoldModal(true)}
                         disabled={processing}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                        className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
                       >
                         Mark as Sold
                       </button>
+                    )}
+                    {!isOwner && property.listingStatus === 'ACTIVE' && (
+                      <>
+                        {status === 'authenticated' ? (
+                          session.user?.isEmailVerified || session.user?.isMobileVerified ? (
+                            <button
+                              onClick={async () => {
+                                if (hasExpressedInterest) {
+                                  toast('You have already expressed interest in this property')
+                                  return
+                                }
+                                setSendingMessage(true)
+                                try {
+                                  const response = await fetch('/api/interests/express', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      propertyId: property.id,
+                                    }),
+                                  })
+                                  if (!response.ok) {
+                                    const errorData = await response.json()
+                                    throw new Error(errorData.message || 'Failed to express interest')
+                                  }
+                                  toast.success('Interest sent to property owner!')
+                                  setHasExpressedInterest(true)
+                                  if (property) {
+                                    loadPropertyDetail(property.id)
+                                  }
+                                } catch (error: any) {
+                                  toast.error(error.message || 'Failed to express interest')
+                                } finally {
+                                  setSendingMessage(false)
+                                }
+                              }}
+                              disabled={sendingMessage || hasExpressedInterest}
+                              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                            >
+                              {hasExpressedInterest
+                                ? '✓ Interest Expressed'
+                                : sendingMessage
+                                  ? 'Sending...'
+                                  : 'Send Interest'}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => router.push('/auth/userinfo')}
+                              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
+                            >
+                              Verify to Send Interest
+                            </button>
+                          )
+                        ) : (
+                          <button
+                            onClick={() => router.push('/auth/signin')}
+                            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
+                          >
+                            Sign In to Send Interest
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -471,69 +513,6 @@ export default function PropertyDetailPage() {
 
             {/* Sidebar */}
             <div className="property-detail-sidebar-column">
-              {/* Express Interest Button (Non-Owner) */}
-              {!isOwner && property.listingStatus === 'ACTIVE' && (
-                <div className="property-buyers-card">
-                  {status === 'authenticated' ? (
-                    session.user?.isEmailVerified || session.user?.isMobileVerified ? (
-                      <button
-                        onClick={async () => {
-                          if (hasExpressedInterest) {
-                            toast('You have already expressed interest in this property')
-                            return
-                          }
-                          setSendingMessage(true)
-                          try {
-                            const response = await fetch('/api/interests/express', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                propertyId: property.id,
-                              }),
-                            })
-                            if (!response.ok) {
-                              const errorData = await response.json()
-                              throw new Error(errorData.message || 'Failed to express interest')
-                            }
-                            toast.success('Interest sent to property owner!')
-                            setHasExpressedInterest(true)
-                            if (property) {
-                              loadPropertyDetail(property.id)
-                            }
-                          } catch (error: any) {
-                            toast.error(error.message || 'Failed to express interest')
-                          } finally {
-                            setSendingMessage(false)
-                          }
-                        }}
-                        disabled={sendingMessage || hasExpressedInterest}
-                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
-                      >
-                        {hasExpressedInterest
-                          ? '✓ Interest Expressed'
-                          : sendingMessage
-                            ? 'Sending...'
-                            : 'Send Interest'}
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => router.push('/auth/userinfo')}
-                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
-                      >
-                        Verify Email/Mobile to Express Interest
-                      </button>
-                    )
-                  ) : (
-                    <button
-                      onClick={() => router.push('/auth/signin')}
-                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
-                    >
-                      Sign In to Express Interest
-                    </button>
-                  )}
-                </div>
-              )}
-
               {/* Interested Buyers (Owner Only) */}
               {isOwner && (
                 <div className="property-buyers-card">
