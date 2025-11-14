@@ -237,24 +237,11 @@
 }
 
 /* Property Actions */
-.property-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-
-.property-card-date {
-  font-size: 0.625rem;
-  color: #6b7280;
-  flex-shrink: 0;
-}
-
 .property-card-actions {
   display: flex;
   gap: 0.25rem;
   flex-wrap: wrap;
-  flex-shrink: 0;
+  justify-content: flex-start;
 }
 
 .property-action-button {
