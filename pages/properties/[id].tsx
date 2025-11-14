@@ -349,24 +349,9 @@ export default function PropertyDetailPage() {
 
               {/* Property Details */}
               <div className="property-details-section">
-                {/* Title, Posted Date, and Price Row */}
+                {/* Title, Action Button, and Price Row */}
                 <div className="flex items-center justify-between gap-4 mb-3">
                   <h1 className="text-xl font-bold text-gray-900">{property.project}</h1>
-                  <p className="text-xl font-bold text-gray-900 whitespace-nowrap">
-                    Posted on {formatDate(property.createdAt)}
-                  </p>
-                  {property.price && (
-                    <span className="text-xl font-bold text-gray-900 whitespace-nowrap">
-                      ₹{formatIndianCurrency(property.price)}
-                    </span>
-                  )}
-                </div>
-
-                {/* Location and Action Button Row */}
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600">{property.location.fullAddress}</p>
-                  </div>
                   <div>
                     {isOwner && property.listingStatus === 'ACTIVE' && (
                       <button
@@ -441,6 +426,21 @@ export default function PropertyDetailPage() {
                       </>
                     )}
                   </div>
+                  {property.price && (
+                    <span className="text-xl font-bold text-gray-900 whitespace-nowrap">
+                      ₹{formatIndianCurrency(property.price)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Location and Posted Date Row */}
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="max-w-md">
+                    <p className="text-sm text-gray-600">{property.location.fullAddress}</p>
+                  </div>
+                  <p className="text-sm font-bold text-gray-900 whitespace-nowrap">
+                    Posted on {formatDate(property.createdAt)}
+                  </p>
                 </div>
 
                 {/* Property Features */}
