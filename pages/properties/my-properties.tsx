@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { NextSeo } from 'next-seo'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
@@ -71,6 +71,7 @@ export default function MyPropertiesPage() {
   const [soldToName, setSoldToName] = useState('')
   const [showBuyerDropdown, setShowBuyerDropdown] = useState(false)
   const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
+  const buyerDropdownRef = useRef<HTMLDivElement>(null)
 
   const propertyTypes = [
     {
@@ -116,6 +117,26 @@ export default function MyPropertiesPage() {
       loadMyProperties()
     }
   }, [mounted, isAuthenticated, user, router])
+
+  // Close buyer dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        buyerDropdownRef.current &&
+        !buyerDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowBuyerDropdown(false)
+      }
+    }
+
+    if (showBuyerDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showBuyerDropdown])
 
   const loadMyProperties = async () => {
     setLoading(true)
@@ -499,7 +520,7 @@ export default function MyPropertiesPage() {
             <div className={styles['modal-content']}>
               <div className={styles['sold-modal-input-group']}>
                 <label className={styles['sold-modal-label']}>Sold to (optional)</label>
-                <div className="relative">
+                <div className="relative" ref={buyerDropdownRef}>
                   <div className="relative">
                     <input
                       type="text"
