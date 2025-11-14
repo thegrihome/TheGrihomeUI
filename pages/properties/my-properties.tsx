@@ -336,12 +336,30 @@ export default function MyPropertiesPage() {
                   </div>
 
                   <div className={styles['property-card-content']}>
-                    <h3 className={styles['property-card-title']}>{property.project}</h3>
-                    <p className={styles['property-card-details']}>
-                      {property.bedrooms && `${property.bedrooms} BHK`}
-                      {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                      {property.sqFt && ` • ${property.sqFt} sq ft`}
-                    </p>
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <div className="flex-1 min-w-0">
+                        <h3 className={styles['property-card-title']}>{property.project}</h3>
+                        <p className={styles['property-card-details']}>
+                          {property.bedrooms && `${property.bedrooms} BHK`}
+                          {property.bathrooms && ` • ${property.bathrooms} Bath`}
+                          {property.sqFt && ` • ${property.sqFt} sq ft`}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        <p className="text-[10px] text-gray-500 whitespace-nowrap">
+                          {property.location.city}, {property.location.state}
+                        </p>
+                        {activeTab === 'active' && property.interests.length > 0 && (
+                          <button
+                            onClick={() => setShowInterestModal(property.id)}
+                            className={styles['property-interest-button']}
+                          >
+                            {property.interests.length} interested buyer
+                            {property.interests.length !== 1 ? 's' : ''}
+                          </button>
+                        )}
+                      </div>
+                    </div>
 
                     {/* Sold Information */}
                     {property.listingStatus === LISTING_STATUS.SOLD && (
@@ -356,22 +374,6 @@ export default function MyPropertiesPage() {
                         )}
                       </div>
                     )}
-
-                    {/* Location and Interest Count */}
-                    <div className="flex items-center justify-between gap-1 mb-2">
-                      <p className="text-[10px] text-gray-500 flex-shrink-0">
-                        {property.location.city}, {property.location.state}
-                      </p>
-                      {activeTab === 'active' && property.interests.length > 0 && (
-                        <button
-                          onClick={() => setShowInterestModal(property.id)}
-                          className={styles['property-interest-button']}
-                        >
-                          {property.interests.length} interested buyer
-                          {property.interests.length !== 1 ? 's' : ''}
-                        </button>
-                      )}
-                    </div>
 
                     <div className={styles['property-card-footer']}>
                       <div className={styles['property-card-date']}>
