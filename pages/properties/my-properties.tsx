@@ -350,7 +350,7 @@ export default function MyPropertiesPage() {
                           {property.bathrooms && ` • ${property.bathrooms} Bath`}
                           {property.sqFt && ` • ${property.sqFt} sq ft`}
                         </p>
-                        <p className="text-[10px] text-gray-500 leading-tight">
+                        <p className="text-[10px] text-gray-500 leading-tight whitespace-nowrap">
                           Posted on: {formatDate(property.createdAt)}
                         </p>
                       </div>

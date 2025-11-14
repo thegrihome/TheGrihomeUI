@@ -252,8 +252,8 @@
 .property-card-actions {
   display: flex;
   gap: 0.25rem;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 
 .property-action-button {
