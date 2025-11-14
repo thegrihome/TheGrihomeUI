@@ -764,16 +764,16 @@ export default function PropertiesPage() {
                         )}
                       </div>
 
-                      <p className="text-gray-600 text-[10px] mb-0.5 truncate">
-                        {property.bedrooms && `${property.bedrooms} BHK`}
-                        {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                        {property.sqFt && ` • ${property.sqFt} sq ft`}
-                      </p>
-
-                      <p className="text-gray-500 text-[10px] truncate mb-0.5">
-                        {property.location.locality && `${property.location.locality}, `}
-                        {property.location.city}
-                      </p>
+                      <div className="flex items-start justify-between gap-1 mb-0.5">
+                        <p className="text-gray-600 text-[10px] truncate flex-1">
+                          {property.bedrooms && `${property.bedrooms} BHK`}
+                          {property.bathrooms && ` • ${property.bathrooms} Bath`}
+                          {property.sqFt && ` • ${property.sqFt} sq ft`}
+                        </p>
+                        <p className="text-gray-500 text-[10px] whitespace-nowrap">
+                          {property.location.city}
+                        </p>
+                      </div>
 
                       <div className="flex items-end justify-between gap-1">
                         <p className="text-gray-400 text-[9px]">
