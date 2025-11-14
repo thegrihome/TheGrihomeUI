@@ -343,8 +343,20 @@ export default function MyPropertiesPage() {
 
                     {/* Two columns below title */}
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      {/* Left: Location and Interested buyers */}
+                      {/* Left: Details and Posted on */}
                       <div className="flex-1">
+                        <p className="text-[10px] text-gray-700 leading-tight">
+                          {property.bedrooms && `${property.bedrooms} BHK`}
+                          {property.bathrooms && ` • ${property.bathrooms} Bath`}
+                          {property.sqFt && ` • ${property.sqFt} sq ft`}
+                        </p>
+                        <p className="text-[10px] text-gray-500 leading-tight">
+                          Posted on: {formatDate(property.createdAt)}
+                        </p>
+                      </div>
+
+                      {/* Right: Location and Interested buyers */}
+                      <div className="text-right">
                         <p className="text-[10px] text-gray-600 leading-tight mb-1">
                           {property.location.city}, {property.location.state}
                         </p>
@@ -357,18 +369,6 @@ export default function MyPropertiesPage() {
                             {property.interests.length !== 1 ? 's' : ''}
                           </button>
                         )}
-                      </div>
-
-                      {/* Right: Details and Posted on */}
-                      <div className="text-right">
-                        <p className="text-[10px] text-gray-700 leading-tight">
-                          {property.bedrooms && `${property.bedrooms} BHK`}
-                          {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                          {property.sqFt && ` • ${property.sqFt} sq ft`}
-                        </p>
-                        <p className="text-[10px] text-gray-500 leading-tight">
-                          Posted on: {formatDate(property.createdAt)}
-                        </p>
                       </div>
                     </div>
 
