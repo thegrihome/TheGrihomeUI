@@ -336,12 +336,7 @@ export default function MyPropertiesPage() {
                   </div>
 
                   <div className={styles['property-card-content']}>
-                    <div className="flex items-start justify-between gap-1 mb-1">
-                      <h3 className={styles['property-card-title']}>{property.project}</h3>
-                      <p className="text-[10px] text-gray-500 flex-shrink-0 mt-0.5">
-                        {property.location.city}, {property.location.state}
-                      </p>
-                    </div>
+                    <h3 className={styles['property-card-title']}>{property.project}</h3>
                     <p className={styles['property-card-details']}>
                       {property.bedrooms && `${property.bedrooms} BHK`}
                       {property.bathrooms && ` • ${property.bathrooms} Bath`}
@@ -362,9 +357,12 @@ export default function MyPropertiesPage() {
                       </div>
                     )}
 
-                    {/* Interest Count for Active Properties */}
-                    {activeTab === 'active' && property.interests.length > 0 && (
-                      <div className={styles['property-interest-info']}>
+                    {/* Location and Interest Count */}
+                    <div className="flex items-center justify-between gap-1 mb-2">
+                      <p className="text-[10px] text-gray-500 flex-shrink-0">
+                        {property.location.city}, {property.location.state}
+                      </p>
+                      {activeTab === 'active' && property.interests.length > 0 && (
                         <button
                           onClick={() => setShowInterestModal(property.id)}
                           className={styles['property-interest-button']}
@@ -372,8 +370,8 @@ export default function MyPropertiesPage() {
                           {property.interests.length} interested buyer
                           {property.interests.length !== 1 ? 's' : ''}
                         </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
 
                     <div className={styles['property-card-footer']}>
                       <div className={styles['property-card-date']}>

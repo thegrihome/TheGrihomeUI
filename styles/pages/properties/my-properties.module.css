@@ -188,8 +188,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1;
-  min-width: 0;
+  margin-bottom: 0.25rem;
 }
 
 .property-card-details {
@@ -218,15 +217,7 @@
   font-size: 0.625rem;
 }
 
-/* Interest Info */
-.property-interest-info {
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
+/* Interest Button */
 .property-interest-button {
   background-color: #eff6ff;
   border: 1px solid #bfdbfe;
@@ -238,25 +229,11 @@
   cursor: pointer;
   transition: background-color 0.2s;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .property-interest-button:hover {
   background-color: #dbeafe;
-}
-
-.property-interest-count {
-  color: #1e40af;
-  font-size: 0.625rem;
-  font-weight: 500;
-}
-
-.property-interest-link {
-  color: #2563eb;
-  font-size: 0.625rem;
-  text-decoration: underline;
-  margin-top: 0.25rem;
-  display: inline-block;
-  cursor: pointer;
 }
 
 /* Property Actions */
