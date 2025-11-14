@@ -3,6 +3,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 import CountryCodeDropdown from '@/components/auth/CountryCodeDropdown'
 
 interface ToastState {
@@ -888,6 +889,7 @@ export default function UserInfoPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }
