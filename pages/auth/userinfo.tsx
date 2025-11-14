@@ -503,7 +503,7 @@ export default function UserInfoPage() {
                       type="tel"
                       value={getMobileWithoutCountryCode()}
                       disabled
-                      className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                      className="block w-full h-[42px] px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                       <div

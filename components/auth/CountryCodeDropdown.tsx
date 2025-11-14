@@ -68,7 +68,7 @@ export default function CountryCodeDropdown({
           type="button"
           onClick={handleToggle}
           disabled={disabled}
-          className={`flex items-center justify-between w-full px-3 py-2 text-left border border-gray-300 rounded-md transition-colors ${
+          className={`flex items-center justify-between w-full h-[42px] px-3 py-2 text-left border border-gray-300 rounded-md transition-colors ${
             disabled
               ? 'bg-gray-50 text-gray-500 cursor-not-allowed'
               : 'bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-50'
