@@ -349,9 +349,12 @@ export default function PropertyDetailPage() {
 
               {/* Property Details */}
               <div className="property-details-section">
-                {/* Title and Price Row */}
+                {/* Title, Posted Date, and Price Row */}
                 <div className="flex items-start justify-between gap-4 mb-3">
-                  <h1 className="text-xl font-bold text-gray-900 flex-1">{property.project}</h1>
+                  <h1 className="text-xl font-bold text-gray-900">{property.project}</h1>
+                  <p className="property-location__meta whitespace-nowrap">
+                    Posted on {formatDate(property.createdAt)}
+                  </p>
                   {property.price && (
                     <span className="text-xl font-bold text-gray-900 whitespace-nowrap">
                       ₹{formatIndianCurrency(property.price)}
@@ -359,13 +362,10 @@ export default function PropertyDetailPage() {
                   )}
                 </div>
 
-                {/* Location/Posted and Action Button Row */}
+                {/* Location and Action Button Row */}
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex-1">
                     <p className="text-sm text-gray-600">{property.location.fullAddress}</p>
-                    <p className="property-location__meta">
-                      Posted on {formatDate(property.createdAt)}
-                    </p>
                   </div>
                   <div>
                     {isOwner && property.listingStatus === 'ACTIVE' && (
