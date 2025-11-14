@@ -78,7 +78,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
         state: property.location.state,
         zipcode: property.location.zipcode || '',
         locality: property.location.locality || '',
-        fullAddress: `${property.streetAddress}${property.location.locality ? ', ' + property.location.locality : ''}, ${property.location.city}, ${property.location.state}${property.location.zipcode ? ' ' + property.location.zipcode : ''}`,
+        fullAddress: property.streetAddress,
       },
       builder: property.builder?.name || 'Independent',
       project: propertyDetails?.title || property.project?.name || property.streetAddress,
