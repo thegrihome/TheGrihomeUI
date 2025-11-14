@@ -336,34 +336,16 @@ export default function MyPropertiesPage() {
                   </div>
 
                   <div className={styles['property-card-content']}>
-                    <h3 className={styles['property-card-title']}>{property.project}</h3>
+                    <div className="flex items-start justify-between gap-1 mb-1">
+                      <h3 className={styles['property-card-title']}>{property.project}</h3>
+                      <p className="text-[10px] text-gray-500 flex-shrink-0 mt-0.5">
+                        {property.location.city}, {property.location.state}
+                      </p>
+                    </div>
                     <p className={styles['property-card-details']}>
-                      {property.sqFt && `${property.sqFt} sq ft`}
-                      {property.bedrooms && ` • ${property.bedrooms} BHK`}
+                      {property.bedrooms && `${property.bedrooms} BHK`}
                       {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                      {property.builder !== 'Independent' && ` • Built by ${property.builder}`}
-                    </p>
-                    <p className={styles['property-card-location']}>
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      {property.location.fullAddress}
+                      {property.sqFt && ` • ${property.sqFt} sq ft`}
                     </p>
 
                     {/* Sold Information */}
@@ -381,34 +363,35 @@ export default function MyPropertiesPage() {
                     )}
 
                     {/* Interest Count for Active Properties */}
-                    {activeTab === 'active' && (
+                    {activeTab === 'active' && property.interests.length > 0 && (
                       <div className={styles['property-interest-info']}>
-                        <p className={styles['property-interest-count']}>
+                        <button
+                          onClick={() => setShowInterestModal(property.id)}
+                          className={styles['property-interest-button']}
+                        >
                           {property.interests.length} interested buyer
                           {property.interests.length !== 1 ? 's' : ''}
-                        </p>
-                        {property.interests.length > 0 && (
-                          <button
-                            onClick={() => setShowInterestModal(property.id)}
-                            className={styles['property-interest-link']}
-                          >
-                            View Details
-                          </button>
-                        )}
+                        </button>
                       </div>
                     )}
 
                     <div className={styles['property-card-footer']}>
                       <div className={styles['property-card-date']}>
-                        <div>Posted: {formatDate(property.createdAt)}</div>
+                        Posted on: {formatDate(property.createdAt)}
                       </div>
                       <div className={styles['property-card-actions']}>
+                        <button
+                          onClick={() => router.push(`/properties/${property.id}`)}
+                          className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
+                        >
+                          View
+                        </button>
                         {activeTab === 'active' && (
                           <button
                             onClick={() => setShowSoldModal(property.id)}
                             className={`${styles['property-action-button']} ${styles['property-action-button--sold']}`}
                           >
-                            Mark as Sold
+                            Sold
                           </button>
                         )}
                         {activeTab === 'archived' &&
@@ -420,12 +403,6 @@ export default function MyPropertiesPage() {
                               Reactivate
                             </button>
                           )}
-                        <button
-                          onClick={() => router.push(`/properties/${property.id}`)}
-                          className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
-                        >
-                          View Details
-                        </button>
                       </div>
                     </div>
                   </div>

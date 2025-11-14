@@ -770,10 +770,18 @@ export default function PropertiesPage() {
                         {property.sqFt && ` • ${property.sqFt} sq ft`}
                       </p>
 
+                      <p className="text-gray-500 text-[10px] truncate mb-0.5">
+                        {property.location.locality && `${property.location.locality}, `}
+                        {property.location.city}
+                      </p>
+
                       <div className="flex items-end justify-between gap-1">
-                        <p className="text-gray-500 text-[10px] truncate flex-1">
-                          {property.location.locality && `${property.location.locality}, `}
-                          {property.location.city}
+                        <p className="text-gray-400 text-[9px]">
+                          Posted:{' '}
+                          {new Date(property.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                          })}
                         </p>
                         <div className="flex items-end gap-1 flex-shrink-0">
                           <button
