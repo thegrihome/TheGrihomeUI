@@ -246,13 +246,13 @@ export const getStaticProps: GetStaticProps = async () => {
             select: { posts: true },
           },
         },
-        orderBy: { displayOrder: 'asc' },
+        orderBy: { name: 'asc' },
       },
       _count: {
         select: { posts: true },
       },
     },
-    orderBy: { displayOrder: 'asc' },
+    orderBy: { name: 'asc' },
   })
 
   // Separate cities and states based on the 'city' field
