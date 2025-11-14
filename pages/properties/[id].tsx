@@ -292,163 +292,113 @@ export default function PropertyDetailPage() {
                   >
                     {property.listingStatus}
                   </div>
-                </div>
 
-                {/* Image Thumbnails */}
-                {allImages.length > 1 && (
-                  <div className="property-image-thumbnails">
-                    {allImages.map((image, index) => (
+                  {/* Navigation Arrows */}
+                  {allImages.length > 1 && (
+                    <>
                       <button
-                        key={index}
-                        onClick={() => setSelectedImageIndex(index)}
-                        className={`property-thumbnail ${
-                          selectedImageIndex === index
-                            ? 'property-thumbnail--active'
-                            : 'property-thumbnail--inactive'
-                        }`}
+                        onClick={() =>
+                          setSelectedImageIndex(prev =>
+                            prev === 0 ? allImages.length - 1 : prev - 1
+                          )
+                        }
+                        className="property-image-nav property-image-nav--left"
+                        aria-label="Previous image"
                       >
-                        <Image
-                          src={image || 'https://via.placeholder.com/80x64?text=Img'}
-                          alt={`Thumbnail ${index + 1}`}
-                          width={80}
-                          height={64}
-                          className="property-thumbnail__img"
-                        />
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M15 19l-7-7 7-7"
+                          />
+                        </svg>
                       </button>
-                    ))}
-                  </div>
-                )}
+                      <button
+                        onClick={() =>
+                          setSelectedImageIndex(prev =>
+                            prev === allImages.length - 1 ? 0 : prev + 1
+                          )
+                        }
+                        className="property-image-nav property-image-nav--right"
+                        aria-label="Next image"
+                      >
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Property Details */}
               <div className="property-details-section">
-                <div className="property-details-header flex items-center w-full">
-                  <div className="flex-1">
-                    <h1 className="property-details-title">{property.project}</h1>
-                  </div>
-                  <div className="flex-1 flex justify-center">
-                    {/* Express Interest Button */}
-                    {!isOwner && property.listingStatus === 'ACTIVE' && (
-                      <>
-                        {status === 'authenticated' ? (
-                          session.user?.isEmailVerified || session.user?.isMobileVerified ? (
-                            <button
-                              onClick={async () => {
-                                if (hasExpressedInterest) {
-                                  toast('You have already expressed interest in this property')
-                                  return
-                                }
-                                setSendingMessage(true)
-                                try {
-                                  const response = await fetch('/api/interests/express', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                      propertyId: property.id,
-                                    }),
-                                  })
-                                  if (!response.ok) {
-                                    const errorData = await response.json()
-                                    throw new Error(
-                                      errorData.message || 'Failed to express interest'
-                                    )
-                                  }
-                                  toast.success('Interest sent to property owner!')
-                                  setHasExpressedInterest(true)
-                                  if (property) {
-                                    loadPropertyDetail(property.id)
-                                  }
-                                } catch (error: any) {
-                                  toast.error(error.message || 'Failed to express interest')
-                                } finally {
-                                  setSendingMessage(false)
-                                }
-                              }}
-                              disabled={sendingMessage || hasExpressedInterest}
-                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
-                            >
-                              {hasExpressedInterest
-                                ? '✓ Interest Expressed'
-                                : sendingMessage
-                                  ? 'Sending...'
-                                  : 'Send Interest'}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => router.push('/auth/userinfo')}
-                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
-                            >
-                              Verify Email/Mobile
-                            </button>
-                          )
-                        ) : (
-                          <button
-                            onClick={() => router.push('/auth/signin')}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
-                          >
-                            Sign In
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  <div className="flex-1 flex justify-end">
-                    {property.price && (
-                      <span className="property-details-title">
-                        ₹{formatIndianCurrency(property.price)}
-                      </span>
-                    )}
-                  </div>
+                {/* Title and Price Row */}
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <h1 className="property-details-title flex-1">{property.project}</h1>
+                  {property.price && (
+                    <span className="property-details-title whitespace-nowrap">
+                      ₹{formatIndianCurrency(property.price)}
+                    </span>
+                  )}
                 </div>
 
-                <div className="property-details-header flex justify-between items-center">
-                  <div></div>
-                  <div className="flex items-center gap-4">
+                {/* Location/Posted and Mark as Sold Row */}
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex-1">
+                    <p className="property-location__address">
+                      <svg
+                        className="property-location__icon"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      {property.location.fullAddress}
+                    </p>
+                    <p className="property-location__meta">
+                      Posted on {formatDate(property.createdAt)}
+                    </p>
+                  </div>
+                  <div>
                     {isOwner && property.listingStatus === 'ACTIVE' && (
                       <button
                         onClick={() => setShowSoldModal(true)}
                         disabled={processing}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
                       >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
                         Mark as Sold
                       </button>
                     )}
                   </div>
-                </div>
-
-                <div className="property-location">
-                  <p className="property-location__address">
-                    <svg
-                      className="property-location__icon"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    {property.location.fullAddress}
-                  </p>
-                  <p className="property-location__meta">
-                    Posted on {formatDate(property.createdAt)}
-                  </p>
                 </div>
 
                 {/* Property Features */}
@@ -521,6 +471,69 @@ export default function PropertyDetailPage() {
 
             {/* Sidebar */}
             <div className="property-detail-sidebar-column">
+              {/* Express Interest Button (Non-Owner) */}
+              {!isOwner && property.listingStatus === 'ACTIVE' && (
+                <div className="property-buyers-card">
+                  {status === 'authenticated' ? (
+                    session.user?.isEmailVerified || session.user?.isMobileVerified ? (
+                      <button
+                        onClick={async () => {
+                          if (hasExpressedInterest) {
+                            toast('You have already expressed interest in this property')
+                            return
+                          }
+                          setSendingMessage(true)
+                          try {
+                            const response = await fetch('/api/interests/express', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                propertyId: property.id,
+                              }),
+                            })
+                            if (!response.ok) {
+                              const errorData = await response.json()
+                              throw new Error(errorData.message || 'Failed to express interest')
+                            }
+                            toast.success('Interest sent to property owner!')
+                            setHasExpressedInterest(true)
+                            if (property) {
+                              loadPropertyDetail(property.id)
+                            }
+                          } catch (error: any) {
+                            toast.error(error.message || 'Failed to express interest')
+                          } finally {
+                            setSendingMessage(false)
+                          }
+                        }}
+                        disabled={sendingMessage || hasExpressedInterest}
+                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                      >
+                        {hasExpressedInterest
+                          ? '✓ Interest Expressed'
+                          : sendingMessage
+                            ? 'Sending...'
+                            : 'Send Interest'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => router.push('/auth/userinfo')}
+                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
+                      >
+                        Verify Email/Mobile to Express Interest
+                      </button>
+                    )
+                  ) : (
+                    <button
+                      onClick={() => router.push('/auth/signin')}
+                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
+                    >
+                      Sign In to Express Interest
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* Interested Buyers (Owner Only) */}
               {isOwner && (
                 <div className="property-buyers-card">
@@ -532,15 +545,23 @@ export default function PropertyDetailPage() {
                       No one has expressed interest yet.
                     </p>
                   ) : (
-                    <div className="property-buyers-list">
+                    <div className="property-buyers-list-scroll">
                       {property.interests.map(interest => (
                         <div key={interest.id} className="property-buyer">
-                          <p className="property-buyer__name">{interest.user.name}</p>
-                          <p className="property-buyer__email">{interest.user.email}</p>
-                          <p className="property-buyer__phone">{interest.user.phone}</p>
-                          <p className="property-buyer__date">
-                            Expressed interest on {formatDate(interest.createdAt)}
-                          </p>
+                          <div className="property-buyer-row">
+                            {/* Left: Name and Date */}
+                            <div className="flex-1">
+                              <p className="property-buyer__name">{interest.user.name}</p>
+                              <p className="property-buyer__date">
+                                {formatDate(interest.createdAt)}
+                              </p>
+                            </div>
+                            {/* Right: Email and Phone */}
+                            <div className="text-right">
+                              <p className="property-buyer__email">{interest.user.email}</p>
+                              <p className="property-buyer__phone">{interest.user.phone}</p>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
