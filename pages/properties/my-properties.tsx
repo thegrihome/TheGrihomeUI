@@ -320,19 +320,19 @@ export default function MyPropertiesPage() {
                       {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
                       {propertyTypes.find(t => t.value === property.propertyType)?.label}
                     </div>
-                    <div
-                      className={`${styles['property-card-status']} ${
-                        property.listingStatus === LISTING_STATUS.ACTIVE
-                          ? styles['property-card-status--active']
-                          : property.listingStatus === LISTING_STATUS.SOLD
+                    {property.listingStatus !== LISTING_STATUS.ACTIVE && (
+                      <div
+                        className={`${styles['property-card-status']} ${
+                          property.listingStatus === LISTING_STATUS.SOLD
                             ? styles['property-card-status--sold']
                             : property.listingStatus === LISTING_STATUS.PENDING
                               ? styles['property-card-status--pending']
                               : styles['property-card-status--archived']
-                      }`}
-                    >
-                      {property.listingStatus}
-                    </div>
+                        }`}
+                      >
+                        {property.listingStatus}
+                      </div>
+                    )}
                   </div>
 
                   <div className={styles['property-card-content']}>
@@ -357,9 +357,14 @@ export default function MyPropertiesPage() {
 
                       {/* Right: Location */}
                       <div className="text-right">
-                        <p className="text-[10px] text-gray-600 leading-tight">
+                        <p className="text-[10px] text-gray-600 leading-tight whitespace-nowrap">
                           {property.location.city}, {property.location.state}
                         </p>
+                        {property.price && (
+                          <p className="text-[10px] text-gray-900 font-semibold leading-tight whitespace-nowrap">
+                            ₹{property.price}
+                          </p>
+                        )}
                       </div>
                     </div>
 
