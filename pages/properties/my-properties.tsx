@@ -528,7 +528,7 @@ export default function MyPropertiesPage() {
                     </svg>
                   </div>
                   {showBuyerDropdown && showSoldModal && (
-                    <div className="absolute z-50 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto mt-1">
+                    <div className="absolute z-[9999] w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto top-full -mt-px">
                       <div
                         className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
                         onClick={() => {
