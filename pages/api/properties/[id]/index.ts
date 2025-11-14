@@ -79,8 +79,6 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
         zipcode: property.location.zipcode || '',
         locality: property.location.locality || '',
         fullAddress: `${property.streetAddress}${property.location.locality ? ', ' + property.location.locality : ''}, ${property.location.city}, ${property.location.state}${property.location.zipcode ? ' ' + property.location.zipcode : ''}`,
-        latitude: property.location.latitude,
-        longitude: property.location.longitude,
       },
       builder: property.builder?.name || 'Independent',
       project: propertyDetails?.title || property.project?.name || property.streetAddress,
@@ -183,14 +181,11 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
 
     // Update or create location
     const locationData = {
-      streetAddress: location.address,
       city: location.city,
       state: location.state,
       country: location.country || 'India',
       zipcode: location.zipcode,
       locality: location.locality,
-      latitude: location.lat,
-      longitude: location.lng,
     }
 
     let locationId = null

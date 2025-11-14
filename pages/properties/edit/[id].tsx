@@ -151,8 +151,8 @@ export default function EditProperty() {
             country: 'India',
             zipcode: property.location?.zipcode || '',
             locality: property.location?.locality || '',
-            lat: property.location?.latitude || 0,
-            lng: property.location?.longitude || 0,
+            lat: 0,
+            lng: 0,
           },
         })
 
