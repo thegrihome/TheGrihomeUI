@@ -438,10 +438,13 @@ export default function PropertyDetailPage() {
                   <div className="max-w-md">
                     <p className="text-sm text-gray-600">{property.location.fullAddress}</p>
                   </div>
-                  <p className="text-sm font-bold text-gray-900 whitespace-nowrap">
+                  <p className="text-sm text-gray-600 whitespace-nowrap">
                     Posted on {formatDate(property.createdAt)}
                   </p>
                 </div>
+
+                {/* Divider */}
+                <hr className="border-gray-300 mb-4" />
 
                 {/* Property Features */}
                 <div className="property-features-grid">
