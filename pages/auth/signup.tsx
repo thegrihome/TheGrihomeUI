@@ -284,6 +284,22 @@ export default function Signup() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file (JPG, PNG, or GIF)')
+        e.target.value = '' // Clear the input
+        return
+      }
+
+      // Validate file size (max 1MB)
+      // When converted to base64, it becomes ~1.33MB, well within server limit
+      const maxSize = 1 * 1024 * 1024 // 1MB in bytes
+      if (file.size > maxSize) {
+        toast.error('Image size must be less than 1MB')
+        e.target.value = '' // Clear the input
+        return
+      }
+
       setAvatar(file)
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -504,7 +520,7 @@ export default function Signup() {
                     </label>
                     <span className="signup-form__avatar-upload-info">
                       {' '}
-                      to upload a image (accepted formats are jpg, png, gif) max size is 1MB
+                      to upload an image (JPG, PNG, GIF - max 1MB)
                     </span>
                   </div>
                 )}

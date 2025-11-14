@@ -3,6 +3,14 @@ import bcrypt from 'bcryptjs'
 import validator from 'validator'
 import { prisma } from '@/lib/cockroachDB/prisma'
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' })
