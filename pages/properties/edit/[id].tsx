@@ -134,21 +134,21 @@ export default function EditProperty() {
           propertyType: property.propertyType || '',
           listingType: property.listingType || 'SALE',
           projectId: property.projectId || '',
-          projectName: property.project || '',
+          projectName: property.projectName || (property.projectId ? '' : 'Independent'),
           bedrooms: property.bedrooms?.toString() || '',
           bathrooms: property.bathrooms?.toString() || '',
-          propertySize: property.sqFt?.toString() || '',
+          propertySize: property.size?.toString() || '',
           propertySizeUnit: property.sizeUnit || SIZE_UNITS.SQ_FT,
-          plotSize: property.size?.toString() || '',
-          plotSizeUnit: property.sizeUnit || SIZE_UNITS.SQ_FT,
+          plotSize: property.plotSize?.toString() || '',
+          plotSizeUnit: property.plotSizeUnit || SIZE_UNITS.SQ_FT,
           facing: property.facing || '',
           description: property.description || '',
           price: property.price?.toString() || '',
           location: {
-            address: property.location?.fullAddress || '',
+            address: property.streetAddress || '',
             city: property.location?.city || '',
             state: property.location?.state || '',
-            country: property.location?.country || '',
+            country: 'India',
             zipcode: property.location?.zipcode || '',
             locality: property.location?.locality || '',
             lat: property.location?.latitude || 0,
@@ -157,8 +157,7 @@ export default function EditProperty() {
         })
 
         // Set existing images
-        const imageUrls = property.images?.map((img: { imageUrl: string }) => img.imageUrl) || []
-        setExistingImages(imageUrls)
+        setExistingImages(property.imageUrls || [])
       } catch (error) {
         toast.error('Failed to load property')
         router.push('/properties/my-properties')
@@ -185,6 +184,89 @@ export default function EditProperty() {
     }
 
     loadAllProjects()
+  }, [])
+
+  useEffect(() => {
+    // Initialize Google Places Autocomplete
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
+    if (!apiKey) {
+      // eslint-disable-next-line no-console
+      console.error(
+        'Google Maps API key is missing. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.'
+      )
+      return
+    }
+
+    const initializeAutocomplete = () => {
+      if (locationInputRef.current && window.google?.maps?.places?.Autocomplete) {
+        autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
+          types: ['geocode'],
+          componentRestrictions: { country: 'in' },
+        })
+
+        autocompleteRef.current.addListener('place_changed', () => {
+          const place = autocompleteRef.current?.getPlace()
+          if (!place?.geometry?.location) return
+
+          const addressComponents = place.address_components || []
+          let city = ''
+          let state = ''
+          let country = ''
+          let zipcode = ''
+          let locality = ''
+
+          addressComponents.forEach(component => {
+            const types = component.types
+            if (types.includes('locality')) city = component.long_name
+            if (types.includes('administrative_area_level_1')) state = component.long_name
+            if (types.includes('country')) country = component.long_name
+            if (types.includes('postal_code')) zipcode = component.long_name
+            if (types.includes('sublocality_level_1') || types.includes('sublocality'))
+              locality = component.long_name
+          })
+
+          const location = place.geometry.location
+
+          setFormData(prev => ({
+            ...prev,
+            location: {
+              address: place.formatted_address || '',
+              city,
+              state,
+              country,
+              zipcode,
+              locality,
+              lat: location.lat(),
+              lng: location.lng(),
+            },
+          }))
+        })
+      }
+    }
+
+    // Check if Google Maps is already loaded
+    if (window.google?.maps?.places?.Autocomplete) {
+      initializeAutocomplete()
+      return
+    }
+
+    // Only load if not already loaded
+    const loader = new Loader({
+      apiKey,
+      version: 'weekly',
+      libraries: ['places'],
+    })
+
+    loader
+      .load()
+      .then(() => {
+        initializeAutocomplete()
+      })
+      .catch(error => {
+        // eslint-disable-next-line no-console
+        console.error('Error loading Google Maps API:', error)
+      })
   }, [])
 
   useEffect(() => {
