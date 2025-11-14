@@ -293,6 +293,54 @@ export default function Signup() {
     }
   }
 
+  // Check if form is valid and all required fields are filled
+  const isFormValid = () => {
+    // Check if any field is being validated
+    if (checkingUnique.username || checkingUnique.email || checkingUnique.mobileNumber) {
+      return false
+    }
+
+    // Check if there are any validation errors
+    if (validationErrors.username || validationErrors.email || validationErrors.mobileNumber) {
+      return false
+    }
+
+    // Check required fields
+    if (
+      !formData.firstName.trim() ||
+      !formData.lastName.trim() ||
+      !formData.username.trim() ||
+      !formData.email.trim() ||
+      !formData.mobileNumber.trim() ||
+      !formData.password.trim() ||
+      !formData.confirmPassword.trim()
+    ) {
+      return false
+    }
+
+    // Check username length
+    if (formData.username.length < 3) {
+      return false
+    }
+
+    // Check password length
+    if (formData.password.length < 6) {
+      return false
+    }
+
+    // Check if passwords match
+    if (formData.password !== formData.confirmPassword) {
+      return false
+    }
+
+    // Check agent-specific field
+    if (formData.isAgent && !formData.companyName.trim()) {
+      return false
+    }
+
+    return true
+  }
+
   return (
     <div className="signup-container">
       <Header />
@@ -503,7 +551,11 @@ export default function Signup() {
             )}
 
             {/* Submit Button */}
-            <button type="submit" disabled={loading} className="signup-form__submit">
+            <button
+              type="submit"
+              disabled={loading || !isFormValid()}
+              className="signup-form__submit"
+            >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
 
