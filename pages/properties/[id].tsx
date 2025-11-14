@@ -390,9 +390,7 @@ export default function PropertyDetailPage() {
                                 })
                                 if (!response.ok) {
                                   const errorData = await response.json()
-                                  throw new Error(
-                                    errorData.message || 'Failed to express interest'
-                                  )
+                                  throw new Error(errorData.message || 'Failed to express interest')
                                 }
                                 toast.success('Interest sent to property owner!')
                                 setHasExpressedInterest(true)
