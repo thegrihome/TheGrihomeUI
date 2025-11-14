@@ -357,7 +357,7 @@ export default function PropertyDetailPage() {
                       <button
                         onClick={() => setShowSoldModal(true)}
                         disabled={processing}
-                        className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                        className="px-4 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
                       >
                         Mark as Sold
                       </button>
@@ -399,7 +399,7 @@ export default function PropertyDetailPage() {
                                 }
                               }}
                               disabled={sendingMessage || hasExpressedInterest}
-                              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                              className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
                             >
                               {hasExpressedInterest
                                 ? '✓ Interest Expressed'
@@ -410,7 +410,7 @@ export default function PropertyDetailPage() {
                           ) : (
                             <button
                               onClick={() => router.push('/auth/userinfo')}
-                              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
+                              className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
                             >
                               Verify to Send Interest
                             </button>
@@ -418,7 +418,7 @@ export default function PropertyDetailPage() {
                         ) : (
                           <button
                             onClick={() => router.push('/auth/signin')}
-                            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
+                            className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
                           >
                             Sign In to Send Interest
                           </button>
