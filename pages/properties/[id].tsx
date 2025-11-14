@@ -351,24 +351,26 @@ export default function PropertyDetailPage() {
               <div className="property-details-section">
                 {/* Title, Action Button, and Price Row */}
                 <div className="flex items-center justify-between gap-4 mb-3">
-                  <h1 className="text-xl font-bold text-gray-900">{property.project}</h1>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-xl font-bold text-gray-900">{property.project}</h1>
                     {isOwner && property.listingStatus === 'ACTIVE' && (
-                      <>
-                        <button
-                          onClick={() => router.push(`/properties/edit/${property.id}`)}
-                          className="px-4 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
-                        >
-                          Edit Listing
-                        </button>
-                        <button
-                          onClick={() => setShowSoldModal(true)}
-                          disabled={processing}
-                          className="px-4 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
-                        >
-                          Mark as Sold
-                        </button>
-                      </>
+                      <button
+                        onClick={() => router.push(`/properties/edit/${property.id}`)}
+                        className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
+                      >
+                        Edit Listing
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {isOwner && property.listingStatus === 'ACTIVE' && (
+                      <button
+                        onClick={() => setShowSoldModal(true)}
+                        disabled={processing}
+                        className="px-4 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                      >
+                        Mark as Sold
+                      </button>
                     )}
                     {!isOwner && property.listingStatus === 'ACTIVE' && (
                       <>
@@ -433,12 +435,12 @@ export default function PropertyDetailPage() {
                         )}
                       </>
                     )}
+                    {property.price && (
+                      <span className="text-xl font-bold text-gray-900 whitespace-nowrap">
+                        ₹{formatIndianCurrency(property.price)}
+                      </span>
+                    )}
                   </div>
-                  {property.price && (
-                    <span className="text-xl font-bold text-gray-900 whitespace-nowrap">
-                      ₹{formatIndianCurrency(property.price)}
-                    </span>
-                  )}
                 </div>
 
                 {/* Location and Posted Date Row */}
