@@ -351,19 +351,15 @@ export default function PropertyDetailPage() {
               <div className="property-details-section">
                 {/* Title, Action Button, and Price Row */}
                 <div className="flex items-center justify-between gap-4 mb-3">
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-xl font-bold text-gray-900">{property.project}</h1>
-                    {isOwner && property.listingStatus === 'ACTIVE' && (
+                  <h1 className="text-xl font-bold text-gray-900">{property.project}</h1>
+                  {isOwner && property.listingStatus === 'ACTIVE' && (
+                    <>
                       <button
                         onClick={() => router.push(`/properties/edit/${property.id}`)}
                         className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
                       >
                         Edit Listing
                       </button>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {isOwner && property.listingStatus === 'ACTIVE' && (
                       <button
                         onClick={() => setShowSoldModal(true)}
                         disabled={processing}
@@ -371,76 +367,76 @@ export default function PropertyDetailPage() {
                       >
                         Mark as Sold
                       </button>
-                    )}
-                    {!isOwner && property.listingStatus === 'ACTIVE' && (
-                      <>
-                        {status === 'authenticated' ? (
-                          session.user?.isEmailVerified || session.user?.isMobileVerified ? (
-                            <button
-                              onClick={async () => {
-                                if (hasExpressedInterest) {
-                                  toast('You have already expressed interest in this property')
-                                  return
+                    </>
+                  )}
+                  {!isOwner && property.listingStatus === 'ACTIVE' && (
+                    <>
+                      {status === 'authenticated' ? (
+                        session.user?.isEmailVerified || session.user?.isMobileVerified ? (
+                          <button
+                            onClick={async () => {
+                              if (hasExpressedInterest) {
+                                toast('You have already expressed interest in this property')
+                                return
+                              }
+                              setSendingMessage(true)
+                              try {
+                                const response = await fetch('/api/interests/express', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    propertyId: property.id,
+                                  }),
+                                })
+                                if (!response.ok) {
+                                  const errorData = await response.json()
+                                  throw new Error(
+                                    errorData.message || 'Failed to express interest'
+                                  )
                                 }
-                                setSendingMessage(true)
-                                try {
-                                  const response = await fetch('/api/interests/express', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                      propertyId: property.id,
-                                    }),
-                                  })
-                                  if (!response.ok) {
-                                    const errorData = await response.json()
-                                    throw new Error(
-                                      errorData.message || 'Failed to express interest'
-                                    )
-                                  }
-                                  toast.success('Interest sent to property owner!')
-                                  setHasExpressedInterest(true)
-                                  if (property) {
-                                    loadPropertyDetail(property.id)
-                                  }
-                                } catch (error: any) {
-                                  toast.error(error.message || 'Failed to express interest')
-                                } finally {
-                                  setSendingMessage(false)
+                                toast.success('Interest sent to property owner!')
+                                setHasExpressedInterest(true)
+                                if (property) {
+                                  loadPropertyDetail(property.id)
                                 }
-                              }}
-                              disabled={sendingMessage || hasExpressedInterest}
-                              className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
-                            >
-                              {hasExpressedInterest
-                                ? '✓ Interest Expressed'
-                                : sendingMessage
-                                  ? 'Sending...'
-                                  : 'Send Interest'}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => router.push('/auth/userinfo')}
-                              className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
-                            >
-                              Verify to Send Interest
-                            </button>
-                          )
+                              } catch (error: any) {
+                                toast.error(error.message || 'Failed to express interest')
+                              } finally {
+                                setSendingMessage(false)
+                              }
+                            }}
+                            disabled={sendingMessage || hasExpressedInterest}
+                            className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                          >
+                            {hasExpressedInterest
+                              ? '✓ Interest Expressed'
+                              : sendingMessage
+                                ? 'Sending...'
+                                : 'Send Interest'}
+                          </button>
                         ) : (
                           <button
-                            onClick={() => router.push('/auth/signin')}
+                            onClick={() => router.push('/auth/userinfo')}
                             className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
                           >
-                            Sign In to Send Interest
+                            Verify to Send Interest
                           </button>
-                        )}
-                      </>
-                    )}
-                    {property.price && (
-                      <span className="text-xl font-bold text-gray-900 whitespace-nowrap">
-                        ₹{formatIndianCurrency(property.price)}
-                      </span>
-                    )}
-                  </div>
+                        )
+                      ) : (
+                        <button
+                          onClick={() => router.push('/auth/signin')}
+                          className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm whitespace-nowrap"
+                        >
+                          Sign In to Send Interest
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {property.price && (
+                    <span className="text-xl font-bold text-gray-900 whitespace-nowrap">
+                      ₹{formatIndianCurrency(property.price)}
+                    </span>
+                  )}
                 </div>
 
                 {/* Location and Posted Date Row */}
