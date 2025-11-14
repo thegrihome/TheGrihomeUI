@@ -336,10 +336,17 @@ export default function MyPropertiesPage() {
                   </div>
 
                   <div className={styles['property-card-content']}>
-                    {/* Title with line below */}
-                    <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b border-gray-200">
-                      {property.project}
-                    </h3>
+                    {/* Title with price and line below */}
+                    <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-gray-200">
+                      <h3 className="text-sm font-semibold text-gray-900 truncate">
+                        {property.project}
+                      </h3>
+                      {property.price && (
+                        <p className="text-sm font-bold text-gray-900 whitespace-nowrap flex-shrink-0">
+                          ₹{property.price}
+                        </p>
+                      )}
+                    </div>
 
                     {/* Two columns below title */}
                     <div className="flex items-start justify-between gap-2 mb-2">
@@ -360,11 +367,6 @@ export default function MyPropertiesPage() {
                         <p className="text-[10px] text-gray-600 leading-tight whitespace-nowrap">
                           {property.location.city}, {property.location.state}
                         </p>
-                        {property.price && (
-                          <p className="text-[10px] text-gray-900 font-semibold leading-tight whitespace-nowrap">
-                            ₹{property.price}
-                          </p>
-                        )}
                       </div>
                     </div>
 
@@ -396,7 +398,7 @@ export default function MyPropertiesPage() {
                         onClick={() => router.push(`/properties/${property.id}`)}
                         className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
                       >
-                        View
+                        View Details
                       </button>
                       {activeTab === 'active' && (
                         <button
