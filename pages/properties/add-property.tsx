@@ -68,6 +68,14 @@ export default function AddProperty() {
   const locationInputRef = useRef<HTMLInputElement>(null)
   const projectDropdownRef = useRef<HTMLDivElement>(null)
 
+  const propertyTypes = [
+    { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
+    { value: 'CONDO', label: 'Apartments', icon: '🏢' },
+    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
+    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
+    { value: 'COMMERCIAL', label: 'Commercial', icon: '🏬' },
+  ]
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
@@ -534,7 +542,7 @@ export default function AddProperty() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 text-left"
                 >
                   {formData.propertyType
-                    ? PROPERTY_TYPE_OPTIONS.find(t => t.value === formData.propertyType)?.label
+                    ? `${propertyTypes.find(t => t.value === formData.propertyType)?.icon} ${propertyTypes.find(t => t.value === formData.propertyType)?.label}`
                     : 'Select Type'}
                 </button>
                 <svg
@@ -561,7 +569,7 @@ export default function AddProperty() {
                     >
                       Select Type
                     </div>
-                    {PROPERTY_TYPE_OPTIONS.map(type => (
+                    {propertyTypes.map(type => (
                       <div
                         key={type.value}
                         className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
@@ -570,7 +578,7 @@ export default function AddProperty() {
                           setShowPropertyTypeDropdown(false)
                         }}
                       >
-                        {type.label}
+                        {type.icon} {type.label}
                       </div>
                     ))}
                   </div>
@@ -599,7 +607,7 @@ export default function AddProperty() {
                 {showProjectDropdown && (
                   <div className="absolute z-50 w-full bg-white border border-gray-300 rounded-b-md shadow-lg max-h-60 overflow-y-auto top-full">
                     <div
-                      className="px-3 py-2 hover:bg-blue-50 cursor-pointer bg-blue-600 text-white"
+                      className="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b"
                       onClick={() => {
                         setFormData(prev => ({
                           ...prev,
@@ -611,33 +619,35 @@ export default function AddProperty() {
                       }}
                     >
                       <div className="font-medium">Independent</div>
-                      <div className="text-xs opacity-90">Not part of any project</div>
+                      <div className="text-xs text-gray-500">Not part of any project</div>
                     </div>
                     {projectSearch.length >= 2 && projects.length === 0 && (
                       <div className="px-3 py-2 text-gray-500 text-sm">
                         No projects found. Type to search or select &quot;Independent&quot;
                       </div>
                     )}
-                    {projects.map(project => (
-                      <div
-                        key={project.id}
-                        className="px-3 py-2 hover:bg-gray-100 cursor-pointer border-t"
-                        onClick={() => {
-                          setFormData(prev => ({
-                            ...prev,
-                            projectId: project.id,
-                            projectName: project.name,
-                          }))
-                          setProjectSearch('')
-                          setShowProjectDropdown(false)
-                        }}
-                      >
-                        <div className="font-medium">{project.name}</div>
-                        <div className="text-xs text-gray-500">
-                          {project.builder.name} • {project.location.city}, {project.location.state}
+                    {projects
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map(project => (
+                        <div
+                          key={project.id}
+                          className="px-3 py-2 hover:bg-blue-50 cursor-pointer border-t"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              projectId: project.id,
+                              projectName: project.name,
+                            }))
+                            setProjectSearch('')
+                            setShowProjectDropdown(false)
+                          }}
+                        >
+                          <div className="font-medium">{project.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {project.builder.name} • {project.location.city}, {project.location.state}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 )}
               </div>

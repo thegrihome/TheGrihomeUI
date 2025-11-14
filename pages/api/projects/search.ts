@@ -59,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         },
       },
-      take: searchQuery.length >= 2 ? 10 : 50, // Show more results when showing all
+      take: searchQuery.length >= 2 ? 20 : 100, // Show more results when showing all, limit for performance
       orderBy: {
         name: 'asc',
       },
