@@ -121,10 +121,7 @@ export default function MyPropertiesPage() {
   // Close buyer dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        buyerDropdownRef.current &&
-        !buyerDropdownRef.current.contains(event.target as Node)
-      ) {
+      if (buyerDropdownRef.current && !buyerDropdownRef.current.contains(event.target as Node)) {
         setShowBuyerDropdown(false)
       }
     }
