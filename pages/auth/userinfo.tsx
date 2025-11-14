@@ -321,7 +321,7 @@ export default function UserInfoPage() {
   if (!mounted || !user) return null
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
 
       {/* Toast Notification */}
@@ -335,7 +335,7 @@ export default function UserInfoPage() {
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex-1">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">My Information</h1>
