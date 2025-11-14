@@ -107,15 +107,27 @@
   gap: 1.5rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .my-properties-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .my-properties-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .my-properties-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .my-properties-grid {
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
@@ -135,7 +147,7 @@
 
 .property-card-image {
   position: relative;
-  height: 8rem;
+  height: 10rem;
 }
 
 .property-card-badge {

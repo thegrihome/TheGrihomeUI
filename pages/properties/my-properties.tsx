@@ -355,20 +355,11 @@ export default function MyPropertiesPage() {
                         </p>
                       </div>
 
-                      {/* Right: Location and Interested buyers */}
+                      {/* Right: Location */}
                       <div className="text-right">
-                        <p className="text-[10px] text-gray-600 leading-tight mb-1">
+                        <p className="text-[10px] text-gray-600 leading-tight">
                           {property.location.city}, {property.location.state}
                         </p>
-                        {activeTab === 'active' && property.interests.length > 0 && (
-                          <button
-                            onClick={() => setShowInterestModal(property.id)}
-                            className={styles['property-interest-button']}
-                          >
-                            {property.interests.length} interested buyer
-                            {property.interests.length !== 1 ? 's' : ''}
-                          </button>
-                        )}
                       </div>
                     </div>
 
@@ -387,6 +378,15 @@ export default function MyPropertiesPage() {
                     )}
 
                     <div className={styles['property-card-actions']}>
+                      {activeTab === 'active' && property.interests.length > 0 && (
+                        <button
+                          onClick={() => setShowInterestModal(property.id)}
+                          className={styles['property-interest-button']}
+                        >
+                          {property.interests.length} interested buyer
+                          {property.interests.length !== 1 ? 's' : ''}
+                        </button>
+                      )}
                       <button
                         onClick={() => router.push(`/properties/${property.id}`)}
                         className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
