@@ -335,39 +335,42 @@ export default function MyPropertiesPage() {
                     </div>
                   </div>
 
-                  {/* Below image section */}
-                  <div className="flex items-start justify-between gap-2 px-2 py-1.5 bg-gray-50 border-b border-gray-200">
-                    {/* Left: Details and Posted on */}
-                    <div>
-                      <p className="text-[10px] text-gray-700 leading-tight">
-                        {property.bedrooms && `${property.bedrooms} BHK`}
-                        {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                        {property.sqFt && ` • ${property.sqFt} sq ft`}
-                      </p>
-                      <p className="text-[10px] text-gray-500 leading-tight">
-                        Posted on: {formatDate(property.createdAt)}
-                      </p>
-                    </div>
-
-                    {/* Right: Location and Interested buyers */}
-                    <div className="flex flex-col items-end gap-1">
-                      <p className="text-[10px] text-gray-600 whitespace-nowrap">
-                        {property.location.city}, {property.location.state}
-                      </p>
-                      {activeTab === 'active' && property.interests.length > 0 && (
-                        <button
-                          onClick={() => setShowInterestModal(property.id)}
-                          className={styles['property-interest-button']}
-                        >
-                          {property.interests.length} interested buyer
-                          {property.interests.length !== 1 ? 's' : ''}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
                   <div className={styles['property-card-content']}>
-                    <h3 className={styles['property-card-title']}>{property.project}</h3>
+                    {/* Title with line below */}
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2 pb-2 border-b border-gray-200">
+                      {property.project}
+                    </h3>
+
+                    {/* Two columns below title */}
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      {/* Left: Location and Interested buyers */}
+                      <div className="flex-1">
+                        <p className="text-[10px] text-gray-600 leading-tight mb-1">
+                          {property.location.city}, {property.location.state}
+                        </p>
+                        {activeTab === 'active' && property.interests.length > 0 && (
+                          <button
+                            onClick={() => setShowInterestModal(property.id)}
+                            className={styles['property-interest-button']}
+                          >
+                            {property.interests.length} interested buyer
+                            {property.interests.length !== 1 ? 's' : ''}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Right: Details and Posted on */}
+                      <div className="text-right">
+                        <p className="text-[10px] text-gray-700 leading-tight">
+                          {property.bedrooms && `${property.bedrooms} BHK`}
+                          {property.bathrooms && ` • ${property.bathrooms} Bath`}
+                          {property.sqFt && ` • ${property.sqFt} sq ft`}
+                        </p>
+                        <p className="text-[10px] text-gray-500 leading-tight">
+                          Posted on: {formatDate(property.createdAt)}
+                        </p>
+                      </div>
+                    </div>
 
                     {/* Sold Information */}
                     {property.listingStatus === LISTING_STATUS.SOLD && (
