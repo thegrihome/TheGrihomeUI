@@ -360,23 +360,27 @@
 .interest-item {
   border: 1px solid #e5e7eb;
   border-radius: 0.375rem;
-  padding: 0.75rem;
+  padding: 0.5rem;
 }
 
 .interest-item-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 1rem;
 }
 
 .interest-item-name {
   font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
 }
 
 .interest-item-email,
 .interest-item-phone {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #4b5563;
+  margin-bottom: 0.125rem;
 }
 
 .interest-item-date {

@@ -442,14 +442,18 @@ export default function MyPropertiesPage() {
                 ?.interests.map(interest => (
                   <div key={interest.id} className={styles['interest-item']}>
                     <div className={styles['interest-item-header']}>
+                      {/* Left: Name and Date */}
                       <div>
                         <p className={styles['interest-item-name']}>{interest.user.name}</p>
+                        <p className={styles['interest-item-date']}>
+                          {formatDate(interest.createdAt)}
+                        </p>
+                      </div>
+                      {/* Right: Email and Phone */}
+                      <div className="text-right">
                         <p className={styles['interest-item-email']}>{interest.user.email}</p>
                         <p className={styles['interest-item-phone']}>{interest.user.phone}</p>
                       </div>
-                      <p className={styles['interest-item-date']}>
-                        {formatDate(interest.createdAt)}
-                      </p>
                     </div>
                   </div>
                 ))}
