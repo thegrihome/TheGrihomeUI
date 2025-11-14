@@ -187,7 +187,9 @@ export default function EditProperty() {
   }, [])
 
   useEffect(() => {
-    // Initialize Google Places Autocomplete
+    // Initialize Google Places Autocomplete after property data is loaded
+    if (loadingProperty) return
+
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
     if (!apiKey) {
@@ -200,6 +202,11 @@ export default function EditProperty() {
 
     const initializeAutocomplete = () => {
       if (locationInputRef.current && window.google?.maps?.places?.Autocomplete) {
+        // Set the input value if we have an address
+        if (formData.location.address && locationInputRef.current) {
+          locationInputRef.current.value = formData.location.address
+        }
+
         autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
           types: ['geocode'],
           componentRestrictions: { country: 'in' },
@@ -267,7 +274,7 @@ export default function EditProperty() {
         // eslint-disable-next-line no-console
         console.error('Error loading Google Maps API:', error)
       })
-  }, [])
+  }, [loadingProperty, formData.location.address])
 
   useEffect(() => {
     // Typeahead search for projects
@@ -332,89 +339,6 @@ export default function EditProperty() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showProjectDropdown, showPropertyTypeDropdown, showFacingDropdown])
-
-  useEffect(() => {
-    // Initialize Google Places Autocomplete
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-
-    if (!apiKey) {
-      // eslint-disable-next-line no-console
-      console.error(
-        'Google Maps API key is missing. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.'
-      )
-      return
-    }
-
-    const initializeAutocomplete = () => {
-      if (locationInputRef.current && window.google?.maps?.places?.Autocomplete) {
-        autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
-          types: ['geocode'],
-          componentRestrictions: { country: 'in' },
-        })
-
-        autocompleteRef.current.addListener('place_changed', () => {
-          const place = autocompleteRef.current?.getPlace()
-          if (!place?.geometry?.location) return
-
-          const addressComponents = place.address_components || []
-          let city = ''
-          let state = ''
-          let country = ''
-          let zipcode = ''
-          let locality = ''
-
-          addressComponents.forEach(component => {
-            const types = component.types
-            if (types.includes('locality')) city = component.long_name
-            if (types.includes('administrative_area_level_1')) state = component.long_name
-            if (types.includes('country')) country = component.long_name
-            if (types.includes('postal_code')) zipcode = component.long_name
-            if (types.includes('sublocality_level_1') || types.includes('sublocality'))
-              locality = component.long_name
-          })
-
-          const location = place.geometry.location
-
-          setFormData(prev => ({
-            ...prev,
-            location: {
-              address: place.formatted_address || '',
-              city,
-              state,
-              country,
-              zipcode,
-              locality,
-              lat: location.lat(),
-              lng: location.lng(),
-            },
-          }))
-        })
-      }
-    }
-
-    // Check if Google Maps is already loaded
-    if (window.google?.maps?.places?.Autocomplete) {
-      initializeAutocomplete()
-      return
-    }
-
-    // Only load if not already loaded
-    const loader = new Loader({
-      apiKey,
-      version: 'weekly',
-      libraries: ['places'],
-    })
-
-    loader
-      .load()
-      .then(() => {
-        initializeAutocomplete()
-      })
-      .catch(error => {
-        // eslint-disable-next-line no-console
-        console.error('Error loading Google Maps API:', error)
-      })
-  }, [])
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
