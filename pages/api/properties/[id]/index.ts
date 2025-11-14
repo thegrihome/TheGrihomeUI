@@ -14,7 +14,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }
 
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
-
   try {
     const { id } = req.query
 
@@ -233,6 +232,7 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
       property: updatedProperty,
     })
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Update property error:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
