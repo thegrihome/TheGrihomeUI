@@ -765,52 +765,52 @@ export default function PropertiesPage() {
                       </div>
 
                       <div className="flex items-start justify-between gap-1 mb-0.5">
-                        <p className="text-gray-600 text-[10px] truncate flex-1">
-                          {property.bedrooms && `${property.bedrooms} BHK`}
-                          {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                          {property.sqFt && ` • ${property.sqFt} sq ft`}
-                        </p>
-                        <p className="text-gray-500 text-[10px] whitespace-nowrap">
+                        <div className="flex-1">
+                          <p className="text-gray-600 text-[10px] truncate">
+                            {property.bedrooms && `${property.bedrooms} BHK`}
+                            {property.bathrooms && ` • ${property.bathrooms} Bath`}
+                            {property.sqFt && ` • ${property.sqFt} sq ft`}
+                          </p>
+                          <p className="text-gray-400 text-[9px]">
+                            Posted:{' '}
+                            {new Date(property.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                            ,{' '}
+                            {new Date(property.createdAt).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true,
+                            })}
+                          </p>
+                        </div>
+                        <p className="text-gray-500 text-[10px] whitespace-nowrap text-right">
                           {property.location.city}
                         </p>
                       </div>
 
                       <div className="flex items-end justify-between gap-1">
-                        <p className="text-gray-400 text-[9px]">
-                          Posted:{' '}
-                          {new Date(property.createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </p>
-                        <div className="flex items-end gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => router.push(`/properties/${property.id}`)}
+                          className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
+                        >
+                          View Details
+                        </button>
+                        {/* Owner Actions - Mark as Sold */}
+                        {isOwner && property.listingStatus === 'ACTIVE' && (
                           <button
-                            onClick={() => router.push(`/properties/${property.id}`)}
-                            className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
+                            onClick={() => {
+                              setSelectedPropertyId(property.id)
+                              setShowSoldModal(true)
+                            }}
+                            disabled={processing}
+                            className="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                           >
-                            View Details
+                            Sold
                           </button>
-                          {/* Owner Actions - Mark as Sold */}
-                          {isOwner && property.listingStatus === 'ACTIVE' && (
-                            <button
-                              onClick={() => {
-                                setSelectedPropertyId(property.id)
-                                setShowSoldModal(true)
-                              }}
-                              disabled={processing}
-                              className="p-0.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Mark as Sold"
-                            >
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                  fillRule="evenodd"
-                                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
