@@ -335,6 +335,22 @@ export default function MyPropertiesPage() {
                     </div>
                   </div>
 
+                  {/* Location and Interested buyers - below image */}
+                  <div className="flex items-center justify-between gap-2 px-2 py-1 bg-gray-50 border-b border-gray-200">
+                    <p className="text-[10px] text-gray-600 whitespace-nowrap">
+                      {property.location.city}, {property.location.state}
+                    </p>
+                    {activeTab === 'active' && property.interests.length > 0 && (
+                      <button
+                        onClick={() => setShowInterestModal(property.id)}
+                        className={styles['property-interest-button']}
+                      >
+                        {property.interests.length} interested buyer
+                        {property.interests.length !== 1 ? 's' : ''}
+                      </button>
+                    )}
+                  </div>
+
                   <div className={styles['property-card-content']}>
                     <h3 className={styles['property-card-title']}>{property.project}</h3>
 
@@ -352,60 +368,42 @@ export default function MyPropertiesPage() {
                       </div>
                     )}
 
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      {/* Left side: Details and Posted on */}
-                      <div className="flex-1 min-w-0">
-                        <p className={styles['property-card-details']}>
-                          {property.bedrooms && `${property.bedrooms} BHK`}
-                          {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                          {property.sqFt && ` • ${property.sqFt} sq ft`}
-                        </p>
-                        <p className="text-[10px] text-gray-500">
-                          Posted on: {formatDate(property.createdAt)}
-                        </p>
-                      </div>
+                    <p className={styles['property-card-details']}>
+                      {property.bedrooms && `${property.bedrooms} BHK`}
+                      {property.bathrooms && ` • ${property.bathrooms} Bath`}
+                      {property.sqFt && ` • ${property.sqFt} sq ft`}
+                    </p>
 
-                      {/* Right side: Location and Interested buyers */}
-                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                        <p className="text-[10px] text-gray-500 whitespace-nowrap">
-                          {property.location.city}, {property.location.state}
-                        </p>
-                        {activeTab === 'active' && property.interests.length > 0 && (
-                          <button
-                            onClick={() => setShowInterestModal(property.id)}
-                            className={styles['property-interest-button']}
-                          >
-                            {property.interests.length} interested buyer
-                            {property.interests.length !== 1 ? 's' : ''}
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                    <div className="flex items-center justify-between gap-2 mt-2">
+                      <p className="text-[10px] text-gray-500">
+                        Posted on: {formatDate(property.createdAt)}
+                      </p>
 
-                    <div className={styles['property-card-actions']}>
-                      <button
-                        onClick={() => router.push(`/properties/${property.id}`)}
-                        className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
-                      >
-                        View
-                      </button>
-                      {activeTab === 'active' && (
+                      <div className={styles['property-card-actions']}>
                         <button
-                          onClick={() => setShowSoldModal(property.id)}
-                          className={`${styles['property-action-button']} ${styles['property-action-button--sold']}`}
+                          onClick={() => router.push(`/properties/${property.id}`)}
+                          className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
                         >
-                          Sold
+                          View
                         </button>
-                      )}
-                      {activeTab === 'archived' &&
-                        property.listingStatus === LISTING_STATUS.ARCHIVED && (
+                        {activeTab === 'active' && (
                           <button
-                            onClick={() => handleReactivateProperty(property.id)}
-                            className={`${styles['property-action-button']} ${styles['property-action-button--reactivate']}`}
+                            onClick={() => setShowSoldModal(property.id)}
+                            className={`${styles['property-action-button']} ${styles['property-action-button--sold']}`}
                           >
-                            Reactivate
+                            Sold
                           </button>
                         )}
+                        {activeTab === 'archived' &&
+                          property.listingStatus === LISTING_STATUS.ARCHIVED && (
+                            <button
+                              onClick={() => handleReactivateProperty(property.id)}
+                              className={`${styles['property-action-button']} ${styles['property-action-button--reactivate']}`}
+                            >
+                              Reactivate
+                            </button>
+                          )}
+                      </div>
                     </div>
                   </div>
                 </div>
