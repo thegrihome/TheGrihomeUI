@@ -375,11 +375,11 @@ export default function MyPropertiesPage() {
                       {property.listingStatus === LISTING_STATUS.SOLD ? (
                         <>
                           <div className={styles['property-sold-info-inline']}>
-                            <p className="text-[10px] text-gray-700 leading-tight">
+                            <p className={styles['property-sold-info-buyer']}>
                               Sold to: {property.soldTo || 'External Buyer'}
                             </p>
                             {property.soldDate && (
-                              <p className="text-[10px] text-gray-500 leading-tight">
+                              <p className={styles['property-sold-info-date']}>
                                 Sold on: {formatDate(property.soldDate)}
                               </p>
                             )}
