@@ -350,9 +350,9 @@ export default function PropertyDetailPage() {
               {/* Property Details */}
               <div className="property-details-section">
                 {/* Title, Posted Date, and Price Row */}
-                <div className="flex items-start justify-between gap-4 mb-3">
+                <div className="flex items-center justify-between gap-4 mb-3">
                   <h1 className="text-xl font-bold text-gray-900">{property.project}</h1>
-                  <p className="property-location__meta whitespace-nowrap">
+                  <p className="property-location__meta whitespace-nowrap font-bold">
                     Posted on {formatDate(property.createdAt)}
                   </p>
                   {property.price && (
