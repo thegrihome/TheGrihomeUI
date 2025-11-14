@@ -791,7 +791,9 @@ export default function PropertiesPage() {
                         </p>
                       </div>
 
-                      <div className="flex items-end justify-between gap-1">
+                      <div
+                        className={`flex items-end gap-1 ${isOwner && property.listingStatus === 'ACTIVE' ? 'justify-between' : 'justify-end'}`}
+                      >
                         <button
                           onClick={() => router.push(`/properties/${property.id}`)}
                           className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
