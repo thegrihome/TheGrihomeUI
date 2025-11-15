@@ -95,7 +95,10 @@ describe('Geocoding Utils', () => {
             },
             address_components: [
               { long_name: 'Aditya Nagar', types: ['neighborhood', 'political'] },
-              { long_name: 'Kukatpally', types: ['sublocality_level_1', 'sublocality', 'political'] },
+              {
+                long_name: 'Kukatpally',
+                types: ['sublocality_level_1', 'sublocality', 'political'],
+              },
               { long_name: 'Hyderabad', types: ['locality', 'political'] },
               { long_name: 'Telangana', types: ['administrative_area_level_1', 'political'] },
               { long_name: 'India', types: ['country', 'political'] },
@@ -135,9 +138,7 @@ describe('Geocoding Utils', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('https://maps.googleapis.com/maps/api/geocode/json')
       )
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('address=Test%20Address')
-      )
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('address=Test%20Address'))
     })
   })
 

@@ -68,7 +68,7 @@ export default function ImageUploader({
       const reader = new FileReader()
       reader.readAsDataURL(file)
       reader.onload = () => resolve(reader.result as string)
-      reader.onerror = (error) => reject(error)
+      reader.onerror = error => reject(error)
     })
   }
 
@@ -136,7 +136,7 @@ export default function ImageUploader({
         type="file"
         accept={accept}
         multiple
-        onChange={(e) => handleFileSelect(e.target.files)}
+        onChange={e => handleFileSelect(e.target.files)}
         className="hidden"
       />
 

@@ -11,7 +11,11 @@ import { SIZE_UNIT_LABELS } from '@/lib/constants'
 
 const PropertyMap = dynamic(() => import('@/components/properties/PropertyMap'), {
   ssr: false,
-  loading: () => <div className="rounded-lg bg-gray-100 p-8 text-center" style={{ minHeight: '400px' }}><p className="text-gray-600">Loading map...</p></div>
+  loading: () => (
+    <div className="rounded-lg bg-gray-100 p-8 text-center" style={{ minHeight: '400px' }}>
+      <p className="text-gray-600">Loading map...</p>
+    </div>
+  ),
 })
 
 interface PropertyDetail {

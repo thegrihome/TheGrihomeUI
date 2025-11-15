@@ -141,7 +141,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Upload new floorplan images if provided
-      if (floorplanImagesBase64 && Array.isArray(floorplanImagesBase64) && floorplanImagesBase64.length > 0) {
+      if (
+        floorplanImagesBase64 &&
+        Array.isArray(floorplanImagesBase64) &&
+        floorplanImagesBase64.length > 0
+      ) {
         const newFloorplans = await uploadMultipleProjectImages(
           name,
           'floorplans',
@@ -151,7 +155,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Upload new clubhouse images if provided
-      if (clubhouseImagesBase64 && Array.isArray(clubhouseImagesBase64) && clubhouseImagesBase64.length > 0) {
+      if (
+        clubhouseImagesBase64 &&
+        Array.isArray(clubhouseImagesBase64) &&
+        clubhouseImagesBase64.length > 0
+      ) {
         const newClubhouse = await uploadMultipleProjectImages(
           name,
           'clubhouse',
@@ -161,7 +169,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Upload new gallery images if provided
-      if (galleryImagesBase64 && Array.isArray(galleryImagesBase64) && galleryImagesBase64.length > 0) {
+      if (
+        galleryImagesBase64 &&
+        Array.isArray(galleryImagesBase64) &&
+        galleryImagesBase64.length > 0
+      ) {
         const newGallery = await uploadMultipleProjectImages(
           name,
           'gallery',

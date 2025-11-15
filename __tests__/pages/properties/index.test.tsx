@@ -137,9 +137,7 @@ describe('Properties Page', () => {
     })
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('propertyType=CONDO')
-      )
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('propertyType=CONDO'))
     })
   })
 
@@ -152,9 +150,7 @@ describe('Properties Page', () => {
     })
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('listingType=SALE')
-      )
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('listingType=SALE'))
     })
   })
 
@@ -172,9 +168,7 @@ describe('Properties Page', () => {
     })
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('bedrooms=3')
-      )
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('bedrooms=3'))
     })
   })
 
@@ -186,11 +180,12 @@ describe('Properties Page', () => {
       fireEvent.change(locationInput, { target: { value: 'Kukatpally' } })
     })
 
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('location=Kukatpally')
-      )
-    }, { timeout: 1000 })
+    await waitFor(
+      () => {
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('location=Kukatpally'))
+      },
+      { timeout: 1000 }
+    )
   })
 
   it('sorts properties by price (low to high)', async () => {
@@ -207,9 +202,7 @@ describe('Properties Page', () => {
     })
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('sortBy=price_asc')
-      )
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('sortBy=price_asc'))
     })
   })
 
@@ -227,9 +220,7 @@ describe('Properties Page', () => {
     })
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('sortBy=newest')
-      )
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('sortBy=newest'))
     })
   })
 
@@ -242,9 +233,7 @@ describe('Properties Page', () => {
     })
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.not.stringContaining('propertyType')
-      )
+      expect(global.fetch).toHaveBeenCalledWith(expect.not.stringContaining('propertyType'))
     })
   })
 
@@ -287,9 +276,7 @@ describe('Properties Page', () => {
     })
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('page=2')
-      )
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=2'))
     })
   })
 
@@ -339,12 +326,8 @@ describe('Properties Page', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('location=Kukatpally%2C+Hyderabad')
       )
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('propertyType=CONDO')
-      )
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('listingType=SALE')
-      )
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('propertyType=CONDO'))
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('listingType=SALE'))
     })
   })
 })

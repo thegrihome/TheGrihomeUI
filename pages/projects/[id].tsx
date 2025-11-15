@@ -14,7 +14,11 @@ import { prisma } from '@/lib/cockroachDB/prisma'
 
 const PropertyMap = dynamic(() => import('@/components/properties/PropertyMap'), {
   ssr: false,
-  loading: () => <div className="rounded-lg bg-gray-100 p-8 text-center" style={{ minHeight: '400px' }}><p className="text-gray-600">Loading map...</p></div>
+  loading: () => (
+    <div className="rounded-lg bg-gray-100 p-8 text-center" style={{ minHeight: '400px' }}>
+      <p className="text-gray-600">Loading map...</p>
+    </div>
+  ),
 })
 
 interface ProjectDetails {
@@ -451,31 +455,37 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           </div>
 
           {/* Highlights */}
-          {project.highlights && Array.isArray(project.highlights) && project.highlights.length > 0 && (
-            <div className="project-section">
-              <h2 className="project-section-title">Highlights</h2>
-              <ul className="list-disc list-inside space-y-2 text-gray-700">
-                {project.highlights.map((highlight: string, index: number) => (
-                  <li key={index} className="text-lg">{highlight}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {project.highlights &&
+            Array.isArray(project.highlights) &&
+            project.highlights.length > 0 && (
+              <div className="project-section">
+                <h2 className="project-section-title">Highlights</h2>
+                <ul className="list-disc list-inside space-y-2 text-gray-700">
+                  {project.highlights.map((highlight: string, index: number) => (
+                    <li key={index} className="text-lg">
+                      {highlight}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
           {/* Amenities */}
-          {project.amenities && Array.isArray(project.amenities) && project.amenities.length > 0 && (
-            <div className="project-section">
-              <h2 className="project-section-title">Amenities</h2>
-              <ul className="grid grid-cols-2 md:grid-cols-3 gap-3 text-gray-700">
-                {project.amenities.map((amenity: string, index: number) => (
-                  <li key={index} className="flex items-center text-base">
-                    <span className="mr-2 text-green-600">✓</span>
-                    {amenity}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {project.amenities &&
+            Array.isArray(project.amenities) &&
+            project.amenities.length > 0 && (
+              <div className="project-section">
+                <h2 className="project-section-title">Amenities</h2>
+                <ul className="grid grid-cols-2 md:grid-cols-3 gap-3 text-gray-700">
+                  {project.amenities.map((amenity: string, index: number) => (
+                    <li key={index} className="flex items-center text-base">
+                      <span className="mr-2 text-green-600">✓</span>
+                      {amenity}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
           {/* Floor Plans */}
           {project.floorplanImageUrls && project.floorplanImageUrls.length > 0 && (
@@ -483,7 +493,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               <h2 className="project-section-title">Floor Plans</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {project.floorplanImageUrls.map((url: string, index: number) => (
-                  <div key={index} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <div
+                    key={index}
+                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  >
                     <Image
                       src={url}
                       alt={`Floor Plan ${index + 1}`}
@@ -503,7 +516,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               <h2 className="project-section-title">Clubhouse</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {project.clubhouseImageUrls.map((url: string, index: number) => (
-                  <div key={index} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <div
+                    key={index}
+                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  >
                     <Image
                       src={url}
                       alt={`Clubhouse ${index + 1}`}
@@ -523,7 +539,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               <h2 className="project-section-title">Gallery</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {project.galleryImageUrls.map((url: string, index: number) => (
-                  <div key={index} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <div
+                    key={index}
+                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  >
                     <Image
                       src={url}
                       alt={`Gallery Image ${index + 1}`}
@@ -560,7 +579,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               <PropertyMap
                 latitude={project.location.latitude}
                 longitude={project.location.longitude}
-                address={project.location.formattedAddress || `${project.location.city}, ${project.location.state}`}
+                address={
+                  project.location.formattedAddress ||
+                  `${project.location.city}, ${project.location.state}`
+                }
                 className="w-full"
               />
               <div className="mt-3 text-gray-700">
@@ -579,25 +601,27 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           )}
 
           {/* Old sections - Keep for backward compatibility if old format data exists */}
-          {details.floorPlans && details.floorPlans.length > 0 && !project.floorplanImageUrls?.length && (
-            <div className="project-section">
-              <h2 className="project-section-title">Floor Plans (Legacy)</h2>
-              <div className="images-grid">
-                {details.floorPlans.map((floorPlan: any, index: number) => (
-                  <div key={index} className="image-item">
-                    <Image
-                      src={floorPlan.image}
-                      alt={floorPlan.name}
-                      width={400}
-                      height={300}
-                      className="w-full"
-                    />
-                    <p className="text-center mt-2 font-medium">{floorPlan.name}</p>
-                  </div>
-                ))}
+          {details.floorPlans &&
+            details.floorPlans.length > 0 &&
+            !project.floorplanImageUrls?.length && (
+              <div className="project-section">
+                <h2 className="project-section-title">Floor Plans (Legacy)</h2>
+                <div className="images-grid">
+                  {details.floorPlans.map((floorPlan: any, index: number) => (
+                    <div key={index} className="image-item">
+                      <Image
+                        src={floorPlan.image}
+                        alt={floorPlan.name}
+                        width={400}
+                        height={300}
+                        className="w-full"
+                      />
+                      <p className="text-center mt-2 font-medium">{floorPlan.name}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Clubhouse */}
           {(details.clubhouse?.description || details.clubhouse?.images) && (

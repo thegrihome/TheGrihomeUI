@@ -84,7 +84,9 @@ export function parsePlaceResult(place: any): Partial<GeocodeResult> {
 
   const components = place.address_components || []
   const getComponent = (types: string[]) => {
-    const component = components.find((c: any) => types.some((type: string) => c.types.includes(type)))
+    const component = components.find((c: any) =>
+      types.some((type: string) => c.types.includes(type))
+    )
     return component?.long_name || ''
   }
 

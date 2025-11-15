@@ -33,7 +33,9 @@ export default function BuilderSelector({ value, onChange, className = '' }: Bui
   useEffect(() => {
     const fetchBuilders = async () => {
       try {
-        const response = await fetch(`/api/builders?search=${encodeURIComponent(searchQuery)}&limit=50`)
+        const response = await fetch(
+          `/api/builders?search=${encodeURIComponent(searchQuery)}&limit=50`
+        )
         if (response.ok) {
           const data = await response.json()
           setBuilders(data.builders || [])
@@ -140,7 +142,12 @@ export default function BuilderSelector({ value, onChange, className = '' }: Bui
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </div>
         ) : (
@@ -152,7 +159,12 @@ export default function BuilderSelector({ value, onChange, className = '' }: Bui
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </div>
         )}
@@ -166,7 +178,7 @@ export default function BuilderSelector({ value, onChange, className = '' }: Bui
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search builders..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               autoFocus
@@ -192,7 +204,7 @@ export default function BuilderSelector({ value, onChange, className = '' }: Bui
                   <input
                     type="text"
                     value={newBuilderName}
-                    onChange={(e) => setNewBuilderName(e.target.value)}
+                    onChange={e => setNewBuilderName(e.target.value)}
                     placeholder="Enter builder name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -204,7 +216,7 @@ export default function BuilderSelector({ value, onChange, className = '' }: Bui
                   <input
                     type="url"
                     value={newBuilderWebsite}
-                    onChange={(e) => setNewBuilderWebsite(e.target.value)}
+                    onChange={e => setNewBuilderWebsite(e.target.value)}
                     placeholder="https://example.com"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -239,7 +251,7 @@ export default function BuilderSelector({ value, onChange, className = '' }: Bui
                 No builders found. Try a different search or add a new builder.
               </div>
             ) : (
-              filteredBuilders.map((builder) => (
+              filteredBuilders.map(builder => (
                 <div
                   key={builder.id}
                   onClick={() => handleSelectBuilder(builder)}

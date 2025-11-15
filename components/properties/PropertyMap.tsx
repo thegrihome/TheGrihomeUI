@@ -7,7 +7,12 @@ interface PropertyMapProps {
   className?: string
 }
 
-export default function PropertyMap({ latitude, longitude, address, className = '' }: PropertyMapProps) {
+export default function PropertyMap({
+  latitude,
+  longitude,
+  address,
+  className = '',
+}: PropertyMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [isLoaded, setIsLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -115,11 +120,7 @@ export default function PropertyMap({ latitude, longitude, address, className = 
 
   return (
     <div className={className}>
-      <div
-        ref={mapRef}
-        className="w-full h-full rounded-lg"
-        style={{ minHeight: '400px' }}
-      />
+      <div ref={mapRef} className="w-full h-full rounded-lg" style={{ minHeight: '400px' }} />
       {!isLoaded && (
         <div className="rounded-lg bg-gray-100 p-8 text-center" style={{ minHeight: '400px' }}>
           <p className="text-gray-600">Loading map...</p>

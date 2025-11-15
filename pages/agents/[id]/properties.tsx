@@ -145,10 +145,7 @@ export default function AgentProperties() {
           <div className="text-center py-20">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Error</h2>
             <p className="text-gray-600 mb-6">{error || 'Agent not found'}</p>
-            <Link
-              href="/agents"
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
+            <Link href="/agents" className="text-blue-600 hover:text-blue-700 font-medium">
               ← Back to Agents
             </Link>
           </div>
@@ -200,9 +197,7 @@ export default function AgentProperties() {
             )}
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 mb-1">{agent.name}</h1>
-              {agent.companyName && (
-                <p className="text-gray-600 mb-2">{agent.companyName}</p>
-              )}
+              {agent.companyName && <p className="text-gray-600 mb-2">{agent.companyName}</p>}
               <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                 {agent.email && <span>📧 {agent.email}</span>}
                 {agent.phone && <span>📱 {agent.phone}</span>}
@@ -222,12 +217,12 @@ export default function AgentProperties() {
         {properties.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
             <p className="text-gray-600 text-lg mb-4">No properties found</p>
-            <p className="text-gray-500">This agent hasn't listed any properties yet.</p>
+            <p className="text-gray-500">This agent has not listed any properties yet.</p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.map((property) => (
+              {properties.map(property => (
                 <Link
                   key={property.id}
                   href={`/properties/${property.id}`}
@@ -282,19 +277,13 @@ export default function AgentProperties() {
                     {/* Property Features */}
                     <div className="flex items-center gap-4 text-sm text-gray-500 pb-3 border-b border-gray-200">
                       {property.bedrooms && (
-                        <span className="flex items-center gap-1">
-                          🛏️ {property.bedrooms} BHK
-                        </span>
+                        <span className="flex items-center gap-1">🛏️ {property.bedrooms} BHK</span>
                       )}
                       {property.bathrooms && (
-                        <span className="flex items-center gap-1">
-                          🚿 {property.bathrooms}
-                        </span>
+                        <span className="flex items-center gap-1">🚿 {property.bathrooms}</span>
                       )}
                       {property.sqFt && (
-                        <span className="flex items-center gap-1">
-                          📐 {property.sqFt} sqft
-                        </span>
+                        <span className="flex items-center gap-1">📐 {property.sqFt} sqft</span>
                       )}
                     </div>
 
@@ -318,7 +307,7 @@ export default function AgentProperties() {
             {pagination && pagination.totalPages > 1 && (
               <div className="mt-8 flex justify-center items-center gap-4">
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={!pagination.hasPreviousPage}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
@@ -330,7 +319,7 @@ export default function AgentProperties() {
                 </span>
 
                 <button
-                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
                   disabled={!pagination.hasNextPage}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >

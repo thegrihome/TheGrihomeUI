@@ -6,14 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
-  const {
-    q: query,
-    type = 'all',
-    page = '1',
-    limit = '20',
-    categoryId,
-    city,
-  } = req.query
+  const { q: query, type = 'all', page = '1', limit = '20', categoryId, city } = req.query
 
   if (!query || typeof query !== 'string') {
     return res.status(400).json({ message: 'Query parameter is required' })

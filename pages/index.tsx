@@ -322,8 +322,8 @@ export default function Home() {
                 <div className="benefit-icon">🏠</div>
                 <h3 className="benefit-title">For Buyers</h3>
                 <p className="benefit-description">
-                  Discover your dream home from verified listings. Browse properties, compare prices,
-                  and connect directly with sellers and agents.
+                  Discover your dream home from verified listings. Browse properties, compare
+                  prices, and connect directly with sellers and agents.
                 </p>
               </div>
             </div>
@@ -374,7 +374,12 @@ export default function Home() {
             <Link href="/agents" className="showcase-link">
               <button className="showcase-button">
                 Browse All Agents
-                <svg className="showcase-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="showcase-arrow"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -395,7 +400,12 @@ export default function Home() {
             <Link href="/builders" className="showcase-link">
               <button className="showcase-button">
                 View All Builders
-                <svg className="showcase-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="showcase-arrow"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"

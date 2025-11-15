@@ -3,7 +3,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import Signup from '@/pages/auth/signup'
-import { mockRouter, mockSession, mockFetchSuccess, mockFetchError } from '@/__tests__/utils/test-utils'
+import {
+  mockRouter,
+  mockSession,
+  mockFetchSuccess,
+  mockFetchError,
+} from '@/__tests__/utils/test-utils'
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
