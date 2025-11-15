@@ -140,12 +140,12 @@ const Header: NextPage = () => {
               <Link href="/contactUs/contact" className="desktop-nav-link">
                 Contact Us
               </Link>
-              {!isAuthenticated && (
+              {status !== 'loading' && !isAuthenticated && (
                 <Link href="/login" className="header-add-property-link">
                   Login to post property
                 </Link>
               )}
-              {isAuthenticated && user && (
+              {status !== 'loading' && isAuthenticated && user && (
                 <Link href="/properties/add-property" className="header-add-property-link">
                   Post property for free
                 </Link>
@@ -153,7 +153,9 @@ const Header: NextPage = () => {
             </div>
 
             <div className="auth-section flex items-center">
-              {isAuthenticated && user ? (
+              {status === 'loading' ? (
+                <div style={{ width: '120px', height: '40px' }} />
+              ) : isAuthenticated && user ? (
                 <>
                   <div className="user-menu" ref={userMenuRef}>
                     <button
@@ -306,7 +308,7 @@ const Header: NextPage = () => {
                   >
                     Contact Us
                   </Link>
-                  {!isAuthenticated && (
+                  {status !== 'loading' && !isAuthenticated && (
                     <Link
                       href="/login"
                       className="header-add-property-link-mobile"
@@ -315,7 +317,7 @@ const Header: NextPage = () => {
                       Login to post property
                     </Link>
                   )}
-                  {isAuthenticated && user && (
+                  {status !== 'loading' && isAuthenticated && user && (
                     <Link
                       href="/properties/add-property"
                       className="header-add-property-link-mobile"
@@ -327,7 +329,9 @@ const Header: NextPage = () => {
                 </nav>
 
                 <div className="mobile-auth-section">
-                  {isAuthenticated && user ? (
+                  {status === 'loading' ? (
+                    <div style={{ width: '100%', height: '80px' }} />
+                  ) : isAuthenticated && user ? (
                     <div>
                       <div className="mobile-user-info">
                         <div className="mobile-user-avatar">

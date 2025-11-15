@@ -53,30 +53,6 @@ export default function NewPostPage({
   const [categoryId, setCategoryId] = useState(selectedCategoryId || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [userVerification, setUserVerification] = useState<{
-    emailVerified?: boolean
-    mobileVerified?: boolean
-  } | null>(null)
-
-  // Fetch user verification status
-  useEffect(() => {
-    const fetchUserVerification = async () => {
-      if (session?.user?.id) {
-        try {
-          const response = await fetch(`/api/user/verification-status`)
-          if (response.ok) {
-            const data = await response.json()
-            setUserVerification(data)
-          }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Error fetching user verification:', error)
-        }
-      }
-    }
-
-    fetchUserVerification()
-  }, [session?.user?.id])
 
   // Configure rich text editor modules
   const modules = useMemo(
@@ -173,7 +149,7 @@ export default function NewPostPage({
     return null
   }
 
-  const isUserVerified = userVerification?.emailVerified || userVerification?.mobileVerified
+  const isUserVerified = session?.user?.isEmailVerified || session?.user?.isMobileVerified
   const selectableCategories = getSelectableCategories(categories)
 
   return (
@@ -247,7 +223,7 @@ export default function NewPostPage({
                 You need to verify your email or mobile number to create threads. Please verify your
                 account to participate in discussions.
               </p>
-              <Link href="/userinfo" className="forum-verify-btn">
+              <Link href="/auth/userinfo" className="forum-verify-btn">
                 Verify Account
               </Link>
             </div>

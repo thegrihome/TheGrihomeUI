@@ -4,11 +4,15 @@ import { useRouter } from 'next/router'
 interface ForumSearchProps {
   placeholder?: string
   className?: string
+  categoryId?: string
+  city?: string
 }
 
 export default function ForumSearch({
   placeholder = 'Search posts, threads, sections...',
   className = '',
+  categoryId,
+  city,
 }: ForumSearchProps) {
   const [query, setQuery] = useState('')
   const router = useRouter()
@@ -16,7 +20,10 @@ export default function ForumSearch({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (query.trim()) {
-      router.push(`/forum/search?q=${encodeURIComponent(query.trim())}`)
+      const params = new URLSearchParams({ q: query.trim() })
+      if (categoryId) params.append('categoryId', categoryId)
+      if (city) params.append('city', city)
+      router.push(`/forum/search?${params.toString()}`)
     }
   }
 

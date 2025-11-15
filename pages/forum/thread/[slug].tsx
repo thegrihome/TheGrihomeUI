@@ -70,29 +70,6 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [displayedReplies, setDisplayedReplies] = useState(20)
-  const [userVerification, setUserVerification] = useState<{
-    emailVerified?: boolean
-    mobileVerified?: boolean
-  } | null>(null)
-
-  useEffect(() => {
-    const fetchUserVerification = async () => {
-      if (session?.user?.id) {
-        try {
-          const response = await fetch(`/api/user/verification-status`)
-          if (response.ok) {
-            const data = await response.json()
-            setUserVerification(data)
-          }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Error fetching user verification:', error)
-        }
-      }
-    }
-
-    fetchUserVerification()
-  }, [session?.user?.id])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -104,7 +81,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
     })
   }
 
-  const isUserVerified = userVerification?.emailVerified || userVerification?.mobileVerified
+  const isUserVerified = session?.user?.isEmailVerified || session?.user?.isMobileVerified
   const canReply = session?.user && !post.isLocked && isUserVerified
 
   const handleSubmitReply = async (e: React.FormEvent) => {
@@ -378,7 +355,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
                 You need to verify your email or mobile number to participate in discussions. Please
                 verify your account to post replies.
               </p>
-              <Link href="/userinfo" className="forum-verify-btn">
+              <Link href="/auth/userinfo" className="forum-verify-btn">
                 Verify Account
               </Link>
             </div>

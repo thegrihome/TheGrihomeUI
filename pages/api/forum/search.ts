@@ -6,7 +6,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
-  const { q: query, type = 'all', page = '1', limit = '20' } = req.query
+  const {
+    q: query,
+    type = 'all',
+    page = '1',
+    limit = '20',
+    categoryId,
+    city,
+  } = req.query
 
   if (!query || typeof query !== 'string') {
     return res.status(400).json({ message: 'Query parameter is required' })
@@ -31,16 +38,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       totalPages: 0,
     }
 
+    // Build category filter for posts
+    const categoryFilter: any = {}
+    if (categoryId && typeof categoryId === 'string') {
+      categoryFilter.categoryId = categoryId
+    } else if (city && typeof city === 'string') {
+      categoryFilter.category = {
+        city: city,
+      }
+    }
+
     // Search in forum posts
     if (type === 'all' || type === 'posts') {
+      const postWhereClause: any = {
+        ...categoryFilter,
+        OR: [
+          { title: { contains: searchQuery, mode: 'insensitive' } },
+          { content: { contains: searchQuery, mode: 'insensitive' } },
+        ],
+      }
+
       const [posts, postsCount] = await Promise.all([
         prisma.forumPost.findMany({
-          where: {
-            OR: [
-              { title: { contains: searchQuery, mode: 'insensitive' } },
-              { content: { contains: searchQuery, mode: 'insensitive' } },
-            ],
-          },
+          where: postWhereClause,
           include: {
             author: {
               select: {
@@ -69,12 +89,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           take: type === 'posts' ? limitNum : 10,
         }),
         prisma.forumPost.count({
-          where: {
-            OR: [
-              { title: { contains: searchQuery, mode: 'insensitive' } },
-              { content: { contains: searchQuery, mode: 'insensitive' } },
-            ],
-          },
+          where: postWhereClause,
         }),
       ])
 
@@ -87,14 +102,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Search in categories/sections
     if (type === 'all' || type === 'categories') {
+      const categoryWhereClause: any = {
+        OR: [
+          { name: { contains: searchQuery, mode: 'insensitive' } },
+          { description: { contains: searchQuery, mode: 'insensitive' } },
+        ],
+        isActive: true,
+      }
+
+      // Apply city filter for category search if provided
+      if (city && typeof city === 'string') {
+        categoryWhereClause.city = city
+      }
+
       const categories = await prisma.forumCategory.findMany({
-        where: {
-          OR: [
-            { name: { contains: searchQuery, mode: 'insensitive' } },
-            { description: { contains: searchQuery, mode: 'insensitive' } },
-          ],
-          isActive: true,
-        },
+        where: categoryWhereClause,
         include: {
           _count: {
             select: { posts: true },

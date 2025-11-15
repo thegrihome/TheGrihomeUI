@@ -6,6 +6,37 @@ import { useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
+interface ForumPost {
+  id: string
+  title: string
+  slug: string
+  content: string
+  viewCount: number
+  createdAt: string
+  category: {
+    id: string
+    name: string
+    slug: string
+    city: string | null
+    propertyType: string | null
+  }
+  _count: {
+    replies: number
+    reactions: number
+  }
+}
+
+interface ForumReply {
+  id: string
+  content: string
+  createdAt: string
+  post: {
+    id: string
+    title: string
+    slug: string
+  }
+}
+
 interface UserStats {
   user: {
     id: string
@@ -38,6 +69,10 @@ interface UserStats {
 
 interface UserProfilePageProps {
   userStats: UserStats
+  posts: ForumPost[]
+  replies: ForumReply[]
+  postsCount: number
+  repliesCount: number
 }
 
 const reactionEmojis = {
@@ -58,8 +93,16 @@ const reactionLabels = {
   LOVE: 'Love',
 }
 
-export default function UserProfilePage({ userStats }: UserProfilePageProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'reactions'>('overview')
+export default function UserProfilePage({
+  userStats,
+  posts,
+  replies,
+  postsCount,
+  repliesCount,
+}: UserProfilePageProps) {
+  const [activeTab, setActiveTab] = useState<'overview' | 'posts' | 'replies' | 'reactions'>(
+    'posts'
+  )
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -95,6 +138,22 @@ export default function UserProfilePage({ userStats }: UserProfilePageProps) {
   }
 
   const activityLevel = getActivityLevel(userStats.totalPosts)
+
+  const truncateContent = (content: string, maxLength: number = 150) => {
+    const stripped = content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
+    if (stripped.length <= maxLength) return stripped
+    return stripped.substring(0, maxLength).trim() + '...'
+  }
+
+  const getCategoryUrl = (category: any) => {
+    if (category.city && category.propertyType) {
+      return `/forum/category/general-discussions/${category.city}/${category.slug.replace(`${category.city}-`, '')}`
+    } else if (category.city) {
+      return `/forum/category/general-discussions/${category.city}`
+    } else {
+      return `/forum/category/${category.slug}`
+    }
+  }
 
   return (
     <div className="forum-container">
@@ -161,6 +220,18 @@ export default function UserProfilePage({ userStats }: UserProfilePageProps) {
 
           <div className="forum-user-tabs">
             <button
+              className={`forum-tab ${activeTab === 'posts' ? 'active' : ''}`}
+              onClick={() => setActiveTab('posts')}
+            >
+              Posts ({postsCount})
+            </button>
+            <button
+              className={`forum-tab ${activeTab === 'replies' ? 'active' : ''}`}
+              onClick={() => setActiveTab('replies')}
+            >
+              Replies ({repliesCount})
+            </button>
+            <button
               className={`forum-tab ${activeTab === 'overview' ? 'active' : ''}`}
               onClick={() => setActiveTab('overview')}
             >
@@ -175,6 +246,88 @@ export default function UserProfilePage({ userStats }: UserProfilePageProps) {
           </div>
 
           <div className="forum-user-content">
+            {activeTab === 'posts' && (
+              <div className="forum-user-posts">
+                {posts.length === 0 ? (
+                  <div className="forum-empty-state">
+                    <p>No posts yet</p>
+                  </div>
+                ) : (
+                  <div className="forum-search-results">
+                    {posts.map(post => (
+                      <Link
+                        key={post.id}
+                        href={`/forum/thread/${post.slug}`}
+                        className="forum-search-result-item"
+                      >
+                        <div className="forum-search-result-content">
+                          <div className="forum-search-result-header">
+                            <div>
+                              <h3 className="forum-search-result-title">{post.title}</h3>
+                              <div className="forum-search-result-meta">
+                                <span className="forum-search-result-date">
+                                  {formatDate(post.createdAt)}
+                                </span>
+                                <span className="forum-search-result-category">
+                                  in {post.category.name}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="forum-search-result-description">
+                            {truncateContent(post.content, 200)}
+                          </p>
+                          <div className="forum-search-result-stats">
+                            <span className="forum-stat">{post._count.replies} replies</span>
+                            <span className="forum-stat">{post.viewCount} views</span>
+                            <span className="forum-stat">{post._count.reactions} reactions</span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'replies' && (
+              <div className="forum-user-replies">
+                {replies.length === 0 ? (
+                  <div className="forum-empty-state">
+                    <p>No replies yet</p>
+                  </div>
+                ) : (
+                  <div className="forum-search-results">
+                    {replies.map(reply => (
+                      <Link
+                        key={reply.id}
+                        href={`/forum/thread/${reply.post.slug}`}
+                        className="forum-search-result-item"
+                      >
+                        <div className="forum-search-result-content">
+                          <div className="forum-search-result-header">
+                            <div>
+                              <h3 className="forum-search-result-title">
+                                Re: {reply.post.title}
+                              </h3>
+                              <div className="forum-search-result-meta">
+                                <span className="forum-search-result-date">
+                                  {formatDate(reply.createdAt)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="forum-search-result-description">
+                            {truncateContent(reply.content, 200)}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {activeTab === 'overview' && (
               <div className="forum-user-overview">
                 <div className="forum-stats-grid">
@@ -263,26 +416,35 @@ export default function UserProfilePage({ userStats }: UserProfilePageProps) {
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const { userId } = params!
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
 
   try {
-    const response = await fetch(`http://localhost:3000/api/forum/user/${userId}/stats`)
+    const [statsResponse, postsResponse] = await Promise.all([
+      fetch(`${baseUrl}/api/forum/user/${userId}/stats`),
+      fetch(`${baseUrl}/api/forum/user/${userId}/posts?limit=20`),
+    ])
 
-    if (!response.ok) {
+    if (!statsResponse.ok || !postsResponse.ok) {
       return {
         notFound: true,
       }
     }
 
-    const userStats = await response.json()
+    const userStats = await statsResponse.json()
+    const postsData = await postsResponse.json()
 
     return {
       props: {
         userStats,
+        posts: postsData.posts || [],
+        replies: postsData.replies || [],
+        postsCount: postsData.postsCount || 0,
+        repliesCount: postsData.repliesCount || 0,
       },
     }
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Error fetching user stats:', error)
+    console.error('Error fetching user data:', error)
     return {
       notFound: true,
     }

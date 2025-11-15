@@ -218,7 +218,7 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
             <span className="forum-breadcrumb-current">{city.name}</span>
           </div>
           <div className="forum-breadcrumb-search">
-            <ForumSearch />
+            <ForumSearch city={city.city || undefined} />
           </div>
         </div>
 
