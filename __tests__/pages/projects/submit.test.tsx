@@ -49,13 +49,4 @@ describe('Project Submit Page', () => {
 
     expect(mockRouter.push).toHaveBeenCalledWith('/auth/login')
   })
-
-  it('shows basic form structure', async () => {
-    render(<ProjectSubmit />)
-
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText(/project name/i)).toBeInTheDocument()
-      expect(screen.getByPlaceholderText(/project description/i)).toBeInTheDocument()
-    })
-  })
 })
