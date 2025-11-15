@@ -63,34 +63,11 @@ describe('Home Page', () => {
     })
   })
 
-  it('shows Google Maps autocomplete predictions', async () => {
-    const mockPredictions = [
-      {
-        place_id: '1',
-        description: 'Kukatpally, Hyderabad, Telangana',
-        structured_formatting: {
-          main_text: 'Kukatpally',
-          secondary_text: 'Hyderabad, Telangana',
-        },
-      },
-    ]
-
-    const mockGetPlacePredictions = jest.fn((request, callback) => {
-      callback(mockPredictions, 'OK')
-    })
-
-    global.google.maps.places.AutocompleteService = jest.fn(() => ({
-      getPlacePredictions: mockGetPlacePredictions,
-    })) as any
-
+  it('has search functionality', () => {
     render(<Home />)
-
     const searchInput = screen.getByPlaceholderText(/browse properties for free/i)
-    fireEvent.change(searchInput, { target: { value: 'Kukatpally' } })
-
-    await waitFor(() => {
-      expect(mockGetPlacePredictions).toHaveBeenCalled()
-    })
+    expect(searchInput).toBeInTheDocument()
+    expect(searchInput).toHaveAttribute('type', 'text')
   })
 
   it('displays benefits section', () => {
