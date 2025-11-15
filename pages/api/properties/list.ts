@@ -58,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where.listingType = listingType as ListingType
     }
 
-    // Location filters
+    // Location filters - Support partial matching on all location fields
     if (location) {
       where.OR = [
         {
@@ -86,6 +86,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         {
           location: {
             locality: {
+              contains: location,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          location: {
+            neighborhood: {
+              contains: location,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          location: {
+            zipcode: {
+              contains: location,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          location: {
+            formattedAddress: {
               contains: location,
               mode: 'insensitive',
             },

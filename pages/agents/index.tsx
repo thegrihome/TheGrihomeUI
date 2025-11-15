@@ -412,7 +412,16 @@ export default function AgentsPage() {
 
                       {/* Properties Listed Column */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{agent._count.listedProperties}</div>
+                        {agent._count.listedProperties > 0 ? (
+                          <button
+                            onClick={() => router.push(`/agents/${agent.id}/properties`)}
+                            className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
+                          >
+                            {agent._count.listedProperties}
+                          </button>
+                        ) : (
+                          <div className="text-sm text-gray-400">0</div>
+                        )}
                       </td>
 
                       {/* Joined Column */}

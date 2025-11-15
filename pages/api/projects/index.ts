@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const pageSize = parseInt(limit as string, 10)
     const skip = (currentPage - 1) * pageSize
 
-    // Build search conditions
+    // Build search conditions - Support partial matching on all location fields
     const searchConditions = search
       ? {
           OR: [
@@ -58,6 +58,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             {
               location: {
                 locality: {
+                  contains: search as string,
+                  mode: 'insensitive' as const,
+                },
+              },
+            },
+            {
+              location: {
+                neighborhood: {
+                  contains: search as string,
+                  mode: 'insensitive' as const,
+                },
+              },
+            },
+            {
+              location: {
+                formattedAddress: {
                   contains: search as string,
                   mode: 'insensitive' as const,
                 },

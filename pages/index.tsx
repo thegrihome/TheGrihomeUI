@@ -311,6 +311,104 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Benefits Section */}
+      <section className="benefits-section">
+        <div className="benefits-container">
+          {/* Platform Benefits with Multicolor Dividers */}
+          <div className="benefits-grid">
+            <div className="benefit-item">
+              <div className="benefit-divider benefit-divider-blue"></div>
+              <div className="benefit-content">
+                <div className="benefit-icon">🏠</div>
+                <h3 className="benefit-title">For Buyers</h3>
+                <p className="benefit-description">
+                  Discover your dream home from verified listings. Browse properties, compare prices,
+                  and connect directly with sellers and agents.
+                </p>
+              </div>
+            </div>
+
+            <div className="benefit-item">
+              <div className="benefit-divider benefit-divider-green"></div>
+              <div className="benefit-content">
+                <div className="benefit-icon">💼</div>
+                <h3 className="benefit-title">For Sellers</h3>
+                <p className="benefit-description">
+                  List your property for free. Reach thousands of potential buyers with detailed
+                  listings, photos, and virtual tours.
+                </p>
+              </div>
+            </div>
+
+            <div className="benefit-item">
+              <div className="benefit-divider benefit-divider-purple"></div>
+              <div className="benefit-content">
+                <div className="benefit-icon">🤝</div>
+                <h3 className="benefit-title">For Agents</h3>
+                <p className="benefit-description">
+                  Grow your business with our platform. Manage multiple listings, connect with
+                  clients, and build your reputation.
+                </p>
+              </div>
+            </div>
+
+            <div className="benefit-item">
+              <div className="benefit-divider benefit-divider-orange"></div>
+              <div className="benefit-content">
+                <div className="benefit-icon">🏗️</div>
+                <h3 className="benefit-title">For Builders</h3>
+                <p className="benefit-description">
+                  Showcase your projects to qualified buyers. Feature floor plans, amenities, and
+                  walkthrough videos to attract customers.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Agents Showcase */}
+          <div className="showcase-section">
+            <h2 className="showcase-title">Connect with Top Agents</h2>
+            <p className="showcase-subtitle">
+              Work with experienced real estate professionals who understand the market
+            </p>
+            <Link href="/agents" className="showcase-link">
+              <button className="showcase-button">
+                Browse All Agents
+                <svg className="showcase-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </Link>
+          </div>
+
+          {/* Builders Showcase */}
+          <div className="showcase-section">
+            <h2 className="showcase-title">Explore Premium Projects</h2>
+            <p className="showcase-subtitle">
+              Discover quality projects from trusted builders across India
+            </p>
+            <Link href="/builders" className="showcase-link">
+              <button className="showcase-button">
+                View All Builders
+                <svg className="showcase-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   )

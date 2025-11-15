@@ -38,6 +38,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   },
                 },
               },
+              {
+                location: {
+                  state: {
+                    contains: searchQuery,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              },
+              {
+                location: {
+                  locality: {
+                    contains: searchQuery,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              },
+              {
+                location: {
+                  neighborhood: {
+                    contains: searchQuery,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              },
+              {
+                location: {
+                  zipcode: {
+                    contains: searchQuery,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              },
+              {
+                location: {
+                  formattedAddress: {
+                    contains: searchQuery,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              },
             ],
           }
         : {} // Return all projects if no search query
