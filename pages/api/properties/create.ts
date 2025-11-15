@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
 import { PropertyType, ListingType } from '@prisma/client'
+import { geocodeAddress } from '@/lib/utils/geocoding'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -40,24 +41,63 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Missing required fields' })
     }
 
-    // Find or create location
-    let locationRecord = await prisma.location.findFirst({
-      where: {
-        city: location.city,
-        state: location.state,
-        country: location.country,
-      },
-    })
+    // Geocode the address to get coordinates and normalized data
+    const geocodeResult = await geocodeAddress(location.address)
 
-    if (!locationRecord) {
-      locationRecord = await prisma.location.create({
-        data: {
+    // Create or find location with geocoded data
+    let locationRecord
+    if (geocodeResult) {
+      // Try to find existing location with same coordinates (within small tolerance)
+      const tolerance = 0.0001 // ~11 meters
+      locationRecord = await prisma.location.findFirst({
+        where: {
+          latitude: {
+            gte: geocodeResult.latitude - tolerance,
+            lte: geocodeResult.latitude + tolerance,
+          },
+          longitude: {
+            gte: geocodeResult.longitude - tolerance,
+            lte: geocodeResult.longitude + tolerance,
+          },
+        },
+      })
+
+      if (!locationRecord) {
+        locationRecord = await prisma.location.create({
+          data: {
+            city: geocodeResult.city || location.city,
+            state: geocodeResult.state || location.state,
+            country: geocodeResult.country || location.country || 'India',
+            zipcode: geocodeResult.zipcode || location.zipcode || '',
+            locality: geocodeResult.locality || location.locality || '',
+            neighborhood: geocodeResult.neighborhood,
+            latitude: geocodeResult.latitude,
+            longitude: geocodeResult.longitude,
+            formattedAddress: geocodeResult.formattedAddress,
+          },
+        })
+      }
+    } else {
+      // Fallback: create location without coordinates
+      locationRecord = await prisma.location.findFirst({
+        where: {
           city: location.city,
           state: location.state,
           country: location.country,
-          zipcode: location.zipcode || '',
         },
       })
+
+      if (!locationRecord) {
+        locationRecord = await prisma.location.create({
+          data: {
+            city: location.city,
+            state: location.state,
+            country: location.country || 'India',
+            zipcode: location.zipcode || '',
+            locality: location.locality || '',
+          },
+        })
+      }
     }
 
     // Prepare property details

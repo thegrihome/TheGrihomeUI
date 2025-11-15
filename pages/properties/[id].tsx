@@ -3,10 +3,16 @@ import { NextSeo } from 'next-seo'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
+import dynamic from 'next/dynamic'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import toast from 'react-hot-toast'
 import { SIZE_UNIT_LABELS } from '@/lib/constants'
+
+const PropertyMap = dynamic(() => import('@/components/properties/PropertyMap'), {
+  ssr: false,
+  loading: () => <div className="rounded-lg bg-gray-100 p-8 text-center" style={{ minHeight: '400px' }}><p className="text-gray-600">Loading map...</p></div>
+})
 
 interface PropertyDetail {
   id: string
@@ -16,7 +22,11 @@ interface PropertyDetail {
     state: string
     zipcode: string
     locality: string
+    neighborhood?: string
     fullAddress: string
+    latitude?: number
+    longitude?: number
+    formattedAddress?: string
   }
   builder: string
   project: string
@@ -502,6 +512,19 @@ export default function PropertyDetailPage() {
                       {property.builder !== 'Independent' && `Builder: ${property.builder}`}
                       {property.companyName && ` • Company: ${property.companyName}`}
                     </p>
+                  </div>
+                )}
+
+                {/* Location Map */}
+                {property.location.latitude && property.location.longitude && (
+                  <div className="mt-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Location</h3>
+                    <PropertyMap
+                      latitude={property.location.latitude}
+                      longitude={property.location.longitude}
+                      address={property.location.formattedAddress || property.location.fullAddress}
+                      className="w-full"
+                    />
                   </div>
                 )}
 
