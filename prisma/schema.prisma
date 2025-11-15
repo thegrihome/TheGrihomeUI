@@ -127,6 +127,7 @@ model Project {
   density                Float?
   imageUrls              String[]
   thumbnailUrl           String?
+  bannerImageUrl         String?
   createdAt              DateTime          @default(now())
   updatedAt              DateTime          @updatedAt
   builderId              String
@@ -134,12 +135,21 @@ model Project {
   name                   String
   projectDetails         Json?
   builderPageUrl         String?
+  builderWebsiteLink     String?
   builderProspectusUrl   String?
+  brochureUrl            String?
   contactPersonEmail     String?
   contactPersonFirstName String?
   contactPersonLastName  String?
   contactPersonPhone     String?
   postedByUserId         String?
+  highlights             Json?
+  amenities              Json?
+  floorplanImageUrls     String[]
+  clubhouseImageUrls     String[]
+  galleryImageUrls       String[]
+  walkthroughVideoUrl    String?
+  isArchived             Boolean           @default(false)
   ads                    Ad[]
   interests              Interest[]
   builder                Builder           @relation(fields: [builderId], references: [id], onDelete: Cascade)
@@ -153,6 +163,7 @@ model Project {
   @@index([locationId])
   @@index([type])
   @@index([postedByUserId])
+  @@index([isArchived])
 }
 
 model Property {
