@@ -98,7 +98,8 @@ describe('Properties Page', () => {
     render(<PropertiesPage />)
 
     await waitFor(() => {
-      expect(screen.getByText(/properties/i)).toBeInTheDocument()
+      expect(screen.getByText('Properties')).toBeInTheDocument()
+      expect(screen.getByText(/showing/i)).toBeInTheDocument()
     })
   })
 
@@ -116,7 +117,7 @@ describe('Properties Page', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/3 BHK/i)).toBeInTheDocument()
-      expect(screen.getByText(/1500 sqft/i)).toBeInTheDocument()
+      expect(screen.getByText(/1500 sq ft/i)).toBeInTheDocument()
     })
   })
 
@@ -124,7 +125,8 @@ describe('Properties Page', () => {
     render(<PropertiesPage />)
 
     await waitFor(() => {
-      expect(screen.getByText(/₹/)).toBeInTheDocument()
+      const priceElements = screen.getAllByText(/₹/)
+      expect(priceElements.length).toBeGreaterThan(0)
     })
   })
 
