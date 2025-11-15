@@ -44,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Fetch properties posted by this agent
     const properties = await prisma.property.findMany({
       where: {
-        postedByUserId: id,
+        userId: id,
       },
       include: {
         location: true,
@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get total count for pagination
     const totalCount = await prisma.property.count({
       where: {
-        postedByUserId: id,
+        userId: id,
       },
     })
 

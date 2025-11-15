@@ -2,18 +2,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import { NextSeo } from 'next-seo'
-import dynamic from 'next/dynamic'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BuilderSelector from '@/components/projects/BuilderSelector'
 import DynamicList from '@/components/projects/DynamicList'
 import ImageUploader from '@/components/projects/ImageUploader'
 import toast from 'react-hot-toast'
-
-const LocationAutocomplete = dynamic(
-  () => import('@/components/properties/LocationAutocomplete'),
-  { ssr: false }
-)
 
 export default function SubmitProject() {
   const router = useRouter()
@@ -143,7 +137,7 @@ export default function SubmitProject() {
                 <input
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                   placeholder="e.g., My Home Apas"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
@@ -156,7 +150,7 @@ export default function SubmitProject() {
                 </label>
                 <textarea
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={e => setDescription(e.target.value)}
                   placeholder="Describe your project..."
                   rows={6}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -165,12 +159,10 @@ export default function SubmitProject() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Project Type
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Project Type</label>
                 <select
                   value={type}
-                  onChange={(e) => setType(e.target.value)}
+                  onChange={e => setType(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="RESIDENTIAL">Residential</option>
@@ -179,11 +171,7 @@ export default function SubmitProject() {
                 </select>
               </div>
 
-              <BuilderSelector
-                value={builderId}
-                onChange={setBuilderId}
-                className="w-full"
-              />
+              <BuilderSelector value={builderId} onChange={setBuilderId} className="w-full" />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -192,7 +180,7 @@ export default function SubmitProject() {
                 <input
                   type="text"
                   value={locationAddress}
-                  onChange={(e) => setLocationAddress(e.target.value)}
+                  onChange={e => setLocationAddress(e.target.value)}
                   placeholder="Enter full address (e.g., Kokapet, Hyderabad, Telangana)"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
@@ -216,7 +204,7 @@ export default function SubmitProject() {
                 <input
                   type="url"
                   value={builderWebsiteLink}
-                  onChange={(e) => setBuilderWebsiteLink(e.target.value)}
+                  onChange={e => setBuilderWebsiteLink(e.target.value)}
                   placeholder="https://example.com"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -229,7 +217,7 @@ export default function SubmitProject() {
                 <input
                   type="url"
                   value={brochureUrl}
-                  onChange={(e) => setBrochureUrl(e.target.value)}
+                  onChange={e => setBrochureUrl(e.target.value)}
                   placeholder="https://example.com/brochure.pdf"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -238,9 +226,7 @@ export default function SubmitProject() {
 
             {/* Project Details */}
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-                Project Details
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">Project Details</h2>
 
               <DynamicList
                 items={highlights}
@@ -263,7 +249,7 @@ export default function SubmitProject() {
                 <input
                   type="url"
                   value={walkthroughVideoUrl}
-                  onChange={(e) => setWalkthroughVideoUrl(e.target.value)}
+                  onChange={e => setWalkthroughVideoUrl(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -272,9 +258,7 @@ export default function SubmitProject() {
 
             {/* Images */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-                Images
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">Images</h2>
 
               <ImageUploader
                 images={bannerImage}
