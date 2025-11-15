@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { NextSeo } from 'next-seo'
 import { GetServerSideProps } from 'next'
 import { useSession } from 'next-auth/react'
@@ -10,6 +11,11 @@ import toast from 'react-hot-toast'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { prisma } from '@/lib/cockroachDB/prisma'
+
+const PropertyMap = dynamic(() => import('@/components/properties/PropertyMap'), {
+  ssr: false,
+  loading: () => <div className="rounded-lg bg-gray-100 p-8 text-center" style={{ minHeight: '400px' }}><p className="text-gray-600">Loading map...</p></div>
+})
 
 interface ProjectDetails {
   id: string
@@ -21,13 +27,24 @@ interface ProjectDetails {
   googlePin: string | null
   thumbnailUrl: string | null
   imageUrls: string[]
+  bannerImageUrl: string | null
+  floorplanImageUrls: string[]
+  clubhouseImageUrls: string[]
+  galleryImageUrls: string[]
+  walkthroughVideoUrl: string | null
+  highlights: any
+  amenities: any
   projectDetails: any
   builderPageUrl: string | null
   builderProspectusUrl: string | null
+  builderWebsiteLink: string | null
+  brochureUrl: string | null
   contactPersonFirstName: string | null
   contactPersonLastName: string | null
   contactPersonEmail: string | null
   contactPersonPhone: string | null
+  isArchived: boolean
+  postedByUserId: string | null
   builder: {
     id: string
     name: string
@@ -43,6 +60,10 @@ interface ProjectDetails {
     country: string
     locality: string | null
     zipcode: string | null
+    neighborhood: string | null
+    latitude: number | null
+    longitude: number | null
+    formattedAddress: string | null
   }
   postedBy: {
     id: string
@@ -378,23 +399,24 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 </div>
               </div>
 
-              {project.builderPageUrl && (
+              {(project.builderWebsiteLink || project.builder.website) && (
                 <a
-                  href={project.builderPageUrl}
+                  href={project.builderWebsiteLink || project.builder.website || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="action-button action-button-outline"
                 >
-                  Visit builder website
+                  Visit Builder Website
                 </a>
               )}
 
-              {project.builderProspectusUrl && (
+              {(project.brochureUrl || project.builderProspectusUrl) && (
                 <a
-                  href={project.builderProspectusUrl}
+                  href={project.brochureUrl || project.builderProspectusUrl || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="action-button action-button-outline"
+                  download
                 >
                   Download Brochure
                 </a>
@@ -403,14 +425,14 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           </div>
 
           {/* Banner Image */}
-          {project.thumbnailUrl && (
+          {project.bannerImageUrl && (
             <div className="project-banner">
               <Image
-                src={project.thumbnailUrl}
+                src={project.bannerImageUrl}
                 alt={project.name}
                 width={1200}
                 height={500}
-                className="w-full"
+                className="w-full h-96 object-cover rounded-lg"
               />
             </div>
           )}
@@ -429,79 +451,137 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           </div>
 
           {/* Highlights */}
-          {details.highlights && details.highlights.length > 0 && (
+          {project.highlights && Array.isArray(project.highlights) && project.highlights.length > 0 && (
             <div className="project-section">
               <h2 className="project-section-title">Highlights</h2>
-              <div className="highlights-grid">
-                {details.highlights.map((highlight: any, index: number) => (
-                  <div key={index} className="highlight-item">
-                    {highlight.icon && (
-                      <div className="highlight-icon">
-                        <Image src={highlight.icon} alt={highlight.label} width={60} height={60} />
-                      </div>
-                    )}
-                    <div className="highlight-value">
-                      {highlight.value}
-                      {highlight.unit && <span> {highlight.unit}</span>}
-                    </div>
-                    <div className="highlight-label">{highlight.label}</div>
-                  </div>
+              <ul className="list-disc list-inside space-y-2 text-gray-700">
+                {project.highlights.map((highlight: string, index: number) => (
+                  <li key={index} className="text-lg">{highlight}</li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
 
           {/* Amenities */}
-          {(details.amenities?.outdoorImages || details.amenities?.indoorImages) && (
+          {project.amenities && Array.isArray(project.amenities) && project.amenities.length > 0 && (
             <div className="project-section">
               <h2 className="project-section-title">Amenities</h2>
-              <div className="amenities-grid">
-                {details.amenities.outdoorImages?.map((amenity: any, index: number) => (
-                  <div key={`outdoor-${index}`} className="amenity-item">
-                    {amenity.icon && (
-                      <div className="amenity-icon">
-                        <Image src={amenity.icon} alt={amenity.name} width={50} height={50} />
-                      </div>
-                    )}
-                    <div className="amenity-label">{amenity.name}</div>
-                  </div>
+              <ul className="grid grid-cols-2 md:grid-cols-3 gap-3 text-gray-700">
+                {project.amenities.map((amenity: string, index: number) => (
+                  <li key={index} className="flex items-center text-base">
+                    <span className="mr-2 text-green-600">✓</span>
+                    {amenity}
+                  </li>
                 ))}
-                {details.amenities.indoorImages?.map((amenity: any, index: number) => (
-                  <div key={`indoor-${index}`} className="amenity-item">
-                    {amenity.icon && (
-                      <div className="amenity-icon">
-                        <Image src={amenity.icon} alt={amenity.name} width={50} height={50} />
-                      </div>
-                    )}
-                    <div className="amenity-label">{amenity.name}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Layout */}
-          {details.assets?.layout && (
-            <div className="project-section">
-              <h2 className="project-section-title">Layout</h2>
-              <div className="images-grid">
-                <div className="image-item">
-                  <Image
-                    src={details.assets.layout.url}
-                    alt={details.assets.layout.title || 'Layout'}
-                    width={800}
-                    height={600}
-                    className="w-full"
-                  />
-                </div>
-              </div>
+              </ul>
             </div>
           )}
 
           {/* Floor Plans */}
-          {details.floorPlans && details.floorPlans.length > 0 && (
+          {project.floorplanImageUrls && project.floorplanImageUrls.length > 0 && (
             <div className="project-section">
               <h2 className="project-section-title">Floor Plans</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {project.floorplanImageUrls.map((url: string, index: number) => (
+                  <div key={index} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <Image
+                      src={url}
+                      alt={`Floor Plan ${index + 1}`}
+                      width={600}
+                      height={400}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Clubhouse */}
+          {project.clubhouseImageUrls && project.clubhouseImageUrls.length > 0 && (
+            <div className="project-section">
+              <h2 className="project-section-title">Clubhouse</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {project.clubhouseImageUrls.map((url: string, index: number) => (
+                  <div key={index} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <Image
+                      src={url}
+                      alt={`Clubhouse ${index + 1}`}
+                      width={400}
+                      height={300}
+                      className="w-full h-64 object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Gallery */}
+          {project.galleryImageUrls && project.galleryImageUrls.length > 0 && (
+            <div className="project-section">
+              <h2 className="project-section-title">Gallery</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {project.galleryImageUrls.map((url: string, index: number) => (
+                  <div key={index} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <Image
+                      src={url}
+                      alt={`Gallery Image ${index + 1}`}
+                      width={300}
+                      height={200}
+                      className="w-full h-48 object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Walkthrough Video */}
+          {project.walkthroughVideoUrl && (
+            <div className="project-section">
+              <h2 className="project-section-title">Virtual Walkthrough</h2>
+              <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg">
+                <iframe
+                  src={project.walkthroughVideoUrl.replace('watch?v=', 'embed/')}
+                  title="Project Walkthrough"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-96"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Location Map */}
+          {project.location.latitude && project.location.longitude && (
+            <div className="project-section">
+              <h2 className="project-section-title">Location</h2>
+              <PropertyMap
+                latitude={project.location.latitude}
+                longitude={project.location.longitude}
+                address={project.location.formattedAddress || `${project.location.city}, ${project.location.state}`}
+                className="w-full"
+              />
+              <div className="mt-3 text-gray-700">
+                <p className="font-medium">
+                  {project.location.formattedAddress || (
+                    <>
+                      {project.location.neighborhood && `${project.location.neighborhood}, `}
+                      {project.location.locality && `${project.location.locality}, `}
+                      {project.location.city}, {project.location.state}
+                      {project.location.zipcode && ` - ${project.location.zipcode}`}
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Old sections - Keep for backward compatibility if old format data exists */}
+          {details.floorPlans && details.floorPlans.length > 0 && !project.floorplanImageUrls?.length && (
+            <div className="project-section">
+              <h2 className="project-section-title">Floor Plans (Legacy)</h2>
               <div className="images-grid">
                 {details.floorPlans.map((floorPlan: any, index: number) => (
                   <div key={index} className="image-item">
