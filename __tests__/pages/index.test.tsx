@@ -81,7 +81,7 @@ describe('Home Page', () => {
 
     global.google.maps.places.AutocompleteService = jest.fn(() => ({
       getPlacePredictions: mockGetPlacePredictions,
-    }))
+    })) as any
 
     render(<Home />)
 
