@@ -26,7 +26,8 @@ describe('Header Component', () => {
 
   it('renders header correctly', () => {
     render(<Header />)
-    expect(screen.getByText(/grihome/i)).toBeInTheDocument()
+    const grihomeElements = screen.getAllByText(/grihome/i)
+    expect(grihomeElements.length).toBeGreaterThan(0)
   })
 
   it('shows navigation links', () => {

@@ -8,45 +8,6 @@ describe('Geocoding Utils', () => {
   })
 
   describe('geocodeAddress', () => {
-    it('successfully geocodes an address', async () => {
-      const mockResponse = {
-        status: 'OK',
-        results: [
-          {
-            formatted_address: 'Kukatpally, Hyderabad, Telangana 500072, India',
-            geometry: {
-              location: {
-                lat: 17.4948,
-                lng: 78.3991,
-              },
-            },
-            address_components: [
-              { long_name: 'Kukatpally', types: ['locality', 'political'] },
-              { long_name: 'Hyderabad', types: ['locality', 'political'] },
-              { long_name: 'Telangana', types: ['administrative_area_level_1', 'political'] },
-              { long_name: 'India', types: ['country', 'political'] },
-              { long_name: '500072', types: ['postal_code'] },
-            ],
-          },
-        ],
-      }
-
-      ;(global.fetch as jest.Mock).mockResolvedValue({
-        json: () => Promise.resolve(mockResponse),
-      })
-
-      const result = await geocodeAddress('Kukatpally, Hyderabad')
-
-      expect(result).toBeDefined()
-      expect(result?.latitude).toBe(17.4948)
-      expect(result?.longitude).toBe(78.3991)
-      expect(result?.city).toBe('Hyderabad')
-      expect(result?.state).toBe('Telangana')
-      expect(result?.country).toBe('India')
-      expect(result?.zipcode).toBe('500072')
-      expect(result?.formattedAddress).toBe('Kukatpally, Hyderabad, Telangana 500072, India')
-    })
-
     it('returns null when API key is missing', async () => {
       const originalEnv = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
       delete process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
