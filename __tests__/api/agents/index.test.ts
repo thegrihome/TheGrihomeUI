@@ -9,6 +9,14 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
   },
 }))
 
+jest.mock('@prisma/client', () => ({
+  Prisma: {
+    QueryMode: {
+      insensitive: 'insensitive',
+    },
+  },
+}))
+
 describe('/api/agents', () => {
   beforeEach(() => {
     jest.clearAllMocks()
