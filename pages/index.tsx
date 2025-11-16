@@ -328,137 +328,124 @@ export default function Home() {
       {/* Benefits Section */}
       <section className="benefits-section">
         <div className="benefits-container">
-          {/* Vertical Timeline with Multicolor Indicators */}
-          <div className="benefits-vertical-timeline">
-            {/* Left Item - For Buyers */}
-            <div className="benefit-timeline-item benefit-timeline-left">
-              <div className="benefit-timeline-marker benefit-marker-blue"></div>
-              <div className="benefit-item">
-                <div className="benefit-divider benefit-divider-blue"></div>
-                <div className="benefit-content">
-                  <div className="benefit-header">
-                    <div className="benefit-icon">🏠</div>
-                    <h3 className="benefit-title">For Buyers</h3>
-                  </div>
-                  <p className="benefit-description">
-                    Discover your dream home from thousands of verified listings across India.
-                    Browse properties without paywalls, compare prices transparently, and connect
-                    directly with sellers and agents. Use our community forum to get real insights
-                    from other buyers and local experts before making your decision.
-                  </p>
+          {/* Benefits Grid */}
+          <div className="benefits-grid">
+            <div className="benefit-item">
+              <div className="benefit-divider benefit-divider-blue"></div>
+              <div className="benefit-content">
+                <div className="benefit-header">
+                  <div className="benefit-icon">🏠</div>
+                  <h3 className="benefit-title">For Buyers</h3>
                 </div>
+                <p className="benefit-description">
+                  Discover your dream home from thousands of verified listings across India. Browse
+                  properties without paywalls, compare prices transparently, and connect directly
+                  with sellers and agents. Use our community forum to get real insights from other
+                  buyers and local experts before making your decision.
+                </p>
               </div>
             </div>
 
-            {/* Right Item - For Sellers */}
-            <div className="benefit-timeline-item benefit-timeline-right">
-              <div className="benefit-timeline-marker benefit-marker-green"></div>
-              <div className="benefit-item">
-                <div className="benefit-divider benefit-divider-green"></div>
-                <div className="benefit-content">
-                  <div className="benefit-header">
-                    <div className="benefit-icon">💼</div>
-                    <h3 className="benefit-title">For Sellers</h3>
-                  </div>
-                  <p className="benefit-description">
-                    List your property for free and reach thousands of potential buyers instantly.
-                    Create detailed listings with photos, virtual tours, and comprehensive property
-                    information. Get genuine inquiries from verified users and maintain full control
-                    over your listing with real-time updates and easy management tools.
-                  </p>
+            <div className="benefit-item">
+              <div className="benefit-divider benefit-divider-green"></div>
+              <div className="benefit-content">
+                <div className="benefit-header">
+                  <div className="benefit-icon">💼</div>
+                  <h3 className="benefit-title">For Sellers</h3>
                 </div>
+                <p className="benefit-description">
+                  List your property for free and reach thousands of potential buyers instantly.
+                  Create detailed listings with photos, virtual tours, and comprehensive property
+                  information. Get genuine inquiries from verified users and maintain full control
+                  over your listing with real-time updates and easy management tools.
+                </p>
               </div>
             </div>
 
-            {/* Left Item - For Agents */}
-            <div className="benefit-timeline-item benefit-timeline-left">
-              <div className="benefit-timeline-marker benefit-marker-purple"></div>
-              <div className="benefit-item">
-                <div className="benefit-divider benefit-divider-purple"></div>
-                <div className="benefit-content">
-                  <div className="benefit-header">
-                    <div className="benefit-icon">🤝</div>
-                    <h3 className="benefit-title">For Agents</h3>
-                  </div>
-                  <p className="benefit-description">
-                    Grow your real estate business with our comprehensive agent platform. Manage
-                    multiple listings efficiently, showcase your portfolio to potential clients, and
-                    build your professional reputation through client reviews. Connect with serious
-                    buyers and sellers while accessing powerful tools to streamline your workflow.
-                  </p>
+            <div className="benefit-item">
+              <div className="benefit-divider benefit-divider-purple"></div>
+              <div className="benefit-content">
+                <div className="benefit-header">
+                  <div className="benefit-icon">🤝</div>
+                  <h3 className="benefit-title">For Agents</h3>
                 </div>
+                <p className="benefit-description">
+                  Grow your real estate business with our comprehensive agent platform. Manage
+                  multiple listings efficiently, showcase your portfolio to potential clients, and
+                  build your professional reputation through client reviews. Connect with serious
+                  buyers and sellers while accessing powerful tools to streamline your workflow.
+                </p>
               </div>
             </div>
 
-            {/* Right Item - For Builders */}
-            <div className="benefit-timeline-item benefit-timeline-right">
-              <div className="benefit-timeline-marker benefit-marker-orange"></div>
-              <div className="benefit-item">
-                <div className="benefit-divider benefit-divider-orange"></div>
-                <div className="benefit-content">
-                  <div className="benefit-header">
-                    <div className="benefit-icon">🏗️</div>
-                    <h3 className="benefit-title">For Builders</h3>
-                  </div>
-                  <p className="benefit-description">
-                    Showcase your residential and commercial projects to qualified buyers across
-                    India. Feature detailed floor plans, amenities, virtual walkthroughs, and
-                    project timelines to attract the right customers. Partner with verified agents
-                    and leverage our platform to maximize your project visibility and sales.
-                  </p>
+            <div className="benefit-item">
+              <div className="benefit-divider benefit-divider-orange"></div>
+              <div className="benefit-content">
+                <div className="benefit-header">
+                  <div className="benefit-icon">🏗️</div>
+                  <h3 className="benefit-title">For Builders</h3>
                 </div>
+                <p className="benefit-description">
+                  Showcase your residential and commercial projects to qualified buyers across
+                  India. Feature detailed floor plans, amenities, virtual walkthroughs, and project
+                  timelines to attract the right customers. Partner with verified agents and
+                  leverage our platform to maximize your project visibility and sales.
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Agents Showcase - Left Aligned */}
-          <div className="showcase-section showcase-left">
-            <h2 className="showcase-title">Connect with Top Agents</h2>
-            <p className="showcase-subtitle">
-              Work with experienced real estate professionals who understand the market
-            </p>
-            <Link href="/agents" className="showcase-link">
-              <button className="showcase-button-compact">
-                Browse All Agents
-                <svg
-                  className="showcase-arrow"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </Link>
-          </div>
+          {/* Showcase Grid - 2 tiles side by side */}
+          <div className="showcase-grid">
+            {/* Agents Showcase */}
+            <div className="showcase-section">
+              <h2 className="showcase-title">Connect with Top Agents</h2>
+              <p className="showcase-subtitle">
+                Work with experienced real estate professionals who understand the market
+              </p>
+              <Link href="/agents" className="showcase-link">
+                <button className="showcase-button-compact">
+                  Browse All Agents
+                  <svg
+                    className="showcase-arrow"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </Link>
+            </div>
 
-          {/* Builders Showcase - Right Aligned */}
-          <div className="showcase-section showcase-right">
-            <h2 className="showcase-title">Find Top Builders</h2>
-            <p className="showcase-subtitle">Discover trusted builders across India</p>
-            <Link href="/builders" className="showcase-link">
-              <button className="showcase-button-compact">
-                Discover Builders
-                <svg
-                  className="showcase-arrow"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </Link>
+            {/* Builders Showcase */}
+            <div className="showcase-section">
+              <h2 className="showcase-title">Find Top Builders</h2>
+              <p className="showcase-subtitle">Discover trusted builders across India</p>
+              <Link href="/builders" className="showcase-link">
+                <button className="showcase-button-compact">
+                  Discover Builders
+                  <svg
+                    className="showcase-arrow"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

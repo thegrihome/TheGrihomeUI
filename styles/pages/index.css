@@ -353,12 +353,8 @@
 .mission-heading {
   font-size: 2.25rem;
   font-weight: 800;
-  color: #111827;
+  color: #000000;
   margin: 0 0 1.5rem 0;
-  background: linear-gradient(to right, #ec4899, #8b5cf6, #6366f1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   letter-spacing: -0.025em;
 }
 
@@ -401,118 +397,23 @@
   margin: 0 auto;
 }
 
-/* Vertical Timeline Layout */
-.benefits-vertical-timeline {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+/* Benefits Grid */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
   margin-bottom: 3rem;
-  padding: 1.5rem 0;
 }
 
-/* Timeline Center Line */
-.benefits-vertical-timeline::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(
-    to bottom,
-    #3b82f6 0%,
-    #3b82f6 25%,
-    #10b981 25%,
-    #10b981 50%,
-    #8b5cf6 50%,
-    #8b5cf6 75%,
-    #f59e0b 75%,
-    #f59e0b 100%
-  );
-  transform: translateX(-50%);
-  border-radius: 2px;
-}
-
-@media (max-width: 767px) {
-  .benefits-vertical-timeline::before {
-    left: 2rem;
+@media (min-width: 640px) {
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-.benefit-timeline-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-/* Timeline Marker */
-.benefit-timeline-marker {
-  position: absolute;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 4px solid white;
-  transform: translateX(-50%);
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-@media (max-width: 767px) {
-  .benefit-timeline-marker {
-    left: 2rem;
-  }
-}
-
-.benefit-marker-blue {
-  background: linear-gradient(to bottom, #3b82f6, #2563eb);
-}
-
-.benefit-marker-green {
-  background: linear-gradient(to bottom, #10b981, #059669);
-}
-
-.benefit-marker-purple {
-  background: linear-gradient(to bottom, #8b5cf6, #7c3aed);
-}
-
-.benefit-marker-orange {
-  background: linear-gradient(to bottom, #f59e0b, #d97706);
-}
-
-/* Left and Right Positioning */
-.benefit-timeline-left {
-  justify-content: flex-start;
-}
-
-.benefit-timeline-right {
-  justify-content: flex-end;
-}
-
-@media (max-width: 767px) {
-  .benefit-timeline-left,
-  .benefit-timeline-right {
-    justify-content: flex-start;
-    padding-left: 4rem;
-  }
-}
-
-.benefit-timeline-left .benefit-item {
-  margin-right: 52%;
-}
-
-.benefit-timeline-right .benefit-item {
-  margin-left: 52%;
-}
-
-@media (max-width: 767px) {
-  .benefit-timeline-left .benefit-item,
-  .benefit-timeline-right .benefit-item {
-    margin-left: 0;
-    margin-right: 0;
-    width: 100%;
+@media (min-width: 1024px) {
+  .benefits-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -595,6 +496,19 @@
   margin: 0;
 }
 
+/* Showcase Grid */
+.showcase-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .showcase-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* Showcase Section */
 .showcase-section {
   padding: 2rem 1.5rem;
@@ -603,33 +517,7 @@
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  margin-bottom: 1.5rem;
-}
-
-.showcase-section:last-child {
-  margin-bottom: 0;
-}
-
-/* Left and Right Alignment */
-.showcase-left {
-  text-align: left;
-  margin-right: auto;
-  max-width: 600px;
-}
-
-.showcase-right {
-  text-align: right;
-  margin-left: auto;
-  max-width: 600px;
-}
-
-@media (max-width: 767px) {
-  .showcase-left,
-  .showcase-right {
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-  }
+  text-align: center;
 }
 
 .showcase-title {
