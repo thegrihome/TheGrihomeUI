@@ -548,7 +548,9 @@ describe('/api/projects/create', () => {
     })
 
     it('should upload banner when provided', async () => {
-      ;(uploadProjectImage as jest.Mock).mockResolvedValue('https://blob.vercel-storage.com/banner.png')
+      ;(uploadProjectImage as jest.Mock).mockResolvedValue(
+        'https://blob.vercel-storage.com/banner.png'
+      )
       ;(prisma.project.create as jest.Mock).mockResolvedValue({})
 
       const { req, res } = createMocks({
@@ -621,11 +623,10 @@ describe('/api/projects/create', () => {
 
       await handler(req, res)
 
-      expect(uploadMultipleProjectImages).toHaveBeenCalledWith(
-        'Test Project',
-        'floorplans',
-        ['data:image/png;base64,img1', 'data:image/png;base64,img2']
-      )
+      expect(uploadMultipleProjectImages).toHaveBeenCalledWith('Test Project', 'floorplans', [
+        'data:image/png;base64,img1',
+        'data:image/png;base64,img2',
+      ])
     })
 
     it('should limit floorplans to 20 images', async () => {
@@ -689,17 +690,16 @@ describe('/api/projects/create', () => {
 
       await handler(req, res)
 
-      expect(uploadMultipleProjectImages).toHaveBeenCalledWith(
-        'Test Project',
-        'clubhouse',
-        ['data:image/png;base64,img1', 'data:image/png;base64,img2']
-      )
+      expect(uploadMultipleProjectImages).toHaveBeenCalledWith('Test Project', 'clubhouse', [
+        'data:image/png;base64,img1',
+        'data:image/png;base64,img2',
+      ])
     })
 
     it('should limit clubhouse images to 10', async () => {
       const images = Array(15).fill('data:image/png;base64,img')
       ;(uploadMultipleProjectImages as jest.Mock).mockResolvedValue([])
-      ;(prisma.project.create as jest.Mock').mockResolvedValue({})
+      ;(prisma.project.create as jest.Mock).mockResolvedValue({})
 
       const { req, res } = createMocks({
         method: 'POST',
@@ -741,11 +741,10 @@ describe('/api/projects/create', () => {
 
       await handler(req, res)
 
-      expect(uploadMultipleProjectImages).toHaveBeenCalledWith(
-        'Test Project',
-        'gallery',
-        ['data:image/png;base64,img1', 'data:image/png;base64,img2']
-      )
+      expect(uploadMultipleProjectImages).toHaveBeenCalledWith('Test Project', 'gallery', [
+        'data:image/png;base64,img1',
+        'data:image/png;base64,img2',
+      ])
     })
 
     it('should limit gallery images to 20', async () => {
@@ -869,7 +868,10 @@ describe('/api/projects/create', () => {
     })
 
     it('should set thumbnail to first gallery image if no banner', async () => {
-      ;(uploadMultipleProjectImages as jest.Mock).mockResolvedValue(['https://gallery1.png', 'https://gallery2.png'])
+      ;(uploadMultipleProjectImages as jest.Mock).mockResolvedValue([
+        'https://gallery1.png',
+        'https://gallery2.png',
+      ])
       ;(prisma.project.create as jest.Mock).mockResolvedValue({})
 
       const { req, res } = createMocks({
@@ -1168,7 +1170,6 @@ describe('/api/projects/create', () => {
     it('should not include error details in production', async () => {
       const originalEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'production'
-
       ;(prisma.builder.findUnique as jest.Mock).mockRejectedValue(new Error('Test error'))
 
       const { req, res } = createMocks({

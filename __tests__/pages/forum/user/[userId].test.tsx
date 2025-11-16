@@ -16,7 +16,12 @@ jest.mock('@/components/Footer', () => {
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title, description, canonical }: any) => (
-    <div data-testid="next-seo" data-title={title} data-description={description} data-canonical={canonical} />
+    <div
+      data-testid="next-seo"
+      data-title={title}
+      data-description={description}
+      data-canonical={canonical}
+    />
   ),
 }))
 
@@ -96,20 +101,44 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('Rendering and Initial State', () => {
     it('should render user profile page with all components', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByTestId('header')).toBeInTheDocument()
       expect(screen.getByTestId('footer')).toBeInTheDocument()
     })
 
     it('should render username', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('johndoe')).toBeInTheDocument()
     })
 
     it('should render user avatar when available', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const avatar = screen.getByAlt('johndoe')
       expect(avatar).toBeInTheDocument()
@@ -122,7 +151,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
         user: { ...mockUserStats.user, image: null },
       }
 
-      const { container } = render(<UserProfilePage userStats={statsWithoutImage} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={statsWithoutImage}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const placeholder = container.querySelector('.forum-user-avatar-placeholder-large')
       expect(placeholder).toBeInTheDocument()
@@ -130,14 +167,30 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render member since date', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText(/Member since:/)).toBeInTheDocument()
       expect(screen.getByText(/1 January 2024/)).toBeInTheDocument()
     })
 
     it('should render activity level badge', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('Active')).toBeInTheDocument()
     })
@@ -150,7 +203,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
         totalPosts: 150,
       }
 
-      render(<UserProfilePage userStats={veryActiveStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={veryActiveStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('Very Active')).toBeInTheDocument()
     })
@@ -161,7 +222,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
         totalPosts: 65,
       }
 
-      render(<UserProfilePage userStats={activeStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={activeStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('Active')).toBeInTheDocument()
     })
@@ -172,7 +241,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
         totalPosts: 30,
       }
 
-      render(<UserProfilePage userStats={regularStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={regularStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('Regular')).toBeInTheDocument()
     })
@@ -183,7 +260,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
         totalPosts: 10,
       }
 
-      render(<UserProfilePage userStats={occasionalStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={occasionalStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('Occasional')).toBeInTheDocument()
     })
@@ -194,7 +279,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
         totalPosts: 3,
       }
 
-      render(<UserProfilePage userStats={newStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={newStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('New Member')).toBeInTheDocument()
     })
@@ -202,7 +295,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('Tabs Navigation', () => {
     it('should render all tabs', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText(/Posts \(15\)/)).toBeInTheDocument()
       expect(screen.getByText(/Replies \(50\)/)).toBeInTheDocument()
@@ -211,14 +312,30 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should have Posts tab active by default', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const postsTab = screen.getByText(/Posts \(15\)/).closest('button')
       expect(postsTab).toHaveClass('active')
     })
 
     it('should switch to Replies tab when clicked', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const repliesTab = screen.getByText(/Replies \(50\)/)
       fireEvent.click(repliesTab)
@@ -227,7 +344,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should switch to Overview tab when clicked', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const overviewTab = screen.getByText('Overview')
       fireEvent.click(overviewTab)
@@ -236,7 +361,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should switch to Reactions tab when clicked', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const reactionsTab = screen.getByText('Reactions')
       fireEvent.click(reactionsTab)
@@ -247,19 +380,43 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('Posts Tab Content', () => {
     it('should render user posts', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('Best properties in Hyderabad')).toBeInTheDocument()
     })
 
     it('should render post category', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText(/in Hyderabad Apartments/)).toBeInTheDocument()
     })
 
     it('should render post stats', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('10 replies')).toBeInTheDocument()
       expect(screen.getByText('150 views')).toBeInTheDocument()
@@ -267,14 +424,30 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should link to post thread', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const postLink = container.querySelector('a[href="/forum/thread/best-properties-hyderabad"]')
       expect(postLink).toBeInTheDocument()
     })
 
     it('should render empty state when no posts', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={[]} replies={mockReplies} postsCount={0} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={[]}
+          replies={mockReplies}
+          postsCount={0}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('No posts yet')).toBeInTheDocument()
     })
@@ -282,7 +455,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('Replies Tab Content', () => {
     it('should render user replies when tab is clicked', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const repliesTab = screen.getByText(/Replies \(50\)/)
       fireEvent.click(repliesTab)
@@ -291,7 +472,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should link to reply thread', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const repliesTab = screen.getByText(/Replies \(50\)/)
       fireEvent.click(repliesTab)
@@ -301,7 +490,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render empty state when no replies', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={[]} postsCount={15} repliesCount={0} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={[]}
+          postsCount={15}
+          repliesCount={0}
+        />
+      )
 
       const repliesTab = screen.getByText(/Replies \(0\)/)
       fireEvent.click(repliesTab)
@@ -312,7 +509,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('Overview Tab Content', () => {
     it('should render overview stats when tab is clicked', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const overviewTab = screen.getByText('Overview')
       fireEvent.click(overviewTab)
@@ -324,7 +529,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render correct post count', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const overviewTab = screen.getByText('Overview')
       fireEvent.click(overviewTab)
@@ -333,7 +546,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render correct reply count', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const overviewTab = screen.getByText('Overview')
       fireEvent.click(overviewTab)
@@ -342,7 +563,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render correct total activity', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const overviewTab = screen.getByText('Overview')
       fireEvent.click(overviewTab)
@@ -351,7 +580,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render correct total reactions received', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const overviewTab = screen.getByText('Overview')
       fireEvent.click(overviewTab)
@@ -362,7 +599,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('Reactions Tab Content', () => {
     it('should render reactions received when tab is clicked', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const reactionsTab = screen.getByText('Reactions')
       fireEvent.click(reactionsTab)
@@ -371,7 +616,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render all reaction types received', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const reactionsTab = screen.getByText('Reactions')
       fireEvent.click(reactionsTab)
@@ -385,7 +638,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render reaction counts received', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const reactionsTab = screen.getByText('Reactions')
       fireEvent.click(reactionsTab)
@@ -396,7 +657,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render reactions given section', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const reactionsTab = screen.getByText('Reactions')
       fireEvent.click(reactionsTab)
@@ -405,7 +674,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render total reactions given', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const reactionsTab = screen.getByText('Reactions')
       fireEvent.click(reactionsTab)
@@ -414,7 +691,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should render total reactions received', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount=15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const reactionsTab = screen.getByText('Reactions')
       fireEvent.click(reactionsTab)
@@ -425,21 +710,45 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('Breadcrumb Navigation', () => {
     it('should render forum breadcrumb link', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const forumLink = container.querySelector('a[href="/forum"]')
       expect(forumLink).toBeInTheDocument()
     })
 
     it('should render current page in breadcrumb', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const current = container.querySelector('.forum-breadcrumb-current')
       expect(current).toHaveTextContent('User Profile')
     })
 
     it('should render breadcrumb separator', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const separator = screen.getByText('›')
       expect(separator).toBeInTheDocument()
@@ -448,21 +757,48 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('SEO', () => {
     it('should render NextSeo with correct title', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const seo = screen.getByTestId('next-seo')
       expect(seo).toHaveAttribute('data-title', 'johndoe - User Profile - Forum - Grihome')
     })
 
     it('should render NextSeo with correct description', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-description', "View johndoe's forum profile and activity on Grihome community forum")
+      expect(seo).toHaveAttribute(
+        'data-description',
+        "View johndoe's forum profile and activity on Grihome community forum"
+      )
     })
 
     it('should render NextSeo with correct canonical URL', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const seo = screen.getByTestId('next-seo')
       expect(seo).toHaveAttribute('data-canonical', 'https://grihome.vercel.app/forum/user/user1')
@@ -471,7 +807,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('CSS Classes', () => {
     it('should have correct container classes', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(container.querySelector('.forum-container')).toBeInTheDocument()
       expect(container.querySelector('.forum-main')).toBeInTheDocument()
@@ -479,7 +823,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should have correct user header classes', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(container.querySelector('.forum-user-header')).toBeInTheDocument()
       expect(container.querySelector('.forum-user-info')).toBeInTheDocument()
@@ -487,7 +839,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should have correct tabs classes', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(container.querySelector('.forum-user-tabs')).toBeInTheDocument()
       expect(container.querySelector('.forum-tab')).toBeInTheDocument()
@@ -495,12 +855,28 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should have correct stats classes', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const overviewTab = screen.getByText('Overview')
       fireEvent.click(overviewTab)
 
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(container.querySelector('.forum-stats-grid')).toBeTruthy()
     })
@@ -508,14 +884,30 @@ describe('User Profile Page - Comprehensive Tests', () => {
 
   describe('Accessibility', () => {
     it('should have proper heading hierarchy', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const h1 = screen.getByRole('heading', { level: 1 })
       expect(h1).toHaveTextContent('johndoe')
     })
 
     it('should have accessible tab buttons', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const tabs = container.querySelectorAll('.forum-tab')
       tabs.forEach(tab => {
@@ -524,14 +916,30 @@ describe('User Profile Page - Comprehensive Tests', () => {
     })
 
     it('should have main landmark', () => {
-      const { container } = render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      const { container } = render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const main = container.querySelector('main')
       expect(main).toBeInTheDocument()
     })
 
     it('should have alt text for avatar image', () => {
-      render(<UserProfilePage userStats={mockUserStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={mockUserStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const img = screen.getByAlt('johndoe')
       expect(img).toBeInTheDocument()
@@ -547,7 +955,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
         totalPosts: 0,
       }
 
-      render(<UserProfilePage userStats={zeroStats} posts={[]} replies={[]} postsCount={0} repliesCount={0} />)
+      render(
+        <UserProfilePage
+          userStats={zeroStats}
+          posts={[]}
+          replies={[]}
+          postsCount={0}
+          repliesCount={0}
+        />
+      )
 
       expect(screen.getByText(/Posts \(0\)/)).toBeInTheDocument()
       expect(screen.getByText(/Replies \(0\)/)).toBeInTheDocument()
@@ -576,7 +992,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
         },
       }
 
-      render(<UserProfilePage userStats={noReactionsStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={noReactionsStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       const reactionsTab = screen.getByText('Reactions')
       fireEvent.click(reactionsTab)
@@ -591,7 +1015,15 @@ describe('User Profile Page - Comprehensive Tests', () => {
         user: { ...mockUserStats.user, username: 'a'.repeat(50) },
       }
 
-      render(<UserProfilePage userStats={longUsernameStats} posts={mockPosts} replies={mockReplies} postsCount={15} repliesCount={50} />)
+      render(
+        <UserProfilePage
+          userStats={longUsernameStats}
+          posts={mockPosts}
+          replies={mockReplies}
+          postsCount={15}
+          repliesCount={50}
+        />
+      )
 
       expect(screen.getByText('a'.repeat(50))).toBeInTheDocument()
     })
