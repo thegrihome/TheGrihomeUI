@@ -1,22 +1,25 @@
 import { createMocks } from 'node-mocks-http'
 import { PrismaClient } from '@prisma/client'
 
-// Create mock Prisma instance
-const mockPrisma = {
-  project: {
-    findUnique: jest.fn(),
-    delete: jest.fn(),
-  },
-  $disconnect: jest.fn().mockResolvedValue(undefined),
-}
+// Mock PrismaClient before importing handler
+jest.mock('@prisma/client', () => {
+  const mockPrismaInstance = {
+    project: {
+      findUnique: jest.fn(),
+      delete: jest.fn(),
+    },
+    $disconnect: jest.fn().mockResolvedValue(undefined),
+  }
+  return {
+    PrismaClient: jest.fn(() => mockPrismaInstance),
+    mockPrismaInstance, // Export for test access
+  }
+})
 
-// Mock PrismaClient
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => mockPrisma),
-}))
-
-// Import handler after mocking
 import handler from '@/pages/api/projects/delete'
+
+// Get the mock instance
+const { mockPrismaInstance: mockPrisma } = jest.requireMock('@prisma/client') as any
 
 describe('/api/projects/delete', () => {
   beforeEach(() => {

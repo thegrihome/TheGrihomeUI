@@ -3,24 +3,27 @@ import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
 import { Resend } from 'resend'
 
-// Create mock Prisma instance
-const mockPrisma = {
-  interest: { findFirst: jest.fn(), create: jest.fn() },
-  user: { findUnique: jest.fn() },
-  project: { findUnique: jest.fn() },
-  property: { findUnique: jest.fn() },
-  $disconnect: jest.fn().mockResolvedValue(undefined),
-}
-
 // Mock dependencies
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => mockPrisma),
-}))
+jest.mock('@prisma/client', () => {
+  const mockPrismaInstance = {
+    interest: { findFirst: jest.fn(), create: jest.fn() },
+    user: { findUnique: jest.fn() },
+    project: { findUnique: jest.fn() },
+    property: { findUnique: jest.fn() },
+    $disconnect: jest.fn().mockResolvedValue(undefined),
+  }
+  return {
+    PrismaClient: jest.fn(() => mockPrismaInstance),
+    mockPrismaInstance,
+  }
+})
 jest.mock('next-auth', () => ({ getServerSession: jest.fn() }))
 jest.mock('resend')
 
-// Import handler after mocking
 import handler from '@/pages/api/interests/express'
+
+// Get the mock instance
+const { mockPrismaInstance: mockPrisma } = jest.requireMock('@prisma/client') as any
 
 describe('/api/interests/express', () => {
   beforeEach(() => {
