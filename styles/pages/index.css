@@ -335,105 +335,64 @@
 /* Mission Section */
 .mission-section {
   background: linear-gradient(to bottom, #ffffff, #f9fafb);
-  padding: 4rem 1rem;
+  padding: 3rem 1rem;
 }
 
 @media (min-width: 768px) {
   .mission-section {
-    padding: 6rem 2rem;
+    padding: 4rem 2rem;
   }
 }
 
 .mission-container {
-  max-width: 80rem;
+  max-width: 56rem;
   margin: 0 auto;
-}
-
-.mission-content {
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
-}
-
-@media (min-width: 768px) {
-  .mission-content {
-    flex-direction: row;
-    gap: 4rem;
-  }
-}
-
-.mission-vision,
-.mission-fundamentals {
-  flex: 1;
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  text-align: center;
 }
 
 .mission-heading {
-  font-size: 1.875rem;
-  font-weight: 700;
+  font-size: 2.25rem;
+  font-weight: 800;
   color: #111827;
   margin: 0 0 1.5rem 0;
   background: linear-gradient(to right, #ec4899, #8b5cf6, #6366f1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.025em;
 }
 
 @media (min-width: 768px) {
   .mission-heading {
-    font-size: 2.25rem;
+    font-size: 2.75rem;
   }
 }
 
 .mission-text {
-  font-size: 1rem;
-  line-height: 1.75;
+  font-size: 1.0625rem;
+  line-height: 1.8;
   color: #4b5563;
   margin: 0;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.mission-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.mission-list-item {
-  font-size: 0.9375rem;
-  line-height: 1.625;
-  color: #4b5563;
-}
-
-.mission-list-item strong {
-  display: block;
-  font-size: 1.125rem;
-  color: #111827;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.mission-list-item p {
-  margin: 0;
-  color: #6b7280;
+@media (min-width: 768px) {
+  .mission-text {
+    font-size: 1.125rem;
+  }
 }
 
 /* Benefits Section */
 .benefits-section {
   background: linear-gradient(to bottom, #f9fafb, #ffffff);
-  padding: 4rem 1rem;
+  padding: 3rem 1rem;
 }
 
 @media (min-width: 768px) {
   .benefits-section {
-    padding: 6rem 2rem;
+    padding: 4rem 2rem;
   }
 }
 
@@ -447,9 +406,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 4rem;
-  margin-bottom: 4rem;
-  padding: 2rem 0;
+  gap: 2.5rem;
+  margin-bottom: 3rem;
+  padding: 1.5rem 0;
 }
 
 /* Timeline Center Line */
@@ -607,37 +566,44 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
+}
+
+.benefit-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .benefit-icon {
-  font-size: 2.5rem;
+  font-size: 2rem;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .benefit-title {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: #111827;
   margin: 0;
 }
 
 .benefit-description {
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: #6b7280;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: #4b5563;
   margin: 0;
 }
 
 /* Showcase Section */
 .showcase-section {
-  padding: 3rem 2rem;
+  padding: 2rem 1.5rem;
   background: white;
   border-radius: 1rem;
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .showcase-section:last-child {
@@ -766,7 +732,7 @@
   }
 
   .benefit-icon {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .benefit-title {
@@ -774,11 +740,11 @@
   }
 
   .benefit-description {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
 
   .showcase-section {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
   }
 
   .showcase-title {

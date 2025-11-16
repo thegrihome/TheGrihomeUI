@@ -314,63 +314,14 @@ export default function Home() {
       {/* Mission Section */}
       <section className="mission-section">
         <div className="mission-container">
-          <div className="mission-content">
-            <div className="mission-vision">
-              <h2 className="mission-heading">Vision</h2>
-              <p className="mission-text">
-                Grihome.com aims to become India&apos;s most user-friendly real estate platform by
-                combining seamless property discovery with a community-driven forum. Unlike
-                traditional portals (99Acres, MagicBricks, NoBroker) that restrict access behind
-                paywalls, Grihome will allow free browsing of listings and open discussions,
-                building user trust and engagement. This is already present in the US real estate
-                market in websites like redfin, zillow, homes.com where users can browse all the
-                listings without any restriction. Although India doesn&apos;t have a centralized or
-                local MLS, we would ensure the initial data is all loaded into the website through a
-                combination of manual labor and AI agents.
-              </p>
-            </div>
-            <div className="mission-fundamentals">
-              <h2 className="mission-heading">Fundamentals</h2>
-              <ul className="mission-list">
-                <li className="mission-list-item">
-                  <strong>Free Access for Users</strong>
-                  <p>
-                    Grihome will never charge users to browse property listings, contact sellers, or
-                    participate in the community forum. Placing these core actions behind a paywall
-                    would make Grihome no different from existing platforms in India, which we aim
-                    to disrupt by offering a more open and seamless experience.
-                  </p>
-                </li>
-                <li className="mission-list-item">
-                  <strong>Verified Participation</strong>
-                  <p>
-                    While browsing remains free, registration with a verified email and/or mobile
-                    number will be required to post in the forum or to contact Grihome, sellers, or
-                    agents. This ensures that only genuine, verified users progress through the
-                    platform, reducing spam and improving trust.
-                  </p>
-                </li>
-                <li className="mission-list-item">
-                  <strong>Low-Cost, Scalable Infrastructure</strong>
-                  <p>
-                    To keep the cost of delivering the user experience extremely low, Grihome will
-                    serve images, videos, and brochures directly from builder-hosted URLs instead of
-                    duplicating and storing them. This approach minimizes storage costs and ensures
-                    users always see the most up-to-date media.
-                  </p>
-                </li>
-                <li className="mission-list-item">
-                  <strong>Automated Data Accuracy</strong>
-                  <p>
-                    Grihome will leverage LLM-powered agents to automatically update property pages,
-                    mark sold-out projects, and maintain data accuracy. In the early stages, manual
-                    verification will complement this process, but over time, the system will evolve
-                    into a largely automated, self-updating platform.
-                  </p>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <h1 className="mission-heading">Mission</h1>
+          <p className="mission-text">
+            Grihome redefines how India discovers and understands real estate by prioritizing
+            openness, clarity, and user-first design. We are building a collaborative platform where
+            people can explore properties without barriers and engage in meaningful discussions that
+            empower smarter decisions. Our mission is to create the country&apos;s most transparent
+            and user-friendly real estate ecosystem.
+          </p>
         </div>
       </section>
 
@@ -385,11 +336,15 @@ export default function Home() {
               <div className="benefit-item">
                 <div className="benefit-divider benefit-divider-blue"></div>
                 <div className="benefit-content">
-                  <div className="benefit-icon">🏠</div>
-                  <h3 className="benefit-title">For Buyers</h3>
+                  <div className="benefit-header">
+                    <div className="benefit-icon">🏠</div>
+                    <h3 className="benefit-title">For Buyers</h3>
+                  </div>
                   <p className="benefit-description">
-                    Discover your dream home from verified listings. Browse properties, compare
-                    prices, and connect directly with sellers and agents.
+                    Discover your dream home from thousands of verified listings across India.
+                    Browse properties without paywalls, compare prices transparently, and connect
+                    directly with sellers and agents. Use our community forum to get real insights
+                    from other buyers and local experts before making your decision.
                   </p>
                 </div>
               </div>
@@ -401,11 +356,15 @@ export default function Home() {
               <div className="benefit-item">
                 <div className="benefit-divider benefit-divider-green"></div>
                 <div className="benefit-content">
-                  <div className="benefit-icon">💼</div>
-                  <h3 className="benefit-title">For Sellers</h3>
+                  <div className="benefit-header">
+                    <div className="benefit-icon">💼</div>
+                    <h3 className="benefit-title">For Sellers</h3>
+                  </div>
                   <p className="benefit-description">
-                    List your property for free. Reach thousands of potential buyers with detailed
-                    listings, photos, and virtual tours.
+                    List your property for free and reach thousands of potential buyers instantly.
+                    Create detailed listings with photos, virtual tours, and comprehensive property
+                    information. Get genuine inquiries from verified users and maintain full control
+                    over your listing with real-time updates and easy management tools.
                   </p>
                 </div>
               </div>
@@ -417,11 +376,15 @@ export default function Home() {
               <div className="benefit-item">
                 <div className="benefit-divider benefit-divider-purple"></div>
                 <div className="benefit-content">
-                  <div className="benefit-icon">🤝</div>
-                  <h3 className="benefit-title">For Agents</h3>
+                  <div className="benefit-header">
+                    <div className="benefit-icon">🤝</div>
+                    <h3 className="benefit-title">For Agents</h3>
+                  </div>
                   <p className="benefit-description">
-                    Grow your business with our platform. Manage multiple listings, connect with
-                    clients, and build your reputation.
+                    Grow your real estate business with our comprehensive agent platform. Manage
+                    multiple listings efficiently, showcase your portfolio to potential clients, and
+                    build your professional reputation through client reviews. Connect with serious
+                    buyers and sellers while accessing powerful tools to streamline your workflow.
                   </p>
                 </div>
               </div>
@@ -433,11 +396,15 @@ export default function Home() {
               <div className="benefit-item">
                 <div className="benefit-divider benefit-divider-orange"></div>
                 <div className="benefit-content">
-                  <div className="benefit-icon">🏗️</div>
-                  <h3 className="benefit-title">For Builders</h3>
+                  <div className="benefit-header">
+                    <div className="benefit-icon">🏗️</div>
+                    <h3 className="benefit-title">For Builders</h3>
+                  </div>
                   <p className="benefit-description">
-                    Showcase your projects to qualified buyers. Feature floor plans, amenities, and
-                    walkthrough videos to attract customers.
+                    Showcase your residential and commercial projects to qualified buyers across
+                    India. Feature detailed floor plans, amenities, virtual walkthroughs, and
+                    project timelines to attract the right customers. Partner with verified agents
+                    and leverage our platform to maximize your project visibility and sales.
                   </p>
                 </div>
               </div>
