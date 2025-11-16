@@ -66,6 +66,7 @@ jest.mock('./lib/cockroachDB/database-config', () => ({
     url: 'postgresql://test:test@localhost:5432/test',
     maxConnections: 5,
   })),
+  logDatabaseConnection: jest.fn(),
 }))
 
 // Mock Google Maps

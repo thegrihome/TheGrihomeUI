@@ -1,3 +1,6 @@
+// Unmock this module so we can test the real implementation
+jest.unmock('@/lib/cockroachDB/database-config')
+
 import { getDatabaseConfig, logDatabaseConnection } from '@/lib/cockroachDB/database-config'
 
 describe('lib/cockroachDB/database-config', () => {

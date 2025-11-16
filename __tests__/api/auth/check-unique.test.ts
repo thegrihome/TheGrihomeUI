@@ -10,6 +10,24 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
   },
 }))
 
+// Mock libphonenumber-js for mobile validation
+jest.mock('libphonenumber-js', () => ({
+  parsePhoneNumber: jest.fn((value: string) => {
+    // Require country code (must start with +)
+    if (!value.startsWith('+')) {
+      throw new Error('Phone number must start with a country code')
+    }
+    // Simple validation - accept numbers with 10-15 digits (reasonable mobile number length)
+    const cleaned = value.replace(/\D/g, '')
+    if (cleaned.length >= 10 && cleaned.length <= 15 && !/^0+$/.test(cleaned)) {
+      return {
+        isValid: () => true,
+      }
+    }
+    return null
+  }),
+}))
+
 describe('POST /api/auth/check-unique', () => {
   let req: Partial<NextApiRequest>
   let res: Partial<NextApiResponse>

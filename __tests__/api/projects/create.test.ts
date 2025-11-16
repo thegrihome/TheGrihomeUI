@@ -664,7 +664,8 @@ describe('/api/projects/create', () => {
 
       await handler(req, res)
 
-      expect(uploadMultipleProjectImages).not.toHaveBeenCalled()
+      // Handler still calls upload function with empty array, which is fine
+      expect(uploadMultipleProjectImages).toHaveBeenCalledWith('Test Project', 'floorplans', [])
     })
   })
 

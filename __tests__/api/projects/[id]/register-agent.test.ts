@@ -143,6 +143,7 @@ describe('/api/projects/[id]/register-agent', () => {
     })
 
     it('should continue when user is an agent', async () => {
+      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockAgentUser)
       ;(prisma.project.findUnique as jest.Mock).mockResolvedValue(null)
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
@@ -165,6 +166,7 @@ describe('/api/projects/[id]/register-agent', () => {
     })
 
     it('should continue when project exists', async () => {
+      ;(prisma.project.findUnique as jest.Mock).mockResolvedValue(mockProject)
       ;(prisma.projectAgent.findUnique as jest.Mock).mockResolvedValue(null)
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue({ id: 'pa-1' })
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
