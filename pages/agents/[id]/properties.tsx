@@ -65,6 +65,7 @@ export default function AgentProperties() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [activeTab, setActiveTab] = useState<'ACTIVE' | 'SOLD'>('ACTIVE')
 
   useEffect(() => {
     if (!id) return
@@ -74,7 +75,9 @@ export default function AgentProperties() {
       setError(null)
 
       try {
-        const response = await fetch(`/api/agents/${id}/properties?page=${currentPage}&limit=12`)
+        const response = await fetch(
+          `/api/agents/${id}/properties?page=${currentPage}&limit=12&status=${activeTab}`
+        )
 
         if (!response.ok) {
           const errorData = await response.json()
@@ -93,7 +96,7 @@ export default function AgentProperties() {
     }
 
     fetchAgentProperties()
-  }, [id, currentPage])
+  }, [id, currentPage, activeTab])
 
   const formatPrice = (price: number | null) => {
     if (!price) return 'Price on request'
@@ -206,10 +209,44 @@ export default function AgentProperties() {
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex gap-8">
+              <button
+                onClick={() => {
+                  setActiveTab('ACTIVE')
+                  setCurrentPage(1)
+                }}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'ACTIVE'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Active Properties
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('SOLD')
+                  setCurrentPage(1)
+                }}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'SOLD'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Sold Properties
+              </button>
+            </nav>
+          </div>
+        </div>
+
         {/* Properties Count */}
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
-            Properties Listed ({pagination?.totalCount || 0})
+            {activeTab === 'ACTIVE' ? 'Active' : 'Sold'} Properties ({pagination?.totalCount || 0})
           </h2>
         </div>
 

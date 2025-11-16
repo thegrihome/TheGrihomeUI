@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const { id } = req.query
-    const { page = '1', limit = '12' } = req.query
+    const { page = '1', limit = '12', status } = req.query
 
     if (!id || typeof id !== 'string') {
       return res.status(400).json({ message: 'Agent ID is required' })
@@ -41,11 +41,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'User is not an agent' })
     }
 
+    // Build where clause
+    const whereClause: any = {
+      userId: id,
+    }
+
+    // Add status filter if provided
+    if (status && typeof status === 'string') {
+      whereClause.listingStatus = status
+    }
+
     // Fetch properties posted by this agent
     const properties = await prisma.property.findMany({
-      where: {
-        userId: id,
-      },
+      where: whereClause,
       include: {
         location: true,
         project: {
@@ -64,9 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Get total count for pagination
     const totalCount = await prisma.property.count({
-      where: {
-        userId: id,
-      },
+      where: whereClause,
     })
 
     const totalPages = Math.ceil(totalCount / limitNum)
