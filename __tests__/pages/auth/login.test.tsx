@@ -320,17 +320,19 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           expect(sendButton).not.toBeDisabled()
-          fireEvent.click(sendButton)
-
-          await waitFor(() => {
-            expect(toast.success).toHaveBeenCalledWith('OTP sent! Use 123456 for testing')
-          })
         },
         { timeout: 1000 }
       )
+
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      fireEvent.click(sendButton)
+
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith('OTP sent! Use 123456 for testing')
+      })
     })
 
     it('should show OTP input after sending OTP', async () => {
@@ -345,17 +347,20 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-          fireEvent.click(sendButton)
-
-          await waitFor(() => {
-            expect(screen.getByPlaceholderText('123456')).toBeInTheDocument()
-            expect(screen.getByText('Enter OTP')).toBeInTheDocument()
-          })
+          expect(sendButton).not.toBeDisabled()
         },
         { timeout: 1000 }
       )
+
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      fireEvent.click(sendButton)
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('123456')).toBeInTheDocument()
+        expect(screen.getByText('Enter OTP')).toBeInTheDocument()
+      })
     })
 
     it('should verify OTP and login successfully', async () => {
@@ -372,31 +377,36 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-          fireEvent.click(sendButton)
-
-          await waitFor(async () => {
-            const otpInput = screen.getByPlaceholderText('123456')
-            fireEvent.change(otpInput, { target: { value: '123456' } })
-
-            const verifyButton = screen.getByText('Verify & Login')
-            fireEvent.click(verifyButton)
-
-            await waitFor(() => {
-              expect(mockSignIn).toHaveBeenCalledWith('credentials', {
-                identifier: 'test@example.com',
-                otp: '123456',
-                loginType: 'otp',
-                redirect: false,
-              })
-              expect(toast.success).toHaveBeenCalledWith('Login successful!')
-              expect(mockPush).toHaveBeenCalledWith('/')
-            })
-          })
+          expect(sendButton).not.toBeDisabled()
         },
-        { timeout: 2000 }
+        { timeout: 1000 }
       )
+
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      fireEvent.click(sendButton)
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('123456')).toBeInTheDocument()
+      })
+
+      const otpInput = screen.getByPlaceholderText('123456')
+      fireEvent.change(otpInput, { target: { value: '123456' } })
+
+      const verifyButton = screen.getByText('Verify & Login')
+      fireEvent.click(verifyButton)
+
+      await waitFor(() => {
+        expect(mockSignIn).toHaveBeenCalledWith('credentials', {
+          identifier: 'test@example.com',
+          otp: '123456',
+          loginType: 'otp',
+          redirect: false,
+        })
+        expect(toast.success).toHaveBeenCalledWith('Login successful!')
+        expect(mockPush).toHaveBeenCalledWith('/')
+      })
     })
 
     it('should show error on invalid OTP', async () => {
@@ -413,24 +423,29 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-          fireEvent.click(sendButton)
-
-          await waitFor(async () => {
-            const otpInput = screen.getByPlaceholderText('123456')
-            fireEvent.change(otpInput, { target: { value: '999999' } })
-
-            const verifyButton = screen.getByText('Verify & Login')
-            fireEvent.click(verifyButton)
-
-            await waitFor(() => {
-              expect(toast.error).toHaveBeenCalledWith('Invalid OTP or user not found')
-            })
-          })
+          expect(sendButton).not.toBeDisabled()
         },
-        { timeout: 2000 }
+        { timeout: 1000 }
       )
+
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      fireEvent.click(sendButton)
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('123456')).toBeInTheDocument()
+      })
+
+      const otpInput = screen.getByPlaceholderText('123456')
+      fireEvent.change(otpInput, { target: { value: '999999' } })
+
+      const verifyButton = screen.getByText('Verify & Login')
+      fireEvent.click(verifyButton)
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('Invalid OTP or user not found')
+      })
     })
 
     it('should allow going back from OTP screen', async () => {
@@ -445,19 +460,24 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-          fireEvent.click(sendButton)
-
-          await waitFor(() => {
-            const backButton = screen.getByText('Back')
-            fireEvent.click(backButton)
-
-            expect(screen.getByPlaceholderText('you@example.com')).toBeInTheDocument()
-          })
+          expect(sendButton).not.toBeDisabled()
         },
         { timeout: 1000 }
       )
+
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      fireEvent.click(sendButton)
+
+      await waitFor(() => {
+        expect(screen.getByText('Back')).toBeInTheDocument()
+      })
+
+      const backButton = screen.getByText('Back')
+      fireEvent.click(backButton)
+
+      expect(screen.getByPlaceholderText('you@example.com')).toBeInTheDocument()
     })
 
     it('should disable verify button when OTP is incomplete', async () => {
@@ -472,29 +492,32 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-          fireEvent.click(sendButton)
-
-          await waitFor(() => {
-            const otpInput = screen.getByPlaceholderText('123456')
-            fireEvent.change(otpInput, { target: { value: '123' } })
-
-            const verifyButton = screen.getByText('Verify & Login')
-            expect(verifyButton).toBeDisabled()
-          })
+          expect(sendButton).not.toBeDisabled()
         },
         { timeout: 1000 }
       )
+
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      fireEvent.click(sendButton)
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('123456')).toBeInTheDocument()
+      })
+
+      const otpInput = screen.getByPlaceholderText('123456')
+      fireEvent.change(otpInput, { target: { value: '123' } })
+
+      const verifyButton = screen.getByText('Verify & Login')
+      expect(verifyButton).toBeDisabled()
     })
 
     it('should show error toast when email is empty on Send OTP', () => {
       render(<Login />)
 
       const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-      fireEvent.click(sendButton)
-
-      expect(toast.error).toHaveBeenCalledWith('Please enter your email address')
+      expect(sendButton).toBeDisabled()
     })
   })
 
@@ -575,17 +598,19 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(mobileInput, { target: { value: '9876543210' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           expect(sendButton).not.toBeDisabled()
-          fireEvent.click(sendButton)
-
-          await waitFor(() => {
-            expect(toast.success).toHaveBeenCalledWith('OTP sent! Use 123456 for testing')
-          })
         },
         { timeout: 1000 }
       )
+
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      fireEvent.click(sendButton)
+
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith('OTP sent! Use 123456 for testing')
+      })
     })
 
     it('should verify mobile OTP successfully', async () => {
@@ -600,36 +625,39 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(mobileInput, { target: { value: '9876543210' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-          fireEvent.click(sendButton)
-
-          await waitFor(async () => {
-            const otpInput = screen.getByPlaceholderText('123456')
-            fireEvent.change(otpInput, { target: { value: '123456' } })
-
-            const verifyButton = screen.getByText('Verify & Login')
-            fireEvent.click(verifyButton)
-
-            await waitFor(() => {
-              expect(mockSignIn).toHaveBeenCalledWith('credentials', {
-                identifier: '+19876543210',
-                otp: '123456',
-                loginType: 'otp',
-                redirect: false,
-              })
-            })
-          })
+          expect(sendButton).not.toBeDisabled()
         },
-        { timeout: 2000 }
+        { timeout: 1000 }
       )
-    })
 
-    it('should show error toast when mobile is empty on Send OTP', () => {
       const sendButton = screen.getByRole('button', { name: 'Send OTP' })
       fireEvent.click(sendButton)
 
-      expect(toast.error).toHaveBeenCalledWith('Please enter your mobile number')
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('123456')).toBeInTheDocument()
+      })
+
+      const otpInput = screen.getByPlaceholderText('123456')
+      fireEvent.change(otpInput, { target: { value: '123456' } })
+
+      const verifyButton = screen.getByText('Verify & Login')
+      fireEvent.click(verifyButton)
+
+      await waitFor(() => {
+        expect(mockSignIn).toHaveBeenCalledWith('credentials', {
+          identifier: '+19876543210',
+          otp: '123456',
+          loginType: 'otp',
+          redirect: false,
+        })
+      })
+    })
+
+    it('should disable button when mobile is empty', () => {
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      expect(sendButton).toBeDisabled()
     })
   })
 
@@ -826,17 +854,11 @@ describe('Login Page - Comprehensive Tests', () => {
       )
     })
 
-    it('should show error toast when OTP sending fails', async () => {
+    it('should disable button when email is empty', async () => {
       render(<Login />)
 
-      const emailInput = screen.getByPlaceholderText('you@example.com')
-
-      fireEvent.change(emailInput, { target: { value: '' } })
-
       const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-      fireEvent.click(sendButton)
-
-      expect(toast.error).toHaveBeenCalledWith('Please enter your email address')
+      expect(sendButton).toBeDisabled()
     })
   })
 
@@ -873,17 +895,20 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-          fireEvent.click(sendButton)
-
-          await waitFor(() => {
-            const otpInput = screen.getByPlaceholderText('123456')
-            expect(otpInput).toHaveAttribute('maxLength', '6')
-          })
+          expect(sendButton).not.toBeDisabled()
         },
         { timeout: 1000 }
       )
+
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      fireEvent.click(sendButton)
+
+      await waitFor(() => {
+        const otpInput = screen.getByPlaceholderText('123456')
+        expect(otpInput).toHaveAttribute('maxLength', '6')
+      })
     })
 
     it('should have proper button types', () => {
@@ -915,22 +940,27 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
 
       await waitFor(
-        async () => {
+        () => {
           const sendButton = screen.getByRole('button', { name: 'Send OTP' })
-          fireEvent.click(sendButton)
-
-          await waitFor(() => {
-            const form = screen.getByText('Enter OTP').closest('form')
-            const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
-            const preventDefaultSpy = jest.spyOn(submitEvent, 'preventDefault')
-
-            form?.dispatchEvent(submitEvent)
-
-            expect(preventDefaultSpy).toHaveBeenCalled()
-          })
+          expect(sendButton).not.toBeDisabled()
         },
         { timeout: 1000 }
       )
+
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
+      fireEvent.click(sendButton)
+
+      await waitFor(() => {
+        expect(screen.getByText('Enter OTP')).toBeInTheDocument()
+      })
+
+      const form = screen.getByText('Enter OTP').closest('form')
+      const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
+      const preventDefaultSpy = jest.spyOn(submitEvent, 'preventDefault')
+
+      form?.dispatchEvent(submitEvent)
+
+      expect(preventDefaultSpy).toHaveBeenCalled()
     })
 
     it('should prevent default form submission on password login', () => {
