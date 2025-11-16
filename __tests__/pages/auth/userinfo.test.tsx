@@ -295,7 +295,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(() => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         expect(sendOtpButtons.length).toBeGreaterThan(0)
       })
     })
@@ -331,7 +331,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         const emailOtpButton = sendOtpButtons[0]
 
         fireEvent.click(emailOtpButton)
@@ -350,14 +350,16 @@ describe('UserInfo Page - Comprehensive Tests', () => {
 
       render(<UserInfoPage />)
 
-      await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
-        fireEvent.click(sendOtpButtons[0])
+      await waitFor(() => {
+        expect(screen.getAllByText(/Send\s+OTP/i)[0]).toBeInTheDocument()
+      })
 
-        await waitFor(() => {
-          expect(screen.getByPlaceholderText('Enter 6-digit OTP')).toBeInTheDocument()
-          expect(screen.getByText('Verify')).toBeInTheDocument()
-        })
+      const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
+      fireEvent.click(sendOtpButtons[0])
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Enter 6-digit OTP')).toBeInTheDocument()
+        expect(screen.getByText('Verify')).toBeInTheDocument()
       })
     })
 
@@ -374,27 +376,31 @@ describe('UserInfo Page - Comprehensive Tests', () => {
 
       render(<UserInfoPage />)
 
-      await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
-        fireEvent.click(sendOtpButtons[0])
+      await waitFor(() => {
+        expect(screen.getAllByText(/Send\s+OTP/i)[0]).toBeInTheDocument()
+      })
 
-        await waitFor(async () => {
-          const otpInput = screen.getByPlaceholderText('Enter 6-digit OTP')
-          fireEvent.change(otpInput, { target: { value: '123456' } })
+      const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
+      fireEvent.click(sendOtpButtons[0])
 
-          const verifyButton = screen.getByRole('button', { name: 'Verify' })
-          fireEvent.click(verifyButton)
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Enter 6-digit OTP')).toBeInTheDocument()
+      })
 
-          await waitFor(() => {
-            expect(global.fetch).toHaveBeenCalledWith(
-              '/api/user/verify-email',
-              expect.objectContaining({
-                method: 'POST',
-              })
-            )
-            expect(mockUpdate).toHaveBeenCalled()
+      const otpInput = screen.getByPlaceholderText('Enter 6-digit OTP')
+      fireEvent.change(otpInput, { target: { value: '123456' } })
+
+      const verifyButton = screen.getByRole('button', { name: 'Verify' })
+      fireEvent.click(verifyButton)
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith(
+          '/api/user/verify-email',
+          expect.objectContaining({
+            method: 'POST',
           })
-        })
+        )
+        expect(mockUpdate).toHaveBeenCalled()
       })
     })
 
@@ -407,7 +413,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         fireEvent.click(sendOtpButtons[0])
 
         await waitFor(async () => {
@@ -434,7 +440,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         fireEvent.click(sendOtpButtons[0])
 
         await waitFor(() => {
@@ -456,7 +462,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         fireEvent.click(sendOtpButtons[0])
 
         await waitFor(() => {
@@ -478,7 +484,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         fireEvent.click(sendOtpButtons[0])
 
         await waitFor(() => {
@@ -500,7 +506,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         const mobileOtpButton = sendOtpButtons[1] // Second Send OTP button
 
         fireEvent.click(mobileOtpButton)
@@ -526,7 +532,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         fireEvent.click(sendOtpButtons[1]) // Mobile OTP button
 
         await waitFor(async () => {
@@ -559,7 +565,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         fireEvent.click(sendOtpButtons[1])
 
         await waitFor(async () => {
@@ -1258,7 +1264,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         fireEvent.click(sendOtpButtons[0])
 
         await waitFor(async () => {
@@ -1287,7 +1293,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         fireEvent.click(sendOtpButtons[0])
 
         await waitFor(() => {
@@ -1308,7 +1314,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const sendOtpButtons = screen.getAllByText('Send OTP')
+        const sendOtpButtons = screen.getAllByText(/Send\s+OTP/i)
         fireEvent.click(sendOtpButtons[0])
 
         await waitFor(() => {
