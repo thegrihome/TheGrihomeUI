@@ -103,9 +103,9 @@ export default function AgentProperties() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
           <div className="flex items-center justify-center py-20">
             <div className="text-gray-600">Loading agent properties...</div>
           </div>
@@ -117,9 +117,9 @@ export default function AgentProperties() {
 
   if (error || !agent) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
           <div className="text-center py-20">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Error</h2>
             <p className="text-gray-600 mb-6">{error || 'Agent not found'}</p>
@@ -134,14 +134,14 @@ export default function AgentProperties() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <NextSeo
         title={`Properties by ${agent.name} | Grihome`}
         description={`Browse all properties listed by ${agent.name}${agent.companyName ? ` from ${agent.companyName}` : ''}`}
       />
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Breadcrumb */}
         <nav className="mb-6 text-sm">
           <Link href="/" className="text-blue-600 hover:text-blue-700">
@@ -156,27 +156,27 @@ export default function AgentProperties() {
         </nav>
 
         {/* Agent Info Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex items-center gap-6">
+        <div className="bg-white rounded-lg shadow-sm p-3 mb-6">
+          <div className="flex items-center gap-3">
             {agent.image ? (
               <Image
                 src={agent.image}
                 alt={agent.name}
-                width={80}
-                height={80}
+                width={48}
+                height={48}
                 className="rounded-full object-cover"
               />
             ) : (
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-bold text-blue-600">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-lg font-bold text-blue-600">
                   {agent.name.charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">{agent.name}</h1>
-              {agent.companyName && <p className="text-gray-600 mb-2">{agent.companyName}</p>}
-              <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+              <h1 className="text-lg font-bold text-gray-900">{agent.name}</h1>
+              {agent.companyName && <p className="text-sm text-gray-600">{agent.companyName}</p>}
+              <div className="flex flex-wrap gap-3 text-xs text-gray-500 mt-1">
                 {agent.email && <span>📧 {agent.email}</span>}
                 {agent.phone && <span>📱 {agent.phone}</span>}
               </div>
