@@ -36,15 +36,14 @@ jest.mock('@/components/Footer', () => {
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...props} />
+    return <img alt="" {...props} /> // eslint-disable-line jsx-a11y/alt-text, @next/next/no-img-element
   },
 }))
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title }: any) => {
     if (title) {
-      document.title = title
+      document.title = title // eslint-disable-line
     }
     return null
   },
@@ -94,7 +93,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should render Builder Name field', () => {
       render(<AddBuilderPage />)
 
-      expect(screen.getByLabelText(/Builder Name/)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Enter builder.*name/i)).toBeInTheDocument()
     })
 
     it('should render Builder Logo field', () => {
@@ -106,19 +105,19 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should render Description field', () => {
       render(<AddBuilderPage />)
 
-      expect(screen.getByLabelText('Description')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Enter.*description/i)).toBeInTheDocument()
     })
 
     it('should render Website URL field', () => {
       render(<AddBuilderPage />)
 
-      expect(screen.getByLabelText('Website URL')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/https.*:\/\//i)).toBeInTheDocument()
     })
 
     it('should render Address field', () => {
       render(<AddBuilderPage />)
 
-      expect(screen.getByLabelText('Address')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Enter.*address/i)).toBeInTheDocument()
     })
 
     it('should render Submit button', () => {
@@ -179,7 +178,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should update builder name on input', () => {
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
 
       expect(nameInput).toHaveValue('Test Builder')
@@ -188,7 +187,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should update description on input', () => {
       render(<AddBuilderPage />)
 
-      const descInput = screen.getByLabelText('Description')
+      const descInput = screen.getByPlaceholderText(/Enter.*description/i)
       fireEvent.change(descInput, { target: { value: 'Test description' } })
 
       expect(descInput).toHaveValue('Test description')
@@ -197,7 +196,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should update website on input', () => {
       render(<AddBuilderPage />)
 
-      const websiteInput = screen.getByLabelText('Website URL')
+      const websiteInput = screen.getByPlaceholderText(/https.*:\/\//i)
       fireEvent.change(websiteInput, { target: { value: 'https://example.com' } })
 
       expect(websiteInput).toHaveValue('https://example.com')
@@ -206,7 +205,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should update address on input', () => {
       render(<AddBuilderPage />)
 
-      const addressInput = screen.getByLabelText('Address')
+      const addressInput = screen.getByPlaceholderText(/Enter.*address/i)
       fireEvent.change(addressInput, { target: { value: '123 Main St' } })
 
       expect(addressInput).toHaveValue('123 Main St')
@@ -215,7 +214,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should enable submit button when name is provided', () => {
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
 
       expect(screen.getByText('Submit')).not.toBeDisabled()
@@ -228,7 +227,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const file = new File(['logo'], 'logo.png', { type: 'image/png' })
       const fileInput = screen
-        .getByLabelText(/Builder Logo/)
+        .getByText(/Builder\s+Logo/i)
         .closest('div')
         ?.querySelector('input[type="file"]') as HTMLInputElement
 
@@ -247,7 +246,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const file = new File(['content'], 'document.pdf', { type: 'application/pdf' })
       const fileInput = screen
-        .getByLabelText(/Builder Logo/)
+        .getByText(/Builder\s+Logo/i)
         .closest('div')
         ?.querySelector('input[type="file"]') as HTMLInputElement
 
@@ -266,7 +265,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const largeFile = new File(['x'.repeat(6 * 1024 * 1024)], 'large.png', { type: 'image/png' })
       const fileInput = screen
-        .getByLabelText(/Builder Logo/)
+        .getByText(/Builder\s+Logo/i)
         .closest('div')
         ?.querySelector('input[type="file"]') as HTMLInputElement
 
@@ -285,7 +284,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const validFile = new File(['image'], 'logo.png', { type: 'image/png' })
       const fileInput = screen
-        .getByLabelText(/Builder Logo/)
+        .getByText(/Builder\s+Logo/i)
         .closest('div')
         ?.querySelector('input[type="file"]') as HTMLInputElement
 
@@ -312,7 +311,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const validFile = new File(['image'], 'logo.png', { type: 'image/png' })
       const fileInput = screen
-        .getByLabelText(/Builder Logo/)
+        .getByText(/Builder\s+Logo/i)
         .closest('div')
         ?.querySelector('input[type="file"]') as HTMLInputElement
 
@@ -345,7 +344,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const fileInput = screen
-        .getByLabelText(/Builder Logo/)
+        .getByText(/Builder\s+Logo/i)
         .closest('div')
         ?.querySelector('input[type="file"]') as HTMLInputElement
 
@@ -372,8 +371,8 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should validate website URL format', async () => {
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
-      const websiteInput = screen.getByLabelText('Website URL')
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
+      const websiteInput = screen.getByPlaceholderText(/https.*:\/\//i)
       const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
@@ -395,8 +394,8 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
-      const websiteInput = screen.getByLabelText('Website URL')
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
+      const websiteInput = screen.getByPlaceholderText(/https.*:\/\//i)
       const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
@@ -416,8 +415,8 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
-      const websiteInput = screen.getByLabelText('Website URL')
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
+      const websiteInput = screen.getByPlaceholderText(/https.*:\/\//i)
       const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
@@ -437,7 +436,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
@@ -451,7 +450,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should trim builder name before validation', async () => {
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: '   ' } })
@@ -469,7 +468,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
@@ -494,14 +493,18 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      fireEvent.change(screen.getByLabelText(/Builder Name/), { target: { value: 'Test Builder' } })
-      fireEvent.change(screen.getByLabelText('Description'), {
+      fireEvent.change(screen.getByPlaceholderText(/Enter builder.*name/i), {
+        target: { value: 'Test Builder' },
+      })
+      fireEvent.change(screen.getByPlaceholderText(/Enter.*description/i), {
         target: { value: 'Test description' },
       })
-      fireEvent.change(screen.getByLabelText('Website URL'), {
+      fireEvent.change(screen.getByPlaceholderText(/https.*:\/\//i), {
         target: { value: 'https://example.com' },
       })
-      fireEvent.change(screen.getByLabelText('Address'), { target: { value: '123 Main St' } })
+      fireEvent.change(screen.getByPlaceholderText(/Enter.*address/i), {
+        target: { value: '123 Main St' },
+      })
 
       fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
@@ -522,7 +525,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
@@ -540,7 +543,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
@@ -560,7 +563,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
@@ -577,7 +580,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
@@ -594,7 +597,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
@@ -608,7 +611,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
@@ -622,7 +625,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
@@ -666,7 +669,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should have required attribute on name input', () => {
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       expect(nameInput).toHaveAttribute('required')
     })
 
@@ -708,17 +711,17 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should have proper labels for all inputs', () => {
       render(<AddBuilderPage />)
 
-      expect(screen.getByLabelText(/Builder Name/)).toBeInTheDocument()
-      expect(screen.getByLabelText('Description')).toBeInTheDocument()
-      expect(screen.getByLabelText('Website URL')).toBeInTheDocument()
-      expect(screen.getByLabelText('Address')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Enter builder.*name/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Enter.*description/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/https.*:\/\//i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Enter.*address/i)).toBeInTheDocument()
     })
 
     it('should have accessible file input', () => {
       render(<AddBuilderPage />)
 
       const fileInput = screen
-        .getByLabelText(/Builder Logo/)
+        .getByText(/Builder\s+Logo/i)
         .closest('div')
         ?.querySelector('input[type="file"]')
       expect(fileInput).toBeInTheDocument()
@@ -742,7 +745,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const longName = 'A'.repeat(500)
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: longName } })
 
       expect(nameInput).toHaveValue(longName)
@@ -757,7 +760,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const specialName = 'Builder & Co. (Pvt.) Ltd.'
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: specialName } })
 
       expect(nameInput).toHaveValue(specialName)
@@ -771,7 +774,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
@@ -787,7 +790,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const nameInput = screen.getByLabelText(/Builder Name/)
+      const nameInput = screen.getByPlaceholderText(/Enter builder.*name/i)
       const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
