@@ -8,15 +8,41 @@ export default function ContentRenderer({ content }: ContentRendererProps) {
   const processContent = (html: string): string => {
     let processed = html
 
-    // Parse quoted content - pattern: > username wrote:\n> content...\n\nactual reply
-    const quoteRegex = /^>\s*(.+?)\s+wrote:\s*\n>\s*(.+?)\.{3}\s*\n\n([\s\S]+)$/
-    const quoteMatch = processed.match(quoteRegex)
+    // Parse quoted content - handles both single and nested quotes
+    // Pattern: Lines starting with > are quoted, everything else is the reply
+    const lines = processed.split('\n')
+    const quotedLines: string[] = []
+    const replyLines: string[] = []
+    let inQuote = false
 
-    if (quoteMatch) {
-      const [, username, quotedContent, replyContent] = quoteMatch
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      if (line.startsWith('>')) {
+        quotedLines.push(line.substring(1).trim()) // Remove > and trim
+        inQuote = true
+      } else if (inQuote && line.trim() === '') {
+        // Empty line after quote marks end of quote
+        inQuote = false
+      } else if (!inQuote) {
+        replyLines.push(line)
+      }
+    }
+
+    // If we found quoted content, format it
+    if (quotedLines.length > 0 && replyLines.some(line => line.trim() !== '')) {
+      // Extract username from first line (should be "username wrote:")
+      const firstLine = quotedLines[0]
+      const wroteMatch = firstLine.match(/^(.+?)\s+wrote:/)
+      const username = wroteMatch ? wroteMatch[1] : 'Someone'
+
+      // Join remaining quoted lines (skip the "wrote:" line)
+      const quotedContent = quotedLines.slice(1).join('<br>').replace(/\.{3}$/, '...')
+
+      const replyContent = replyLines.join('\n').trim()
+
       processed = `<div class="forum-quoted-post">
         <div class="forum-quoted-header">Posted by ${username}</div>
-        <div class="forum-quoted-content">${quotedContent}...</div>
+        <div class="forum-quoted-content">${quotedContent}</div>
       </div>
       <div class="forum-reply-content-text">${replyContent}</div>`
     }
