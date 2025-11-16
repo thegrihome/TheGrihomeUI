@@ -37,7 +37,6 @@ jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
     // eslint-disable-next-line jsx-a11y/alt-text
-/* eslint-disable testing-library/no-node-access */
     return <img {...props} />
   },
 }))
@@ -45,7 +44,6 @@ jest.mock('next/image', () => ({
 jest.mock('next-seo', () => ({
   NextSeo: ({ title }: any) => {
     if (title) {
-      // eslint-disable-next-line testing-library/no-node-access
       document.title = title
     }
     return null
@@ -336,7 +334,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       fireEvent.change(fileInput)
 
       await waitFor(() => {
-        const preview = screen.queryByAlt('Logo preview')
+        const preview = screen.queryByAltText('Logo preview')
         if (preview) {
           expect(preview).toBeInTheDocument()
         }

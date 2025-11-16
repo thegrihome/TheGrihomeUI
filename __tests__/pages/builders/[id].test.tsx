@@ -27,7 +27,6 @@ jest.mock('next/image', () => ({
 jest.mock('next-seo', () => ({
   NextSeo: ({ title }: any) => {
     if (title) {
-      // eslint-disable-next-line testing-library/no-node-access
       document.title = title
     }
     return null
@@ -37,7 +36,6 @@ jest.mock('next-seo', () => ({
 const mockBuilder = {
   id: '1',
   name: 'Premier Builders',
-/* eslint-disable testing-library/no-node-access */
   description: 'Leading real estate developer',
   logoUrl: 'https://example.com/logo.png',
   website: 'https://premierbuilders.com',
@@ -235,7 +233,7 @@ describe('BuilderPage - Comprehensive Tests', () => {
 
       render(<BuilderPage builder={builderWithoutLogo} />)
 
-      expect(screen.queryByAlt('Premier Builders logo')).not.toBeInTheDocument()
+      expect(screen.queryByAltText('Premier Builders logo')).not.toBeInTheDocument()
       expect(screen.getByText('Premier Builders')).toBeInTheDocument()
     })
   })
