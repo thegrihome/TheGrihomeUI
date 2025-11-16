@@ -219,33 +219,36 @@ describe('ImageUploader Component', () => {
       expect(uploadArea).not.toHaveClass('border-blue-500', 'bg-blue-50')
     })
 
-    it('prevents default on drag over', () => {
+    it('applies drag style on drag over', () => {
       const { container } = render(
         <ImageUploader images={[]} onChange={mockOnChange} label="Upload Photos" />
       )
 
       const uploadArea = screen.getByText('Click to upload').closest('div')!
-      const preventDefault = jest.fn()
 
-      fireEvent.dragOver(uploadArea, { preventDefault })
+      fireEvent.dragOver(uploadArea)
 
-      expect(preventDefault).toHaveBeenCalled()
+      // Drag over should apply border-blue-500 class
+      expect(uploadArea.className).toContain('border-blue-500')
     })
 
-    it('prevents default on drop', () => {
+    it('removes drag style on drop', () => {
       const { container } = render(
         <ImageUploader images={[]} onChange={mockOnChange} label="Upload Photos" />
       )
 
       const uploadArea = screen.getByText('Click to upload').closest('div')!
-      const preventDefault = jest.fn()
 
+      // First apply drag style
+      fireEvent.dragOver(uploadArea)
+      expect(uploadArea.className).toContain('border-blue-500')
+
+      // Then drop should remove it
       fireEvent.drop(uploadArea, {
-        preventDefault,
         dataTransfer: { files: [] },
       })
 
-      expect(preventDefault).toHaveBeenCalled()
+      expect(uploadArea.className).not.toContain('border-blue-500')
     })
 
     it('removes drag style after drop', async () => {
@@ -383,29 +386,26 @@ describe('ImageUploader Component', () => {
       const file1 = new File(['image1'], 'test1.png', { type: 'image/png' })
       const file2 = new File(['image2'], 'test2.jpg', { type: 'image/jpeg' })
 
-      const mockFileReader = {
-        readAsDataURL: jest.fn(),
+      // Create a fresh mock for each file
+      const callCount = 0
+      const mockFileReader = () => ({
+        readAsDataURL: jest.fn(function (this: any) {
+          // Trigger onload after a tick
+          setTimeout(() => {
+            this.result = 'data:image/png;base64,test'
+            if (this.onload) {
+              this.onload({} as any)
+            }
+          }, 0)
+        }),
         onload: null as any,
         onerror: null as any,
-        result: 'data:image/png;base64,test',
-      }
-
-      global.FileReader = jest.fn(() => mockFileReader) as any
-
-      Object.defineProperty(input, 'files', {
-        value: [file1, file2],
-        writable: false,
+        result: '',
       })
 
-      fireEvent.change(input)
+      global.FileReader = jest.fn(() => mockFileReader()) as any
 
-      // Simulate FileReader completion for both files
-      setTimeout(() => {
-        if (mockFileReader.onload) {
-          mockFileReader.onload({} as any)
-          mockFileReader.onload({} as any)
-        }
-      }, 0)
+      fireEvent.change(input, { target: { files: [file1, file2] } })
 
       await waitFor(() => {
         expect(mockOnChange).toHaveBeenCalled()

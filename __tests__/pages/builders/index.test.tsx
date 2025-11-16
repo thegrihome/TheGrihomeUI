@@ -29,7 +29,6 @@ jest.mock('next/image', () => ({
 jest.mock('next-seo', () => ({
   NextSeo: ({ title }: any) => {
     if (title) {
-      // eslint-disable-next-line testing-library/no-node-access
       document.title = title
     }
     return null
@@ -37,7 +36,6 @@ jest.mock('next-seo', () => ({
 }))
 
 const mockBuilders = [
-/* eslint-disable testing-library/no-node-access */
   {
     id: '1',
     name: 'Builder One',

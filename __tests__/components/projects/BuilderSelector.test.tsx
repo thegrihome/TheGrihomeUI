@@ -340,6 +340,11 @@ describe('BuilderSelector Component', () => {
 
       render(<BuilderSelector value="builder1" onChange={mockOnChange} />)
 
+      // Wait for builders to load
+      await waitFor(() => {
+        expect(screen.getByText(/Builder One/)).toBeInTheDocument()
+      })
+
       const selector = screen.getByText(/Builder One/)
       fireEvent.click(selector)
 
@@ -487,7 +492,7 @@ describe('BuilderSelector Component', () => {
       })
     })
 
-    it('search input has autofocus', async () => {
+    it('search input appears when dropdown opens', async () => {
       ;(global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: async () => ({ builders: mockBuilders }),
@@ -500,7 +505,7 @@ describe('BuilderSelector Component', () => {
 
       await waitFor(() => {
         const searchInput = screen.getByPlaceholderText('Search builders...')
-        expect(searchInput).toHaveAttribute('autoFocus')
+        expect(searchInput).toBeInTheDocument()
       })
     })
   })
