@@ -277,7 +277,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
                   <button
                     className="forum-reply-btn"
                     onClick={() => {
-                      setReplyingTo(post.id)
+                      setReplyingTo(null) // Don't set parentId for original post
                       setReplyContent(
                         `> ${post.author.username} wrote:\n> ${post.content
                           .replace(/<[^>]+>/g, '')

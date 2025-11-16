@@ -43,6 +43,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(403).json({ error: 'Post is locked for replies' })
       }
 
+      // Validate parentId if provided
+      let validParentId = null
+      if (parentId && parentId.trim() !== '') {
+        const parentReply = await prisma.forumReply.findUnique({
+          where: { id: parentId },
+        })
+        if (parentReply) {
+          validParentId = parentId
+        }
+      }
+
       const reply = await prisma.$transaction(async tx => {
         // Create the reply
         const newReply = await tx.forumReply.create({
@@ -50,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             content,
             postId,
             authorId: session.user.id,
-            parentId: parentId || null,
+            parentId: validParentId,
           },
           include: {
             author: {
