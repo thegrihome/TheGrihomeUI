@@ -107,8 +107,8 @@ describe('Home Page', () => {
 
   it('displays builders showcase section', () => {
     render(<Home />)
-    expect(screen.getByText(/explore premium projects/i)).toBeInTheDocument()
-    expect(screen.getByText(/view all builders/i)).toBeInTheDocument()
+    expect(screen.getByText(/find top builders/i)).toBeInTheDocument()
+    expect(screen.getByText(/discover builders/i)).toBeInTheDocument()
   })
 
   it('has link to agents page', () => {
@@ -119,7 +119,7 @@ describe('Home Page', () => {
 
   it('has link to builders page', () => {
     render(<Home />)
-    const buildersLink = screen.getByText(/view all builders/i).closest('a')
+    const buildersLink = screen.getByText(/discover builders/i).closest('a')
     expect(buildersLink).toHaveAttribute('href', '/builders')
   })
 
