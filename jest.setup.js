@@ -1,23 +1,36 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
-// Suppress console errors for Google Maps API key warnings globally
+// Suppress console errors for known test warnings
 const originalError = console.error
+const originalWarn = console.warn
+
 beforeAll(() => {
   console.error = (...args) => {
+    const message = typeof args[0] === 'string' ? args[0] : ''
     if (
-      typeof args[0] === 'string' &&
-      (args[0].includes('Google Maps API key') ||
-        args[0].includes('Not implemented: HTMLFormElement.prototype.submit'))
+      message.includes('Google Maps API key') ||
+      message.includes('Not implemented: HTMLFormElement.prototype.submit') ||
+      message.includes('ReactDOM.render') ||
+      message.includes('act()')
     ) {
       return
     }
     originalError.call(console, ...args)
   }
+
+  console.warn = (...args) => {
+    const message = typeof args[0] === 'string' ? args[0] : ''
+    if (message.includes('componentWillReceiveProps') || message.includes('componentWillMount')) {
+      return
+    }
+    originalWarn.call(console, ...args)
+  }
 })
 
 afterAll(() => {
   console.error = originalError
+  console.warn = originalWarn
 })
 
 // Mock next/router

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run check-all && npm run test:ci && npm run prisma:generate && next build",
+    "build": "npm run prisma:generate && npm run check-all && npm run test:ci && next build",
     "prisma:generate": "prisma generate",
     "start": "next start",
     "lint": "next lint",
