@@ -1,13 +1,9 @@
 import { createMocks } from 'node-mocks-http'
-import handler from '@/pages/api/interests/express'
 import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
 import { Resend } from 'resend'
 
-jest.mock('@prisma/client')
-jest.mock('next-auth', () => ({ getServerSession: jest.fn() }))
-jest.mock('resend')
-
+// Create mock Prisma instance
 const mockPrisma = {
   interest: { findFirst: jest.fn(), create: jest.fn() },
   user: { findUnique: jest.fn() },
@@ -16,10 +12,19 @@ const mockPrisma = {
   $disconnect: jest.fn().mockResolvedValue(undefined),
 }
 
+// Mock dependencies
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn(() => mockPrisma),
+}))
+jest.mock('next-auth', () => ({ getServerSession: jest.fn() }))
+jest.mock('resend')
+
+// Import handler after mocking
+import handler from '@/pages/api/interests/express'
+
 describe('/api/interests/express', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    ;(PrismaClient as jest.Mock).mockImplementation(() => mockPrisma)
   })
 
   it('should return 401 when not authenticated', async () => {
