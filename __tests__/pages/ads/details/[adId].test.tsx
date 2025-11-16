@@ -39,6 +39,16 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
   },
 }))
 
+jest.mock('next-seo', () => ({
+  NextSeo: ({ title }: any) => {
+    if (title) {
+      // eslint-disable-next-line testing-library/no-node-access
+      document.title = title
+    }
+    return null
+  },
+}))
+
 const mockAdWithProperty = {
   id: 'ad1',
   slotNumber: 1,

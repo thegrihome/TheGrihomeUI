@@ -41,6 +41,16 @@ jest.mock('next/image', () => ({
   },
 }))
 
+jest.mock('next-seo', () => ({
+  NextSeo: ({ title }: any) => {
+    if (title) {
+      // eslint-disable-next-line testing-library/no-node-access
+      document.title = title
+    }
+    return null
+  },
+}))
+
 describe('AddBuilderPage - Comprehensive Tests', () => {
   const mockPush = jest.fn()
   const mockUseSession = useSession as jest.Mock

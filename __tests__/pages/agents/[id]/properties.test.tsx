@@ -30,6 +30,16 @@ jest.mock('next/image', () => ({
   default: (props: any) => <img {...props} />,
 }))
 
+jest.mock('next-seo', () => ({
+  NextSeo: ({ title }: any) => {
+    if (title) {
+      // eslint-disable-next-line testing-library/no-node-access
+      document.title = title
+    }
+    return null
+  },
+}))
+
 const mockAgent = {
   id: '1',
   name: 'John Doe',

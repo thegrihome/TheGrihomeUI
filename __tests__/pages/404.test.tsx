@@ -12,6 +12,16 @@ jest.mock('@/components/Footer', () => ({
   default: () => <div data-testid="footer">Footer</div>,
 }))
 
+jest.mock('next-seo', () => ({
+  NextSeo: ({ title }: any) => {
+    if (title) {
+      // eslint-disable-next-line testing-library/no-node-access
+      document.title = title
+    }
+    return null
+  },
+}))
+
 describe('404 Error Page', () => {
   it('should render 404 page', () => {
     render(<Error404 />)
