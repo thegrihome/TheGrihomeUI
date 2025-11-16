@@ -555,14 +555,16 @@ describe('BuilderPage - Comprehensive Tests', () => {
     it('should have proper container classes', () => {
       render(<BuilderPage builder={mockBuilder} />)
 
-      const container = screen.getByText('Premier Builders').closest('div')?.parentElement?.parentElement
+      const container = screen.getByText('Premier Builders').closest('div')
+        ?.parentElement?.parentElement
       expect(container?.className).toContain('container')
     })
 
     it('should have builder header section', () => {
       render(<BuilderPage builder={mockBuilder} />)
 
-      const header = screen.getByText('Premier Builders').closest('div')?.parentElement?.parentElement
+      const header = screen.getByText('Premier Builders').closest('div')
+        ?.parentElement?.parentElement
       expect(header?.className).toContain('builder-header')
     })
 

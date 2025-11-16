@@ -451,9 +451,7 @@ describe('AdDetailPage - Comprehensive Tests', () => {
 
       fireEvent.click(screen.getByText('Renew Advertisement'))
 
-      expect(mockPush).toHaveBeenCalledWith(
-        expect.stringContaining('propertyId=prop1')
-      )
+      expect(mockPush).toHaveBeenCalledWith(expect.stringContaining('propertyId=prop1'))
     })
   })
 

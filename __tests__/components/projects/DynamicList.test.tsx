@@ -234,7 +234,9 @@ describe('DynamicList Component', () => {
 
   describe('Max Items Limit', () => {
     it('should show item count when maxItems is set', () => {
-      render(<DynamicList items={['Item 1']} onChange={mockOnChange} label="Test Label" maxItems={5} />)
+      render(
+        <DynamicList items={['Item 1']} onChange={mockOnChange} label="Test Label" maxItems={5} />
+      )
 
       expect(screen.getByText('1 / 5 items')).toBeInTheDocument()
     })

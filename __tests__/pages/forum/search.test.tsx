@@ -27,7 +27,12 @@ jest.mock('@/components/forum/ForumSearch', () => {
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title, description, canonical }: any) => (
-    <div data-testid="next-seo" data-title={title} data-description={description} data-canonical={canonical} />
+    <div
+      data-testid="next-seo"
+      data-title={title}
+      data-description={description}
+      data-canonical={canonical}
+    />
   ),
 }))
 
@@ -277,10 +282,12 @@ describe('Forum Search Page - Comprehensive Tests', () => {
     it('should render singular post for count of 1', () => {
       const singlePostResult = {
         ...mockSearchResults,
-        categories: [{
-          ...mockSearchResults.categories[0],
-          _count: { posts: 1 },
-        }],
+        categories: [
+          {
+            ...mockSearchResults.categories[0],
+            _count: { posts: 1 },
+          },
+        ],
       }
 
       render(<SearchPage results={singlePostResult} />)
@@ -296,14 +303,18 @@ describe('Forum Search Page - Comprehensive Tests', () => {
     it('should link to category correctly for city', () => {
       const { container } = render(<SearchPage results={mockSearchResults} />)
 
-      const cityLink = container.querySelector('a[href="/forum/category/general-discussions/hyderabad"]')
+      const cityLink = container.querySelector(
+        'a[href="/forum/category/general-discussions/hyderabad"]'
+      )
       expect(cityLink).toBeInTheDocument()
     })
 
     it('should link to category correctly for city with property type', () => {
       const { container } = render(<SearchPage results={mockSearchResults} />)
 
-      const propertyLink = container.querySelector('a[href="/forum/category/general-discussions/chennai/apartments"]')
+      const propertyLink = container.querySelector(
+        'a[href="/forum/category/general-discussions/chennai/apartments"]'
+      )
       expect(propertyLink).toBeInTheDocument()
     })
 
@@ -347,7 +358,9 @@ describe('Forum Search Page - Comprehensive Tests', () => {
       render(<SearchPage results={emptyResults} />)
 
       expect(screen.getByText(/No posts or sections match your search/)).toBeInTheDocument()
-      expect(screen.getByText(/Try different keywords or browse our categories/)).toBeInTheDocument()
+      expect(
+        screen.getByText(/Try different keywords or browse our categories/)
+      ).toBeInTheDocument()
     })
 
     it('should render browse forum link when no results', () => {
@@ -412,14 +425,20 @@ describe('Forum Search Page - Comprehensive Tests', () => {
       render(<SearchPage results={mockSearchResults} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-description', 'Search results for "property" in Grihome community forum')
+      expect(seo).toHaveAttribute(
+        'data-description',
+        'Search results for "property" in Grihome community forum'
+      )
     })
 
     it('should render NextSeo with correct canonical URL', () => {
       render(<SearchPage results={mockSearchResults} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-canonical', 'https://grihome.vercel.app/forum/search?q=property')
+      expect(seo).toHaveAttribute(
+        'data-canonical',
+        'https://grihome.vercel.app/forum/search?q=property'
+      )
     })
   })
 
@@ -480,10 +499,12 @@ describe('Forum Search Page - Comprehensive Tests', () => {
     it('should truncate long content', () => {
       const longContent = {
         ...mockSearchResults,
-        posts: [{
-          ...mockSearchResults.posts[0],
-          content: 'A'.repeat(300),
-        }],
+        posts: [
+          {
+            ...mockSearchResults.posts[0],
+            content: 'A'.repeat(300),
+          },
+        ],
       }
 
       render(<SearchPage results={longContent} />)
@@ -495,10 +516,12 @@ describe('Forum Search Page - Comprehensive Tests', () => {
     it('should not truncate short content', () => {
       const shortContent = {
         ...mockSearchResults,
-        posts: [{
-          ...mockSearchResults.posts[0],
-          content: 'Short content',
-        }],
+        posts: [
+          {
+            ...mockSearchResults.posts[0],
+            content: 'Short content',
+          },
+        ],
       }
 
       render(<SearchPage results={shortContent} />)
@@ -596,26 +619,32 @@ describe('Forum Search Page - Comprehensive Tests', () => {
     it('should generate correct URL for category with city only', () => {
       const cityOnly = {
         ...mockSearchResults,
-        categories: [{
-          ...mockSearchResults.categories[0],
-          propertyType: null,
-        }],
+        categories: [
+          {
+            ...mockSearchResults.categories[0],
+            propertyType: null,
+          },
+        ],
       }
 
       const { container } = render(<SearchPage results={cityOnly} />)
 
-      const link = container.querySelector('a[href="/forum/category/general-discussions/hyderabad"]')
+      const link = container.querySelector(
+        'a[href="/forum/category/general-discussions/hyderabad"]'
+      )
       expect(link).toBeInTheDocument()
     })
 
     it('should generate correct URL for regular category', () => {
       const regularCategory = {
         ...mockSearchResults,
-        categories: [{
-          ...mockSearchResults.categories[0],
-          city: null,
-          slug: 'member-introductions',
-        }],
+        categories: [
+          {
+            ...mockSearchResults.categories[0],
+            city: null,
+            slug: 'member-introductions',
+          },
+        ],
       }
 
       const { container } = render(<SearchPage results={regularCategory} />)
@@ -677,10 +706,12 @@ describe('Forum Search Page - Comprehensive Tests', () => {
     it('should handle very long category names', () => {
       const longName = {
         ...mockSearchResults,
-        categories: [{
-          ...mockSearchResults.categories[0],
-          name: 'A'.repeat(100),
-        }],
+        categories: [
+          {
+            ...mockSearchResults.categories[0],
+            name: 'A'.repeat(100),
+          },
+        ],
       }
 
       const { container } = render(<SearchPage results={longName} />)
@@ -701,10 +732,12 @@ describe('Forum Search Page - Comprehensive Tests', () => {
     it('should handle missing category parent', () => {
       const noParent = {
         ...mockSearchResults,
-        categories: [{
-          ...mockSearchResults.categories[0],
-          parent: null,
-        }],
+        categories: [
+          {
+            ...mockSearchResults.categories[0],
+            parent: null,
+          },
+        ],
       }
 
       render(<SearchPage results={noParent} />)

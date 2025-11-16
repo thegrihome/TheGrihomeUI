@@ -106,7 +106,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
 
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY = 'test-api-key'
 
-    global.fetch = jest.fn((url) => {
+    global.fetch = jest.fn(url => {
       if (url.includes('/api/projects/search')) {
         return Promise.resolve({
           ok: true,
@@ -266,7 +266,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
     })
 
     it('should show verification banner when not verified', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/info')) {
           return Promise.resolve({
             ok: true,
@@ -292,7 +292,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
     })
 
     it('should disable submit button when not verified', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/info')) {
           return Promise.resolve({
             ok: true,
@@ -319,7 +319,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
     })
 
     it('should show Verify Now button in verification banner', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/info')) {
           return Promise.resolve({
             ok: true,
@@ -345,7 +345,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
     })
 
     it('should navigate to userinfo when Verify Now clicked', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/info')) {
           return Promise.resolve({
             ok: true,
@@ -375,7 +375,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
     })
 
     it('should allow email verified users to submit', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/info')) {
           return Promise.resolve({
             ok: true,
@@ -402,7 +402,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
     })
 
     it('should allow mobile verified users to submit', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/info')) {
           return Promise.resolve({
             ok: true,
@@ -900,8 +900,9 @@ describe('Add Property Page - Comprehensive Tests', () => {
       render(<AddProperty />)
 
       const fileInput = document.querySelector('#image-upload') as HTMLInputElement
-      const files = Array.from({ length: 25 }, (_, i) =>
-        new File(['image'], `test${i}.png`, { type: 'image/png' })
+      const files = Array.from(
+        { length: 25 },
+        (_, i) => new File(['image'], `test${i}.png`, { type: 'image/png' })
       )
 
       Object.defineProperty(fileInput, 'files', {
@@ -1000,7 +1001,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
         address_components: [],
       })
 
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/create')) {
           return new Promise(() => {}) // Never resolves to test loading state
         }
@@ -1044,7 +1045,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
         address_components: [],
       })
 
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/create')) {
           return Promise.resolve({
             ok: true,
@@ -1087,7 +1088,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
         address_components: [],
       })
 
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/create')) {
           return Promise.resolve({
             ok: true,
@@ -1130,7 +1131,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
         address_components: [],
       })
 
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/create')) {
           return Promise.resolve({
             ok: false,

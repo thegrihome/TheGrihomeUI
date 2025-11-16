@@ -218,7 +218,10 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const file = new File(['logo'], 'logo.png', { type: 'image/png' })
-      const fileInput = screen.getByLabelText(/Builder Logo/).closest('div')?.querySelector('input[type="file"]') as HTMLInputElement
+      const fileInput = screen
+        .getByLabelText(/Builder Logo/)
+        .closest('div')
+        ?.querySelector('input[type="file"]') as HTMLInputElement
 
       Object.defineProperty(fileInput, 'files', {
         value: [file],
@@ -234,7 +237,10 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const file = new File(['content'], 'document.pdf', { type: 'application/pdf' })
-      const fileInput = screen.getByLabelText(/Builder Logo/).closest('div')?.querySelector('input[type="file"]') as HTMLInputElement
+      const fileInput = screen
+        .getByLabelText(/Builder Logo/)
+        .closest('div')
+        ?.querySelector('input[type="file"]') as HTMLInputElement
 
       Object.defineProperty(fileInput, 'files', {
         value: [file],
@@ -250,7 +256,10 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const largeFile = new File(['x'.repeat(6 * 1024 * 1024)], 'large.png', { type: 'image/png' })
-      const fileInput = screen.getByLabelText(/Builder Logo/).closest('div')?.querySelector('input[type="file"]') as HTMLInputElement
+      const fileInput = screen
+        .getByLabelText(/Builder Logo/)
+        .closest('div')
+        ?.querySelector('input[type="file"]') as HTMLInputElement
 
       Object.defineProperty(fileInput, 'files', {
         value: [largeFile],
@@ -266,7 +275,10 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const validFile = new File(['image'], 'logo.png', { type: 'image/png' })
-      const fileInput = screen.getByLabelText(/Builder Logo/).closest('div')?.querySelector('input[type="file"]') as HTMLInputElement
+      const fileInput = screen
+        .getByLabelText(/Builder Logo/)
+        .closest('div')
+        ?.querySelector('input[type="file"]') as HTMLInputElement
 
       Object.defineProperty(fileInput, 'files', {
         value: [validFile],
@@ -290,7 +302,10 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const validFile = new File(['image'], 'logo.png', { type: 'image/png' })
-      const fileInput = screen.getByLabelText(/Builder Logo/).closest('div')?.querySelector('input[type="file"]') as HTMLInputElement
+      const fileInput = screen
+        .getByLabelText(/Builder Logo/)
+        .closest('div')
+        ?.querySelector('input[type="file"]') as HTMLInputElement
 
       Object.defineProperty(fileInput, 'files', {
         value: [validFile],
@@ -320,7 +335,10 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should handle no file selected', () => {
       render(<AddBuilderPage />)
 
-      const fileInput = screen.getByLabelText(/Builder Logo/).closest('div')?.querySelector('input[type="file"]') as HTMLInputElement
+      const fileInput = screen
+        .getByLabelText(/Builder Logo/)
+        .closest('div')
+        ?.querySelector('input[type="file"]') as HTMLInputElement
 
       Object.defineProperty(fileInput, 'files', {
         value: [],
@@ -468,8 +486,12 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       fireEvent.change(screen.getByLabelText(/Builder Name/), { target: { value: 'Test Builder' } })
-      fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Test description' } })
-      fireEvent.change(screen.getByLabelText('Website URL'), { target: { value: 'https://example.com' } })
+      fireEvent.change(screen.getByLabelText('Description'), {
+        target: { value: 'Test description' },
+      })
+      fireEvent.change(screen.getByLabelText('Website URL'), {
+        target: { value: 'https://example.com' },
+      })
       fireEvent.change(screen.getByLabelText('Address'), { target: { value: '123 Main St' } })
 
       fireEvent.click(screen.getByText('Submit'))
@@ -686,7 +708,10 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should have accessible file input', () => {
       render(<AddBuilderPage />)
 
-      const fileInput = screen.getByLabelText(/Builder Logo/).closest('div')?.querySelector('input[type="file"]')
+      const fileInput = screen
+        .getByLabelText(/Builder Logo/)
+        .closest('div')
+        ?.querySelector('input[type="file"]')
       expect(fileInput).toBeInTheDocument()
     })
 
@@ -722,7 +747,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      const specialName = "Builder & Co. (Pvt.) Ltd."
+      const specialName = 'Builder & Co. (Pvt.) Ltd.'
       const nameInput = screen.getByLabelText(/Builder Name/)
       fireEvent.change(nameInput, { target: { value: specialName } })
 

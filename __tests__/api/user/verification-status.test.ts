@@ -438,9 +438,7 @@ describe('/api/user/verification-status', () => {
       ;(getServerSession as jest.Mock).mockResolvedValue({
         user: { id: 'user-1' },
       })
-      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(
-        new Error('Network error')
-      )
+      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Network error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 

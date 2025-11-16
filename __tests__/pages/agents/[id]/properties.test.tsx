@@ -211,9 +211,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
 
   describe('Loading State', () => {
     it('should show loading message during initial load', () => {
-      ;(global.fetch as jest.Mock).mockImplementation(
-        () => new Promise(() => {})
-      )
+      ;(global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}))
 
       render(<AgentProperties />)
 
@@ -408,9 +406,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Sold Properties'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('status=SOLD')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('status=SOLD'))
       })
     })
 
@@ -434,9 +430,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Sold Properties'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('page=1')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=1'))
       })
     })
 
@@ -526,7 +520,9 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        expect(screen.getByText('This agent has not listed any properties yet.')).toBeInTheDocument()
+        expect(
+          screen.getByText('This agent has not listed any properties yet.')
+        ).toBeInTheDocument()
       })
     })
   })
@@ -665,9 +661,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Next'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('page=2')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=2'))
       })
     })
 

@@ -94,7 +94,11 @@ describe('/api/projects/[id]/promote-property', () => {
     })
 
     it('should return 400 when id is missing', async () => {
-      const { req, res } = createMocks({ method: 'POST', query: {}, body: { propertyId: 'prop-1' } })
+      const { req, res } = createMocks({
+        method: 'POST',
+        query: {},
+        body: { propertyId: 'prop-1' },
+      })
       await handler(req, res)
       expect(res._getStatusCode()).toBe(400)
       expect(JSON.parse(res._getData())).toEqual({ message: 'Invalid project ID' })
@@ -126,7 +130,7 @@ describe('/api/projects/[id]/promote-property', () => {
     it('should accept valid propertyId', async () => {
       ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
       ;(prisma.property.findFirst as jest.Mock).mockResolvedValue(null)
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -188,7 +192,7 @@ describe('/api/projects/[id]/promote-property', () => {
 
     it('should return 403 when property not found', async () => {
       ;(prisma.property.findFirst as jest.Mock).mockResolvedValue(null)
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -205,7 +209,7 @@ describe('/api/projects/[id]/promote-property', () => {
       ;(prisma.property.findFirst as jest.Mock).mockResolvedValue(mockProperty)
       ;(prisma.projectProperty.findUnique as jest.Mock).mockResolvedValue(null)
       ;(prisma.projectProperty.create as jest.Mock).mockResolvedValue({ id: 'pp-1' })
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -234,7 +238,7 @@ describe('/api/projects/[id]/promote-property', () => {
 
     it('should create new projectProperty record', async () => {
       ;(prisma.projectProperty.create as jest.Mock).mockResolvedValue({ id: 'pp-1' })
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -267,7 +271,7 @@ describe('/api/projects/[id]/promote-property', () => {
         ...existingProjectProperty,
         isPromoted: true,
       })
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -295,7 +299,7 @@ describe('/api/projects/[id]/promote-property', () => {
 
     it('should return 200 on success', async () => {
       ;(prisma.projectProperty.create as jest.Mock).mockResolvedValue({ id: 'pp-1' })
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -315,7 +319,7 @@ describe('/api/projects/[id]/promote-property', () => {
         promotionPaymentAmount: 0,
       }
       ;(prisma.projectProperty.create as jest.Mock).mockResolvedValue(mockProjectProperty)
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -337,7 +341,7 @@ describe('/api/projects/[id]/promote-property', () => {
     it('should return 500 on database error', async () => {
       ;(getServerSession as jest.Mock).mockResolvedValue(mockSession)
       ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Database error'))
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },

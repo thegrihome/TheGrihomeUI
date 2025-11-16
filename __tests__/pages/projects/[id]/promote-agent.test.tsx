@@ -3,7 +3,12 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import PromoteAgentPage from '@/pages/projects/[id]/promote-agent'
-import { mockRouter, mockSession, mockFetchSuccess, mockFetchError } from '@/__tests__/utils/test-utils'
+import {
+  mockRouter,
+  mockSession,
+  mockFetchSuccess,
+  mockFetchError,
+} from '@/__tests__/utils/test-utils'
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -303,15 +308,16 @@ describe('Promote Agent Page', () => {
 
   describe('Purchase Process', () => {
     it('shows loading state during purchase', async () => {
-      global.fetch = jest.fn(() =>
-        new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({}),
-            } as Response)
-          }, 100)
-        })
+      global.fetch = jest.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({}),
+              } as Response)
+            }, 100)
+          })
       ) as jest.Mock
 
       render(<PromoteAgentPage project={mockProject} />)
@@ -325,15 +331,16 @@ describe('Promote Agent Page', () => {
     })
 
     it('disables button during purchase', async () => {
-      global.fetch = jest.fn(() =>
-        new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({}),
-            } as Response)
-          }, 100)
-        })
+      global.fetch = jest.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({}),
+              } as Response)
+            }, 100)
+          })
       ) as jest.Mock
 
       render(<PromoteAgentPage project={mockProject} />)
@@ -347,15 +354,16 @@ describe('Promote Agent Page', () => {
     })
 
     it('shows spinner during processing', async () => {
-      global.fetch = jest.fn(() =>
-        new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({}),
-            } as Response)
-          }, 100)
-        })
+      global.fetch = jest.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({}),
+              } as Response)
+            }, 100)
+          })
       ) as jest.Mock
 
       render(<PromoteAgentPage project={mockProject} />)
@@ -585,7 +593,10 @@ describe('Promote Agent Page', () => {
       render(<PromoteAgentPage project={mockProject} />)
 
       await waitFor(() => {
-        const icon = screen.getByText('Verified Agent Benefits').closest('div')?.querySelector('svg')
+        const icon = screen
+          .getByText('Verified Agent Benefits')
+          .closest('div')
+          ?.querySelector('svg')
         expect(icon?.className).toContain('text-blue-600')
       })
     })

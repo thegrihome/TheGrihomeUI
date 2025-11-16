@@ -708,8 +708,14 @@ describe('/api/properties/list', () => {
     it('should handle price_asc sorting', async () => {
       req.query = { sortBy: 'price_asc' }
       const propsWithPrices = [
-        { ...mockProperties[0], propertyDetails: { ...mockProperties[0].propertyDetails, price: '3000000' } },
-        { ...mockProperties[1], propertyDetails: { ...mockProperties[1].propertyDetails, price: '5000000' } },
+        {
+          ...mockProperties[0],
+          propertyDetails: { ...mockProperties[0].propertyDetails, price: '3000000' },
+        },
+        {
+          ...mockProperties[1],
+          propertyDetails: { ...mockProperties[1].propertyDetails, price: '5000000' },
+        },
       ]
       ;(prisma.property.count as jest.Mock).mockResolvedValue(2)
       ;(prisma.property.findMany as jest.Mock).mockResolvedValue(propsWithPrices)
@@ -724,8 +730,14 @@ describe('/api/properties/list', () => {
     it('should handle price_desc sorting', async () => {
       req.query = { sortBy: 'price_desc' }
       const propsWithPrices = [
-        { ...mockProperties[0], propertyDetails: { ...mockProperties[0].propertyDetails, price: '3000000' } },
-        { ...mockProperties[1], propertyDetails: { ...mockProperties[1].propertyDetails, price: '5000000' } },
+        {
+          ...mockProperties[0],
+          propertyDetails: { ...mockProperties[0].propertyDetails, price: '3000000' },
+        },
+        {
+          ...mockProperties[1],
+          propertyDetails: { ...mockProperties[1].propertyDetails, price: '5000000' },
+        },
       ]
       ;(prisma.property.count as jest.Mock).mockResolvedValue(2)
       ;(prisma.property.findMany as jest.Mock).mockResolvedValue(propsWithPrices)
@@ -740,8 +752,14 @@ describe('/api/properties/list', () => {
     it('should handle properties with missing price when sorting by price', async () => {
       req.query = { sortBy: 'price_asc' }
       const propsWithMissingPrice = [
-        { ...mockProperties[0], propertyDetails: { ...mockProperties[0].propertyDetails, price: null } },
-        { ...mockProperties[1], propertyDetails: { ...mockProperties[1].propertyDetails, price: '5000000' } },
+        {
+          ...mockProperties[0],
+          propertyDetails: { ...mockProperties[0].propertyDetails, price: null },
+        },
+        {
+          ...mockProperties[1],
+          propertyDetails: { ...mockProperties[1].propertyDetails, price: '5000000' },
+        },
       ]
       ;(prisma.property.count as jest.Mock).mockResolvedValue(2)
       ;(prisma.property.findMany as jest.Mock).mockResolvedValue(propsWithMissingPrice)
@@ -927,9 +945,7 @@ describe('/api/properties/list', () => {
 
       expect(jsonMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          properties: [
-            expect.objectContaining({ thumbnailUrl: 'https://example.com/thumb1.jpg' }),
-          ],
+          properties: [expect.objectContaining({ thumbnailUrl: 'https://example.com/thumb1.jpg' })],
         })
       )
     })

@@ -62,7 +62,10 @@ jest.mock('@/components/properties/PropertyCard', () => {
         <div>{property.bedrooms} BHK</div>
         <div>{property.sqFt} sq ft</div>
         {isOwner && (
-          <button data-testid={`mark-sold-${property.id}`} onClick={() => onMarkAsSold(property.id)}>
+          <button
+            data-testid={`mark-sold-${property.id}`}
+            onClick={() => onMarkAsSold(property.id)}
+          >
             Mark as Sold
           </button>
         )}
@@ -289,9 +292,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       render(<PropertiesPage />)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('/api/properties/list')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/properties/list'))
       })
     })
 
@@ -410,9 +411,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       render(<PropertiesPage />)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('listingType=SALE')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('listingType=SALE'))
       })
     })
 
@@ -426,9 +425,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       render(<PropertiesPage />)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('listingType=RENT')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('listingType=RENT'))
       })
     })
 
@@ -442,9 +439,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       render(<PropertiesPage />)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('propertyType=CONDO')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('propertyType=CONDO'))
       })
     })
 
@@ -458,9 +453,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       render(<PropertiesPage />)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('bedrooms=3')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('bedrooms=3'))
       })
     })
 
@@ -474,9 +467,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       render(<PropertiesPage />)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('bathrooms=2')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('bathrooms=2'))
       })
     })
   })
@@ -493,9 +484,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(buyButton)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('listingType=SALE')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('listingType=SALE'))
       })
     })
 
@@ -510,9 +499,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(rentButton)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('listingType=RENT')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('listingType=RENT'))
       })
     })
 
@@ -652,9 +639,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('🏢 Apartments'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('propertyType=CONDO')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('propertyType=CONDO'))
       })
     })
 
@@ -768,9 +753,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(bedroomOptions[0])
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('bedrooms=3')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('bedrooms=3'))
       })
     })
 
@@ -798,9 +781,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(bathroomOptions[0])
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('bathrooms=2')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('bathrooms=2'))
       })
     })
   })
@@ -988,9 +969,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Price: Low to High'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('sortBy=price_asc')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('sortBy=price_asc'))
       })
     })
 
@@ -1010,9 +989,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Price: High to Low'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('sortBy=price_desc')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('sortBy=price_desc'))
       })
     })
 
@@ -1032,9 +1009,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Newest First'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('sortBy=newest')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('sortBy=newest'))
       })
     })
 
@@ -1108,9 +1083,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Next'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('page=2')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=2'))
       })
     })
 
@@ -1138,9 +1111,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Previous'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('page=1')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=1'))
       })
     })
 
@@ -1214,9 +1185,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('2'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('page=2')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=2'))
       })
     })
 
@@ -1235,9 +1204,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('🏡 Villas'))
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('page=1')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=1'))
       })
     })
   })
@@ -1344,7 +1311,7 @@ describe('Properties Page - Comprehensive Tests', () => {
         status: 'authenticated',
       })
 
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/list')) {
           return Promise.resolve({
             ok: true,

@@ -569,7 +569,9 @@ describe('ExpressInterestButton Component', () => {
         status: 'unauthenticated',
       })
 
-      const { container } = render(<ExpressInterestButton projectId="proj123" onAuthRequired={mockOnAuthRequired} />)
+      const { container } = render(
+        <ExpressInterestButton projectId="proj123" onAuthRequired={mockOnAuthRequired} />
+      )
 
       expect(container).toBeInTheDocument()
     })

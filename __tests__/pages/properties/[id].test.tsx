@@ -41,9 +41,7 @@ jest.mock('@/components/Footer', () => {
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, fill }: any) => (
-    <img src={src} alt={alt} data-fill={fill} />
-  ),
+  default: ({ src, alt, fill }: any) => <img src={src} alt={alt} data-fill={fill} />,
 }))
 
 jest.mock('next/dynamic', () => ({
@@ -270,7 +268,9 @@ describe('Property Detail Page - Comprehensive Tests', () => {
 
       await waitFor(() => {
         const images = screen.getAllByRole('img')
-        expect(images.some(img => img.getAttribute('src') === 'https://example.com/thumb.jpg')).toBe(true)
+        expect(
+          images.some(img => img.getAttribute('src') === 'https://example.com/thumb.jpg')
+        ).toBe(true)
       })
     })
 
@@ -298,7 +298,9 @@ describe('Property Detail Page - Comprehensive Tests', () => {
 
       await waitFor(() => {
         const images = screen.getAllByRole('img')
-        expect(images.some(img => img.getAttribute('src') === 'https://example.com/image1.jpg')).toBe(true)
+        expect(
+          images.some(img => img.getAttribute('src') === 'https://example.com/image1.jpg')
+        ).toBe(true)
       })
     })
 
@@ -316,7 +318,9 @@ describe('Property Detail Page - Comprehensive Tests', () => {
       // Should wrap to last image
       await waitFor(() => {
         const images = screen.getAllByRole('img')
-        expect(images.some(img => img.getAttribute('src') === 'https://example.com/image2.jpg')).toBe(true)
+        expect(
+          images.some(img => img.getAttribute('src') === 'https://example.com/image2.jpg')
+        ).toBe(true)
       })
     })
   })
@@ -460,7 +464,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
     })
 
     it('should send interest when Send Interest button clicked', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/')) {
           return Promise.resolve({
             ok: true,
@@ -492,7 +496,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
     })
 
     it('should show success message after sending interest', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/')) {
           return Promise.resolve({
             ok: true,
@@ -519,7 +523,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
     })
 
     it('should change button text after interest expressed', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/')) {
           return Promise.resolve({
             ok: true,
@@ -674,7 +678,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
     })
 
     it('should submit mark as sold', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/property-1')) {
           return Promise.resolve({
             ok: true,
@@ -719,7 +723,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
     })
 
     it('should show success message on mark as sold', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/property-1')) {
           return Promise.resolve({
             ok: true,
@@ -759,7 +763,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
     })
 
     it('should redirect to my-properties after marking as sold', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/property-1')) {
           return Promise.resolve({
             ok: true,
@@ -799,7 +803,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
     })
 
     it('should handle mark as sold error', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/property-1')) {
           return Promise.resolve({
             ok: true,

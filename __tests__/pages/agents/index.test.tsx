@@ -86,8 +86,8 @@ describe('AgentsPage - Comprehensive Tests', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUseRouter.mockReturnValue({ 
-      push: mockPush, 
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
       query: {},
       isReady: true,
     })
@@ -139,7 +139,9 @@ describe('AgentsPage - Comprehensive Tests', () => {
       render(<AgentsPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Connect with qualified real estate professionals in your area')).toBeInTheDocument()
+        expect(
+          screen.getByText('Connect with qualified real estate professionals in your area')
+        ).toBeInTheDocument()
       })
     })
 
@@ -176,20 +178,18 @@ describe('AgentsPage - Comprehensive Tests', () => {
 
   describe('Loading State', () => {
     it('should show loading skeleton while fetching', () => {
-      ;(global.fetch as jest.Mock).mockImplementation(
-        () => new Promise(() => {})
-      )
+      ;(global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}))
 
       render(<AgentsPage />)
 
-      const skeletons = screen.getAllByRole('generic').filter(el => el.className.includes('animate-pulse'))
+      const skeletons = screen
+        .getAllByRole('generic')
+        .filter(el => el.className.includes('animate-pulse'))
       expect(skeletons.length).toBeGreaterThan(0)
     })
 
     it('should show 8 loading skeleton rows', () => {
-      ;(global.fetch as jest.Mock).mockImplementation(
-        () => new Promise(() => {})
-      )
+      ;(global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}))
 
       render(<AgentsPage />)
 
@@ -208,7 +208,9 @@ describe('AgentsPage - Comprehensive Tests', () => {
       render(<AgentsPage />)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/agents?page=1&limit=12'))
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/agents?page=1&limit=12')
+        )
       })
     })
 
@@ -251,12 +253,10 @@ describe('AgentsPage - Comprehensive Tests', () => {
     })
 
     it('should retry fetch on Try Again click', async () => {
-      ;(global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: false })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => mockAgentsResponse,
-        })
+      ;(global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false }).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockAgentsResponse,
+      })
 
       render(<AgentsPage />)
 
@@ -462,7 +462,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
         data: null,
         status: 'unauthenticated',
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockAgentsResponse,
@@ -569,7 +568,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
         query: { company: 'ABC Realty' },
         isReady: true,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockAgentsResponse,
@@ -588,7 +586,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
         query: { company: 'ABC Realty' },
         isReady: true,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockAgentsResponse,
@@ -608,7 +605,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
         query: { company: 'ABC Realty' },
         isReady: true,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockAgentsResponse,
@@ -628,7 +624,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
         query: { company: 'ABC Realty' },
         isReady: true,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: async () => mockAgentsResponse,
@@ -640,7 +635,10 @@ describe('AgentsPage - Comprehensive Tests', () => {
         expect(screen.getByText(/Showing agents from:/)).toBeInTheDocument()
       })
 
-      const closeButton = screen.getByText(/Showing agents from:/).closest('div')?.querySelector('button')
+      const closeButton = screen
+        .getByText(/Showing agents from:/)
+        .closest('div')
+        ?.querySelector('button')
       if (closeButton) {
         fireEvent.click(closeButton)
       }
@@ -685,7 +683,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
         query: { company: 'ABC Realty' },
         isReady: true,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockAgentsResponse,
@@ -887,7 +884,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
 
     it('should scroll to top on page change', async () => {
       window.scrollTo = jest.fn()
-
       ;(global.fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,
@@ -1010,7 +1006,9 @@ describe('AgentsPage - Comprehensive Tests', () => {
       render(<AgentsPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Very Long Agent Name That Should Be Displayed Properly')).toBeInTheDocument()
+        expect(
+          screen.getByText('Very Long Agent Name That Should Be Displayed Properly')
+        ).toBeInTheDocument()
       })
     })
 
@@ -1031,7 +1029,9 @@ describe('AgentsPage - Comprehensive Tests', () => {
       render(<AgentsPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Very Long Company Name That Should Be Displayed Properly')).toBeInTheDocument()
+        expect(
+          screen.getByText('Very Long Company Name That Should Be Displayed Properly')
+        ).toBeInTheDocument()
       })
     })
 

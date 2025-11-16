@@ -449,7 +449,9 @@ describe('My Properties Page - Comprehensive Tests', () => {
 
       await waitFor(() => {
         const images = screen.getAllByRole('img')
-        expect(images.some(img => img.getAttribute('src') === 'https://example.com/active.jpg')).toBe(true)
+        expect(
+          images.some(img => img.getAttribute('src') === 'https://example.com/active.jpg')
+        ).toBe(true)
       })
     })
 
@@ -780,7 +782,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
     })
 
     it('should submit mark as sold API call', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/properties')) {
           return Promise.resolve({
             ok: true,
@@ -828,7 +830,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
     })
 
     it('should show success toast on successful mark as sold', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/properties')) {
           return Promise.resolve({
             ok: true,
@@ -871,7 +873,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
     })
 
     it('should handle mark as sold API error', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/properties')) {
           return Promise.resolve({
             ok: true,
@@ -951,7 +953,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
     })
 
     it('should call reactivate API when button clicked', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/properties')) {
           return Promise.resolve({
             ok: true,
@@ -991,7 +993,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
     })
 
     it('should show success toast on successful reactivation', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/properties')) {
           return Promise.resolve({
             ok: true,
@@ -1026,7 +1028,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
     })
 
     it('should handle reactivate API error', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/properties')) {
           return Promise.resolve({
             ok: true,

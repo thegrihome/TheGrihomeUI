@@ -3,7 +3,12 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import AddProjectRequestPage from '@/pages/projects/add-project-request'
-import { mockRouter, mockSession, mockFetchSuccess, mockFetchError } from '@/__tests__/utils/test-utils'
+import {
+  mockRouter,
+  mockSession,
+  mockFetchSuccess,
+  mockFetchError,
+} from '@/__tests__/utils/test-utils'
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -629,15 +634,16 @@ describe('Add Project Request Page', () => {
 
   describe('Form Submission', () => {
     it('shows loading state during submission', async () => {
-      global.fetch = jest.fn(() =>
-        new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({}),
-            } as Response)
-          }, 100)
-        })
+      global.fetch = jest.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({}),
+              } as Response)
+            }, 100)
+          })
       ) as jest.Mock
 
       render(<AddProjectRequestPage />)

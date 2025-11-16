@@ -3,7 +3,12 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import ProjectsPage from '@/pages/projects/index'
-import { mockRouter, mockSession, mockFetchSuccess, mockFetchError } from '@/__tests__/utils/test-utils'
+import {
+  mockRouter,
+  mockSession,
+  mockFetchSuccess,
+  mockFetchError,
+} from '@/__tests__/utils/test-utils'
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -97,7 +102,9 @@ describe('Projects Index Page', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Real Estate Projects')).toBeInTheDocument()
-        expect(screen.getByText(/Discover premium residential and commercial projects/i)).toBeInTheDocument()
+        expect(
+          screen.getByText(/Discover premium residential and commercial projects/i)
+        ).toBeInTheDocument()
       })
     })
 
@@ -124,7 +131,9 @@ describe('Projects Index Page', () => {
       render(<ProjectsPage />)
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Search projects by name, builder, city/i)).toBeInTheDocument()
+        expect(
+          screen.getByPlaceholderText(/Search projects by name, builder, city/i)
+        ).toBeInTheDocument()
       })
     })
 

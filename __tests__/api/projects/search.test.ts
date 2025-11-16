@@ -76,8 +76,18 @@ describe('/api/projects/search', () => {
   describe('No Query Parameter', () => {
     it('should return all projects when no query parameter', async () => {
       const mockProjects = [
-        { id: '1', name: 'Project 1', builder: { name: 'Builder 1' }, location: { city: 'Mumbai', state: 'MH' } },
-        { id: '2', name: 'Project 2', builder: { name: 'Builder 2' }, location: { city: 'Delhi', state: 'DL' } },
+        {
+          id: '1',
+          name: 'Project 1',
+          builder: { name: 'Builder 1' },
+          location: { city: 'Mumbai', state: 'MH' },
+        },
+        {
+          id: '2',
+          name: 'Project 2',
+          builder: { name: 'Builder 2' },
+          location: { city: 'Delhi', state: 'DL' },
+        },
       ]
       ;(prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects)
 
@@ -651,7 +661,12 @@ describe('/api/projects/search', () => {
   describe('Response Structure', () => {
     it('should return projects array', async () => {
       const mockProjects = [
-        { id: '1', name: 'Project 1', builder: { name: 'Builder 1' }, location: { city: 'Mumbai', state: 'MH' } },
+        {
+          id: '1',
+          name: 'Project 1',
+          builder: { name: 'Builder 1' },
+          location: { city: 'Mumbai', state: 'MH' },
+        },
       ]
       ;(prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects)
 
@@ -669,7 +684,12 @@ describe('/api/projects/search', () => {
 
     it('should include project id', async () => {
       const mockProjects = [
-        { id: 'proj-123', name: 'Project 1', builder: { name: 'Builder 1' }, location: { city: 'Mumbai', state: 'MH' } },
+        {
+          id: 'proj-123',
+          name: 'Project 1',
+          builder: { name: 'Builder 1' },
+          location: { city: 'Mumbai', state: 'MH' },
+        },
       ]
       ;(prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects)
 
@@ -686,7 +706,12 @@ describe('/api/projects/search', () => {
 
     it('should include project name', async () => {
       const mockProjects = [
-        { id: '1', name: 'Sunset Towers', builder: { name: 'Builder 1' }, location: { city: 'Mumbai', state: 'MH' } },
+        {
+          id: '1',
+          name: 'Sunset Towers',
+          builder: { name: 'Builder 1' },
+          location: { city: 'Mumbai', state: 'MH' },
+        },
       ]
       ;(prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects)
 
@@ -703,7 +728,12 @@ describe('/api/projects/search', () => {
 
     it('should include builder name', async () => {
       const mockProjects = [
-        { id: '1', name: 'Project 1', builder: { name: 'Premium Builders' }, location: { city: 'Mumbai', state: 'MH' } },
+        {
+          id: '1',
+          name: 'Project 1',
+          builder: { name: 'Premium Builders' },
+          location: { city: 'Mumbai', state: 'MH' },
+        },
       ]
       ;(prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects)
 
@@ -720,7 +750,12 @@ describe('/api/projects/search', () => {
 
     it('should include location city and state', async () => {
       const mockProjects = [
-        { id: '1', name: 'Project 1', builder: { name: 'Builder 1' }, location: { city: 'Delhi', state: 'Delhi' } },
+        {
+          id: '1',
+          name: 'Project 1',
+          builder: { name: 'Builder 1' },
+          location: { city: 'Delhi', state: 'Delhi' },
+        },
       ]
       ;(prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects)
 
@@ -808,9 +843,24 @@ describe('/api/projects/search', () => {
   describe('Multiple Results', () => {
     it('should return multiple matching projects', async () => {
       const mockProjects = [
-        { id: '1', name: 'Project A', builder: { name: 'Builder 1' }, location: { city: 'Mumbai', state: 'MH' } },
-        { id: '2', name: 'Project B', builder: { name: 'Builder 2' }, location: { city: 'Mumbai', state: 'MH' } },
-        { id: '3', name: 'Project C', builder: { name: 'Builder 3' }, location: { city: 'Mumbai', state: 'MH' } },
+        {
+          id: '1',
+          name: 'Project A',
+          builder: { name: 'Builder 1' },
+          location: { city: 'Mumbai', state: 'MH' },
+        },
+        {
+          id: '2',
+          name: 'Project B',
+          builder: { name: 'Builder 2' },
+          location: { city: 'Mumbai', state: 'MH' },
+        },
+        {
+          id: '3',
+          name: 'Project C',
+          builder: { name: 'Builder 3' },
+          location: { city: 'Mumbai', state: 'MH' },
+        },
       ]
       ;(prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects)
 
@@ -1029,7 +1079,12 @@ describe('/api/projects/search', () => {
 
     it('should match partial words', async () => {
       const mockProjects = [
-        { id: '1', name: 'Sunrise Project', builder: { name: 'Builder' }, location: { city: 'Mumbai', state: 'MH' } },
+        {
+          id: '1',
+          name: 'Sunrise Project',
+          builder: { name: 'Builder' },
+          location: { city: 'Mumbai', state: 'MH' },
+        },
       ]
       ;(prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects)
 

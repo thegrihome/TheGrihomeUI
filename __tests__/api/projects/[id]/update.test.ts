@@ -365,7 +365,10 @@ describe('/api/projects/[id]/update', () => {
 
     it('should continue when builder exists', async () => {
       ;(prisma.builder.findUnique as jest.Mock).mockResolvedValue(mockBuilder)
-      ;(prisma.project.update as jest.Mock).mockResolvedValue({ ...mockProject, ...baseRequestBody })
+      ;(prisma.project.update as jest.Mock).mockResolvedValue({
+        ...mockProject,
+        ...baseRequestBody,
+      })
 
       const { req, res } = createMocks({
         method: 'PUT',
@@ -620,11 +623,10 @@ describe('/api/projects/[id]/update', () => {
 
       await handler(req, res)
 
-      expect(uploadMultipleProjectImages).toHaveBeenCalledWith(
-        'Updated Project',
-        'floorplans',
-        ['data:image/png;base64,img1', 'data:image/png;base64,img2']
-      )
+      expect(uploadMultipleProjectImages).toHaveBeenCalledWith('Updated Project', 'floorplans', [
+        'data:image/png;base64,img1',
+        'data:image/png;base64,img2',
+      ])
     })
 
     it('should limit floorplans to 20 images', async () => {
@@ -669,7 +671,11 @@ describe('/api/projects/[id]/update', () => {
       expect(prisma.project.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            floorplanImageUrls: expect.arrayContaining([...mockProject.floorplanImageUrls, 'new1.png', 'new2.png']),
+            floorplanImageUrls: expect.arrayContaining([
+              ...mockProject.floorplanImageUrls,
+              'new1.png',
+              'new2.png',
+            ]),
           }),
         })
       )

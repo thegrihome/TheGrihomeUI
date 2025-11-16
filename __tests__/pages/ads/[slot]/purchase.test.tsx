@@ -39,9 +39,7 @@ jest.mock('next/image', () => ({
 }))
 
 const mockSlotConfig = {
-  adSlots: [
-    { slotNumber: 1, basePrice: 1500, isActive: true },
-  ],
+  adSlots: [{ slotNumber: 1, basePrice: 1500, isActive: true }],
 }
 
 const mockActiveListings = {
@@ -168,7 +166,6 @@ describe('PurchaseAdSlotPage - Comprehensive Tests', () => {
         query: { slot: '1', renew: 'true' },
         isReady: true,
       })
-
       ;(global.fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,
@@ -189,9 +186,7 @@ describe('PurchaseAdSlotPage - Comprehensive Tests', () => {
 
   describe('Loading State', () => {
     it('should show loading spinner while fetching', () => {
-      ;(global.fetch as jest.Mock).mockImplementation(
-        () => new Promise(() => {})
-      )
+      ;(global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}))
 
       render(<PurchaseAdSlotPage />)
 
@@ -670,7 +665,6 @@ describe('PurchaseAdSlotPage - Comprehensive Tests', () => {
         query: { slot: '1', renew: 'true' },
         isReady: true,
       })
-
       ;(global.fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,
@@ -804,7 +798,6 @@ describe('PurchaseAdSlotPage - Comprehensive Tests', () => {
         query: { slot: '1', renew: 'true' },
         isReady: true,
       })
-
       ;(global.fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,

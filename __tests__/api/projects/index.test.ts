@@ -871,13 +871,27 @@ describe('/api/projects/index', () => {
           id: 'project-1',
           name: 'Project A',
           builder: { id: 'b1', name: 'Builder A', logoUrl: null },
-          location: { id: 'l1', city: 'Mumbai', state: 'MH', country: 'India', zipcode: '400001', locality: 'Andheri' },
+          location: {
+            id: 'l1',
+            city: 'Mumbai',
+            state: 'MH',
+            country: 'India',
+            zipcode: '400001',
+            locality: 'Andheri',
+          },
         },
         {
           id: 'project-2',
           name: 'Project B',
           builder: { id: 'b2', name: 'Builder B', logoUrl: null },
-          location: { id: 'l2', city: 'Delhi', state: 'DL', country: 'India', zipcode: '110001', locality: 'CP' },
+          location: {
+            id: 'l2',
+            city: 'Delhi',
+            state: 'DL',
+            country: 'India',
+            zipcode: '110001',
+            locality: 'CP',
+          },
         },
       ]
 

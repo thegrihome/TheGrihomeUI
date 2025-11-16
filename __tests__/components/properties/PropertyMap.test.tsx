@@ -225,9 +225,7 @@ describe('PropertyMap Component', () => {
         },
       }
 
-      render(
-        <PropertyMap latitude={17.385} longitude={78.4867} address="123 Main St, Hyderabad" />
-      )
+      render(<PropertyMap latitude={17.385} longitude={78.4867} address="123 Main St, Hyderabad" />)
 
       await waitFor(() => {
         expect(mockMarker).toHaveBeenCalledWith(
@@ -281,9 +279,7 @@ describe('PropertyMap Component', () => {
         },
       }
 
-      render(
-        <PropertyMap latitude={17.385} longitude={78.4867} address="123 Main St, Hyderabad" />
-      )
+      render(<PropertyMap latitude={17.385} longitude={78.4867} address="123 Main St, Hyderabad" />)
 
       await waitFor(() => {
         expect(mockInfoWindow).toHaveBeenCalledWith(
@@ -313,9 +309,7 @@ describe('PropertyMap Component', () => {
         },
       }
 
-      render(
-        <PropertyMap latitude={17.385} longitude={78.4867} address="123 Main St, Hyderabad" />
-      )
+      render(<PropertyMap latitude={17.385} longitude={78.4867} address="123 Main St, Hyderabad" />)
 
       await waitFor(() => {
         expect(mockAddListener).toHaveBeenCalledWith('click', expect.any(Function))

@@ -7,7 +7,9 @@ jest.mock('next-auth', () => ({ getServerSession: jest.fn() }))
 jest.mock('@vercel/blob', () => ({ put: jest.fn() }))
 
 describe('/api/upload-images', () => {
-  beforeEach(() => { jest.clearAllMocks() })
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
   it('should return 401 when not authenticated', async () => {
     ;(getServerSession as jest.Mock).mockResolvedValue(null)
@@ -28,7 +30,9 @@ describe('/api/upload-images', () => {
     ;(put as jest.Mock).mockResolvedValue({ url: 'https://example.com/image.jpg' })
     const { req, res } = createMocks({
       method: 'POST',
-      body: { images: [{ data: 'data:image/png;base64,abc123', name: 'test.png', type: 'image/png' }] },
+      body: {
+        images: [{ data: 'data:image/png;base64,abc123', name: 'test.png', type: 'image/png' }],
+      },
     })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(200)

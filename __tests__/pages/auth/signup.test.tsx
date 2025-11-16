@@ -651,7 +651,9 @@ describe('Signup Page - Comprehensive Tests', () => {
       fireEvent.click(submitButton)
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Please fix all validation errors before submitting')
+        expect(toast.error).toHaveBeenCalledWith(
+          'Please fix all validation errors before submitting'
+        )
       })
     })
   })
@@ -809,7 +811,10 @@ describe('Signup Page - Comprehensive Tests', () => {
         .mockResolvedValueOnce({ ok: true, json: async () => ({ isUnique: true }) })
         .mockResolvedValueOnce({ ok: true, json: async () => ({ isUnique: true }) })
         .mockImplementationOnce(
-          () => new Promise(resolve => setTimeout(() => resolve({ ok: true, json: async () => ({}) }), 100))
+          () =>
+            new Promise(resolve =>
+              setTimeout(() => resolve({ ok: true, json: async () => ({}) }), 100)
+            )
         )
 
       mockSignIn.mockResolvedValueOnce({ ok: true })
@@ -837,8 +842,10 @@ describe('Signup Page - Comprehensive Tests', () => {
     })
 
     it('should enable submit button when form is valid', async () => {
-      ;(global.fetch as jest.Mock)
-        .mockResolvedValue({ ok: true, json: async () => ({ isUnique: true }) })
+      ;(global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => ({ isUnique: true }),
+      })
 
       render(<Signup />)
 

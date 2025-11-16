@@ -38,7 +38,12 @@ jest.mock('@/components/forum/ContentRenderer', () => {
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title, description, canonical }: any) => (
-    <div data-testid="next-seo" data-title={title} data-description={description} data-canonical={canonical} />
+    <div
+      data-testid="next-seo"
+      data-title={title}
+      data-description={description}
+      data-canonical={canonical}
+    />
   ),
 }))
 
@@ -386,10 +391,22 @@ describe('Thread Page - Comprehensive Tests', () => {
 
     it('should show loading state during submission', async () => {
       ;(global.fetch as jest.Mock).mockImplementationOnce(
-        () => new Promise(resolve => setTimeout(() => resolve({
-          ok: true,
-          json: async () => ({ id: 'reply2', content: 'Test', createdAt: new Date().toISOString(), author: { createdAt: new Date().toISOString() } }),
-        }), 100))
+        () =>
+          new Promise(resolve =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  json: async () => ({
+                    id: 'reply2',
+                    content: 'Test',
+                    createdAt: new Date().toISOString(),
+                    author: { createdAt: new Date().toISOString() },
+                  }),
+                }),
+              100
+            )
+          )
       )
 
       render(<ThreadPage post={mockPost} />)
@@ -565,7 +582,10 @@ describe('Thread Page - Comprehensive Tests', () => {
       render(<ThreadPage post={mockPost} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-canonical', 'https://grihome.vercel.app/forum/thread/best-properties-hyderabad')
+      expect(seo).toHaveAttribute(
+        'data-canonical',
+        'https://grihome.vercel.app/forum/thread/best-properties-hyderabad'
+      )
     })
   })
 

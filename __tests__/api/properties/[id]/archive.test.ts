@@ -640,10 +640,7 @@ describe('/api/properties/[id]/archive', () => {
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error archiving property:',
-        expect.any(Error)
-      )
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error archiving property:', expect.any(Error))
       consoleErrorSpy.mockRestore()
       process.env.NODE_ENV = originalEnv
     })

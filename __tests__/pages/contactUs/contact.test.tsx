@@ -271,7 +271,7 @@ describe('ContactPage - Comprehensive Tests', () => {
       render(<ContactPage />)
 
       const nameInput = screen.getByLabelText(/Name/)
-      
+
       // First trigger validation
       fireEvent.change(screen.getByLabelText(/Email/), { target: { value: 'john@example.com' } })
       fireEvent.change(screen.getByLabelText(/Message/), { target: { value: 'Test' } })
@@ -439,7 +439,6 @@ describe('ContactPage - Comprehensive Tests', () => {
 
     it('should auto-dismiss success toast after 5 seconds', async () => {
       jest.useFakeTimers()
-      
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({}),
@@ -595,7 +594,9 @@ describe('ContactPage - Comprehensive Tests', () => {
       render(<ContactPage />)
 
       fireEvent.change(screen.getByLabelText(/Name/), { target: { value: "O'Brien-Smith" } })
-      fireEvent.change(screen.getByLabelText(/Email/), { target: { value: 'john+test@example.com' } })
+      fireEvent.change(screen.getByLabelText(/Email/), {
+        target: { value: 'john+test@example.com' },
+      })
       fireEvent.change(screen.getByLabelText(/Message/), { target: { value: 'Test @#$%' } })
       fireEvent.click(screen.getByText('Send Message'))
 
@@ -613,7 +614,9 @@ describe('ContactPage - Comprehensive Tests', () => {
       render(<ContactPage />)
 
       fireEvent.change(screen.getByLabelText(/Name/), { target: { value: 'John' } })
-      fireEvent.change(screen.getByLabelText(/Email/), { target: { value: 'john+test@example.com' } })
+      fireEvent.change(screen.getByLabelText(/Email/), {
+        target: { value: 'john+test@example.com' },
+      })
       fireEvent.change(screen.getByLabelText(/Message/), { target: { value: 'Test' } })
       fireEvent.click(screen.getByText('Send Message'))
 

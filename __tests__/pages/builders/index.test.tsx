@@ -165,7 +165,9 @@ describe('BuildersPage - Comprehensive Tests', () => {
 
       render(<BuildersPage />)
 
-      const skeletons = screen.getAllByRole('generic').filter(el => el.className.includes('animate-pulse'))
+      const skeletons = screen
+        .getAllByRole('generic')
+        .filter(el => el.className.includes('animate-pulse'))
       expect(skeletons.length).toBeGreaterThan(0)
     })
 
@@ -176,7 +178,9 @@ describe('BuildersPage - Comprehensive Tests', () => {
 
       render(<BuildersPage />)
 
-      const skeletons = screen.getAllByRole('generic').filter(el => el.className.includes('bg-gray-200'))
+      const skeletons = screen
+        .getAllByRole('generic')
+        .filter(el => el.className.includes('bg-gray-200'))
       expect(skeletons.length).toBeGreaterThan(0)
     })
 
@@ -201,7 +205,9 @@ describe('BuildersPage - Comprehensive Tests', () => {
       render(<BuildersPage />)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/builders?page=1&limit=12'))
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/builders?page=1&limit=12')
+        )
       })
     })
 
@@ -476,9 +482,7 @@ describe('BuildersPage - Comprehensive Tests', () => {
       jest.advanceTimersByTime(300)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('search=Builder%20One')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('search=Builder%20One'))
       })
 
       jest.useRealTimers()
@@ -960,9 +964,7 @@ describe('BuildersPage - Comprehensive Tests', () => {
       jest.advanceTimersByTime(300)
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.not.stringContaining('search=')
-        )
+        expect(global.fetch).toHaveBeenCalledWith(expect.not.stringContaining('search='))
       })
 
       jest.useRealTimers()

@@ -88,7 +88,9 @@ describe('Promote Property Page', () => {
     it('shows explanation text', () => {
       render(<PromotePropertyPage project={mockProject} userProperties={[]} />)
 
-      expect(screen.getByText(/You need to have properties tagged to this project/i)).toBeInTheDocument()
+      expect(
+        screen.getByText(/You need to have properties tagged to this project/i)
+      ).toBeInTheDocument()
     })
 
     it('displays add property link', () => {
@@ -147,7 +149,9 @@ describe('Promote Property Page', () => {
       render(<PromotePropertyPage project={mockProject} userProperties={mockUserProperties} />)
 
       await waitFor(() => {
-        expect(screen.getByText(/increasing its visibility to potential buyers/i)).toBeInTheDocument()
+        expect(
+          screen.getByText(/increasing its visibility to potential buyers/i)
+        ).toBeInTheDocument()
       })
     })
 
@@ -155,7 +159,10 @@ describe('Promote Property Page', () => {
       render(<PromotePropertyPage project={mockProject} userProperties={mockUserProperties} />)
 
       await waitFor(() => {
-        const svg = screen.getByText('Verified Property Benefits').closest('div')?.querySelector('svg')
+        const svg = screen
+          .getByText('Verified Property Benefits')
+          .closest('div')
+          ?.querySelector('svg')
         expect(svg).toBeInTheDocument()
       })
     })
@@ -278,7 +285,9 @@ describe('Promote Property Page', () => {
       render(<PromotePropertyPage project={mockProject} userProperties={mockUserProperties} />)
 
       await waitFor(() => {
-        expect(screen.getByText(/Choose how long you want your property to be featured/i)).toBeInTheDocument()
+        expect(
+          screen.getByText(/Choose how long you want your property to be featured/i)
+        ).toBeInTheDocument()
       })
     })
   })
@@ -415,15 +424,16 @@ describe('Promote Property Page', () => {
 
   describe('Purchase Process', () => {
     it('shows loading state during purchase', async () => {
-      global.fetch = jest.fn(() =>
-        new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({}),
-            } as Response)
-          }, 100)
-        })
+      global.fetch = jest.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({}),
+              } as Response)
+            }, 100)
+          })
       ) as jest.Mock
 
       render(<PromotePropertyPage project={mockProject} userProperties={mockUserProperties} />)
@@ -440,15 +450,16 @@ describe('Promote Property Page', () => {
     })
 
     it('disables button during purchase', async () => {
-      global.fetch = jest.fn(() =>
-        new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({}),
-            } as Response)
-          }, 100)
-        })
+      global.fetch = jest.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({}),
+              } as Response)
+            }, 100)
+          })
       ) as jest.Mock
 
       render(<PromotePropertyPage project={mockProject} userProperties={mockUserProperties} />)

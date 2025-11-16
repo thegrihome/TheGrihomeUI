@@ -238,9 +238,7 @@ describe('/api/properties/[id]/reactivate', () => {
     it('should verify property exists before reactivation', async () => {
       await handler(req as NextApiRequest, res as NextApiResponse)
 
-      expect(prisma.property.findUnique).toHaveBeenCalledBefore(
-        prisma.property.update as jest.Mock
-      )
+      expect(prisma.property.findUnique).toHaveBeenCalledBefore(prisma.property.update as jest.Mock)
     })
   })
 
@@ -560,9 +558,7 @@ describe('/api/properties/[id]/reactivate', () => {
     })
 
     it('should not expose error details to client', async () => {
-      ;(prisma.property.update as jest.Mock).mockRejectedValue(
-        new Error('Detailed database error')
-      )
+      ;(prisma.property.update as jest.Mock).mockRejectedValue(new Error('Detailed database error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
@@ -665,8 +661,7 @@ describe('/api/properties/[id]/reactivate', () => {
     it('should call findUnique before update', async () => {
       await handler(req as NextApiRequest, res as NextApiResponse)
 
-      const findUniqueCall = (prisma.property.findUnique as jest.Mock).mock
-        .invocationCallOrder[0]
+      const findUniqueCall = (prisma.property.findUnique as jest.Mock).mock.invocationCallOrder[0]
       const updateCall = (prisma.property.update as jest.Mock).mock.invocationCallOrder[0]
 
       expect(findUniqueCall).toBeLessThan(updateCall)
@@ -722,8 +717,7 @@ describe('/api/properties/[id]/reactivate', () => {
       await handler(req as NextApiRequest, res as NextApiResponse)
 
       const sessionCall = (getServerSession as jest.Mock).mock.invocationCallOrder[0]
-      const findUniqueCall = (prisma.property.findUnique as jest.Mock).mock
-        .invocationCallOrder[0]
+      const findUniqueCall = (prisma.property.findUnique as jest.Mock).mock.invocationCallOrder[0]
       const updateCall = (prisma.property.update as jest.Mock).mock.invocationCallOrder[0]
 
       expect(sessionCall).toBeLessThan(findUniqueCall)

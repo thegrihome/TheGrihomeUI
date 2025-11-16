@@ -170,9 +170,7 @@ describe('/api/forum/seed-cities', () => {
       await handler(req, res)
 
       const createCalls = (prisma.forumCategory.create as jest.Mock).mock.calls
-      const propertyTypeCalls = createCalls.filter(call =>
-        call[0].data.propertyType !== undefined
-      )
+      const propertyTypeCalls = createCalls.filter(call => call[0].data.propertyType !== undefined)
       expect(propertyTypeCalls.length).toBeGreaterThan(0)
     })
 
@@ -210,9 +208,7 @@ describe('/api/forum/seed-cities', () => {
       ;(getServerSession as jest.Mock).mockResolvedValue({
         user: { email: 'admin@example.com' },
       })
-      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(
-        new Error('Database error')
-      )
+      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Database error'))
 
       const { req, res } = createMocks({
         method: 'POST',
@@ -328,9 +324,7 @@ describe('/api/forum/seed-cities', () => {
       await handler(req, res)
 
       const createCalls = (prisma.forumCategory.create as jest.Mock).mock.calls
-      const otherCitiesCall = createCalls.find(call =>
-        call[0].data.slug === 'other-cities'
-      )
+      const otherCitiesCall = createCalls.find(call => call[0].data.slug === 'other-cities')
       expect(otherCitiesCall).toBeDefined()
     })
 

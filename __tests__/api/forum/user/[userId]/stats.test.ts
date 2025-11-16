@@ -13,7 +13,9 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
 }))
 
 describe('/api/forum/user/[userId]/stats', () => {
-  beforeEach(() => { jest.clearAllMocks() })
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
   it('should return 400 when userId is missing', async () => {
     const { req, res } = createMocks({ method: 'GET', query: {} })
@@ -32,7 +34,9 @@ describe('/api/forum/user/[userId]/stats', () => {
     ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'u1', username: 'testuser' })
     ;(prisma.forumPost.count as jest.Mock).mockResolvedValue(10)
     ;(prisma.forumReply.count as jest.Mock).mockResolvedValue(20)
-    ;(prisma.postReaction.groupBy as jest.Mock).mockResolvedValue([{ type: 'THANKS', _count: { type: 5 } }])
+    ;(prisma.postReaction.groupBy as jest.Mock).mockResolvedValue([
+      { type: 'THANKS', _count: { type: 5 } },
+    ])
     ;(prisma.replyReaction.groupBy as jest.Mock).mockResolvedValue([])
     const { req, res } = createMocks({ method: 'GET', query: { userId: 'u1' } })
     await handler(req, res)

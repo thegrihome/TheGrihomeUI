@@ -51,7 +51,9 @@ describe('/api/project-requests/submit', () => {
   })
 
   it('should create project request successfully', async () => {
-    ;(getServerSession as jest.Mock).mockResolvedValue({ user: { id: 'u1', name: 'User', email: 'user@test.com' } })
+    ;(getServerSession as jest.Mock).mockResolvedValue({
+      user: { id: 'u1', name: 'User', email: 'user@test.com' },
+    })
     mockPrisma.projectRequest.create.mockResolvedValue({ id: 'pr1' })
     const { req, res } = createMocks({
       method: 'POST',

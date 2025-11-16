@@ -125,7 +125,7 @@ describe('Edit Property Page - Comprehensive Tests', () => {
 
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY = 'test-api-key'
 
-    global.fetch = jest.fn((url) => {
+    global.fetch = jest.fn(url => {
       if (url.includes('/api/properties/property-1')) {
         return Promise.resolve({
           ok: true,
@@ -297,7 +297,7 @@ describe('Edit Property Page - Comprehensive Tests', () => {
     })
 
     it('should show verification banner when not verified', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/info')) {
           return Promise.resolve({
             ok: true,
@@ -329,7 +329,7 @@ describe('Edit Property Page - Comprehensive Tests', () => {
     })
 
     it('should disable submit button when not verified', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/user/info')) {
           return Promise.resolve({
             ok: true,
@@ -499,7 +499,9 @@ describe('Edit Property Page - Comprehensive Tests', () => {
 
       await waitFor(() => {
         const images = screen.getAllByRole('img')
-        expect(images.some(img => img.getAttribute('src') === 'https://example.com/image1.jpg')).toBe(true)
+        expect(
+          images.some(img => img.getAttribute('src') === 'https://example.com/image1.jpg')
+        ).toBe(true)
       })
     })
 
@@ -560,8 +562,9 @@ describe('Edit Property Page - Comprehensive Tests', () => {
       })
 
       const fileInput = document.querySelector('#image-upload') as HTMLInputElement
-      const files = Array.from({ length: 25 }, (_, i) =>
-        new File(['image'], `test${i}.png`, { type: 'image/png' })
+      const files = Array.from(
+        { length: 25 },
+        (_, i) => new File(['image'], `test${i}.png`, { type: 'image/png' })
       )
 
       Object.defineProperty(fileInput, 'files', {
@@ -596,7 +599,7 @@ describe('Edit Property Page - Comprehensive Tests', () => {
 
   describe('Form Submission', () => {
     it('should show error if location not selected', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/property-1') && !url.includes('PUT')) {
           return Promise.resolve({
             ok: true,
@@ -624,7 +627,7 @@ describe('Edit Property Page - Comprehensive Tests', () => {
     })
 
     it('should show loading overlay during submission', async () => {
-      global.fetch = jest.fn((url) => {
+      global.fetch = jest.fn(url => {
         if (url.includes('/api/properties/property-1') && !url.includes('PUT')) {
           return Promise.resolve({
             ok: true,

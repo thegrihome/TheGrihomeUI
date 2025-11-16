@@ -9,7 +9,9 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
 }))
 
 describe('/api/update-builder-description', () => {
-  beforeEach(() => { jest.clearAllMocks() })
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
   it('should update builder description', async () => {
     ;(prisma.builder.update as jest.Mock).mockResolvedValue({ id: 'b1', description: 'Updated' })

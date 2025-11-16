@@ -924,10 +924,7 @@ describe('/api/properties/search', () => {
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Property search error:',
-        expect.any(Error)
-      )
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Property search error:', expect.any(Error))
       consoleErrorSpy.mockRestore()
     })
 

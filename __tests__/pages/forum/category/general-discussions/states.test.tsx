@@ -22,7 +22,12 @@ jest.mock('@/components/forum/ForumSearch', () => {
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title, description, canonical }: any) => (
-    <div data-testid="next-seo" data-title={title} data-description={description} data-canonical={canonical} />
+    <div
+      data-testid="next-seo"
+      data-title={title}
+      data-description={description}
+      data-canonical={canonical}
+    />
   ),
 }))
 
@@ -36,7 +41,12 @@ describe('States Page - Comprehensive Tests', () => {
       _count: { posts: 20 },
       totalPosts: 80,
       children: [
-        { id: 'cat1', name: 'Apartments', slug: 'andhra-pradesh-apartments', _count: { posts: 40 } },
+        {
+          id: 'cat1',
+          name: 'Apartments',
+          slug: 'andhra-pradesh-apartments',
+          _count: { posts: 40 },
+        },
         { id: 'cat2', name: 'Villas', slug: 'andhra-pradesh-villas', _count: { posts: 40 } },
       ],
     },
@@ -82,7 +92,9 @@ describe('States Page - Comprehensive Tests', () => {
     it('should render page subtitle', () => {
       render(<StatesPage states={mockStates} totalPosts={240} />)
 
-      expect(screen.getByText(/Explore real estate discussions across all Indian states/)).toBeInTheDocument()
+      expect(
+        screen.getByText(/Explore real estate discussions across all Indian states/)
+      ).toBeInTheDocument()
     })
 
     it('should render total thread count', () => {
@@ -145,10 +157,14 @@ describe('States Page - Comprehensive Tests', () => {
     it('should link to state pages correctly', () => {
       const { container } = render(<StatesPage states={mockStates} totalPosts={240} />)
 
-      const apLink = container.querySelector('a[href="/forum/category/general-discussions/andhra-pradesh"]')
+      const apLink = container.querySelector(
+        'a[href="/forum/category/general-discussions/andhra-pradesh"]'
+      )
       expect(apLink).toBeInTheDocument()
 
-      const karLink = container.querySelector('a[href="/forum/category/general-discussions/karnataka"]')
+      const karLink = container.querySelector(
+        'a[href="/forum/category/general-discussions/karnataka"]'
+      )
       expect(karLink).toBeInTheDocument()
     })
   })
@@ -176,10 +192,12 @@ describe('States Page - Comprehensive Tests', () => {
     })
 
     it('should render default icon for unknown state', () => {
-      const unknownState = [{
-        ...mockStates[0],
-        slug: 'unknown-state',
-      }]
+      const unknownState = [
+        {
+          ...mockStates[0],
+          slug: 'unknown-state',
+        },
+      ]
 
       const { container } = render(<StatesPage states={unknownState} totalPosts={80} />)
 
@@ -229,14 +247,20 @@ describe('States Page - Comprehensive Tests', () => {
       render(<StatesPage states={mockStates} totalPosts={240} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-description', 'Browse real estate discussions across Indian states and union territories on Grihome community forum')
+      expect(seo).toHaveAttribute(
+        'data-description',
+        'Browse real estate discussions across Indian states and union territories on Grihome community forum'
+      )
     })
 
     it('should render NextSeo with correct canonical URL', () => {
       render(<StatesPage states={mockStates} totalPosts={240} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-canonical', 'https://grihome.vercel.app/forum/category/general-discussions/states')
+      expect(seo).toHaveAttribute(
+        'data-canonical',
+        'https://grihome.vercel.app/forum/category/general-discussions/states'
+      )
     })
   })
 
@@ -337,10 +361,12 @@ describe('States Page - Comprehensive Tests', () => {
     })
 
     it('should handle states with zero posts', () => {
-      const zeroPostState = [{
-        ...mockStates[0],
-        totalPosts: 0,
-      }]
+      const zeroPostState = [
+        {
+          ...mockStates[0],
+          totalPosts: 0,
+        },
+      ]
 
       render(<StatesPage states={zeroPostState} totalPosts={0} />)
 
@@ -348,9 +374,11 @@ describe('States Page - Comprehensive Tests', () => {
     })
 
     it('should handle states with no children', () => {
-      const noChildrenState = [{
-        ...mockStates[2],
-      }]
+      const noChildrenState = [
+        {
+          ...mockStates[2],
+        },
+      ]
 
       render(<StatesPage states={noChildrenState} totalPosts={60} />)
 

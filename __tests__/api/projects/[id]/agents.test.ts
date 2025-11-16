@@ -16,7 +16,7 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
 
 describe('/api/projects/[id]/agents', () => {
   const mockProject = { id: 'project-123' }
-  
+
   const mockAgent = {
     id: 'pa-1',
     user: {
@@ -143,7 +143,7 @@ describe('/api/projects/[id]/agents', () => {
       await handler(req, res)
       expect(prisma.projectAgent.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          include: { user: { select: expect.any(Object) } }
+          include: { user: { select: expect.any(Object) } },
         })
       )
     })
@@ -154,7 +154,7 @@ describe('/api/projects/[id]/agents', () => {
       await handler(req, res)
       expect(prisma.projectAgent.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          orderBy: expect.arrayContaining([{ isPromoted: 'desc' }])
+          orderBy: expect.arrayContaining([{ isPromoted: 'desc' }]),
         })
       )
     })
@@ -172,7 +172,10 @@ describe('/api/projects/[id]/agents', () => {
         promotionEndDate: new Date(now.getTime() - 1000),
       }
       ;(prisma.projectAgent.findMany as jest.Mock).mockResolvedValue([expiredAgent])
-      ;(prisma.projectAgent.update as jest.Mock).mockResolvedValue({ ...expiredAgent, isPromoted: false })
+      ;(prisma.projectAgent.update as jest.Mock).mockResolvedValue({
+        ...expiredAgent,
+        isPromoted: false,
+      })
 
       const { req, res } = createMocks({ method: 'GET', query: { id: 'project-123' } })
       await handler(req, res)
@@ -216,7 +219,7 @@ describe('/api/projects/[id]/agents', () => {
       ;(prisma.projectAgent.findMany as jest.Mock).mockResolvedValue([])
       const { req, res } = createMocks({ method: 'GET', query: { id: 'project-123' } })
       await handler(req, res)
-      
+
       const data = JSON.parse(res._getData())
       expect(data.featuredAgents).toEqual([])
       expect(data.regularAgents).toEqual([])
@@ -231,7 +234,7 @@ describe('/api/projects/[id]/agents', () => {
         promotionEndDate: new Date(now.getTime() + 10000),
       }
       const regularAgent = { ...mockAgent, id: 'pa-2', isPromoted: false }
-      
+
       ;(prisma.projectAgent.findMany as jest.Mock).mockResolvedValue([featuredAgent, regularAgent])
       const { req, res } = createMocks({ method: 'GET', query: { id: 'project-123' } })
       await handler(req, res)
@@ -242,14 +245,16 @@ describe('/api/projects/[id]/agents', () => {
     })
 
     it('should limit featured agents to 5', async () => {
-      const agents = Array(10).fill(null).map((_, i) => ({
-        ...mockAgent,
-        id: `pa-${i}`,
-        isPromoted: true,
-        promotionEndDate: new Date(now.getTime() + 10000),
-      }))
+      const agents = Array(10)
+        .fill(null)
+        .map((_, i) => ({
+          ...mockAgent,
+          id: `pa-${i}`,
+          isPromoted: true,
+          promotionEndDate: new Date(now.getTime() + 10000),
+        }))
       ;(prisma.projectAgent.findMany as jest.Mock).mockResolvedValue(agents)
-      
+
       const { req, res } = createMocks({ method: 'GET', query: { id: 'project-123' } })
       await handler(req, res)
 

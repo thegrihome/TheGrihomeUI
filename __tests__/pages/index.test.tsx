@@ -661,9 +661,7 @@ describe('Home Page - Comprehensive Tests', () => {
       render(<Home />)
 
       expect(
-        screen.getByText(
-          /Showcase your residential and commercial projects to qualified buyers/i
-        )
+        screen.getByText(/Showcase your residential and commercial projects to qualified buyers/i)
       ).toBeInTheDocument()
     })
 

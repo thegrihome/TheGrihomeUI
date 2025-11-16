@@ -26,7 +26,7 @@ describe('Document Component', () => {
   })
 
   it('should include favicon link', () => {
-    const { container} = render(<Document />)
+    const { container } = render(<Document />)
 
     const favicon = container.querySelector('link[href="/favicon.ico"]')
     expect(favicon).toBeInTheDocument()

@@ -397,9 +397,7 @@ describe('/api/user/update-password', () => {
     it('should return 500 on database error during update', async () => {
       ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1' })
       ;(bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword')
-      ;(prisma.user.update as jest.Mock).mockRejectedValue(
-        new Error('Database update failed')
-      )
+      ;(prisma.user.update as jest.Mock).mockRejectedValue(new Error('Database update failed'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
@@ -439,9 +437,7 @@ describe('/api/user/update-password', () => {
     })
 
     it('should handle network error', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(
-        new Error('Network error')
-      )
+      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Network error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
@@ -572,7 +568,6 @@ describe('/api/user/update-password', () => {
     it('should handle error in development environment', async () => {
       const originalEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'development'
-
       ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Dev error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
@@ -585,10 +580,7 @@ describe('/api/user/update-password', () => {
     it('should handle error in production environment', async () => {
       const originalEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'production'
-
-      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(
-        new Error('Production error')
-      )
+      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Production error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 

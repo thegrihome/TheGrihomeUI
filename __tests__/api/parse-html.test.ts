@@ -4,7 +4,9 @@ import handler from '@/pages/api/parse-html'
 global.fetch = jest.fn()
 
 describe('/api/parse-html', () => {
-  beforeEach(() => { jest.clearAllMocks() })
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
   it('should return 400 when missing required fields', async () => {
     const { req, res } = createMocks({ method: 'POST', body: {} })
@@ -19,7 +21,12 @@ describe('/api/parse-html', () => {
     })
     const { req, res } = createMocks({
       method: 'POST',
-      body: { htmlSource: '<html></html>', llmType: 'chatgpt', apiKey: 'key', templateStructure: {} },
+      body: {
+        htmlSource: '<html></html>',
+        llmType: 'chatgpt',
+        apiKey: 'key',
+        templateStructure: {},
+      },
     })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(200)
@@ -32,7 +39,12 @@ describe('/api/parse-html', () => {
     })
     const { req, res } = createMocks({
       method: 'POST',
-      body: { htmlSource: '<html></html>', llmType: 'claude', apiKey: 'key', templateStructure: {} },
+      body: {
+        htmlSource: '<html></html>',
+        llmType: 'claude',
+        apiKey: 'key',
+        templateStructure: {},
+      },
     })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(200)
@@ -45,7 +57,12 @@ describe('/api/parse-html', () => {
     })
     const { req, res } = createMocks({
       method: 'POST',
-      body: { htmlSource: '<html></html>', llmType: 'perplexity', apiKey: 'key', templateStructure: {} },
+      body: {
+        htmlSource: '<html></html>',
+        llmType: 'perplexity',
+        apiKey: 'key',
+        templateStructure: {},
+      },
     })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(200)
@@ -54,7 +71,12 @@ describe('/api/parse-html', () => {
   it('should return 400 for invalid LLM type', async () => {
     const { req, res } = createMocks({
       method: 'POST',
-      body: { htmlSource: '<html></html>', llmType: 'invalid', apiKey: 'key', templateStructure: {} },
+      body: {
+        htmlSource: '<html></html>',
+        llmType: 'invalid',
+        apiKey: 'key',
+        templateStructure: {},
+      },
     })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(400)

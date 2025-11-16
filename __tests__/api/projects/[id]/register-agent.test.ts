@@ -193,7 +193,7 @@ describe('/api/projects/[id]/register-agent', () => {
     it('should check unique constraint on projectId and userId', async () => {
       ;(prisma.projectAgent.findUnique as jest.Mock).mockResolvedValue(null)
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue({ id: 'pa-1' })
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -222,7 +222,7 @@ describe('/api/projects/[id]/register-agent', () => {
         registeredAt: new Date(),
       }
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue(mockProjectAgent)
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -239,7 +239,7 @@ describe('/api/projects/[id]/register-agent', () => {
         id: 'pa-1',
         registeredAt: new Date(),
       })
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -253,7 +253,7 @@ describe('/api/projects/[id]/register-agent', () => {
         registeredAt: now,
       }
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue(mockProjectAgent)
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -268,7 +268,7 @@ describe('/api/projects/[id]/register-agent', () => {
     it('should return 500 on database error', async () => {
       ;(getServerSession as jest.Mock).mockResolvedValue(mockSession)
       ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Database error'))
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -281,7 +281,7 @@ describe('/api/projects/[id]/register-agent', () => {
       ;(prisma.user.findUnique as jest.Mock).mockImplementation(() => {
         throw new Error('Unexpected error')
       })
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 

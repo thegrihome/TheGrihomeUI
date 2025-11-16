@@ -22,7 +22,12 @@ jest.mock('@/components/forum/ForumSearch', () => {
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title, description, canonical }: any) => (
-    <div data-testid="next-seo" data-title={title} data-description={description} data-canonical={canonical} />
+    <div
+      data-testid="next-seo"
+      data-title={title}
+      data-description={description}
+      data-canonical={canonical}
+    />
   ),
 }))
 
@@ -126,12 +131,18 @@ describe('City Page - Comprehensive Tests', () => {
     })
 
     it('should link to property type pages correctly', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
-      const aptLink = container.querySelector('a[href="/forum/category/general-discussions/hyderabad/apartments"]')
+      const aptLink = container.querySelector(
+        'a[href="/forum/category/general-discussions/hyderabad/apartments"]'
+      )
       expect(aptLink).toBeInTheDocument()
 
-      const villasLink = container.querySelector('a[href="/forum/category/general-discussions/hyderabad/villas"]')
+      const villasLink = container.querySelector(
+        'a[href="/forum/category/general-discussions/hyderabad/villas"]'
+      )
       expect(villasLink).toBeInTheDocument()
     })
 
@@ -162,21 +173,27 @@ describe('City Page - Comprehensive Tests', () => {
 
   describe('Breadcrumb Navigation', () => {
     it('should render forum breadcrumb link', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       const forumLink = container.querySelector('a[href="/forum"]')
       expect(forumLink).toBeInTheDocument()
     })
 
     it('should render general discussions breadcrumb link', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       const gdLink = container.querySelector('a[href="/forum/category/general-discussions"]')
       expect(gdLink).toBeInTheDocument()
     })
 
     it('should render current city in breadcrumb', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       const current = container.querySelector('.forum-breadcrumb-current')
       expect(current).toHaveTextContent('Hyderabad')
@@ -222,14 +239,20 @@ describe('City Page - Comprehensive Tests', () => {
       render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-description', 'Real estate discussions and property insights for Hyderabad on Grihome community forum')
+      expect(seo).toHaveAttribute(
+        'data-description',
+        'Real estate discussions and property insights for Hyderabad on Grihome community forum'
+      )
     })
 
     it('should render NextSeo with correct canonical URL for city', () => {
       render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-canonical', 'https://grihome.vercel.app/forum/category/general-discussions/hyderabad')
+      expect(seo).toHaveAttribute(
+        'data-canonical',
+        'https://grihome.vercel.app/forum/category/general-discussions/hyderabad'
+      )
     })
 
     it('should render NextSeo with correct canonical URL for state', () => {
@@ -244,13 +267,18 @@ describe('City Page - Comprehensive Tests', () => {
       render(<CityPage city={stateLocation} propertyTypes={mockPropertyTypes} totalPosts={180} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-canonical', 'https://grihome.vercel.app/forum/category/general-discussions/karnataka')
+      expect(seo).toHaveAttribute(
+        'data-canonical',
+        'https://grihome.vercel.app/forum/category/general-discussions/karnataka'
+      )
     })
   })
 
   describe('CSS Classes', () => {
     it('should have correct container classes', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       expect(container.querySelector('.forum-container')).toBeInTheDocument()
       expect(container.querySelector('.forum-main')).toBeInTheDocument()
@@ -258,14 +286,18 @@ describe('City Page - Comprehensive Tests', () => {
     })
 
     it('should have correct property type list classes', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       expect(container.querySelector('.forum-property-types-list')).toBeInTheDocument()
       expect(container.querySelector('.forum-property-type-list-item')).toBeInTheDocument()
     })
 
     it('should have correct header classes', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       expect(container.querySelector('.forum-header')).toBeInTheDocument()
       expect(container.querySelector('.forum-header-content')).toBeInTheDocument()
@@ -273,7 +305,9 @@ describe('City Page - Comprehensive Tests', () => {
     })
 
     it('should have correct stats classes', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       expect(container.querySelector('.forum-stats-summary')).toBeInTheDocument()
       expect(container.querySelector('.forum-stat')).toBeInTheDocument()
@@ -282,7 +316,9 @@ describe('City Page - Comprehensive Tests', () => {
 
   describe('Title Formatting', () => {
     it('should apply gradient to city name', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       const gradientSpans = container.querySelectorAll('.forum-title-gradient')
       expect(gradientSpans.length).toBeGreaterThan(0)
@@ -297,7 +333,9 @@ describe('City Page - Comprehensive Tests', () => {
         name: 'Karnataka',
       }
 
-      const { container } = render(<CityPage city={stateLocation} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={stateLocation} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       const gradientSpans = container.querySelectorAll('.forum-title-gradient')
       expect(gradientSpans.length).toBeGreaterThan(0)
@@ -313,7 +351,9 @@ describe('City Page - Comprehensive Tests', () => {
     })
 
     it('should have accessible links', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       const links = container.querySelectorAll('a')
       links.forEach(link => {
@@ -322,14 +362,18 @@ describe('City Page - Comprehensive Tests', () => {
     })
 
     it('should have main landmark', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       const main = container.querySelector('main')
       expect(main).toBeInTheDocument()
     })
 
     it('should have title attributes on links', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       const links = container.querySelectorAll('.forum-property-type-list-item')
       links.forEach(link => {
@@ -358,10 +402,12 @@ describe('City Page - Comprehensive Tests', () => {
     })
 
     it('should handle property types with zero posts', () => {
-      const zeroPostPropType = [{
-        ...mockPropertyTypes[0],
-        _count: { posts: 0 },
-      }]
+      const zeroPostPropType = [
+        {
+          ...mockPropertyTypes[0],
+          _count: { posts: 0 },
+        },
+      ]
 
       render(<CityPage city={mockCity} propertyTypes={zeroPostPropType} totalPosts={0} />)
 
@@ -426,7 +472,9 @@ describe('City Page - Comprehensive Tests', () => {
         city: 'unknown-city',
       }
 
-      const { container } = render(<CityPage city={unknownCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={unknownCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       expect(container.querySelector('.forum-city-icon-large')).toBeInTheDocument()
     })
@@ -473,28 +521,38 @@ describe('City Page - Comprehensive Tests', () => {
         name: 'Karnataka',
       }
 
-      const { container } = render(<CityPage city={stateLocation} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={stateLocation} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
-      const statesLink = container.querySelector('a[href="/forum/category/general-discussions/states"]')
+      const statesLink = container.querySelector(
+        'a[href="/forum/category/general-discussions/states"]'
+      )
       expect(statesLink).toBeInTheDocument()
     })
   })
 
   describe('Layout Structure', () => {
     it('should have city header section', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       expect(container.querySelector('.forum-city-header-section')).toBeInTheDocument()
     })
 
     it('should have property type name section', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       expect(container.querySelector('.forum-property-type-name')).toBeInTheDocument()
     })
 
     it('should have simple stats section', () => {
-      const { container } = render(<CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={mockPropertyTypes} totalPosts={180} />
+      )
 
       expect(container.querySelector('.forum-simple-stats')).toBeInTheDocument()
     })
@@ -521,12 +579,16 @@ describe('City Page - Comprehensive Tests', () => {
     })
 
     it('should render default property icon for unknown type', () => {
-      const unknownType = [{
-        ...mockPropertyTypes[0],
-        propertyType: null,
-      }]
+      const unknownType = [
+        {
+          ...mockPropertyTypes[0],
+          propertyType: null,
+        },
+      ]
 
-      const { container } = render(<CityPage city={mockCity} propertyTypes={unknownType} totalPosts={80} />)
+      const { container } = render(
+        <CityPage city={mockCity} propertyTypes={unknownType} totalPosts={80} />
+      )
 
       expect(container.querySelector('.forum-property-type-icon')).toBeInTheDocument()
     })

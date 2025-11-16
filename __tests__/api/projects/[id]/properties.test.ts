@@ -18,7 +18,7 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
 
 describe('/api/projects/[id]/properties', () => {
   const mockProject = { id: 'project-123' }
-  
+
   const mockProperty = {
     id: 'prop-1',
     streetAddress: '123 Main St',
@@ -138,7 +138,7 @@ describe('/api/projects/[id]/properties', () => {
           where: expect.objectContaining({
             projectId: 'project-123',
             listingStatus: 'ACTIVE',
-          })
+          }),
         })
       )
     })
@@ -149,7 +149,7 @@ describe('/api/projects/[id]/properties', () => {
       await handler(req, res)
       expect(prisma.property.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ listingStatus: 'ACTIVE' })
+          where: expect.objectContaining({ listingStatus: 'ACTIVE' }),
         })
       )
     })
@@ -160,7 +160,7 @@ describe('/api/projects/[id]/properties', () => {
       await handler(req, res)
       expect(prisma.property.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          include: expect.objectContaining({ location: expect.any(Object) })
+          include: expect.objectContaining({ location: expect.any(Object) }),
         })
       )
     })
@@ -171,7 +171,7 @@ describe('/api/projects/[id]/properties', () => {
       await handler(req, res)
       expect(prisma.property.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          include: expect.objectContaining({ user: expect.any(Object) })
+          include: expect.objectContaining({ user: expect.any(Object) }),
         })
       )
     })
@@ -182,7 +182,7 @@ describe('/api/projects/[id]/properties', () => {
       await handler(req, res)
       expect(prisma.property.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          orderBy: { postedDate: 'desc' }
+          orderBy: { postedDate: 'desc' },
         })
       )
     })
@@ -255,7 +255,7 @@ describe('/api/projects/[id]/properties', () => {
       ;(prisma.property.findMany as jest.Mock).mockResolvedValue([])
       const { req, res } = createMocks({ method: 'GET', query: { id: 'project-123' } })
       await handler(req, res)
-      
+
       const data = JSON.parse(res._getData())
       expect(data.featuredProperties).toEqual([])
       expect(data.regularProperties).toEqual([])
@@ -266,15 +266,20 @@ describe('/api/projects/[id]/properties', () => {
       const featuredProperty = {
         ...mockProperty,
         id: 'prop-1',
-        projectProperties: [{
-          id: 'pp-1',
-          isPromoted: true,
-          promotionEndDate: new Date(now.getTime() + 10000),
-        }],
+        projectProperties: [
+          {
+            id: 'pp-1',
+            isPromoted: true,
+            promotionEndDate: new Date(now.getTime() + 10000),
+          },
+        ],
       }
       const regularProperty = { ...mockProperty, id: 'prop-2', projectProperties: [] }
-      
-      ;(prisma.property.findMany as jest.Mock).mockResolvedValue([featuredProperty, regularProperty])
+
+      ;(prisma.property.findMany as jest.Mock).mockResolvedValue([
+        featuredProperty,
+        regularProperty,
+      ])
       const { req, res } = createMocks({ method: 'GET', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -284,17 +289,21 @@ describe('/api/projects/[id]/properties', () => {
     })
 
     it('should limit featured properties to 5', async () => {
-      const properties = Array(10).fill(null).map((_, i) => ({
-        ...mockProperty,
-        id: `prop-${i}`,
-        projectProperties: [{
-          id: `pp-${i}`,
-          isPromoted: true,
-          promotionEndDate: new Date(now.getTime() + 10000),
-        }],
-      }))
+      const properties = Array(10)
+        .fill(null)
+        .map((_, i) => ({
+          ...mockProperty,
+          id: `prop-${i}`,
+          projectProperties: [
+            {
+              id: `pp-${i}`,
+              isPromoted: true,
+              promotionEndDate: new Date(now.getTime() + 10000),
+            },
+          ],
+        }))
       ;(prisma.property.findMany as jest.Mock).mockResolvedValue(properties)
-      
+
       const { req, res } = createMocks({ method: 'GET', query: { id: 'project-123' } })
       await handler(req, res)
 

@@ -38,7 +38,10 @@ describe('/api/interests/express', () => {
 
   it('should return 400 when both projectId and propertyId provided', async () => {
     ;(getServerSession as jest.Mock).mockResolvedValue({ user: { id: 'u1' } })
-    const { req, res } = createMocks({ method: 'POST', body: { projectId: 'p1', propertyId: 'pr1' } })
+    const { req, res } = createMocks({
+      method: 'POST',
+      body: { projectId: 'p1', propertyId: 'pr1' },
+    })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(400)
   })
@@ -61,10 +64,16 @@ describe('/api/interests/express', () => {
   })
 
   it('should create interest successfully for project', async () => {
-    ;(getServerSession as jest.Mock).mockResolvedValue({ user: { id: 'u1', email: 'user@test.com' } })
+    ;(getServerSession as jest.Mock).mockResolvedValue({
+      user: { id: 'u1', email: 'user@test.com' },
+    })
     mockPrisma.interest.findFirst.mockResolvedValue(null)
     mockPrisma.user.findUnique.mockResolvedValue({ emailVerified: true, username: 'testuser' })
-    mockPrisma.project.findUnique.mockResolvedValue({ id: 'p1', name: 'Project 1', builder: { contactInfo: {} } })
+    mockPrisma.project.findUnique.mockResolvedValue({
+      id: 'p1',
+      name: 'Project 1',
+      builder: { contactInfo: {} },
+    })
     mockPrisma.interest.create.mockResolvedValue({ id: 'i1', createdAt: new Date() })
     const { req, res } = createMocks({ method: 'POST', body: { projectId: 'p1' } })
     await handler(req, res)

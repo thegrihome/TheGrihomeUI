@@ -3,7 +3,12 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import ProjectSubmit from '@/pages/projects/submit'
-import { mockRouter, mockSession, mockFetchSuccess, mockFetchError } from '@/__tests__/utils/test-utils'
+import {
+  mockRouter,
+  mockSession,
+  mockFetchSuccess,
+  mockFetchError,
+} from '@/__tests__/utils/test-utils'
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -40,7 +45,10 @@ jest.mock('@/components/projects/DynamicList', () => {
           data-testid={`dynamic-list-${label.toLowerCase().replace(/\s/g, '-')}`}
           placeholder={placeholder}
           onChange={e => {
-            const values = e.target.value.split(',').map((v: string) => v.trim()).filter(Boolean)
+            const values = e.target.value
+              .split(',')
+              .map((v: string) => v.trim())
+              .filter(Boolean)
             onChange(values)
           }}
         />
@@ -279,7 +287,9 @@ describe('Project Submit Page', () => {
       render(<ProjectSubmit />)
 
       await waitFor(() => {
-        expect(screen.getByText(/Provide complete address for accurate location mapping/i)).toBeInTheDocument()
+        expect(
+          screen.getByText(/Provide complete address for accurate location mapping/i)
+        ).toBeInTheDocument()
       })
     })
   })
@@ -529,15 +539,16 @@ describe('Project Submit Page', () => {
     })
 
     it('shows loading state during submission', async () => {
-      global.fetch = jest.fn(() =>
-        new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({ project: { id: 'project-123' } }),
-            } as Response)
-          }, 100)
-        })
+      global.fetch = jest.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({ project: { id: 'project-123' } }),
+              } as Response)
+            }, 100)
+          })
       ) as jest.Mock
 
       render(<ProjectSubmit />)
@@ -565,15 +576,16 @@ describe('Project Submit Page', () => {
     })
 
     it('disables submit button during submission', async () => {
-      global.fetch = jest.fn(() =>
-        new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({ project: { id: 'project-123' } }),
-            } as Response)
-          }, 100)
-        })
+      global.fetch = jest.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({ project: { id: 'project-123' } }),
+              } as Response)
+            }, 100)
+          })
       ) as jest.Mock
 
       render(<ProjectSubmit />)

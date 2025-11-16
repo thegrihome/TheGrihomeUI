@@ -15,7 +15,9 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
 jest.mock('next-auth', () => ({ getServerSession: jest.fn() }))
 
 describe('/api/forum/replies', () => {
-  beforeEach(() => { jest.clearAllMocks() })
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
   it('should return 401 when not authenticated', async () => {
     ;(getServerSession as jest.Mock).mockResolvedValue(null)
@@ -26,7 +28,10 @@ describe('/api/forum/replies', () => {
 
   it('should return 403 when user not verified', async () => {
     ;(getServerSession as jest.Mock).mockResolvedValue({ user: { id: 'u1' } })
-    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({ emailVerified: false, mobileVerified: false })
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      emailVerified: false,
+      mobileVerified: false,
+    })
     const { req, res } = createMocks({ method: 'POST', body: { content: 'Test', postId: 'p1' } })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(403)
@@ -76,7 +81,10 @@ describe('/api/forum/replies', () => {
     ;(prisma.forumReply.findUnique as jest.Mock).mockResolvedValue({ id: 'parent1' })
     ;(prisma.$transaction as jest.Mock).mockImplementation(async callback => callback(prisma))
     ;(prisma.forumReply.create as jest.Mock).mockResolvedValue({ id: 'r1' })
-    const { req, res } = createMocks({ method: 'POST', body: { content: 'Test', postId: 'p1', parentId: 'parent1' } })
+    const { req, res } = createMocks({
+      method: 'POST',
+      body: { content: 'Test', postId: 'p1', parentId: 'parent1' },
+    })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(201)
   })

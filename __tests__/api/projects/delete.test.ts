@@ -238,7 +238,11 @@ describe('/api/projects/delete', () => {
     })
 
     it('should return deleted project data', async () => {
-      const mockProject = { id: 'project-123', name: 'Test Project', description: 'Test Description' }
+      const mockProject = {
+        id: 'project-123',
+        name: 'Test Project',
+        description: 'Test Description',
+      }
       mockPrisma.project.findUnique.mockResolvedValue({ name: 'Test Project' })
       mockPrisma.project.delete.mockResolvedValue(mockProject)
 

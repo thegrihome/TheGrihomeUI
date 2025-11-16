@@ -602,9 +602,7 @@ describe('/api/properties/[id]/mark-sold', () => {
     })
 
     it('should not expose error details to client', async () => {
-      ;(prisma.property.update as jest.Mock).mockRejectedValue(
-        new Error('Detailed database error')
-      )
+      ;(prisma.property.update as jest.Mock).mockRejectedValue(new Error('Detailed database error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 

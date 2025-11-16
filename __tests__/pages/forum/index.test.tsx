@@ -23,7 +23,12 @@ jest.mock('@/components/forum/ForumSearch', () => {
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title, description, canonical }: any) => (
-    <div data-testid="next-seo" data-title={title} data-description={description} data-canonical={canonical} />
+    <div
+      data-testid="next-seo"
+      data-title={title}
+      data-description={description}
+      data-canonical={canonical}
+    />
   ),
 }))
 
@@ -138,10 +143,12 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     })
 
     it('should render singular thread for count of 1', () => {
-      const singleThreadCategory = [{
-        ...mockCategories[0],
-        _count: { posts: 1 },
-      }]
+      const singleThreadCategory = [
+        {
+          ...mockCategories[0],
+          _count: { posts: 1 },
+        },
+      ]
 
       render(<Forum categories={singleThreadCategory} />)
 
@@ -192,11 +199,13 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     })
 
     it('should render default icon for unknown category', () => {
-      const unknownCategory = [{
-        ...mockCategories[0],
-        slug: 'unknown-category',
-        city: null,
-      }]
+      const unknownCategory = [
+        {
+          ...mockCategories[0],
+          slug: 'unknown-category',
+          city: null,
+        },
+      ]
 
       const { container } = render(<Forum categories={unknownCategory} />)
       expect(container.querySelector('.forum-category-icon')).toBeInTheDocument()
@@ -207,14 +216,18 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     it('should link to general-discussions page correctly', () => {
       const { container } = render(<Forum categories={mockCategories} />)
 
-      const generalDiscussionsLink = container.querySelector('a[href="/forum/category/general-discussions"]')
+      const generalDiscussionsLink = container.querySelector(
+        'a[href="/forum/category/general-discussions"]'
+      )
       expect(generalDiscussionsLink).toBeInTheDocument()
     })
 
     it('should link to other categories correctly', () => {
       const { container } = render(<Forum categories={mockCategories} />)
 
-      const memberIntroLink = container.querySelector('a[href="/forum/category/member-introductions"]')
+      const memberIntroLink = container.querySelector(
+        'a[href="/forum/category/member-introductions"]'
+      )
       expect(memberIntroLink).toBeInTheDocument()
 
       const latestNewsLink = container.querySelector('a[href="/forum/category/latest-news"]')
@@ -245,16 +258,18 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     })
 
     it('should render city names with gradient', () => {
-      const cityCategories = [{
-        id: '10',
-        name: 'Hyderabad Discussions',
-        slug: 'hyderabad',
-        description: null,
-        city: 'hyderabad',
-        propertyType: null,
-        _count: { posts: 10 },
-        children: [],
-      }]
+      const cityCategories = [
+        {
+          id: '10',
+          name: 'Hyderabad Discussions',
+          slug: 'hyderabad',
+          description: null,
+          city: 'hyderabad',
+          propertyType: null,
+          _count: { posts: 10 },
+          children: [],
+        },
+      ]
 
       render(<Forum categories={cityCategories} />)
       expect(screen.getByText('Hyderabad Discussions')).toBeInTheDocument()
@@ -320,7 +335,10 @@ describe('Forum Index Page - Comprehensive Tests', () => {
       render(<Forum categories={mockCategories} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-description', 'Join the Grihome community forum to discuss real estate, share experiences, and connect with fellow property enthusiasts.')
+      expect(seo).toHaveAttribute(
+        'data-description',
+        'Join the Grihome community forum to discuss real estate, share experiences, and connect with fellow property enthusiasts.'
+      )
     })
 
     it('should render NextSeo with correct canonical URL', () => {
@@ -347,20 +365,24 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     })
 
     it('should show zero threads correctly', () => {
-      const zeroCategory = [{
-        ...mockCategories[0],
-        _count: { posts: 0 },
-      }]
+      const zeroCategory = [
+        {
+          ...mockCategories[0],
+          _count: { posts: 0 },
+        },
+      ]
 
       render(<Forum categories={zeroCategory} />)
       expect(screen.getByText('0 threads')).toBeInTheDocument()
     })
 
     it('should handle large thread counts', () => {
-      const largeCategory = [{
-        ...mockCategories[0],
-        _count: { posts: 10000 },
-      }]
+      const largeCategory = [
+        {
+          ...mockCategories[0],
+          _count: { posts: 10000 },
+        },
+      ]
 
       render(<Forum categories={largeCategory} />)
       expect(screen.getByText('10000 threads')).toBeInTheDocument()
@@ -382,10 +404,12 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     })
 
     it('should not render description when null', () => {
-      const noDescCategory = [{
-        ...mockCategories[0],
-        description: null,
-      }]
+      const noDescCategory = [
+        {
+          ...mockCategories[0],
+          description: null,
+        },
+      ]
 
       const { container } = render(<Forum categories={noDescCategory} />)
       const descriptions = container.querySelectorAll('.forum-category-description')
@@ -439,40 +463,55 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     })
 
     it('should handle category with empty children array', () => {
-      const categoryWithChildren = [{
-        ...mockCategories[0],
-        children: [],
-      }]
+      const categoryWithChildren = [
+        {
+          ...mockCategories[0],
+          children: [],
+        },
+      ]
 
       render(<Forum categories={categoryWithChildren} />)
       expect(screen.getByText('Member Introductions')).toBeInTheDocument()
     })
 
     it('should handle very long category names', () => {
-      const longNameCategory = [{
-        ...mockCategories[0],
-        name: 'This is a very long category name that should still render correctly',
-      }]
+      const longNameCategory = [
+        {
+          ...mockCategories[0],
+          name: 'This is a very long category name that should still render correctly',
+        },
+      ]
 
       render(<Forum categories={longNameCategory} />)
-      expect(screen.getByText('This is a very long category name that should still render correctly')).toBeInTheDocument()
+      expect(
+        screen.getByText('This is a very long category name that should still render correctly')
+      ).toBeInTheDocument()
     })
 
     it('should handle very long descriptions', () => {
-      const longDescCategory = [{
-        ...mockCategories[0],
-        description: 'This is a very long description that goes on and on and should still render properly without breaking the layout',
-      }]
+      const longDescCategory = [
+        {
+          ...mockCategories[0],
+          description:
+            'This is a very long description that goes on and on and should still render properly without breaking the layout',
+        },
+      ]
 
       render(<Forum categories={longDescCategory} />)
-      expect(screen.getByText('This is a very long description that goes on and on and should still render properly without breaking the layout')).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          'This is a very long description that goes on and on and should still render properly without breaking the layout'
+        )
+      ).toBeInTheDocument()
     })
 
     it('should handle special characters in category names', () => {
-      const specialCharCategory = [{
-        ...mockCategories[0],
-        name: 'Category & Special <> Characters',
-      }]
+      const specialCharCategory = [
+        {
+          ...mockCategories[0],
+          name: 'Category & Special <> Characters',
+        },
+      ]
 
       render(<Forum categories={specialCharCategory} />)
       expect(screen.getByText('Category & Special <> Characters')).toBeInTheDocument()
@@ -509,11 +548,13 @@ describe('Forum Index Page - Comprehensive Tests', () => {
 
   describe('City Categories', () => {
     it('should render city icon for chennai', () => {
-      const chennaiCategory = [{
-        ...mockCategories[0],
-        city: 'chennai',
-        slug: 'chennai',
-      }]
+      const chennaiCategory = [
+        {
+          ...mockCategories[0],
+          city: 'chennai',
+          slug: 'chennai',
+        },
+      ]
 
       render(<Forum categories={chennaiCategory} />)
       const icons = screen.getAllByText('🏖️')
@@ -521,11 +562,13 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     })
 
     it('should render city icon for bengaluru', () => {
-      const bengaluruCategory = [{
-        ...mockCategories[0],
-        city: 'bengaluru',
-        slug: 'bengaluru',
-      }]
+      const bengaluruCategory = [
+        {
+          ...mockCategories[0],
+          city: 'bengaluru',
+          slug: 'bengaluru',
+        },
+      ]
 
       render(<Forum categories={bengaluruCategory} />)
       const icons = screen.getAllByText('🌆')
@@ -533,11 +576,13 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     })
 
     it('should render city icon for mumbai', () => {
-      const mumbaiCategory = [{
-        ...mockCategories[0],
-        city: 'mumbai',
-        slug: 'mumbai',
-      }]
+      const mumbaiCategory = [
+        {
+          ...mockCategories[0],
+          city: 'mumbai',
+          slug: 'mumbai',
+        },
+      ]
 
       render(<Forum categories={mumbaiCategory} />)
       const icons = screen.getAllByText('🏙️')
@@ -545,11 +590,13 @@ describe('Forum Index Page - Comprehensive Tests', () => {
     })
 
     it('should render default city icon for unknown city', () => {
-      const unknownCity = [{
-        ...mockCategories[0],
-        city: 'unknown-city',
-        slug: 'unknown-city',
-      }]
+      const unknownCity = [
+        {
+          ...mockCategories[0],
+          city: 'unknown-city',
+          slug: 'unknown-city',
+        },
+      ]
 
       const { container } = render(<Forum categories={unknownCity} />)
       expect(container.querySelector('.forum-category-icon')).toBeInTheDocument()

@@ -107,7 +107,7 @@ describe('/api/projects/[id]/promote-agent', () => {
     it('should use default duration of 30 days', async () => {
       ;(prisma.projectAgent.findUnique as jest.Mock).mockResolvedValue(null)
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue({ id: 'pa-1' })
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' }, body: {} })
       await handler(req, res)
 
@@ -140,7 +140,7 @@ describe('/api/projects/[id]/promote-agent', () => {
     it('should accept duration 1', async () => {
       ;(prisma.projectAgent.findUnique as jest.Mock).mockResolvedValue(null)
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue({ id: 'pa-1' })
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -153,7 +153,7 @@ describe('/api/projects/[id]/promote-agent', () => {
     it('should accept duration 365', async () => {
       ;(prisma.projectAgent.findUnique as jest.Mock).mockResolvedValue(null)
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue({ id: 'pa-1' })
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -190,7 +190,7 @@ describe('/api/projects/[id]/promote-agent', () => {
     it('should continue when user is an agent', async () => {
       ;(prisma.projectAgent.findUnique as jest.Mock).mockResolvedValue(null)
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue({ id: 'pa-1' })
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
       expect(res._getStatusCode()).toBe(200)
@@ -212,7 +212,7 @@ describe('/api/projects/[id]/promote-agent', () => {
         promotionPaymentAmount: 0,
       }
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue(mockProjectAgent)
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -233,7 +233,7 @@ describe('/api/projects/[id]/promote-agent', () => {
     it('should calculate correct end date', async () => {
       const mockProjectAgent = { id: 'pa-1' }
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue(mockProjectAgent)
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -260,8 +260,11 @@ describe('/api/projects/[id]/promote-agent', () => {
     it('should update existing registration with promotion', async () => {
       const existingAgent = { id: 'pa-1', isPromoted: false }
       ;(prisma.projectAgent.findUnique as jest.Mock).mockResolvedValue(existingAgent)
-      ;(prisma.projectAgent.update as jest.Mock).mockResolvedValue({ ...existingAgent, isPromoted: true })
-      
+      ;(prisma.projectAgent.update as jest.Mock).mockResolvedValue({
+        ...existingAgent,
+        isPromoted: true,
+      })
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -288,7 +291,7 @@ describe('/api/projects/[id]/promote-agent', () => {
 
     it('should return 200 on success', async () => {
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue({ id: 'pa-1' })
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -299,7 +302,7 @@ describe('/api/projects/[id]/promote-agent', () => {
       const now = new Date()
       const endDate = new Date(now)
       endDate.setDate(endDate.getDate() + 30)
-      
+
       const mockProjectAgent = {
         id: 'pa-1',
         promotionStartDate: now,
@@ -307,7 +310,7 @@ describe('/api/projects/[id]/promote-agent', () => {
         promotionPaymentAmount: 0,
       }
       ;(prisma.projectAgent.create as jest.Mock).mockResolvedValue(mockProjectAgent)
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -325,7 +328,7 @@ describe('/api/projects/[id]/promote-agent', () => {
         id: 'pa-1',
         promotionPaymentAmount: 0,
       })
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -338,7 +341,7 @@ describe('/api/projects/[id]/promote-agent', () => {
     it('should return 500 on database error', async () => {
       ;(getServerSession as jest.Mock).mockResolvedValue(mockSession)
       ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Database error'))
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -351,7 +354,7 @@ describe('/api/projects/[id]/promote-agent', () => {
       ;(prisma.user.findUnique as jest.Mock).mockImplementation(() => {
         throw new Error('Unexpected error')
       })
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 

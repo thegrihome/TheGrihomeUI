@@ -353,9 +353,7 @@ describe('/api/user/verify-mobile', () => {
       ;(getServerSession as jest.Mock).mockResolvedValue({
         user: { id: 'user-1' },
       })
-      ;(prisma.user.update as jest.Mock).mockRejectedValue(
-        new Error('Database update failed')
-      )
+      ;(prisma.user.update as jest.Mock).mockRejectedValue(new Error('Database update failed'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
@@ -394,9 +392,7 @@ describe('/api/user/verify-mobile', () => {
       ;(getServerSession as jest.Mock).mockResolvedValue({
         user: { id: 'user-1' },
       })
-      ;(prisma.user.update as jest.Mock).mockRejectedValue(
-        new Error('Network error')
-      )
+      ;(prisma.user.update as jest.Mock).mockRejectedValue(new Error('Network error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 

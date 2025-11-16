@@ -888,9 +888,7 @@ describe('/api/user/active-listings', () => {
       ;(getSession as jest.Mock).mockResolvedValue({
         user: { email: 'test@example.com' },
       })
-      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(
-        new Error('Network error')
-      )
+      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Network error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 

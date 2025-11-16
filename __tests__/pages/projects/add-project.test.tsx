@@ -3,7 +3,12 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { useRouter } from 'next/router'
 import { useSession, signIn } from 'next-auth/react'
 import AddProjectPage from '@/pages/projects/add-project'
-import { mockRouter, mockSession, mockFetchSuccess, mockFetchError } from '@/__tests__/utils/test-utils'
+import {
+  mockRouter,
+  mockSession,
+  mockFetchSuccess,
+  mockFetchError,
+} from '@/__tests__/utils/test-utils'
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -269,9 +274,9 @@ describe('Add Project Page', () => {
       render(<AddProjectPage />)
 
       await waitFor(() => {
-        const firstNameInput = screen.getAllByRole('textbox').find(input =>
-          (input as HTMLInputElement).value === 'Test'
-        )
+        const firstNameInput = screen
+          .getAllByRole('textbox')
+          .find(input => (input as HTMLInputElement).value === 'Test')
         expect(firstNameInput).toBeInTheDocument()
       })
     })
@@ -280,9 +285,9 @@ describe('Add Project Page', () => {
       render(<AddProjectPage />)
 
       await waitFor(() => {
-        const lastNameInput = screen.getAllByRole('textbox').find(input =>
-          (input as HTMLInputElement).value === 'User'
-        )
+        const lastNameInput = screen
+          .getAllByRole('textbox')
+          .find(input => (input as HTMLInputElement).value === 'User')
         expect(lastNameInput).toBeInTheDocument()
       })
     })
@@ -590,15 +595,16 @@ describe('Add Project Page', () => {
     })
 
     it('shows loading state during submission', async () => {
-      global.fetch = jest.fn(() =>
-        new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({}),
-            } as Response)
-          }, 100)
-        })
+      global.fetch = jest.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({}),
+              } as Response)
+            }, 100)
+          })
       ) as jest.Mock
 
       render(<AddProjectPage />)

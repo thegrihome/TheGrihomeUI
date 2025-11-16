@@ -199,9 +199,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
 
   describe('Loading State', () => {
     it('should show loading spinner while fetching', () => {
-      ;(global.fetch as jest.Mock).mockImplementation(
-        () => new Promise(() => {})
-      )
+      ;(global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}))
 
       render(<PurchaseAdPage />)
 
@@ -401,9 +399,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       })
 
       await waitFor(() => {
-        const deleteButtons = screen.getAllByRole('button').filter(
-          btn => btn.querySelector('svg')
-        )
+        const deleteButtons = screen.getAllByRole('button').filter(btn => btn.querySelector('svg'))
         if (deleteButtons.length > 0) {
           fireEvent.click(deleteButtons[0])
         }
@@ -412,9 +408,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
 
     it('should not add slot when none available', async () => {
       const allSlotsOccupied = {
-        adSlots: [
-          { slotNumber: 1, basePrice: 1500, isActive: true, hasAd: true },
-        ],
+        adSlots: [{ slotNumber: 1, basePrice: 1500, isActive: true, hasAd: true }],
       }
 
       ;(global.fetch as jest.Mock)
@@ -518,7 +512,6 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
     it('should show pre-launch banner when active', async () => {
       jest.useFakeTimers()
       jest.setSystemTime(new Date('2025-06-01'))
-
       ;(global.fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,
@@ -541,7 +534,6 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
     it('should limit days to 3 during pre-launch', async () => {
       jest.useFakeTimers()
       jest.setSystemTime(new Date('2025-06-01'))
-
       ;(global.fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,

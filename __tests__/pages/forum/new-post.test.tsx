@@ -26,7 +26,12 @@ jest.mock('@/components/Footer', () => {
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title, description, canonical }: any) => (
-    <div data-testid="next-seo" data-title={title} data-description={description} data-canonical={canonical} />
+    <div
+      data-testid="next-seo"
+      data-title={title}
+      data-description={description}
+      data-canonical={canonical}
+    />
   ),
 }))
 
@@ -283,7 +288,13 @@ describe('New Post Page - Comprehensive Tests', () => {
         parent: null,
       }
 
-      render(<NewPostPage categories={mockCategories} selectedCategoryId="cat4" selectedCategory={selectedCategory} />)
+      render(
+        <NewPostPage
+          categories={mockCategories}
+          selectedCategoryId="cat4"
+          selectedCategory={selectedCategory}
+        />
+      )
 
       const disabledInput = screen.getByDisplayValue('Member Introductions')
       expect(disabledInput).toBeDisabled()
@@ -422,10 +433,17 @@ describe('New Post Page - Comprehensive Tests', () => {
 
     it('should show loading state during submission', async () => {
       ;(global.fetch as jest.Mock).mockImplementationOnce(
-        () => new Promise(resolve => setTimeout(() => resolve({
-          ok: true,
-          json: async () => ({ slug: 'test-post' }),
-        }), 100))
+        () =>
+          new Promise(resolve =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  json: async () => ({ slug: 'test-post' }),
+                }),
+              100
+            )
+          )
       )
 
       render(<NewPostPage categories={mockCategories} />)
@@ -450,10 +468,17 @@ describe('New Post Page - Comprehensive Tests', () => {
 
     it('should disable button during submission', async () => {
       ;(global.fetch as jest.Mock).mockImplementationOnce(
-        () => new Promise(resolve => setTimeout(() => resolve({
-          ok: true,
-          json: async () => ({ slug: 'test-post' }),
-        }), 100))
+        () =>
+          new Promise(resolve =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  json: async () => ({ slug: 'test-post' }),
+                }),
+              100
+            )
+          )
       )
 
       render(<NewPostPage categories={mockCategories} />)
@@ -534,10 +559,17 @@ describe('New Post Page - Comprehensive Tests', () => {
 
     it('should disable cancel button during submission', async () => {
       ;(global.fetch as jest.Mock).mockImplementationOnce(
-        () => new Promise(resolve => setTimeout(() => resolve({
-          ok: true,
-          json: async () => ({ slug: 'test-post' }),
-        }), 100))
+        () =>
+          new Promise(resolve =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  json: async () => ({ slug: 'test-post' }),
+                }),
+              100
+            )
+          )
       )
 
       render(<NewPostPage categories={mockCategories} />)
@@ -614,7 +646,10 @@ describe('New Post Page - Comprehensive Tests', () => {
       render(<NewPostPage categories={mockCategories} />)
 
       const seo = screen.getByTestId('next-seo')
-      expect(seo).toHaveAttribute('data-description', 'Start a new discussion in the Grihome community forum')
+      expect(seo).toHaveAttribute(
+        'data-description',
+        'Start a new discussion in the Grihome community forum'
+      )
     })
 
     it('should render NextSeo with correct canonical URL', () => {

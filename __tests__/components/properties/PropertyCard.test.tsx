@@ -352,11 +352,7 @@ describe('PropertyCard Component', () => {
 
     it('should show Sold button for owners with active listings', () => {
       render(
-        <PropertyCard
-          property={mockProperty}
-          isOwner={true}
-          onMarkAsSold={mockOnMarkAsSold}
-        />
+        <PropertyCard property={mockProperty} isOwner={true} onMarkAsSold={mockOnMarkAsSold} />
       )
 
       expect(screen.getByText('Sold')).toBeInTheDocument()
@@ -365,11 +361,7 @@ describe('PropertyCard Component', () => {
     it('should not show Sold button if property is already sold', () => {
       const soldProperty = { ...mockProperty, listingStatus: 'SOLD' }
       render(
-        <PropertyCard
-          property={soldProperty}
-          isOwner={true}
-          onMarkAsSold={mockOnMarkAsSold}
-        />
+        <PropertyCard property={soldProperty} isOwner={true} onMarkAsSold={mockOnMarkAsSold} />
       )
 
       expect(screen.queryByText('Sold')).not.toBeInTheDocument()
@@ -383,11 +375,7 @@ describe('PropertyCard Component', () => {
 
     it('should call onMarkAsSold when Sold button is clicked', () => {
       render(
-        <PropertyCard
-          property={mockProperty}
-          isOwner={true}
-          onMarkAsSold={mockOnMarkAsSold}
-        />
+        <PropertyCard property={mockProperty} isOwner={true} onMarkAsSold={mockOnMarkAsSold} />
       )
 
       const soldButton = screen.getByText('Sold')
@@ -449,13 +437,7 @@ describe('PropertyCard Component', () => {
     })
 
     it('should apply correct Sold button styling', () => {
-      render(
-        <PropertyCard
-          property={mockProperty}
-          isOwner={true}
-          onMarkAsSold={jest.fn()}
-        />
-      )
+      render(<PropertyCard property={mockProperty} isOwner={true} onMarkAsSold={jest.fn()} />)
 
       const soldButton = screen.getByText('Sold')
       expect(soldButton.className).toContain('bg-red-600')

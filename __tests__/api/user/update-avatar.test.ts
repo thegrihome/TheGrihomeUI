@@ -305,11 +305,7 @@ describe('/api/user/update-avatar', () => {
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
-      expect(put).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(Buffer),
-        expect.any(Object)
-      )
+      expect(put).toHaveBeenCalledWith(expect.any(String), expect.any(Buffer), expect.any(Object))
     })
 
     it('should convert PNG base64 to buffer', async () => {
@@ -318,11 +314,7 @@ describe('/api/user/update-avatar', () => {
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
-      expect(put).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(Buffer),
-        expect.any(Object)
-      )
+      expect(put).toHaveBeenCalledWith(expect.any(String), expect.any(Buffer), expect.any(Object))
     })
 
     it('should strip data:image prefix before conversion', async () => {
@@ -352,7 +344,6 @@ describe('/api/user/update-avatar', () => {
     it('should upload to Vercel Blob with correct filename pattern', async () => {
       const mockTimestamp = 1234567890
       jest.spyOn(Date, 'now').mockReturnValue(mockTimestamp)
-
       ;(put as jest.Mock).mockResolvedValue({
         url: 'https://blob.example.com/avatar.jpg',
       })
@@ -603,9 +594,7 @@ describe('/api/user/update-avatar', () => {
       ;(put as jest.Mock).mockResolvedValue({
         url: 'https://blob.example.com/avatar.jpg',
       })
-      ;(prisma.user.update as jest.Mock).mockRejectedValue(
-        new Error('Database update failed')
-      )
+      ;(prisma.user.update as jest.Mock).mockRejectedValue(new Error('Database update failed'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 

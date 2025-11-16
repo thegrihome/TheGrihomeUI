@@ -236,7 +236,6 @@ describe('UserInfo Page - Comprehensive Tests', () => {
         status: 'authenticated',
         update: mockUpdate,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ user: { image: null } }),
@@ -274,7 +273,6 @@ describe('UserInfo Page - Comprehensive Tests', () => {
         status: 'authenticated',
         update: mockUpdate,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ user: { image: null } }),
@@ -309,7 +307,6 @@ describe('UserInfo Page - Comprehensive Tests', () => {
         status: 'authenticated',
         update: mockUpdate,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ user: { image: null } }),
@@ -770,7 +767,6 @@ describe('UserInfo Page - Comprehensive Tests', () => {
         status: 'authenticated',
         update: mockUpdate,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ user: { image: null } }),
@@ -994,7 +990,6 @@ describe('UserInfo Page - Comprehensive Tests', () => {
         status: 'authenticated',
         update: mockUpdate,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ user: { image: null } }),
@@ -1015,7 +1010,6 @@ describe('UserInfo Page - Comprehensive Tests', () => {
         status: 'authenticated',
         update: mockUpdate,
       })
-
       ;(global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ user: { image: null } }),
@@ -1129,10 +1123,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
         .mockImplementationOnce(
           () =>
             new Promise(resolve =>
-              setTimeout(
-                () => resolve({ ok: true, json: async () => ({ imageUrl: 'url' }) }),
-                100
-              )
+              setTimeout(() => resolve({ ok: true, json: async () => ({ imageUrl: 'url' }) }), 100)
             )
         )
 

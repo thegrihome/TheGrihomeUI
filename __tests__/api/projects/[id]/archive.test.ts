@@ -256,7 +256,10 @@ describe('/api/projects/[id]/archive', () => {
     })
 
     it('should accept false boolean value', async () => {
-      ;(prisma.project.findUnique as jest.Mock).mockResolvedValue({ ...mockProject, isArchived: true })
+      ;(prisma.project.findUnique as jest.Mock).mockResolvedValue({
+        ...mockProject,
+        isArchived: true,
+      })
       ;(prisma.project.update as jest.Mock).mockResolvedValue({ ...mockProject, isArchived: false })
 
       const { req, res } = createMocks({
@@ -417,7 +420,10 @@ describe('/api/projects/[id]/archive', () => {
   describe('Unarchive Project', () => {
     beforeEach(() => {
       ;(getServerSession as jest.Mock).mockResolvedValue(mockSession)
-      ;(prisma.project.findUnique as jest.Mock).mockResolvedValue({ ...mockProject, isArchived: true })
+      ;(prisma.project.findUnique as jest.Mock).mockResolvedValue({
+        ...mockProject,
+        isArchived: true,
+      })
     })
 
     it('should unarchive project when isArchived is false', async () => {
@@ -615,7 +621,10 @@ describe('/api/projects/[id]/archive', () => {
     })
 
     it('should handle archiving already archived project', async () => {
-      ;(prisma.project.findUnique as jest.Mock).mockResolvedValue({ ...mockProject, isArchived: true })
+      ;(prisma.project.findUnique as jest.Mock).mockResolvedValue({
+        ...mockProject,
+        isArchived: true,
+      })
       ;(prisma.project.update as jest.Mock).mockResolvedValue({
         ...mockProject,
         isArchived: true,
@@ -705,7 +714,10 @@ describe('/api/projects/[id]/archive', () => {
       expect(res1._getStatusCode()).toBe(200)
 
       // Now unarchive
-      ;(prisma.project.findUnique as jest.Mock).mockResolvedValue({ ...mockProject, isArchived: true })
+      ;(prisma.project.findUnique as jest.Mock).mockResolvedValue({
+        ...mockProject,
+        isArchived: true,
+      })
       ;(prisma.project.update as jest.Mock).mockResolvedValue({
         ...mockProject,
         isArchived: false,

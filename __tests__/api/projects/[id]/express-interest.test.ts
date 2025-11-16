@@ -229,7 +229,7 @@ describe('/api/projects/[id]/express-interest', () => {
     it('should create interest record', async () => {
       const mockInterest = { id: 'interest-123', createdAt: new Date() }
       ;(prisma.interest.create as jest.Mock).mockResolvedValue(mockInterest)
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -245,7 +245,7 @@ describe('/api/projects/[id]/express-interest', () => {
     it('should include message when provided', async () => {
       const mockInterest = { id: 'interest-123', createdAt: new Date() }
       ;(prisma.interest.create as jest.Mock).mockResolvedValue(mockInterest)
-      
+
       const { req, res } = createMocks({
         method: 'POST',
         query: { id: 'project-123' },
@@ -265,7 +265,7 @@ describe('/api/projects/[id]/express-interest', () => {
     it('should return 201 on successful creation', async () => {
       const mockInterest = { id: 'interest-123', createdAt: new Date() }
       ;(prisma.interest.create as jest.Mock).mockResolvedValue(mockInterest)
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -275,7 +275,7 @@ describe('/api/projects/[id]/express-interest', () => {
     it('should return success message and interest', async () => {
       const mockInterest = { id: 'interest-123', createdAt: new Date() }
       ;(prisma.interest.create as jest.Mock).mockResolvedValue(mockInterest)
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -292,7 +292,10 @@ describe('/api/projects/[id]/express-interest', () => {
       ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
       ;(prisma.project.findUnique as jest.Mock).mockResolvedValue(mockProject)
       ;(prisma.interest.findUnique as jest.Mock).mockResolvedValue(null)
-      ;(prisma.interest.create as jest.Mock).mockResolvedValue({ id: 'interest-123', createdAt: new Date() })
+      ;(prisma.interest.create as jest.Mock).mockResolvedValue({
+        id: 'interest-123',
+        createdAt: new Date(),
+      })
     })
 
     it('should send email notification', async () => {
@@ -306,7 +309,7 @@ describe('/api/projects/[id]/express-interest', () => {
     it('should not fail request if email fails', async () => {
       const resendInstance = new Resend('')
       ;(resendInstance.emails.send as jest.Mock).mockRejectedValue(new Error('Email failed'))
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -318,7 +321,7 @@ describe('/api/projects/[id]/express-interest', () => {
     it('should return 500 on database error', async () => {
       ;(getServerSession as jest.Mock).mockResolvedValue(mockSession)
       ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Database error'))
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 
@@ -331,7 +334,7 @@ describe('/api/projects/[id]/express-interest', () => {
       ;(prisma.user.findUnique as jest.Mock).mockImplementation(() => {
         throw new Error('Unexpected error')
       })
-      
+
       const { req, res } = createMocks({ method: 'POST', query: { id: 'project-123' } })
       await handler(req, res)
 

@@ -11,7 +11,9 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
 }))
 
 describe('/api/forum/user/[userId]/posts', () => {
-  beforeEach(() => { jest.clearAllMocks() })
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
   it('should return 400 when userId is missing', async () => {
     const { req, res } = createMocks({ method: 'GET', query: {} })
@@ -47,9 +49,14 @@ describe('/api/forum/user/[userId]/posts', () => {
     ;(prisma.forumPost.count as jest.Mock).mockResolvedValue(50)
     ;(prisma.forumReply.findMany as jest.Mock).mockResolvedValue([])
     ;(prisma.forumReply.count as jest.Mock).mockResolvedValue(0)
-    const { req, res } = createMocks({ method: 'GET', query: { userId: 'u1', page: '2', limit: '10' } })
+    const { req, res } = createMocks({
+      method: 'GET',
+      query: { userId: 'u1', page: '2', limit: '10' },
+    })
     await handler(req, res)
-    expect(prisma.forumPost.findMany).toHaveBeenCalledWith(expect.objectContaining({ skip: 10, take: 10 }))
+    expect(prisma.forumPost.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    )
   })
 
   it('should return 405 for POST method', async () => {

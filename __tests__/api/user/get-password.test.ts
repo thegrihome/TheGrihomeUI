@@ -438,9 +438,7 @@ describe('/api/user/get-password', () => {
     })
 
     it('should return 500 on network error', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(
-        new Error('Network error')
-      )
+      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Network error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
@@ -458,7 +456,6 @@ describe('/api/user/get-password', () => {
     it('should handle error in development environment', async () => {
       const originalEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'development'
-
       ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Dev error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
@@ -471,10 +468,7 @@ describe('/api/user/get-password', () => {
     it('should handle error in production environment', async () => {
       const originalEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'production'
-
-      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(
-        new Error('Production error')
-      )
+      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Production error'))
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
