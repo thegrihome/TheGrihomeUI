@@ -55,7 +55,18 @@ describe('/api/ads/slots', () => {
         slotNumber: 1,
         basePrice: 1500,
         isActive: true,
-        ads: [{ id: 'ad1', endDate: futureDate, userId: 'u1' }],
+        ads: [
+          {
+            id: 'ad1',
+            endDate: futureDate,
+            userId: 'u1',
+            totalDays: 7,
+            totalAmount: 1500,
+            user: { id: 'u1', name: 'Test User', username: 'testuser' },
+            property: null,
+            project: null,
+          },
+        ],
       },
     ])
     const { req, res } = createMocks({ method: 'GET' })
