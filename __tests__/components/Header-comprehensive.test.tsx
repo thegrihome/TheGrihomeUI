@@ -22,17 +22,19 @@ describe('Header Component - Comprehensive Tests', () => {
   })
 
   describe('Rendering', () => {
-    it('should not render before mount', () => {
+    it('should render header with logo', () => {
       ;(useSession as jest.Mock).mockReturnValue({
         data: null,
         status: 'unauthenticated',
       })
 
-      const { container } = render(<Header />)
-      expect(container.firstChild).toBeNull()
+      render(<Header />)
+      const logos = screen.getAllByAltText('Grihome Logo')
+      expect(logos.length).toBeGreaterThan(0)
+      expect(screen.getByText('GRIHOME')).toBeInTheDocument()
     })
 
-    it('should render header after mount', async () => {
+    it('should render header navigation links', async () => {
       ;(useSession as jest.Mock).mockReturnValue({
         data: null,
         status: 'unauthenticated',
