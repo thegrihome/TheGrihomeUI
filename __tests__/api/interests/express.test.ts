@@ -13,7 +13,7 @@ const mockPrisma = {
   user: { findUnique: jest.fn() },
   project: { findUnique: jest.fn() },
   property: { findUnique: jest.fn() },
-  $disconnect: jest.fn(),
+  $disconnect: jest.fn().mockResolvedValue(undefined),
 }
 
 describe('/api/interests/express', () => {

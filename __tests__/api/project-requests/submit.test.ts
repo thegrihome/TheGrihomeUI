@@ -9,7 +9,7 @@ jest.mock('resend')
 
 const mockPrisma = {
   projectRequest: { create: jest.fn() },
-  $disconnect: jest.fn(),
+  $disconnect: jest.fn().mockResolvedValue(undefined),
 }
 
 describe('/api/project-requests/submit', () => {

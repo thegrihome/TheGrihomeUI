@@ -8,7 +8,7 @@ jest.mock('next-auth', () => ({ getServerSession: jest.fn() }))
 
 const mockPrisma = {
   interest: { findFirst: jest.fn() },
-  $disconnect: jest.fn(),
+  $disconnect: jest.fn().mockResolvedValue(undefined),
 }
 
 describe('/api/interests/check', () => {

@@ -16,7 +16,7 @@ describe('/api/projects/delete', () => {
         findUnique: jest.fn(),
         delete: jest.fn(),
       },
-      $disconnect: jest.fn(),
+      $disconnect: jest.fn().mockResolvedValue(undefined),
     }
     ;(PrismaClient as jest.MockedClass<typeof PrismaClient>).mockImplementation(() => mockPrisma)
     jest.clearAllMocks()
