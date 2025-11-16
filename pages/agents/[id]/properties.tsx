@@ -66,7 +66,8 @@ export default function AgentProperties() {
   const [properties, setProperties] = useState<Property[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [activePropertiesCount, setActivePropertiesCount] = useState<number>(0)
-  const [loading, setLoading] = useState(true)
+  const [initialLoading, setInitialLoading] = useState(true)
+  const [fetchingProperties, setFetchingProperties] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'SOLD'>('ACTIVE')
@@ -75,7 +76,7 @@ export default function AgentProperties() {
     if (!id) return
 
     const fetchAgentProperties = async () => {
-      setLoading(true)
+      setFetchingProperties(true)
       setError(null)
 
       try {
@@ -96,14 +97,15 @@ export default function AgentProperties() {
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
-        setLoading(false)
+        setFetchingProperties(false)
+        setInitialLoading(false)
       }
     }
 
     fetchAgentProperties()
   }, [id, currentPage, activeTab])
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
@@ -234,7 +236,11 @@ export default function AgentProperties() {
         </div>
 
         {/* Properties Grid */}
-        {properties.length === 0 ? (
+        {fetchingProperties ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-gray-600">Loading properties...</div>
+          </div>
+        ) : properties.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
             <p className="text-gray-600 text-lg mb-4">No properties found</p>
             <p className="text-gray-500">This agent has not listed any properties yet.</p>
