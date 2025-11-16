@@ -325,8 +325,8 @@ export default function Home() {
                 building user trust and engagement. This is already present in the US real estate
                 market in websites like redfin, zillow, homes.com where users can browse all the
                 listings without any restriction. Although India doesn&apos;t have a centralized or
-                local MLS, we would ensure the initial data is all loaded into the website through
-                a combination of manual labor and AI agents.
+                local MLS, we would ensure the initial data is all loaded into the website through a
+                combination of manual labor and AI agents.
               </p>
             </div>
             <div className="mission-fundamentals">
@@ -473,9 +473,7 @@ export default function Home() {
           {/* Builders Showcase - Right Aligned */}
           <div className="showcase-section showcase-right">
             <h2 className="showcase-title">Find Top Builders</h2>
-            <p className="showcase-subtitle">
-              Discover trusted builders across India
-            </p>
+            <p className="showcase-subtitle">Discover trusted builders across India</p>
             <Link href="/builders" className="showcase-link">
               <button className="showcase-button-compact">
                 Discover Builders
