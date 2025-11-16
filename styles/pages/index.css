@@ -420,6 +420,7 @@
 .benefit-item {
   position: relative;
   display: flex;
+  flex-direction: column;
   gap: 1.5rem;
   padding: 2rem;
   background: white;
@@ -428,6 +429,8 @@
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
+  min-height: 320px;
+  aspect-ratio: 1 / 1;
 }
 
 .benefit-item:hover {
@@ -437,30 +440,36 @@
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Multicolor Vertical Dividers */
+@media (min-width: 1024px) {
+  .benefit-item {
+    min-height: 360px;
+  }
+}
+
+/* Multicolor Top Dividers */
 .benefit-divider {
   position: absolute;
   left: 0;
+  right: 0;
   top: 0;
-  bottom: 0;
-  width: 5px;
-  border-radius: 1rem 0 0 1rem;
+  height: 5px;
+  border-radius: 1rem 1rem 0 0;
 }
 
 .benefit-divider-blue {
-  background: linear-gradient(to bottom, #3b82f6, #2563eb);
+  background: linear-gradient(to right, #3b82f6, #2563eb);
 }
 
 .benefit-divider-green {
-  background: linear-gradient(to bottom, #10b981, #059669);
+  background: linear-gradient(to right, #10b981, #059669);
 }
 
 .benefit-divider-purple {
-  background: linear-gradient(to bottom, #8b5cf6, #7c3aed);
+  background: linear-gradient(to right, #8b5cf6, #7c3aed);
 }
 
 .benefit-divider-orange {
-  background: linear-gradient(to bottom, #f59e0b, #d97706);
+  background: linear-gradient(to right, #f59e0b, #d97706);
 }
 
 .benefit-content {
@@ -617,6 +626,8 @@
 @media (max-width: 768px) {
   .benefit-item {
     padding: 1.5rem;
+    min-height: 280px;
+    aspect-ratio: auto;
   }
 
   .benefit-icon {
