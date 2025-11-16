@@ -115,11 +115,11 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                   </div>
                 )}
                 <div className="builder-info">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-3">
+                  <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
                     {builder.name}
                   </h1>
                   {builder.description && (
-                    <p className="text-gray-600 mb-4 max-w-2xl leading-relaxed">
+                    <p className="text-sm text-gray-600 mb-3 max-w-2xl leading-relaxed">
                       {builder.description}
                     </p>
                   )}
@@ -133,9 +133,9 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                     href={builder.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 transition-colors flex items-center gap-1.5"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
