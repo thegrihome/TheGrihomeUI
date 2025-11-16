@@ -119,3 +119,11 @@ global.IntersectionObserver = class IntersectionObserver {
 
 // Mock scrollIntoView
 Element.prototype.scrollIntoView = jest.fn()
+
+// Mock uuid to avoid ESM issues
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'test-uuid-1234'),
+  v1: jest.fn(() => 'test-uuid-1234'),
+  v3: jest.fn(() => 'test-uuid-1234'),
+  v5: jest.fn(() => 'test-uuid-1234'),
+}))
