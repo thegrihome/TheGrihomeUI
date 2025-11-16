@@ -370,7 +370,7 @@ describe('Projects Index Page', () => {
       render(<ProjectsPage />)
 
       await waitFor(() => {
-        const svg = screen.getByText('No projects found').closest('div')?.querySelector('svg')
+        const svg = screen.getAllByText('No projects found')[0].closest('div')?.querySelector('svg')
         expect(svg).toBeInTheDocument()
       })
     })

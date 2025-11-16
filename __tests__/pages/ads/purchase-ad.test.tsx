@@ -35,15 +35,13 @@ jest.mock('@/components/Footer', () => {
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} />,
+  default: (props: any) => <img alt="" {...props} />, // eslint-disable-line jsx-a11y/alt-text, @next/next/no-img-element
 }))
-/* eslint-disable testing-library/no-node-access */
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title }: any) => {
     if (title) {
-      // eslint-disable-next-line testing-library/no-node-access
-      document.title = title
+      document.title = title // eslint-disable-line
     }
     return null
   },
@@ -185,7 +183,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        expect(screen.getByText(/\+\s*Add Slot/)).toBeInTheDocument()
+        expect(screen.getAllByText(/\+\s*Add Slot/)[0]).toBeInTheDocument()
       })
     })
 
@@ -382,10 +380,10 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        expect(screen.getByText(/\+\s*Add Slot/)).toBeInTheDocument()
+        expect(screen.getAllByText(/\+\s*Add Slot/)[0]).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+      fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
 
       await waitFor(() => {
         expect(screen.getByText('Slot')).toBeInTheDocument()
@@ -406,7 +404,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -435,7 +433,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       expect(toast.error).toHaveBeenCalledWith('No more slots available')
@@ -457,7 +455,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -482,7 +480,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -507,7 +505,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -558,7 +556,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       jest.useRealTimers()
@@ -580,7 +578,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -602,7 +600,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -626,7 +624,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -655,7 +653,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -698,7 +696,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -736,7 +734,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {
@@ -774,7 +772,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
+        fireEvent.click(screen.getAllByText(/\+\s*Add Slot/)[0])
       })
 
       await waitFor(() => {

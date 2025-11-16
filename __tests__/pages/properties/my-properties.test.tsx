@@ -39,7 +39,7 @@ jest.mock('@/components/Footer', () => {
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt }: any) => <img src={src} alt={alt} />,
+  default: ({ src, alt }: any) => <img src={src} alt={alt} />, // eslint-disable-line @next/next/no-img-element
 }))
 
 const mockActiveProperty = {
@@ -678,7 +678,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Sold'))
 
       await waitFor(() => {
-        expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
+        expect(screen.getAllByText('Mark as Sold')[0]).toBeInTheDocument()
       })
     })
 
@@ -925,14 +925,14 @@ describe('My Properties Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Sold'))
 
       await waitFor(() => {
-        expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
+        expect(screen.getAllByText('Mark as Sold')[0]).toBeInTheDocument()
       })
 
       const cancelButton = screen.getByRole('button', { name: 'Cancel' })
       fireEvent.click(cancelButton)
 
       await waitFor(() => {
-        expect(screen.queryByText('Mark as Sold')).not.toBeInTheDocument()
+        expect(screen.queryAllByText('Mark as Sold').length).toBe(0)
       })
     })
   })

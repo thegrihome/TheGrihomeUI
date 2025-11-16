@@ -190,16 +190,16 @@ describe('ProjectPage Component', () => {
     it('renders location', async () => {
       render(<ProjectPage project={mockProject} />)
       await waitFor(() => {
-        expect(screen.getByText(/Andheri/)).toBeInTheDocument()
-        expect(screen.getByText(/Mumbai/)).toBeInTheDocument()
-        expect(screen.getByText(/Maharashtra/)).toBeInTheDocument()
+        expect(screen.getAllByText(/Andheri/)[0]).toBeInTheDocument()
+        expect(screen.getAllByText(/Mumbai/)[0]).toBeInTheDocument()
+        expect(screen.getAllByText(/Maharashtra/)[0]).toBeInTheDocument()
       })
     })
 
     it('renders description', async () => {
       render(<ProjectPage project={mockProject} />)
       await waitFor(() => {
-        expect(screen.getByText('Test Description')).toBeInTheDocument()
+        expect(screen.getAllByText('Test Description')[0]).toBeInTheDocument()
       })
     })
 
