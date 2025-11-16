@@ -1,6 +1,26 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
+
+// Mock Prisma client before importing page component
+jest.mock('@/lib/cockroachDB/prisma', () => ({
+  prisma: {
+    project: {
+      findUnique: jest.fn(),
+    },
+    property: {
+      findMany: jest.fn(),
+    },
+    user: {
+      findMany: jest.fn(),
+    },
+    interest: {
+      create: jest.fn(),
+      findFirst: jest.fn(),
+    },
+  },
+}))
+
 import ProjectPage, { getServerSideProps } from '@/pages/projects/[id]'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
