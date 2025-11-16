@@ -7,35 +7,37 @@ import Image from 'next/image'
 import PropertyCard from '@/components/properties/PropertyCard'
 import { NextSeo } from 'next-seo'
 
-interface Location {
-  id: string
-  city: string
-  state: string
-  country: string
-  locality: string | null
-  zipcode: string | null
-}
-
-interface Project {
-  id: string
-  name: string
-}
-
 interface Property {
   id: string
+  streetAddress: string
+  location: {
+    city: string
+    state: string
+    zipcode: string | null
+    locality: string | null
+    fullAddress: string
+  }
+  builder: string
+  project: string
   propertyType: string
   listingType: string
   sqFt: number | null
-  price: number | null
-  bedrooms: number | null
-  bathrooms: number | null
-  thumbnailUrl: string | null
+  thumbnailUrl?: string
   imageUrls: string[]
   listingStatus: string
   createdAt: string
-  location: Location
-  project: Project | null
-  propertyDetails: any
+  postedBy: string
+  companyName?: string
+  bedrooms?: string | number
+  bathrooms?: string | number
+  price?: string | number
+  size?: string
+  sizeUnit?: string
+  plotSize?: string
+  plotSizeUnit?: string
+  description?: string
+  userId: string
+  userEmail: string
 }
 
 interface Agent {
@@ -232,25 +234,9 @@ export default function AgentProperties() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-              {properties.map(property => {
-                // Transform property to match PropertyCard expected format
-                const transformedProperty = {
-                  ...property,
-                  project: property.project?.name || 'Property',
-                  location: {
-                    city: property.location.city,
-                    state: property.location.state,
-                    zipcode: property.location.zipcode,
-                    locality: property.location.locality,
-                  },
-                  userId: agent?.id || '',
-                  userEmail: agent?.email || '',
-                }
-
-                return (
-                  <PropertyCard key={property.id} property={transformedProperty} isOwner={false} />
-                )
-              })}
+              {properties.map(property => (
+                <PropertyCard key={property.id} property={property} isOwner={false} />
+              ))}
             </div>
 
             {/* Pagination */}

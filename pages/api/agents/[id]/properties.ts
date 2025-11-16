@@ -55,12 +55,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const properties = await prisma.property.findMany({
       where: whereClause,
       include: {
-        location: true,
+        location: {
+          select: {
+            city: true,
+            state: true,
+            zipcode: true,
+            locality: true,
+          },
+        },
+        builder: {
+          select: {
+            name: true,
+          },
+        },
         project: {
+          select: {
+            name: true,
+          },
+        },
+        user: {
           select: {
             id: true,
             name: true,
+            email: true,
+            companyName: true,
           },
+        },
+        images: {
+          orderBy: {
+            displayOrder: 'asc',
+          },
+          take: 1,
         },
       },
       orderBy: {
@@ -77,9 +102,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const totalPages = Math.ceil(totalCount / limitNum)
 
+    // Transform properties for frontend (same as properties list API)
+    const transformedProperties = properties.map(property => {
+      const propertyDetails = property.propertyDetails as any
+
+      return {
+        id: property.id,
+        streetAddress: property.streetAddress,
+        location: {
+          city: property.location.city,
+          state: property.location.state,
+          zipcode: property.location.zipcode,
+          locality: property.location.locality,
+          fullAddress: `${property.streetAddress}, ${property.location.locality ? property.location.locality + ', ' : ''}${property.location.city}, ${property.location.state}${property.location.zipcode ? ' - ' + property.location.zipcode : ''}`,
+        },
+        builder: property.builder?.name || 'Independent',
+        project: propertyDetails?.title || property.project?.name || property.streetAddress,
+        propertyType: property.propertyType,
+        listingType: property.listingType,
+        sqFt: property.sqFt,
+        thumbnailUrl: property.thumbnailUrl || property.images[0]?.imageUrl,
+        imageUrls: property.imageUrls,
+        listingStatus: property.listingStatus,
+        createdAt: property.createdAt,
+        postedBy: property.user.name || 'Agent',
+        companyName: property.user.companyName,
+        userId: property.userId,
+        userEmail: property.user.email,
+        // Property details from JSON
+        bedrooms: propertyDetails?.bedrooms,
+        bathrooms: propertyDetails?.bathrooms,
+        price: propertyDetails?.price,
+        size: propertyDetails?.propertySize || propertyDetails?.size,
+        sizeUnit: propertyDetails?.propertySizeUnit || propertyDetails?.sizeUnit,
+        plotSize: propertyDetails?.plotSize,
+        plotSizeUnit: propertyDetails?.plotSizeUnit,
+        description: propertyDetails?.description,
+      }
+    })
+
     res.status(200).json({
       agent,
-      properties,
+      properties: transformedProperties,
       pagination: {
         currentPage: pageNum,
         totalPages,
