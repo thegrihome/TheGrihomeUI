@@ -81,22 +81,30 @@ describe('Home Page', () => {
 
   it('shows buyers benefit description', () => {
     render(<Home />)
-    expect(screen.getByText(/discover your dream home from verified listings/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/discover your dream home from thousands of verified listings/i)
+    ).toBeInTheDocument()
   })
 
   it('shows sellers benefit description', () => {
     render(<Home />)
-    expect(screen.getByText(/list your property for free/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/list your property for free and reach thousands of potential buyers/i)
+    ).toBeInTheDocument()
   })
 
   it('shows agents benefit description', () => {
     render(<Home />)
-    expect(screen.getByText(/grow your business with our platform/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/grow your real estate business with our comprehensive agent platform/i)
+    ).toBeInTheDocument()
   })
 
   it('shows builders benefit description', () => {
     render(<Home />)
-    expect(screen.getByText(/showcase your projects to qualified buyers/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/showcase your residential and commercial projects to qualified buyers/i)
+    ).toBeInTheDocument()
   })
 
   it('displays agents showcase section', () => {
