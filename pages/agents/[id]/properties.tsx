@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Image from 'next/image'
+import PropertyCard from '@/components/properties/PropertyCard'
 import { NextSeo } from 'next-seo'
 
 interface Location {
@@ -97,34 +98,6 @@ export default function AgentProperties() {
 
     fetchAgentProperties()
   }, [id, currentPage, activeTab])
-
-  const formatPrice = (price: number | null) => {
-    if (!price) return 'Price on request'
-    if (price >= 10000000) {
-      return `₹${(price / 10000000).toFixed(2)} Cr`
-    }
-    if (price >= 100000) {
-      return `₹${(price / 100000).toFixed(2)} L`
-    }
-    return `₹${price.toLocaleString('en-IN')}`
-  }
-
-  const getPropertyTitle = (property: Property) => {
-    if (property.project) {
-      return property.project.name
-    }
-    if (property.propertyDetails?.title) {
-      return property.propertyDetails.title
-    }
-    if (property.propertyDetails?.projectName) {
-      return property.propertyDetails.projectName
-    }
-    return 'Individual Property'
-  }
-
-  const getPropertyImage = (property: Property) => {
-    return property.thumbnailUrl || property.imageUrls[0] || '/images/placeholder-property.jpg'
-  }
 
   if (loading) {
     return (
@@ -258,86 +231,26 @@ export default function AgentProperties() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.map(property => (
-                <Link
-                  key={property.id}
-                  href={`/properties/${property.id}`}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                >
-                  {/* Property Image */}
-                  <div className="relative h-48 bg-gray-200">
-                    <Image
-                      src={getPropertyImage(property)}
-                      alt={getPropertyTitle(property)}
-                      fill
-                      className="object-cover"
-                    />
-                    {/* Status Badge */}
-                    <div className="absolute top-3 right-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          property.listingStatus === 'ACTIVE'
-                            ? 'bg-green-100 text-green-800'
-                            : property.listingStatus === 'SOLD'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {property.listingStatus}
-                      </span>
-                    </div>
-                    {/* Listing Type Badge */}
-                    <div className="absolute top-3 left-3">
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                        {property.listingType}
-                      </span>
-                    </div>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {properties.map(property => {
+                // Transform property to match PropertyCard expected format
+                const transformedProperty = {
+                  ...property,
+                  project: property.project?.name || 'Property',
+                  location: {
+                    city: property.location.city,
+                    state: property.location.state,
+                    zipcode: property.location.zipcode,
+                    locality: property.location.locality,
+                  },
+                  userId: agent?.id || '',
+                  userEmail: agent?.email || '',
+                }
 
-                  {/* Property Details */}
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
-                      {getPropertyTitle(property)}
-                    </h3>
-
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {property.location.locality && `${property.location.locality}, `}
-                      {property.location.city}, {property.location.state}
-                    </p>
-
-                    {/* Price */}
-                    <div className="text-xl font-bold text-blue-600 mb-3">
-                      {formatPrice(property.price)}
-                    </div>
-
-                    {/* Property Features */}
-                    <div className="flex items-center gap-4 text-sm text-gray-500 pb-3 border-b border-gray-200">
-                      {property.bedrooms && (
-                        <span className="flex items-center gap-1">🛏️ {property.bedrooms} BHK</span>
-                      )}
-                      {property.bathrooms && (
-                        <span className="flex items-center gap-1">🚿 {property.bathrooms}</span>
-                      )}
-                      {property.sqFt && (
-                        <span className="flex items-center gap-1">📐 {property.sqFt} sqft</span>
-                      )}
-                    </div>
-
-                    {/* Property Type */}
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="text-sm text-gray-600">{property.propertyType}</span>
-                      <span className="text-xs text-gray-400">
-                        {new Date(property.createdAt).toLocaleDateString('en-IN', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                return (
+                  <PropertyCard key={property.id} property={transformedProperty} isOwner={false} />
+                )
+              })}
             </div>
 
             {/* Pagination */}
