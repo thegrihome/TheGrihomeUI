@@ -39,11 +39,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           companyName: true,
           image: true,
           createdAt: true,
-          _count: {
-            select: {
-              listedProperties: true,
-            },
-          },
         },
         orderBy: {
           createdAt: 'desc',
@@ -51,6 +46,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         skip,
         take: limitNum,
       })
+
+      // Get active properties count for each agent
+      const agentsWithCount = await Promise.all(
+        agents.map(async agent => {
+          const activeCount = await prisma.property.count({
+            where: {
+              userId: agent.id,
+              listingStatus: 'ACTIVE',
+            },
+          })
+          return {
+            ...agent,
+            _count: {
+              listedProperties: activeCount,
+            },
+          }
+        })
+      )
 
       // Get total count for pagination
       const totalCount = await prisma.user.count({
@@ -60,7 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const totalPages = Math.ceil(totalCount / limitNum)
 
       res.status(200).json({
-        agents,
+        agents: agentsWithCount,
         pagination: {
           currentPage: pageNum,
           totalPages,

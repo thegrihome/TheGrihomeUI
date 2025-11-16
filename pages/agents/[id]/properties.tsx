@@ -178,13 +178,7 @@ export default function AgentProperties() {
               </div>
             )}
             <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-gray-900">{agent.name}</h1>
-                <span className="text-xs font-semibold text-white bg-blue-600 px-2 py-0.5 rounded">
-                  {activePropertiesCount} Active{' '}
-                  {activePropertiesCount === 1 ? 'Listing' : 'Listings'}
-                </span>
-              </div>
+              <h1 className="text-lg font-bold text-gray-900">{agent.name}</h1>
               {agent.companyName && <p className="text-sm text-gray-600">{agent.companyName}</p>}
               <div className="flex flex-wrap gap-3 text-xs text-gray-500 mt-1">
                 {agent.email && <span>📧 {agent.email}</span>}
