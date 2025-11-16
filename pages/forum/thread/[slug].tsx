@@ -169,12 +169,17 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
                     className="forum-reply-btn"
                     onClick={() => {
                       setReplyingTo(reply.id)
-                      setReplyContent(
-                        `> ${reply.author.username} wrote:\n> ${reply.content
-                          .replace(/<[^>]+>/g, '')
-                          .replace(/&nbsp;/g, ' ')
-                          .substring(0, 200)}...\n\n`
-                      )
+                      // Extract only the actual reply content (remove existing quotes)
+                      const lines = reply.content.split('\n')
+                      const replyOnlyLines = lines.filter(line => !line.trim().startsWith('>'))
+                      const actualReply = replyOnlyLines
+                        .join(' ')
+                        .replace(/<[^>]+>/g, '')
+                        .replace(/&nbsp;/g, ' ')
+                        .trim()
+                        .substring(0, 200)
+
+                      setReplyContent(`> ${reply.author.username} wrote:\n> ${actualReply}...\n\n`)
                       document
                         .querySelector('.forum-reply-form')
                         ?.scrollIntoView({ behavior: 'smooth' })
@@ -278,12 +283,17 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
                     className="forum-reply-btn"
                     onClick={() => {
                       setReplyingTo(null) // Don't set parentId for original post
-                      setReplyContent(
-                        `> ${post.author.username} wrote:\n> ${post.content
-                          .replace(/<[^>]+>/g, '')
-                          .replace(/&nbsp;/g, ' ')
-                          .substring(0, 200)}...\n\n`
-                      )
+                      // Extract only the actual post content (remove existing quotes)
+                      const lines = post.content.split('\n')
+                      const contentOnlyLines = lines.filter(line => !line.trim().startsWith('>'))
+                      const actualContent = contentOnlyLines
+                        .join(' ')
+                        .replace(/<[^>]+>/g, '')
+                        .replace(/&nbsp;/g, ' ')
+                        .trim()
+                        .substring(0, 200)
+
+                      setReplyContent(`> ${post.author.username} wrote:\n> ${actualContent}...\n\n`)
                       document
                         .querySelector('.forum-reply-form')
                         ?.scrollIntoView({ behavior: 'smooth' })
