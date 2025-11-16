@@ -301,7 +301,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           expect(sendButton).toBeDisabled()
         },
         { timeout: 1000 }
@@ -321,7 +321,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           expect(sendButton).not.toBeDisabled()
           fireEvent.click(sendButton)
 
@@ -346,7 +346,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           fireEvent.click(sendButton)
 
           await waitFor(() => {
@@ -373,7 +373,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           fireEvent.click(sendButton)
 
           await waitFor(async () => {
@@ -414,7 +414,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           fireEvent.click(sendButton)
 
           await waitFor(async () => {
@@ -446,7 +446,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           fireEvent.click(sendButton)
 
           await waitFor(() => {
@@ -473,7 +473,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           fireEvent.click(sendButton)
 
           await waitFor(() => {
@@ -491,7 +491,7 @@ describe('Login Page - Comprehensive Tests', () => {
     it('should show error toast when email is empty on Send OTP', () => {
       render(<Login />)
 
-      const sendButton = screen.getByText('Send OTP')
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
       fireEvent.click(sendButton)
 
       expect(toast.error).toHaveBeenCalledWith('Please enter your email address')
@@ -576,7 +576,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           expect(sendButton).not.toBeDisabled()
           fireEvent.click(sendButton)
 
@@ -601,7 +601,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           fireEvent.click(sendButton)
 
           await waitFor(async () => {
@@ -626,7 +626,7 @@ describe('Login Page - Comprehensive Tests', () => {
     })
 
     it('should show error toast when mobile is empty on Send OTP', () => {
-      const sendButton = screen.getByText('Send OTP')
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
       fireEvent.click(sendButton)
 
       expect(toast.error).toHaveBeenCalledWith('Please enter your mobile number')
@@ -670,7 +670,7 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(usernameInput, { target: { value: 'testuser' } })
       fireEvent.change(passwordInput, { target: { value: 'password123' } })
 
-      const signInButton = screen.getByText('Sign In')
+      const signInButton = screen.getByRole('button', { name: 'Sign In' })
       fireEvent.click(signInButton)
 
       await waitFor(() => {
@@ -694,7 +694,7 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(usernameInput, { target: { value: 'wronguser' } })
       fireEvent.change(passwordInput, { target: { value: 'wrongpass' } })
 
-      const signInButton = screen.getByText('Sign In')
+      const signInButton = screen.getByRole('button', { name: 'Sign In' })
       fireEvent.click(signInButton)
 
       await waitFor(() => {
@@ -713,7 +713,7 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(usernameInput, { target: { value: 'testuser' } })
       fireEvent.change(passwordInput, { target: { value: 'password123' } })
 
-      const signInButton = screen.getByText('Sign In')
+      const signInButton = screen.getByRole('button', { name: 'Sign In' })
       fireEvent.click(signInButton)
 
       expect(screen.getByText('Signing in...')).toBeInTheDocument()
@@ -732,7 +732,7 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(usernameInput, { target: { value: 'testuser' } })
       fireEvent.change(passwordInput, { target: { value: 'password123' } })
 
-      const signInButton = screen.getByText('Sign In')
+      const signInButton = screen.getByRole('button', { name: 'Sign In' })
       fireEvent.click(signInButton)
 
       await waitFor(() => {
@@ -751,7 +751,7 @@ describe('Login Page - Comprehensive Tests', () => {
       fireEvent.change(usernameInput, { target: { value: 'testuser' } })
       fireEvent.change(passwordInput, { target: { value: 'password123' } })
 
-      const signInButton = screen.getByText('Sign In')
+      const signInButton = screen.getByRole('button', { name: 'Sign In' })
       fireEvent.click(signInButton)
 
       expect(signInButton).toBeDisabled()
@@ -833,7 +833,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       fireEvent.change(emailInput, { target: { value: '' } })
 
-      const sendButton = screen.getByText('Send OTP')
+      const sendButton = screen.getByRole('button', { name: 'Send OTP' })
       fireEvent.click(sendButton)
 
       expect(toast.error).toHaveBeenCalledWith('Please enter your email address')
@@ -874,7 +874,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           fireEvent.click(sendButton)
 
           await waitFor(() => {
@@ -916,7 +916,7 @@ describe('Login Page - Comprehensive Tests', () => {
 
       await waitFor(
         async () => {
-          const sendButton = screen.getByText('Send OTP')
+          const sendButton = screen.getByRole('button', { name: 'Send OTP' })
           fireEvent.click(sendButton)
 
           await waitFor(() => {

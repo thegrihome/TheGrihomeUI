@@ -61,6 +61,8 @@ describe('/api/ads/slots', () => {
     const { req, res } = createMocks({ method: 'GET' })
     await handler(req, res)
     const data = JSON.parse(res._getData())
+    expect(data.adSlots).toBeDefined()
+    expect(data.adSlots.length).toBeGreaterThan(0)
     expect(data.adSlots[0].isExpiringSoon).toBe(true)
   })
 

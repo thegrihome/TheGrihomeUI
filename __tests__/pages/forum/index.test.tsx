@@ -107,7 +107,7 @@ describe('Forum Index Page - Comprehensive Tests', () => {
       render(<Forum categories={mockCategories} />)
 
       expect(screen.getByText(/Grihome Community/)).toBeInTheDocument()
-      expect(screen.getByText(/Forum/)).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: /Forum/i })).toBeInTheDocument()
     })
 
     it('should render forum subtitle', () => {

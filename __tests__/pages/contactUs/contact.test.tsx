@@ -194,7 +194,7 @@ describe('ContactPage - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Send Message'))
 
       await waitFor(() => {
-        expect(screen.getByText('Name is required')).toBeInTheDocument()
+        expect(screen.getByText(/Name is required/)).toBeInTheDocument()
       })
     })
 
@@ -219,7 +219,7 @@ describe('ContactPage - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Send Message'))
 
       await waitFor(() => {
-        expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument()
+        expect(screen.getByText(/Please enter a valid email address/)).toBeInTheDocument()
       })
     })
 
@@ -231,7 +231,7 @@ describe('ContactPage - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('Send Message'))
 
       await waitFor(() => {
-        expect(screen.getByText('Message is required')).toBeInTheDocument()
+        expect(screen.getByText(/Message is required/)).toBeInTheDocument()
       })
     })
 

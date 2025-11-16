@@ -60,6 +60,14 @@ jest.mock('next-auth', () => {
   return jest.fn(() => (req, res) => res.status(200).json({}))
 })
 
+// Mock database config to prevent DATABASE_URL errors
+jest.mock('./lib/cockroachDB/database-config', () => ({
+  getDatabaseConfig: jest.fn(() => ({
+    url: 'postgresql://test:test@localhost:5432/test',
+    maxConnections: 5,
+  })),
+}))
+
 // Mock Google Maps
 global.google = {
   maps: {

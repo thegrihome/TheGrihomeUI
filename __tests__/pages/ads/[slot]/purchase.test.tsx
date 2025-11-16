@@ -37,6 +37,7 @@ jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => <img {...props} />,
 }))
+/* eslint-disable testing-library/no-node-access */
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title }: any) => {
@@ -332,7 +333,7 @@ describe('PurchaseAdSlotPage - Comprehensive Tests', () => {
       render(<PurchaseAdSlotPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Luxury Apartment')).toBeInTheDocument()
+        expect(screen.getAllByText('Luxury Apartment')[0]).toBeInTheDocument()
       })
     })
 

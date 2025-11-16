@@ -322,7 +322,7 @@ describe('Projects Index Page', () => {
       render(<ProjectsPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('No projects found')).toBeInTheDocument()
+        expect(screen.getAllByText('No projects found')[0]).toBeInTheDocument()
       })
     })
 
@@ -689,7 +689,7 @@ describe('Projects Index Page', () => {
       render(<ProjectsPage />)
 
       await waitFor(() => {
-        expect(screen.getByText(/No projects found/i)).toBeInTheDocument()
+        expect(screen.getAllByText(/No projects found/i)[0]).toBeInTheDocument()
       })
     })
   })

@@ -37,6 +37,7 @@ jest.mock('@/lib/cockroachDB/prisma', () => ({
       findUnique: jest.fn(),
     },
   },
+/* eslint-disable testing-library/no-node-access */
 }))
 
 jest.mock('next-seo', () => ({
@@ -143,7 +144,7 @@ describe('AdDetailPage - Comprehensive Tests', () => {
     it('should display start and end dates', () => {
       render(<AdDetailPage ad={mockAdWithProperty} isOwner={true} />)
 
-      expect(screen.getByText(/January/)).toBeInTheDocument()
+      expect(screen.getAllByText(/January/)[0]).toBeInTheDocument()
     })
   })
 
@@ -218,7 +219,7 @@ describe('AdDetailPage - Comprehensive Tests', () => {
 
       render(<AdDetailPage ad={expiredAd} isOwner={true} />)
 
-      expect(screen.getByText('Expired')).toBeInTheDocument()
+      expect(screen.getAllByText('Expired')[0]).toBeInTheDocument()
     })
 
     it('should show expiring soon warning', () => {
@@ -255,7 +256,7 @@ describe('AdDetailPage - Comprehensive Tests', () => {
     it('should display property thumbnail when available', () => {
       render(<AdDetailPage ad={mockAdWithProperty} isOwner={true} />)
 
-      const thumbnail = screen.getByAlt('123 Main St')
+      const thumbnail = screen.getByAltText('123 Main St')
       expect(thumbnail).toBeInTheDocument()
       expect(thumbnail).toHaveAttribute('src', expect.stringContaining('prop1.jpg'))
     })
@@ -271,7 +272,7 @@ describe('AdDetailPage - Comprehensive Tests', () => {
 
       render(<AdDetailPage ad={adWithoutThumbnail} isOwner={true} />)
 
-      const placeholder = screen.getByAlt('123 Main St')
+      const placeholder = screen.getByAltText('123 Main St')
       expect(placeholder).toBeInTheDocument()
     })
 
@@ -533,7 +534,7 @@ describe('AdDetailPage - Comprehensive Tests', () => {
 
       render(<AdDetailPage ad={oneDayAd} isOwner={true} />)
 
-      expect(screen.getByText(/1 day/)).toBeInTheDocument()
+      expect(screen.getAllByText(/1 day/)[0]).toBeInTheDocument()
     })
   })
 

@@ -718,7 +718,7 @@ describe('Add Project Page', () => {
       render(<AddProjectPage />)
 
       await waitFor(() => {
-        const cancelButton = screen.getByText('Cancel')
+        const cancelButton = screen.getByRole('button', { name: 'Cancel' })
         fireEvent.click(cancelButton)
         expect(mockRouter.back).toHaveBeenCalled()
       })

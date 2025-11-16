@@ -37,6 +37,7 @@ jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
     // eslint-disable-next-line jsx-a11y/alt-text
+/* eslint-disable testing-library/no-node-access */
     return <img {...props} />
   },
 }))
@@ -365,7 +366,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
     it('should show error when submitting without name', async () => {
       render(<AddBuilderPage />)
 
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       // Button should be disabled, but let's test the validation
       expect(submitButton).toBeDisabled()
     })
@@ -375,7 +376,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const nameInput = screen.getByLabelText(/Builder Name/)
       const websiteInput = screen.getByLabelText('Website URL')
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.change(websiteInput, { target: { value: 'invalid-url' } })
@@ -398,7 +399,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const nameInput = screen.getByLabelText(/Builder Name/)
       const websiteInput = screen.getByLabelText('Website URL')
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.change(websiteInput, { target: { value: 'http://example.com' } })
@@ -419,7 +420,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const nameInput = screen.getByLabelText(/Builder Name/)
       const websiteInput = screen.getByLabelText('Website URL')
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.change(websiteInput, { target: { value: 'https://example.com' } })
@@ -439,7 +440,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const nameInput = screen.getByLabelText(/Builder Name/)
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(submitButton)
@@ -453,7 +454,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const nameInput = screen.getByLabelText(/Builder Name/)
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: '   ' } })
 
@@ -471,7 +472,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const nameInput = screen.getByLabelText(/Builder Name/)
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(submitButton)
@@ -504,7 +505,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       })
       fireEvent.change(screen.getByLabelText('Address'), { target: { value: '123 Main St' } })
 
-      fireEvent.click(screen.getByText('Submit'))
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith(
@@ -524,7 +525,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const nameInput = screen.getByLabelText(/Builder Name/)
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(submitButton)
@@ -542,7 +543,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const nameInput = screen.getByLabelText(/Builder Name/)
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(submitButton)
@@ -563,7 +564,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const nameInput = screen.getByLabelText(/Builder Name/)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
-      fireEvent.click(screen.getByText('Submit'))
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
       await waitFor(() => {
         expect(toast.success).toHaveBeenCalledWith('Builder added successfully!')
@@ -580,7 +581,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const nameInput = screen.getByLabelText(/Builder Name/)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
-      fireEvent.click(screen.getByText('Submit'))
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/builders/123')
@@ -597,7 +598,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const nameInput = screen.getByLabelText(/Builder Name/)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
-      fireEvent.click(screen.getByText('Submit'))
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Builder already exists')
@@ -611,7 +612,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const nameInput = screen.getByLabelText(/Builder Name/)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
-      fireEvent.click(screen.getByText('Submit'))
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('An error occurred. Please try again.')
@@ -625,7 +626,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const nameInput = screen.getByLabelText(/Builder Name/)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
-      fireEvent.click(screen.getByText('Submit'))
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalled()
@@ -650,7 +651,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       render(<AddBuilderPage />)
 
-      fireEvent.click(screen.getByText('Cancel'))
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
       expect(mockBack).toHaveBeenCalled()
     })
@@ -774,7 +775,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
 
       const nameInput = screen.getByLabelText(/Builder Name/)
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
-      fireEvent.click(screen.getByText('Submit'))
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalled()
@@ -789,7 +790,7 @@ describe('AddBuilderPage - Comprehensive Tests', () => {
       render(<AddBuilderPage />)
 
       const nameInput = screen.getByLabelText(/Builder Name/)
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
 
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
       fireEvent.click(submitButton)

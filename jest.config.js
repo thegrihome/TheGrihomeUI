@@ -19,6 +19,7 @@ const customJestConfig = {
   },
   testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
   testPathIgnorePatterns: ['/node_modules/', '/__tests__/utils/'],
+  transformIgnorePatterns: ['node_modules/(?!(uuid)/)'],
   collectCoverageFrom: [
     'pages/**/*.{js,jsx,ts,tsx}',
     'components/**/*.{js,jsx,ts,tsx}',

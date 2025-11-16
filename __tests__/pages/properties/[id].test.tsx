@@ -374,7 +374,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
         expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Mark as Sold'))
+      fireEvent.click(screen.getByRole('button', { name: 'Mark as Sold' }))
 
       await waitFor(() => {
         expect(screen.getByText('Mark Property as Sold')).toBeInTheDocument()
@@ -634,7 +634,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
         expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Mark as Sold'))
+      fireEvent.click(screen.getByRole('button', { name: 'Mark as Sold' }))
 
       await waitFor(() => {
         expect(screen.getByPlaceholderText('Enter buyer name...')).toBeInTheDocument()
@@ -648,7 +648,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
         expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Mark as Sold'))
+      fireEvent.click(screen.getByRole('button', { name: 'Mark as Sold' }))
 
       await waitFor(() => {
         const input = screen.getByPlaceholderText('Enter buyer name...') as HTMLInputElement
@@ -664,13 +664,13 @@ describe('Property Detail Page - Comprehensive Tests', () => {
         expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Mark as Sold'))
+      fireEvent.click(screen.getByRole('button', { name: 'Mark as Sold' }))
 
       await waitFor(() => {
         expect(screen.getByText('Mark Property as Sold')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Cancel'))
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
       await waitFor(() => {
         expect(screen.queryByText('Mark Property as Sold')).not.toBeInTheDocument()
@@ -703,7 +703,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
         expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Mark as Sold'))
+      fireEvent.click(screen.getByRole('button', { name: 'Mark as Sold' }))
 
       await waitFor(() => {
         expect(screen.getByPlaceholderText('Enter buyer name...')).toBeInTheDocument()
@@ -748,7 +748,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
         expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Mark as Sold'))
+      fireEvent.click(screen.getByRole('button', { name: 'Mark as Sold' }))
 
       await waitFor(() => {
         expect(screen.getByPlaceholderText('Enter buyer name...')).toBeInTheDocument()
@@ -788,7 +788,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
         expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Mark as Sold'))
+      fireEvent.click(screen.getByRole('button', { name: 'Mark as Sold' }))
 
       await waitFor(() => {
         expect(screen.getByPlaceholderText('Enter buyer name...')).toBeInTheDocument()
@@ -828,7 +828,7 @@ describe('Property Detail Page - Comprehensive Tests', () => {
         expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Mark as Sold'))
+      fireEvent.click(screen.getByRole('button', { name: 'Mark as Sold' }))
 
       await waitFor(() => {
         expect(screen.getByPlaceholderText('Enter buyer name...')).toBeInTheDocument()

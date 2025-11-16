@@ -37,6 +37,7 @@ jest.mock('next-seo', () => ({
 const mockBuilder = {
   id: '1',
   name: 'Premier Builders',
+/* eslint-disable testing-library/no-node-access */
   description: 'Leading real estate developer',
   logoUrl: 'https://example.com/logo.png',
   website: 'https://premierbuilders.com',
@@ -102,7 +103,7 @@ describe('BuilderPage - Comprehensive Tests', () => {
     it('should render builder logo when available', () => {
       render(<BuilderPage builder={mockBuilder} />)
 
-      const logo = screen.getByAlt('Premier Builders logo')
+      const logo = screen.getByAltText('Premier Builders logo')
       expect(logo).toBeInTheDocument()
       expect(logo).toHaveAttribute('src', 'https://example.com/logo.png')
     })
@@ -283,7 +284,7 @@ describe('BuilderPage - Comprehensive Tests', () => {
     it('should render project thumbnail when available', () => {
       render(<BuilderPage builder={mockBuilder} />)
 
-      const thumbnail = screen.getByAlt('Luxury Apartments')
+      const thumbnail = screen.getByAltText('Luxury Apartments')
       expect(thumbnail).toBeInTheDocument()
       expect(thumbnail).toHaveAttribute('src', expect.stringContaining('project1.jpg'))
     })
@@ -430,14 +431,14 @@ describe('BuilderPage - Comprehensive Tests', () => {
     it('should have alt text for builder logo', () => {
       render(<BuilderPage builder={mockBuilder} />)
 
-      const logo = screen.getByAlt('Premier Builders logo')
+      const logo = screen.getByAltText('Premier Builders logo')
       expect(logo).toBeInTheDocument()
     })
 
     it('should have alt text for project images', () => {
       render(<BuilderPage builder={mockBuilder} />)
 
-      const projectImage = screen.getByAlt('Luxury Apartments')
+      const projectImage = screen.getByAltText('Luxury Apartments')
       expect(projectImage).toBeInTheDocument()
     })
 

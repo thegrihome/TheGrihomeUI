@@ -1080,7 +1080,7 @@ describe('Properties Page - Comprehensive Tests', () => {
         expect(screen.getByText('Next')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Next'))
+      fireEvent.click(screen.getByRole('button', { name: 'Next' }))
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=2'))
@@ -1108,7 +1108,7 @@ describe('Properties Page - Comprehensive Tests', () => {
         expect(screen.getByText('Previous')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Previous'))
+      fireEvent.click(screen.getByRole('button', { name: 'Previous' }))
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=1'))
@@ -1133,7 +1133,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       render(<PropertiesPage />)
 
       await waitFor(() => {
-        const prevButton = screen.getByText('Previous')
+        const prevButton = screen.getByRole('button', { name: 'Previous' })
         expect(prevButton).toBeDisabled()
       })
     })
@@ -1156,7 +1156,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       render(<PropertiesPage />)
 
       await waitFor(() => {
-        const nextButton = screen.getByText('Next')
+        const nextButton = screen.getByRole('button', { name: 'Next' })
         expect(nextButton).toBeDisabled()
       })
     })
@@ -1342,7 +1342,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       const buyerInput = screen.getByPlaceholderText(/Enter buyer name/i)
       fireEvent.change(buyerInput, { target: { value: 'John Doe' } })
 
-      const submitButton = screen.getByText('Mark as Sold')
+      const submitButton = screen.getByRole('button', { name: 'Mark as Sold' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {

@@ -37,6 +37,7 @@ jest.mock('next-seo', () => ({
       document.title = title
     }
     return null
+/* eslint-disable testing-library/no-node-access */
   },
 }))
 
@@ -135,7 +136,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        expect(screen.getByText('John Doe')).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: 'John Doe' })).toBeInTheDocument()
       })
     })
 
@@ -161,7 +162,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        expect(screen.getByText('john@example.com')).toBeInTheDocument()
+        expect(screen.getByText(/john@example\.com/)).toBeInTheDocument()
       })
     })
 
@@ -174,7 +175,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        expect(screen.getByText('+911234567890')).toBeInTheDocument()
+        expect(screen.getByText(/\+911234567890/)).toBeInTheDocument()
       })
     })
 
@@ -356,7 +357,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        expect(screen.getByText('John Doe')).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: 'John Doe' })).toBeInTheDocument()
         expect(screen.queryByText('ABC Realty')).not.toBeInTheDocument()
       })
     })
@@ -375,7 +376,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        expect(screen.getByText('John Doe')).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: 'John Doe' })).toBeInTheDocument()
         expect(screen.queryByText('+911234567890')).not.toBeInTheDocument()
       })
     })
@@ -607,7 +608,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        const prevButton = screen.getByText('Previous')
+        const prevButton = screen.getByRole('button', { name: 'Previous' })
         expect(prevButton).toBeDisabled()
       })
     })
@@ -632,7 +633,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        const nextButton = screen.getByText('Next')
+        const nextButton = screen.getByRole('button', { name: 'Next' })
         expect(nextButton).not.toBeDisabled()
       })
     })
@@ -668,7 +669,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
         expect(screen.getByText('Next')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Next'))
+      fireEvent.click(screen.getByRole('button', { name: 'Next' }))
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=2'))
@@ -756,7 +757,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        expect(screen.getByText('An error occurred')).toBeInTheDocument()
+        expect(screen.getByText(/An error occurred/)).toBeInTheDocument()
       })
     })
 

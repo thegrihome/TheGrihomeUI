@@ -382,7 +382,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
           const otpInput = screen.getByPlaceholderText('Enter 6-digit OTP')
           fireEvent.change(otpInput, { target: { value: '123456' } })
 
-          const verifyButton = screen.getByText('Verify')
+          const verifyButton = screen.getByRole('button', { name: 'Verify' })
           fireEvent.click(verifyButton)
 
           await waitFor(() => {
@@ -414,7 +414,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
           const otpInput = screen.getByPlaceholderText('Enter 6-digit OTP')
           fireEvent.change(otpInput, { target: { value: '999999' } })
 
-          const verifyButton = screen.getByText('Verify')
+          const verifyButton = screen.getByRole('button', { name: 'Verify' })
           fireEvent.click(verifyButton)
 
           await waitFor(() => {
@@ -441,7 +441,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
           const otpInput = screen.getByPlaceholderText('Enter 6-digit OTP')
           fireEvent.change(otpInput, { target: { value: '123' } })
 
-          const verifyButton = screen.getByText('Verify')
+          const verifyButton = screen.getByRole('button', { name: 'Verify' })
           expect(verifyButton).toBeDisabled()
         })
       })
@@ -603,7 +603,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(() => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         expect(screen.getByPlaceholderText('Enter new password')).toBeInTheDocument()
@@ -620,7 +620,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(() => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         const newPasswordInput = screen.getByPlaceholderText('Enter new password')
@@ -649,7 +649,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         const newPasswordInput = screen.getByPlaceholderText('Enter new password')
@@ -681,7 +681,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(() => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         const newPasswordInput = screen.getByPlaceholderText('Enter new password')
@@ -707,7 +707,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(() => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         const newPasswordInput = screen.getByPlaceholderText('Enter new password')
@@ -733,12 +733,12 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(() => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         expect(screen.getByPlaceholderText('Enter new password')).toBeInTheDocument()
 
-        fireEvent.click(screen.getByText('Cancel'))
+        fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
         expect(screen.queryByPlaceholderText('Enter new password')).not.toBeInTheDocument()
       })
@@ -755,7 +755,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Profile Picture')).toBeInTheDocument()
+        expect(screen.getByText(/Profile Picture/i)).toBeInTheDocument()
         expect(screen.getByText('Upload a file')).toBeInTheDocument()
       })
     })
@@ -775,7 +775,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Company Logo')).toBeInTheDocument()
+        expect(screen.getByText(/Company Logo/i)).toBeInTheDocument()
       })
     })
 
@@ -923,7 +923,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         const newPasswordInput = screen.getByPlaceholderText('Enter new password')
@@ -951,7 +951,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(() => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         const updateButton = screen.getByText('Update Password')
@@ -1094,7 +1094,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         const newPasswordInput = screen.getByPlaceholderText('Enter new password')
@@ -1179,7 +1179,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
       render(<UserInfoPage />)
 
       await waitFor(async () => {
-        const changePasswordButton = screen.getByText('Change password')
+        const changePasswordButton = screen.getByRole('button', { name: 'Change password' })
         fireEvent.click(changePasswordButton)
 
         const newPasswordInput = screen.getByPlaceholderText('Enter new password')
@@ -1265,7 +1265,7 @@ describe('UserInfo Page - Comprehensive Tests', () => {
           const otpInput = screen.getByPlaceholderText('Enter 6-digit OTP')
           fireEvent.change(otpInput, { target: { value: '123456' } })
 
-          const verifyButton = screen.getByText('Verify')
+          const verifyButton = screen.getByRole('button', { name: 'Verify' })
           fireEvent.click(verifyButton)
 
           await waitFor(() => {

@@ -347,7 +347,7 @@ describe('Thread Page - Comprehensive Tests', () => {
     it('should disable submit button when reply is empty', () => {
       render(<ThreadPage post={mockPost} />)
 
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       expect(submitButton).toBeDisabled()
     })
 
@@ -357,7 +357,7 @@ describe('Thread Page - Comprehensive Tests', () => {
       const textarea = screen.getByPlaceholderText('Write your reply...')
       fireEvent.change(textarea, { target: { value: 'Test reply' } })
 
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       expect(submitButton).not.toBeDisabled()
     })
   })
@@ -381,7 +381,7 @@ describe('Thread Page - Comprehensive Tests', () => {
       const textarea = screen.getByPlaceholderText('Write your reply...')
       fireEvent.change(textarea, { target: { value: 'Test reply' } })
 
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -414,7 +414,7 @@ describe('Thread Page - Comprehensive Tests', () => {
       const textarea = screen.getByPlaceholderText('Write your reply...')
       fireEvent.change(textarea, { target: { value: 'Test reply' } })
 
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       expect(screen.getByText('Posting...')).toBeInTheDocument()
@@ -442,7 +442,7 @@ describe('Thread Page - Comprehensive Tests', () => {
       const textarea = screen.getByPlaceholderText('Write your reply...')
       fireEvent.change(textarea, { target: { value: 'Test reply' } })
 
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -463,7 +463,7 @@ describe('Thread Page - Comprehensive Tests', () => {
       const textarea = screen.getByPlaceholderText('Write your reply...')
       fireEvent.change(textarea, { target: { value: 'Test reply' } })
 
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -481,7 +481,7 @@ describe('Thread Page - Comprehensive Tests', () => {
       const textarea = screen.getByPlaceholderText('Write your reply...')
       fireEvent.change(textarea, { target: { value: 'Test reply' } })
 
-      const submitButton = screen.getByText('Submit')
+      const submitButton = screen.getByRole('button', { name: 'Submit' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {

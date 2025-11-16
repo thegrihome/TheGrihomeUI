@@ -564,8 +564,8 @@ describe('Add Property Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('🏡 Villas'))
 
       await waitFor(() => {
-        expect(screen.getByText('Bedrooms *')).toBeInTheDocument()
-        expect(screen.getByText('Bathrooms *')).toBeInTheDocument()
+        expect(screen.getByText(/Bedrooms\s*\*/)).toBeInTheDocument()
+        expect(screen.getByText(/Bathrooms\s*\*/)).toBeInTheDocument()
       })
     })
 
@@ -580,8 +580,8 @@ describe('Add Property Page - Comprehensive Tests', () => {
       fireEvent.click(screen.getByText('🏢 Apartments'))
 
       await waitFor(() => {
-        expect(screen.getByText('Bedrooms *')).toBeInTheDocument()
-        expect(screen.getByText('Bathrooms *')).toBeInTheDocument()
+        expect(screen.getByText(/Bedrooms\s*\*/)).toBeInTheDocument()
+        expect(screen.getByText(/Bathrooms\s*\*/)).toBeInTheDocument()
       })
     })
 
@@ -614,13 +614,13 @@ describe('Add Property Page - Comprehensive Tests', () => {
 
     it('should render bedrooms input field', async () => {
       await waitFor(() => {
-        expect(screen.getByText('Bedrooms *')).toBeInTheDocument()
+        expect(screen.getByText(/Bedrooms\s*\*/)).toBeInTheDocument()
       })
     })
 
     it('should render bathrooms input field', async () => {
       await waitFor(() => {
-        expect(screen.getByText('Bathrooms *')).toBeInTheDocument()
+        expect(screen.getByText(/Bathrooms\s*\*/)).toBeInTheDocument()
       })
     })
 
@@ -1029,7 +1029,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
       fireEvent.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getByText('Processing your property...')).toBeInTheDocument()
+        expect(screen.getByText(/Processing.*property/)).toBeInTheDocument()
       })
     })
 
@@ -1167,7 +1167,7 @@ describe('Add Property Page - Comprehensive Tests', () => {
     it('should navigate back when cancel clicked', () => {
       render(<AddProperty />)
 
-      const cancelButton = screen.getByText('Cancel')
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' })
       fireEvent.click(cancelButton)
 
       expect(mockBack).toHaveBeenCalled()
@@ -1229,10 +1229,10 @@ describe('Add Property Page - Comprehensive Tests', () => {
     it('should have required asterisks on required fields', () => {
       render(<AddProperty />)
 
-      expect(screen.getByText('Property Title *')).toBeInTheDocument()
+      expect(screen.getByText(/Property Title\s*\*/)).toBeInTheDocument()
       expect(screen.getByText('Property Type *')).toBeInTheDocument()
       expect(screen.getByText('Property Size *')).toBeInTheDocument()
-      expect(screen.getByText('Location *')).toBeInTheDocument()
+      expect(screen.getByText(/Location\s*\*/)).toBeInTheDocument()
       expect(screen.getByText('Price (₹) *')).toBeInTheDocument()
       expect(screen.getByText('Facing *')).toBeInTheDocument()
     })

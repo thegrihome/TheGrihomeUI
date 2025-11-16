@@ -37,6 +37,7 @@ jest.mock('next-seo', () => ({
 }))
 
 const mockBuilders = [
+/* eslint-disable testing-library/no-node-access */
   {
     id: '1',
     name: 'Builder One',
@@ -340,7 +341,7 @@ describe('BuildersPage - Comprehensive Tests', () => {
       render(<BuildersPage />)
 
       await waitFor(() => {
-        const logo = screen.getByAlt('Builder One')
+        const logo = screen.getByAltText('Builder One')
         expect(logo).toBeInTheDocument()
         expect(logo).toHaveAttribute('src', 'https://example.com/logo1.png')
       })
@@ -721,7 +722,7 @@ describe('BuildersPage - Comprehensive Tests', () => {
       render(<BuildersPage />)
 
       await waitFor(() => {
-        const prevButton = screen.getByText('Previous')
+        const prevButton = screen.getByRole('button', { name: 'Previous' })
         expect(prevButton).toBeDisabled()
       })
     })
@@ -735,7 +736,7 @@ describe('BuildersPage - Comprehensive Tests', () => {
       render(<BuildersPage />)
 
       await waitFor(() => {
-        const nextButton = screen.getByText('Next')
+        const nextButton = screen.getByRole('button', { name: 'Next' })
         expect(nextButton).not.toBeDisabled()
       })
     })
@@ -760,7 +761,7 @@ describe('BuildersPage - Comprehensive Tests', () => {
         expect(screen.getByText('Next')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Next'))
+      fireEvent.click(screen.getByRole('button', { name: 'Next' }))
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=2'))
@@ -795,7 +796,7 @@ describe('BuildersPage - Comprehensive Tests', () => {
         expect(screen.getByText('Previous')).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('Previous'))
+      fireEvent.click(screen.getByRole('button', { name: 'Previous' }))
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=1'))
@@ -896,7 +897,7 @@ describe('BuildersPage - Comprehensive Tests', () => {
       render(<BuildersPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('An error occurred')).toBeInTheDocument()
+        expect(screen.getByText(/An error occurred/)).toBeInTheDocument()
       })
     })
 
@@ -924,7 +925,7 @@ describe('BuildersPage - Comprehensive Tests', () => {
       render(<BuildersPage />)
 
       await waitFor(() => {
-        const logo = screen.getByAlt('Builder One')
+        const logo = screen.getByAltText('Builder One')
         expect(logo).toBeInTheDocument()
       })
     })

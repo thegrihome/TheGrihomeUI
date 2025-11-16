@@ -99,7 +99,7 @@ describe('DynamicList Component', () => {
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: 'New Item' } })
 
-      const addButton = screen.getByText('Add')
+      const addButton = screen.getByRole('button', { name: 'Add' })
       fireEvent.click(addButton)
 
       expect(mockOnChange).toHaveBeenCalledWith(['New Item'])
@@ -110,7 +110,7 @@ describe('DynamicList Component', () => {
 
       const input = screen.getByPlaceholderText('Enter item...') as HTMLInputElement
       fireEvent.change(input, { target: { value: 'New Item' } })
-      fireEvent.click(screen.getByText('Add'))
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(input.value).toBe('')
     })
@@ -120,7 +120,7 @@ describe('DynamicList Component', () => {
 
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: '  Trimmed Item  ' } })
-      fireEvent.click(screen.getByText('Add'))
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(mockOnChange).toHaveBeenCalledWith(['Trimmed Item'])
     })
@@ -130,7 +130,7 @@ describe('DynamicList Component', () => {
 
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: '' } })
-      fireEvent.click(screen.getByText('Add'))
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(mockOnChange).not.toHaveBeenCalled()
     })
@@ -140,7 +140,7 @@ describe('DynamicList Component', () => {
 
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: '   ' } })
-      fireEvent.click(screen.getByText('Add'))
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(mockOnChange).not.toHaveBeenCalled()
     })
@@ -184,7 +184,7 @@ describe('DynamicList Component', () => {
 
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: 'Item 3' } })
-      fireEvent.click(screen.getByText('Add'))
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(mockOnChange).toHaveBeenCalledWith(['Item 1', 'Item 2', 'Item 3'])
     })
@@ -253,7 +253,7 @@ describe('DynamicList Component', () => {
 
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: 'Item 3' } })
-      fireEvent.click(screen.getByText('Add'))
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(mockOnChange).not.toHaveBeenCalled()
     })
@@ -286,7 +286,7 @@ describe('DynamicList Component', () => {
     it('should disable Add button when input is empty', () => {
       render(<DynamicList items={[]} onChange={mockOnChange} label="Test Label" />)
 
-      const addButton = screen.getByText('Add')
+      const addButton = screen.getByRole('button', { name: 'Add' })
       expect(addButton).toBeDisabled()
     })
 
@@ -296,7 +296,7 @@ describe('DynamicList Component', () => {
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: 'Test' } })
 
-      const addButton = screen.getByText('Add')
+      const addButton = screen.getByRole('button', { name: 'Add' })
       expect(addButton).not.toBeDisabled()
     })
 
@@ -306,7 +306,7 @@ describe('DynamicList Component', () => {
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: '   ' } })
 
-      const addButton = screen.getByText('Add')
+      const addButton = screen.getByRole('button', { name: 'Add' })
       expect(addButton).toBeDisabled()
     })
   })
@@ -352,7 +352,7 @@ describe('DynamicList Component', () => {
     it('should apply disabled styles to button', () => {
       render(<DynamicList items={[]} onChange={mockOnChange} label="Test Label" />)
 
-      const addButton = screen.getByText('Add')
+      const addButton = screen.getByRole('button', { name: 'Add' })
       expect(addButton.className).toContain('disabled:bg-gray-300')
       expect(addButton.className).toContain('disabled:cursor-not-allowed')
     })
@@ -396,7 +396,7 @@ describe('DynamicList Component', () => {
 
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: 'Item 1' } })
-      fireEvent.click(screen.getByText('Add'))
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(mockOnChange).toHaveBeenCalledWith(['Item 1'])
     })
@@ -409,7 +409,7 @@ describe('DynamicList Component', () => {
       // Add item
       const input = screen.getByPlaceholderText('Enter item...')
       fireEvent.change(input, { target: { value: 'Item 1' } })
-      fireEvent.click(screen.getByText('Add'))
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }))
 
       // Rerender with new items
       rerender(<DynamicList items={['Item 1']} onChange={mockOnChange} label="Test Label" />)
@@ -430,7 +430,7 @@ describe('DynamicList Component', () => {
       const removeButton = screen.getByTitle('Remove item')
       expect(removeButton).toHaveAttribute('type', 'button')
 
-      const addButton = screen.getByText('Add')
+      const addButton = screen.getByRole('button', { name: 'Add' })
       expect(addButton).toHaveAttribute('type', 'button')
     })
 

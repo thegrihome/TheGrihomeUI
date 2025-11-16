@@ -551,7 +551,7 @@ describe('New Post Page - Comprehensive Tests', () => {
     it('should call router.back() when cancel is clicked', () => {
       render(<NewPostPage categories={mockCategories} />)
 
-      const cancelButton = screen.getByText('Cancel')
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' })
       fireEvent.click(cancelButton)
 
       expect(mockBack).toHaveBeenCalled()
@@ -585,7 +585,7 @@ describe('New Post Page - Comprehensive Tests', () => {
       const submitButton = screen.getByText('Create Thread')
       fireEvent.click(submitButton)
 
-      const cancelButton = screen.getByText('Cancel')
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' })
       expect(cancelButton).toBeDisabled()
 
       await waitFor(() => {

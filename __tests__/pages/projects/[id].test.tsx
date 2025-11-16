@@ -458,7 +458,7 @@ describe('ProjectPage Component', () => {
       render(<ProjectPage project={mockProject} />)
 
       await waitFor(() => {
-        expect(screen.getByText('Properties (2)')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /Properties.*2/ })).toBeInTheDocument()
       })
     })
 
@@ -516,7 +516,7 @@ describe('ProjectPage Component', () => {
       render(<ProjectPage project={mockProject} />)
 
       await waitFor(() => {
-        expect(screen.getByText('Agents (2)')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /Agents.*2/ })).toBeInTheDocument()
       })
     })
 
@@ -591,7 +591,7 @@ describe('ProjectPage Component', () => {
     it('renders banner image', async () => {
       render(<ProjectPage project={mockProject} />)
       await waitFor(() => {
-        const img = screen.getByAlt('Test Project')
+        const img = screen.getByAltText('Test Project')
         expect(img).toHaveAttribute('src', mockProject.bannerImageUrl)
       })
     })
@@ -600,7 +600,7 @@ describe('ProjectPage Component', () => {
       render(<ProjectPage project={mockProject} />)
       await waitFor(() => {
         expect(screen.getByText('Floor Plans')).toBeInTheDocument()
-        expect(screen.getByAlt('Floor Plan 1')).toBeInTheDocument()
+        expect(screen.getByAltText('Floor Plan 1')).toBeInTheDocument()
       })
     })
 
@@ -608,7 +608,7 @@ describe('ProjectPage Component', () => {
       render(<ProjectPage project={mockProject} />)
       await waitFor(() => {
         expect(screen.getByText('Clubhouse')).toBeInTheDocument()
-        expect(screen.getByAlt('Clubhouse 1')).toBeInTheDocument()
+        expect(screen.getByAltText('Clubhouse 1')).toBeInTheDocument()
       })
     })
 
@@ -616,8 +616,8 @@ describe('ProjectPage Component', () => {
       render(<ProjectPage project={mockProject} />)
       await waitFor(() => {
         expect(screen.getByText('Gallery')).toBeInTheDocument()
-        expect(screen.getByAlt('Gallery Image 1')).toBeInTheDocument()
-        expect(screen.getByAlt('Gallery Image 2')).toBeInTheDocument()
+        expect(screen.getByAltText('Gallery Image 1')).toBeInTheDocument()
+        expect(screen.getByAltText('Gallery Image 2')).toBeInTheDocument()
       })
     })
   })

@@ -37,6 +37,7 @@ jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => <img {...props} />,
 }))
+/* eslint-disable testing-library/no-node-access */
 
 jest.mock('next-seo', () => ({
   NextSeo: ({ title }: any) => {
@@ -184,7 +185,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('+ Add Slot')).toBeInTheDocument()
+        expect(screen.getByText(/\+\s*Add Slot/)).toBeInTheDocument()
       })
     })
 
@@ -202,7 +203,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Slot Pricing')).toBeInTheDocument()
+        expect(screen.getByText(/Slot Pricing/)).toBeInTheDocument()
       })
     })
   })
@@ -381,10 +382,10 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('+ Add Slot')).toBeInTheDocument()
+        expect(screen.getByText(/\+\s*Add Slot/)).toBeInTheDocument()
       })
 
-      fireEvent.click(screen.getByText('+ Add Slot'))
+      fireEvent.click(screen.getByText(/\+\s*Add Slot/))
 
       await waitFor(() => {
         expect(screen.getByText('Slot')).toBeInTheDocument()
@@ -405,7 +406,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -434,7 +435,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       expect(toast.error).toHaveBeenCalledWith('No more slots available')
@@ -456,7 +457,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -481,7 +482,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -506,7 +507,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -557,7 +558,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       jest.useRealTimers()
@@ -579,7 +580,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -601,7 +602,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -625,11 +626,11 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
-        const purchaseButton = screen.getByText(/Purchase|Post for FREE/)
+        const purchaseButton = screen.getByRole('button', { name: /Purchase|Post for FREE/ })
         fireEvent.click(purchaseButton)
       })
 
@@ -654,7 +655,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -665,7 +666,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       })
 
       await waitFor(() => {
-        const purchaseButton = screen.getByText(/Purchase|Post for FREE/)
+        const purchaseButton = screen.getByRole('button', { name: /Purchase|Post for FREE/ })
         fireEvent.click(purchaseButton)
       })
 
@@ -697,7 +698,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -708,7 +709,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       })
 
       await waitFor(() => {
-        const purchaseButton = screen.getByText(/Purchase|Post for FREE/)
+        const purchaseButton = screen.getByRole('button', { name: /Purchase|Post for FREE/ })
         fireEvent.click(purchaseButton)
       })
 
@@ -735,7 +736,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -746,7 +747,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       })
 
       await waitFor(() => {
-        const purchaseButton = screen.getByText(/Purchase|Post for FREE/)
+        const purchaseButton = screen.getByRole('button', { name: /Purchase|Post for FREE/ })
         fireEvent.click(purchaseButton)
       })
 
@@ -773,7 +774,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       render(<PurchaseAdPage />)
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText('+ Add Slot'))
+        fireEvent.click(screen.getByText(/\+\s*Add Slot/))
       })
 
       await waitFor(() => {
@@ -784,7 +785,7 @@ describe('PurchaseAdPage - Comprehensive Tests', () => {
       })
 
       await waitFor(() => {
-        const purchaseButton = screen.getByText(/Purchase|Post for FREE/)
+        const purchaseButton = screen.getByRole('button', { name: /Purchase|Post for FREE/ })
         fireEvent.click(purchaseButton)
       })
 

@@ -580,7 +580,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       fireEvent.change(passwordInput, { target: { value: 'password123' } })
       fireEvent.change(confirmPasswordInput, { target: { value: 'password456' } })
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -598,7 +598,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       fireEvent.change(passwordInput, { target: { value: '12345' } })
       fireEvent.change(confirmPasswordInput, { target: { value: '12345' } })
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -612,7 +612,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       const usernameInput = screen.getByPlaceholderText(/choose a unique username/i)
       fireEvent.change(usernameInput, { target: { value: 'ab' } })
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -626,7 +626,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       const agentCheckbox = screen.getByRole('checkbox')
       fireEvent.click(agentCheckbox)
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -647,7 +647,7 @@ describe('Signup Page - Comprehensive Tests', () => {
 
       await waitFor(() => expect(screen.getByText('Username is already taken')).toBeInTheDocument())
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -707,7 +707,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       render(<Signup />)
       await fillValidForm()
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -734,7 +734,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       render(<Signup />)
       await fillValidForm()
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -760,7 +760,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       render(<Signup />)
       await fillValidForm()
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -779,7 +779,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       render(<Signup />)
       await fillValidForm()
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -797,7 +797,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       render(<Signup />)
       await fillValidForm()
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -822,7 +822,7 @@ describe('Signup Page - Comprehensive Tests', () => {
       render(<Signup />)
       await fillValidForm()
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       fireEvent.click(submitButton)
 
       expect(screen.getByText('Creating account...')).toBeInTheDocument()
@@ -837,7 +837,7 @@ describe('Signup Page - Comprehensive Tests', () => {
     it('should disable submit button when form is invalid', () => {
       render(<Signup />)
 
-      const submitButton = screen.getByText('Create Account')
+      const submitButton = screen.getByRole('button', { name: 'Create Account' })
       expect(submitButton).toBeDisabled()
     })
 
@@ -878,7 +878,7 @@ describe('Signup Page - Comprehensive Tests', () => {
 
       await waitFor(
         () => {
-          const submitButton = screen.getByText('Create Account')
+          const submitButton = screen.getByRole('button', { name: 'Create Account' })
           expect(submitButton).not.toBeDisabled()
         },
         { timeout: 1500 }

@@ -76,7 +76,7 @@ describe('BuilderSelector Component', () => {
       render(<BuilderSelector value="builder1" onChange={mockOnChange} />)
 
       await waitFor(() => {
-        expect(screen.getByText('Builder One')).toBeInTheDocument()
+        expect(screen.getByText(/Builder One/)).toBeInTheDocument()
       })
     })
 
@@ -277,10 +277,10 @@ describe('BuilderSelector Component', () => {
       fireEvent.click(selector)
 
       await waitFor(() => {
-        expect(screen.getByText('Builder One')).toBeInTheDocument()
+        expect(screen.getByText(/Builder One/)).toBeInTheDocument()
       })
 
-      const builderOption = screen.getByText('Builder One')
+      const builderOption = screen.getByText(/Builder One/)
       fireEvent.click(builderOption)
 
       await waitFor(() => {
@@ -307,7 +307,7 @@ describe('BuilderSelector Component', () => {
       rerender(<BuilderSelector value="builder1" onChange={mockOnChange} />)
 
       await waitFor(() => {
-        expect(screen.getByText('Builder One')).toBeInTheDocument()
+        expect(screen.getByText(/Builder One/)).toBeInTheDocument()
       })
     })
 
@@ -340,7 +340,7 @@ describe('BuilderSelector Component', () => {
 
       render(<BuilderSelector value="builder1" onChange={mockOnChange} />)
 
-      const selector = screen.getByText('Builder One')
+      const selector = screen.getByText(/Builder One/)
       fireEvent.click(selector)
 
       await waitFor(() => {
@@ -366,7 +366,7 @@ describe('BuilderSelector Component', () => {
       fireEvent.click(selector)
 
       await waitFor(() => {
-        expect(screen.getByText('Builder One')).toBeInTheDocument()
+        expect(screen.getByText(/Builder One/)).toBeInTheDocument()
         expect(screen.getByText('Builder Two')).toBeInTheDocument()
         expect(screen.getByText('ABC Builders')).toBeInTheDocument()
       })
@@ -545,7 +545,7 @@ describe('BuilderSelector Component', () => {
       })
 
       await waitFor(() => {
-        const cancelButton = screen.getByText('Cancel')
+        const cancelButton = screen.getByRole('button', { name: 'Cancel' })
         fireEvent.click(cancelButton)
       })
 
@@ -573,7 +573,7 @@ describe('BuilderSelector Component', () => {
       const nameInput = screen.getByPlaceholderText('Enter builder name')
       fireEvent.change(nameInput, { target: { value: 'Test Builder' } })
 
-      const cancelButton = screen.getByText('Cancel')
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' })
       fireEvent.click(cancelButton)
 
       // Reopen form

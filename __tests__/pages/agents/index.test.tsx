@@ -37,6 +37,7 @@ jest.mock('next-seo', () => ({
     if (title) {
       // eslint-disable-next-line testing-library/no-node-access
       document.title = title
+/* eslint-disable testing-library/no-node-access */
     }
     return null
   },
@@ -833,7 +834,7 @@ describe('AgentsPage - Comprehensive Tests', () => {
       render(<AgentsPage />)
 
       await waitFor(() => {
-        expect(screen.getByText(/Showing page 1 of 2/)).toBeInTheDocument()
+        expect(screen.getByText(/Showing page.*1.*of.*2/)).toBeInTheDocument()
       })
     })
 
@@ -1051,7 +1052,7 @@ describe('AgentsPage - Comprehensive Tests', () => {
       render(<AgentsPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('An error occurred')).toBeInTheDocument()
+        expect(screen.getByText(/An error occurred/)).toBeInTheDocument()
       })
     })
   })

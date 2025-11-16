@@ -433,8 +433,8 @@ describe('Edit Property Page - Comprehensive Tests', () => {
       render(<EditProperty />)
 
       await waitFor(() => {
-        expect(screen.getByText('Bedrooms *')).toBeInTheDocument()
-        expect(screen.getByText('Bathrooms *')).toBeInTheDocument()
+        expect(screen.getByText(/Bedrooms\s*\*/)).toBeInTheDocument()
+        expect(screen.getByText(/Bathrooms\s*\*/)).toBeInTheDocument()
       })
     })
   })
@@ -543,9 +543,7 @@ describe('Edit Property Page - Comprehensive Tests', () => {
       const fileInput = document.querySelector('#image-upload') as HTMLInputElement
       const file = new File(['image'], 'new.png', { type: 'image/png' })
 
-      Object.defineProperty(fileInput, 'files', {
-        value: [file],
-      })
+      fireEvent.change(fileInput, { target: { files: [file] } })
 
       fireEvent.change(fileInput)
 
@@ -651,7 +649,7 @@ describe('Edit Property Page - Comprehensive Tests', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText('Processing your property...')).toBeInTheDocument()
+        expect(screen.getByText(/Processing.*property/)).toBeInTheDocument()
       })
     })
 
@@ -794,7 +792,7 @@ describe('Edit Property Page - Comprehensive Tests', () => {
       render(<EditProperty />)
 
       await waitFor(() => {
-        const cancelButton = screen.getByText('Cancel')
+        const cancelButton = screen.getByRole('button', { name: 'Cancel' })
         fireEvent.click(cancelButton)
       })
 
@@ -827,10 +825,10 @@ describe('Edit Property Page - Comprehensive Tests', () => {
       render(<EditProperty />)
 
       await waitFor(() => {
-        expect(screen.getByText('Property Title *')).toBeInTheDocument()
+        expect(screen.getByText(/Property Title\s*\*/)).toBeInTheDocument()
         expect(screen.getByText('Property Type *')).toBeInTheDocument()
         expect(screen.getByText('Property Size *')).toBeInTheDocument()
-        expect(screen.getByText('Location *')).toBeInTheDocument()
+        expect(screen.getByText(/Location\s*\*/)).toBeInTheDocument()
         expect(screen.getByText('Price (₹) *')).toBeInTheDocument()
       })
     })

@@ -140,7 +140,7 @@ describe('User Profile Page - Comprehensive Tests', () => {
         />
       )
 
-      const avatar = screen.getByAlt('johndoe')
+      const avatar = screen.getByAltText('johndoe')
       expect(avatar).toBeInTheDocument()
       expect(avatar).toHaveAttribute('src', '/avatar.jpg')
     })
@@ -941,7 +941,7 @@ describe('User Profile Page - Comprehensive Tests', () => {
         />
       )
 
-      const img = screen.getByAlt('johndoe')
+      const img = screen.getByAltText('johndoe')
       expect(img).toBeInTheDocument()
     })
   })

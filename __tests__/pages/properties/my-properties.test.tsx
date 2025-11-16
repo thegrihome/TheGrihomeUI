@@ -265,7 +265,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
       render(<MyPropertiesPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Authentication Required')).toBeInTheDocument()
+        expect(screen.getByText(/Authentication\s+Required/)).toBeInTheDocument()
         expect(screen.getByText('Please sign in to view your properties')).toBeInTheDocument()
       })
     })
@@ -279,7 +279,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
       render(<MyPropertiesPage />)
 
       await waitFor(() => {
-        const signInButton = screen.getByText('Sign In')
+        const signInButton = screen.getByRole('button', { name: 'Sign In' })
         expect(signInButton).toBeInTheDocument()
       })
     })
@@ -293,7 +293,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
       render(<MyPropertiesPage />)
 
       await waitFor(() => {
-        const signInButton = screen.getByText('Sign In')
+        const signInButton = screen.getByRole('button', { name: 'Sign In' })
         fireEvent.click(signInButton)
       })
 
@@ -816,7 +816,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
 
       fireEvent.click(screen.getByText('External Buyer'))
 
-      const submitButton = screen.getByText('Mark as Sold')
+      const submitButton = screen.getByRole('button', { name: 'Mark as Sold' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -864,7 +864,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
 
       fireEvent.click(screen.getByText('External Buyer'))
 
-      const submitButton = screen.getByText('Mark as Sold')
+      const submitButton = screen.getByRole('button', { name: 'Mark as Sold' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -907,7 +907,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
 
       fireEvent.click(screen.getByText('External Buyer'))
 
-      const submitButton = screen.getByText('Mark as Sold')
+      const submitButton = screen.getByRole('button', { name: 'Mark as Sold' })
       fireEvent.click(submitButton)
 
       await waitFor(() => {
@@ -928,7 +928,7 @@ describe('My Properties Page - Comprehensive Tests', () => {
         expect(screen.getByText('Mark as Sold')).toBeInTheDocument()
       })
 
-      const cancelButton = screen.getByText('Cancel')
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' })
       fireEvent.click(cancelButton)
 
       await waitFor(() => {
