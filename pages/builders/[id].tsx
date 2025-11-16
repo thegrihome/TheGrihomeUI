@@ -196,59 +196,43 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                         </h3>
                       </div>
 
-                      <div className="location mb-2">
-                        <div className="flex items-center text-gray-600">
-                          <svg
-                            className="w-3 h-3 mr-1 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                          </svg>
-                          <span className="text-xs line-clamp-1">
-                            {project.location.locality && `${project.location.locality}, `}
-                            {project.location.city}
-                          </span>
-                        </div>
-                      </div>
-
-                      {(project.numberOfUnits || project.size) && (
-                        <div className="project-stats flex gap-2 text-xs mb-2">
-                          {project.numberOfUnits && (
-                            <div className="stat">
+                      <div className="flex flex-wrap gap-2 text-xs mb-2">
+                        <span className="text-gray-600">
+                          {project.location.locality && `${project.location.locality}, `}
+                          {project.location.city}
+                        </span>
+                        {project.numberOfUnits && (
+                          <>
+                            <span className="text-gray-400">•</span>
+                            <span>
                               <span className="font-bold text-blue-600">
                                 {project.numberOfUnits}
                               </span>{' '}
                               <span className="text-gray-600">units</span>
-                            </div>
-                          )}
-                          {project.size && (
-                            <div className="stat">
+                            </span>
+                          </>
+                        )}
+                        {project.size && (
+                          <>
+                            <span className="text-gray-400">•</span>
+                            <span>
                               <span className="font-bold text-green-600">{project.size}</span>{' '}
                               <span className="text-gray-600">acres</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                            </span>
+                          </>
+                        )}
+                      </div>
 
                       <p className="text-gray-600 text-xs mb-3 line-clamp-2">
                         {project.description}
                       </p>
 
-                      <div className="flex justify-end">
-                        <Link
-                          href={`/projects/${project.id}`}
-                          className="text-blue-600 hover:text-blue-700 text-xs font-medium"
-                        >
-                          View Project Details →
-                        </Link>
-                      </div>
+                      <Link
+                        href={`/projects/${project.id}`}
+                        className="block w-full bg-blue-600 text-white text-center px-3 py-2 rounded text-xs hover:bg-blue-700 transition-colors"
+                      >
+                        View Project Details
+                      </Link>
                     </div>
                   </div>
                 ))}
