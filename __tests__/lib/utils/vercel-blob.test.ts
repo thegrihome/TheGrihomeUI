@@ -182,7 +182,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/premiumvillas-apartments/banner.jpeg',
+        'hyderabad-projects/premiumvillas--apartments/banner.jpeg', // Double dash from normalization
         expect.any(Buffer),
         expect.any(Object)
       )

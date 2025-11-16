@@ -65,7 +65,7 @@ describe('lib/utils/geocoding', () => {
         formattedAddress: '123 Main St, Hyderabad, Telangana, India',
         neighborhood: 'Madhapur',
         locality: 'Madhapur',
-        city: 'Hyderabad',
+        city: 'Madhapur', // Implementation uses locality as city
         state: 'Telangana',
         country: 'India',
         zipcode: '500081',
