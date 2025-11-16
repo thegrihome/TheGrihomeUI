@@ -145,7 +145,7 @@ export default function AddBuilderPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Builder Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Builder Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -161,7 +161,7 @@ export default function AddBuilderPage() {
 
             {/* Logo Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Builder Logo</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Builder Logo</label>
               <div className="flex items-start gap-4">
                 {logoPreview && (
                   <div className="flex-shrink-0">
@@ -194,7 +194,7 @@ export default function AddBuilderPage() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -207,7 +207,7 @@ export default function AddBuilderPage() {
 
             {/* Website */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Website URL</label>
               <input
                 type="url"
                 name="website"
@@ -220,7 +220,7 @@ export default function AddBuilderPage() {
 
             {/* Address */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Address</label>
               <textarea
                 name="address"
                 value={formData.address}
@@ -232,10 +232,10 @@ export default function AddBuilderPage() {
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 pt-2">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !formData.name.trim()}
                 className="bg-blue-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Submitting...' : 'Submit'}
