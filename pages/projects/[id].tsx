@@ -605,7 +605,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             details.floorPlans.length > 0 &&
             !project.floorplanImageUrls?.length && (
               <div className="project-section">
-                <h2 className="project-section-title">Floor Plans (Legacy)</h2>
+                <h2 className="project-section-title">Floor Plans</h2>
                 <div className="images-grid">
                   {details.floorPlans.map((floorPlan: any, index: number) => (
                     <div key={index} className="image-item">
