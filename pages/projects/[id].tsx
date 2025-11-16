@@ -800,8 +800,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                           : 'Price on Request'}
                       </div>
                       <div className="property-location">
-                        {property.location.locality && `${property.location.locality}, `}
-                        {property.location.city}
+                        {property.location?.locality && `${property.location.locality}, `}
+                        {property.location?.city}
                       </div>
                     </div>
                   </div>
@@ -827,8 +827,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                           : 'Price on Request'}
                       </div>
                       <div className="property-location">
-                        {property.location.locality && `${property.location.locality}, `}
-                        {property.location.city}
+                        {property.location?.locality && `${property.location.locality}, `}
+                        {property.location?.city}
                       </div>
                     </div>
                   </div>
@@ -889,7 +889,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         ) : (
                           <div className="agent-avatar flex items-center justify-center">
                             <span className="text-gray-500 text-sm">
-                              {(agentData.agent.name || agentData.agent.username)
+                              {(agentData.agent.name || agentData.agent.username || '')
                                 .charAt(0)
                                 .toUpperCase()}
                             </span>
@@ -945,7 +945,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                         ) : (
                           <div className="agent-avatar flex items-center justify-center">
                             <span className="text-gray-500 text-sm">
-                              {(agentData.agent.name || agentData.agent.username)
+                              {(agentData.agent.name || agentData.agent.username || '')
                                 .charAt(0)
                                 .toUpperCase()}
                             </span>
