@@ -23,7 +23,6 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
   if (!apiKey) {
-    console.error('Google Maps API key not configured')
     return null
   }
 
@@ -35,7 +34,6 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
     const data = await response.json()
 
     if (data.status !== 'OK' || !data.results || data.results.length === 0) {
-      console.error('Geocoding failed:', data.status, data.error_message)
       return null
     }
 
@@ -65,7 +63,6 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
       zipcode: getComponent(['postal_code']),
     }
   } catch (error) {
-    console.error('Geocoding error:', error)
     return null
   }
 }

@@ -97,7 +97,6 @@ export default function PropertyMap({
         })
       }
     } catch (err) {
-      console.error('Error initializing map:', err)
       setError('Failed to initialize map')
     }
   }, [isLoaded, latitude, longitude, address])
