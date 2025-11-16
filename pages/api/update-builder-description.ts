@@ -17,6 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ message: 'Builder updated successfully', builder })
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error updating builder:', error)
     res.status(500).json({ message: 'Failed to update builder' })
   }
