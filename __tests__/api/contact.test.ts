@@ -1,8 +1,20 @@
 import { createMocks } from 'node-mocks-http'
-import handler from '@/pages/api/contact'
-import { Resend } from 'resend'
 
-jest.mock('resend')
+const mockSend = jest.fn()
+
+jest.mock('resend', () => {
+  const mockSend = jest.fn()
+  return {
+    Resend: jest.fn().mockImplementation(() => ({
+      emails: { send: mockSend },
+    })),
+    mockSend, // Export for test access
+  }
+})
+
+// Import handler after mock is set up
+import handler from '@/pages/api/contact'
+import { mockSend as importedMockSend } from 'resend'
 
 describe('/api/contact', () => {
   beforeEach(() => {
@@ -16,8 +28,7 @@ describe('/api/contact', () => {
   })
 
   it('should send contact email successfully', async () => {
-    const mockSend = jest.fn().mockResolvedValue({ data: { id: 'email-id' } })
-    ;(Resend as jest.Mock).mockImplementation(() => ({ emails: { send: mockSend } }))
+    ;(importedMockSend as jest.Mock).mockResolvedValue({ data: { id: 'email-id' } })
     const { req, res } = createMocks({
       method: 'POST',
       body: { name: 'John', email: 'john@test.com', phone: '1234567890', message: 'Test message' },
@@ -27,8 +38,7 @@ describe('/api/contact', () => {
   })
 
   it('should handle email sending errors', async () => {
-    const mockSend = jest.fn().mockRejectedValue(new Error('Email failed'))
-    ;(Resend as jest.Mock).mockImplementation(() => ({ emails: { send: mockSend } }))
+    ;(importedMockSend as jest.Mock).mockRejectedValue(new Error('Email failed'))
     const { req, res } = createMocks({
       method: 'POST',
       body: { name: 'John', email: 'john@test.com', message: 'Test message' },
