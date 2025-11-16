@@ -18,13 +18,14 @@ describe('/api/forum/posts/[slug]', () => {
 
   describe('GET /api/forum/posts/[slug]', () => {
     it('should return post with details', async () => {
+      const createdAtDate = new Date()
       const mockPost = {
         id: 'post1',
         title: 'Test Post',
         content: 'Test content',
         slug: 'test-post',
         viewCount: 100,
-        author: { id: 'user1', username: 'testuser', image: null, createdAt: new Date() },
+        author: { id: 'user1', username: 'testuser', image: null, createdAt: createdAtDate },
         category: { id: 'cat1', name: 'Category', slug: 'category' },
         replies: [],
         reactions: [],
@@ -41,7 +42,12 @@ describe('/api/forum/posts/[slug]', () => {
       await handler(req, res)
 
       expect(res._getStatusCode()).toBe(200)
-      expect(JSON.parse(res._getData())).toEqual(mockPost)
+      // JSON serialization converts Date objects to ISO strings
+      const expected = {
+        ...mockPost,
+        author: { ...mockPost.author, createdAt: createdAtDate.toISOString() },
+      }
+      expect(JSON.parse(res._getData())).toEqual(expected)
     })
 
     it('should increment view count', async () => {
