@@ -179,10 +179,10 @@ export default function AddBuilderPage() {
                     type="file"
                     accept="image/*"
                     onChange={handleLogoUpload}
-                    className="block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-medium
+                    className="block w-full text-xs text-gray-500
+                      file:mr-3 file:py-1 file:px-2
+                      file:rounded file:border-0
+                      file:text-xs file:font-medium
                       file:bg-blue-50 file:text-blue-700
                       hover:file:bg-blue-100
                       cursor-pointer"
@@ -232,18 +232,18 @@ export default function AddBuilderPage() {
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-3 pt-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="bg-blue-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? 'Adding Builder...' : 'Add Builder'}
+                {loading ? 'Submitting...' : 'Submit'}
               </button>
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-3 border border-gray-300 rounded-md font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
