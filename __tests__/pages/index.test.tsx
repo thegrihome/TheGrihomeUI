@@ -19,6 +19,18 @@ describe('Home Page', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     ;(useRouter as jest.Mock).mockReturnValue(mockRouter)
+
+    // Suppress console.error for Google Maps API key warnings
+    jest.spyOn(console, 'error').mockImplementation(message => {
+      if (typeof message === 'string' && message.includes('Google Maps API key')) {
+        return
+      }
+      console.warn(message)
+    })
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
   })
 
   it('renders home page correctly', () => {

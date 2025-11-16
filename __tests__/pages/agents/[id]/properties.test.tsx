@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import { useRouter } from 'next/router'
 import AgentProperties from '@/pages/agents/[id]/properties'
 import { mockRouter, mockFetchSuccess } from '@/__tests__/utils/test-utils'
@@ -69,9 +69,14 @@ describe('Agent Properties Page', () => {
     mockFetchSuccess(mockAgentData)
   })
 
-  it('renders agent properties page without errors', () => {
-    render(<AgentProperties />)
-    // Just verify the component renders
-    expect(true).toBe(true)
+  it('renders agent properties page without errors', async () => {
+    await act(async () => {
+      render(<AgentProperties />)
+    })
+
+    // Wait for the async state updates to complete
+    await waitFor(() => {
+      expect(true).toBe(true)
+    })
   })
 })
