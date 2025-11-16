@@ -187,7 +187,7 @@ export default function AddBuilderPage() {
                       hover:file:bg-blue-100
                       cursor-pointer"
                   />
-                  <p className="mt-1 text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                  <p className="mt-1 text-xs text-gray-500">(PNG, JPG, GIF up to 5MB)</p>
                 </div>
               </div>
             </div>
