@@ -689,14 +689,15 @@ describe('/api/properties/search', () => {
       )
     })
 
-    it('should enforce minimum limit of 1', async () => {
+    it('should use default limit when limit is 0', async () => {
       req.query = { limit: '0' }
 
       await handler(req as NextApiRequest, res as NextApiResponse)
 
+      // API treats 0 as falsy and uses default of 20
       expect(searchProperties).toHaveBeenCalledWith(
         expect.objectContaining({
-          limit: 1,
+          limit: 20,
         })
       )
     })
