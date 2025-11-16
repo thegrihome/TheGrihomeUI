@@ -127,8 +127,8 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
               </div>
 
               {/* Action Buttons */}
-              <div className="builder-actions flex gap-3 lg:ml-auto">
-                {builder.website && (
+              {builder.website && (
+                <div className="builder-actions flex gap-3 lg:ml-auto">
                   <a
                     href={builder.website}
                     target="_blank"
@@ -145,11 +145,8 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                     </svg>
                     Visit Website
                   </a>
-                )}
-                <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                  Contact Builder
-                </button>
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -227,12 +224,14 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                         {project.description}
                       </p>
 
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className="block w-full bg-blue-600 text-white text-center px-3 py-2 rounded text-xs hover:bg-blue-700 transition-colors"
-                      >
-                        View Project Details
-                      </Link>
+                      <div className="flex justify-end">
+                        <Link
+                          href={`/projects/${project.id}`}
+                          className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs hover:bg-blue-700 transition-colors"
+                        >
+                          View Details
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))}
