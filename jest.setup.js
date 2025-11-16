@@ -1,6 +1,11 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
+// Polyfill for TextEncoder/TextDecoder (required by jose/openid-client used by NextAuth)
+const { TextEncoder, TextDecoder } = require('util')
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
+
 // Suppress console errors for known test warnings
 const originalError = console.error
 const originalWarn = console.warn
@@ -49,6 +54,11 @@ jest.mock('next-auth/react', () => ({
   signOut: jest.fn(),
   getSession: jest.fn(),
 }))
+
+// Mock next-auth default export
+jest.mock('next-auth', () => {
+  return jest.fn(() => (req, res) => res.status(200).json({}))
+})
 
 // Mock Google Maps
 global.google = {

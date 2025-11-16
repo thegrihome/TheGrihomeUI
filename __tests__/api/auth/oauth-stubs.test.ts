@@ -429,7 +429,8 @@ describe('OAuth Stub Endpoints', () => {
           handler(req, res)
 
           const data = res._getData()
-          const openTags = (data.match(/<(html|head|body|div|style|script|h2|p)>/g) || []).length
+          const openTags = (data.match(/<(html|head|body|div|style|script|h2|p)(?:\s|>)/g) || [])
+            .length
           const closeTags = (data.match(/<\/(html|head|body|div|style|script|h2|p)>/g) || []).length
           expect(closeTags).toBeGreaterThan(0)
           expect(closeTags).toBe(openTags)
