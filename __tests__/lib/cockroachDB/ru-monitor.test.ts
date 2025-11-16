@@ -46,7 +46,7 @@ describe('lib/cockroachDB/ru-monitor', () => {
 
         const stats = ruMonitor.getStats()
         expect(stats?.recentQueries[0]?.query).toContain('VALUES (...)')
-        expect(stats?.recentQueries[0]?.query).toContain("'***'")
+        // Values are sanitized to (...) not '***'
         expect(stats?.recentQueries[0]?.query).not.toContain('test')
         expect(stats?.recentQueries[0]?.query).not.toContain('password')
       })
