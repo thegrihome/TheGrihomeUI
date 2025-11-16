@@ -33,11 +33,9 @@ jest.mock('next/image', () => ({
 jest.mock('next-seo', () => ({
   NextSeo: ({ title }: any) => {
     if (title) {
-      // eslint-disable-next-line testing-library/no-node-access
       document.title = title
     }
     return null
-/* eslint-disable testing-library/no-node-access */
   },
 }))
 
@@ -319,7 +317,7 @@ describe('AgentProperties - Comprehensive Tests', () => {
       render(<AgentProperties />)
 
       await waitFor(() => {
-        const image = screen.getByAlt('John Doe')
+        const image = screen.getByAltText('John Doe')
         expect(image).toBeInTheDocument()
         expect(image).toHaveAttribute('src', expect.stringContaining('john.jpg'))
       })
