@@ -90,10 +90,16 @@ export default function PropertyCard({
           {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
           {propertyTypes.find(t => t.value === property.propertyType)?.label}
         </div>
-        {property.listingType === 'RENT' && (
-          <div className="absolute top-1.5 right-1.5 bg-green-600 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
-            Rent
+        {property.listingStatus === 'SOLD' ? (
+          <div className="absolute top-1.5 right-1.5 bg-red-600 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
+            SOLD
           </div>
+        ) : (
+          property.listingType === 'RENT' && (
+            <div className="absolute top-1.5 right-1.5 bg-green-600 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
+              Rent
+            </div>
+          )
         )}
       </div>
 

@@ -100,6 +100,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where: whereClause,
     })
 
+    // Get active properties count (always show this regardless of current filter)
+    const activePropertiesCount = await prisma.property.count({
+      where: {
+        userId: id,
+        listingStatus: 'ACTIVE',
+      },
+    })
+
     const totalPages = Math.ceil(totalCount / limitNum)
 
     // Transform properties for frontend (same as properties list API)
@@ -144,6 +152,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({
       agent,
       properties: transformedProperties,
+      activePropertiesCount,
       pagination: {
         currentPage: pageNum,
         totalPages,
