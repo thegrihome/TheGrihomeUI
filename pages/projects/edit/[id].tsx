@@ -3,14 +3,42 @@ import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import { NextSeo } from 'next-seo'
 import { Loader } from '@googlemaps/js-api-loader'
+import { GetServerSideProps } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BuilderSelector from '@/components/projects/BuilderSelector'
 import DynamicList from '@/components/projects/DynamicList'
 import ImageUploader from '@/components/projects/ImageUploader'
 import toast from 'react-hot-toast'
+import { prisma } from '@/lib/cockroachDB/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/pages/api/auth/[...nextauth]'
 
-export default function SubmitProject() {
+interface ProjectData {
+  id: string
+  name: string
+  description: string
+  type: string
+  builderId: string
+  builderWebsiteLink: string | null
+  brochureUrl: string | null
+  bannerImageUrl: string | null
+  floorplanImageUrls: string[]
+  clubhouseImageUrls: string[]
+  galleryImageUrls: string[]
+  highlights: string[] | null
+  amenities: string[] | null
+  walkthroughVideoUrl: string | null
+  location: {
+    formattedAddress: string | null
+  }
+}
+
+interface EditProjectProps {
+  project: ProjectData | null
+}
+
+export default function EditProject({ project }: EditProjectProps) {
   const router = useRouter()
   const { data: session, status } = useSession()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -28,7 +56,7 @@ export default function SubmitProject() {
   const [amenities, setAmenities] = useState<string[]>([])
   const [walkthroughVideoUrl, setWalkthroughVideoUrl] = useState('')
 
-  // Image state
+  // Image state (store URLs for existing images, base64 for new ones)
   const [bannerImage, setBannerImage] = useState<string[]>([])
   const [floorplanImages, setFloorplanImages] = useState<string[]>([])
   const [clubhouseImages, setClubhouseImages] = useState<string[]>([])
@@ -37,6 +65,28 @@ export default function SubmitProject() {
   // Google Maps autocomplete refs
   const locationInputRef = useRef<HTMLInputElement>(null)
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
+
+  // Pre-populate form with project data
+  useEffect(() => {
+    if (project) {
+      setName(project.name)
+      setDescription(project.description)
+      setType(project.type)
+      setBuilderId(project.builderId)
+      setBuilderWebsiteLink(project.builderWebsiteLink || '')
+      setBrochureUrl(project.brochureUrl || '')
+      setLocationAddress(project.location.formattedAddress || '')
+      setHighlights(project.highlights || [])
+      setAmenities(project.amenities || [])
+      setWalkthroughVideoUrl(project.walkthroughVideoUrl || '')
+
+      // Set existing images (URLs)
+      if (project.bannerImageUrl) setBannerImage([project.bannerImageUrl])
+      setFloorplanImages(project.floorplanImageUrls || [])
+      setClubhouseImages(project.clubhouseImageUrls || [])
+      setGalleryImages(project.galleryImageUrls || [])
+    }
+  }, [project])
 
   // Initialize Google Maps Autocomplete
   useEffect(() => {
@@ -101,6 +151,21 @@ export default function SubmitProject() {
     return null
   }
 
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h1>
+            <p className="text-gray-600">The project you are trying to edit does not exist.</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
   const handleBrochurePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -146,12 +211,18 @@ export default function SubmitProject() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('/api/projects/create', {
-        method: 'POST',
+      // Filter out existing URLs from images (only send new base64 images)
+      const newFloorplans = floorplanImages.filter(img => img.startsWith('data:image'))
+      const newClubhouse = clubhouseImages.filter(img => img.startsWith('data:image'))
+      const newGallery = galleryImages.filter(img => img.startsWith('data:image'))
+
+      const response = await fetch('/api/projects/update', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          projectId: project.id,
           name: name.trim(),
           description: description.trim(),
           type,
@@ -160,12 +231,12 @@ export default function SubmitProject() {
           brochureUrl: brochureUrl.trim() || null,
           brochurePdfBase64: brochurePdf || null,
           locationAddress: locationAddress.trim(),
-          bannerImageBase64: bannerImage[0] || null,
+          bannerImageBase64: bannerImage[0]?.startsWith('data:image') ? bannerImage[0] : null,
           highlights: highlights.length > 0 ? highlights : null,
           amenities: amenities.length > 0 ? amenities : null,
-          floorplanImagesBase64: floorplanImages,
-          clubhouseImagesBase64: clubhouseImages,
-          galleryImagesBase64: galleryImages,
+          floorplanImagesBase64: newFloorplans,
+          clubhouseImagesBase64: newClubhouse,
+          galleryImagesBase64: newGallery,
           walkthroughVideoUrl: walkthroughVideoUrl.trim() || null,
         }),
       })
@@ -173,13 +244,13 @@ export default function SubmitProject() {
       const data = await response.json()
 
       if (response.ok) {
-        toast.success('Project submitted successfully!')
-        router.push(`/projects/${data.project.id}`)
+        toast.success('Project updated successfully!')
+        router.push(`/projects/${project.id}`)
       } else {
-        toast.error(data.message || 'Failed to submit project')
+        toast.error(data.message || 'Failed to update project')
       }
     } catch (error) {
-      toast.error('Error submitting project')
+      toast.error('Error updating project')
     } finally {
       setIsSubmitting(false)
     }
@@ -188,17 +259,15 @@ export default function SubmitProject() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NextSeo
-        title="Submit Project | Grihome"
-        description="Submit a new real estate project to Grihome"
+        title="Edit Project | Grihome"
+        description="Edit your real estate project on Grihome"
       />
       <Header />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit New Project</h1>
-          <p className="text-gray-600 mb-8">
-            Share your real estate project with potential buyers and agents
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Project</h1>
+          <p className="text-gray-600 mb-8">Update your project details</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
@@ -420,13 +489,22 @@ export default function SubmitProject() {
 
             {/* Submit Button */}
             <div className="pt-6 border-t">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                {isSubmitting ? 'Submitting Project...' : 'Submit Project'}
-              </button>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="flex-1 bg-gray-200 text-gray-700 py-4 px-6 rounded-lg font-semibold text-lg hover:bg-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSubmitting ? 'Updating Project...' : 'Update Project'}
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -435,4 +513,76 @@ export default function SubmitProject() {
       <Footer />
     </div>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  const { id } = context.params as { id: string }
+  const session = await getServerSession(context.req, context.res, authOptions)
+
+  if (!session?.user?.id) {
+    return {
+      redirect: {
+        destination: '/auth/login',
+        permanent: false,
+      },
+    }
+  }
+
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        type: true,
+        builderId: true,
+        builderWebsiteLink: true,
+        brochureUrl: true,
+        bannerImageUrl: true,
+        floorplanImageUrls: true,
+        clubhouseImageUrls: true,
+        galleryImageUrls: true,
+        highlights: true,
+        amenities: true,
+        walkthroughVideoUrl: true,
+        postedByUserId: true,
+        location: {
+          select: {
+            formattedAddress: true,
+          },
+        },
+      },
+    })
+
+    if (!project) {
+      return {
+        props: {
+          project: null,
+        },
+      }
+    }
+
+    // Check if user is the owner
+    if (project.postedByUserId !== session.user.id) {
+      return {
+        redirect: {
+          destination: `/projects/${id}`,
+          permanent: false,
+        },
+      }
+    }
+
+    return {
+      props: {
+        project: JSON.parse(JSON.stringify(project)),
+      },
+    }
+  } catch (error) {
+    return {
+      props: {
+        project: null,
+      },
+    }
+  }
 }

@@ -124,10 +124,14 @@ export default function ProjectPage({ project }: ProjectPageProps) {
   const [showAgentBanner, setShowAgentBanner] = useState(false)
   const [isExpressingInterest, setIsExpressingInterest] = useState(false)
   const [isRegisteringAgent, setIsRegisteringAgent] = useState(false)
+  const [isArchiving, setIsArchiving] = useState(false)
 
   const { data: session, status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const router = useRouter()
+
+  // Check if current user is the owner
+  const isOwner = session?.user?.id === project?.postedByUserId
 
   const details = project?.projectDetails || {}
 
@@ -311,6 +315,40 @@ export default function ProjectPage({ project }: ProjectPageProps) {
     }
   }
 
+  const handleArchiveProject = async () => {
+    const confirmMessage = project.isArchived
+      ? 'Are you sure you want to restore this project?'
+      : 'Are you sure you want to archive this project? It will be hidden from public view.'
+
+    if (!confirm(confirmMessage)) return
+
+    setIsArchiving(true)
+    try {
+      const response = await fetch('/api/projects/archive', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId: project.id,
+          isArchived: !project.isArchived,
+        }),
+      })
+
+      if (response.ok) {
+        toast.success(`Project ${project.isArchived ? 'restored' : 'archived'} successfully!`)
+        router.reload()
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Failed to archive project')
+      }
+    } catch (error) {
+      toast.error('Error archiving project. Please try again.')
+    } finally {
+      setIsArchiving(false)
+    }
+  }
+
   return (
     <div className="project-detail-container">
       <NextSeo
@@ -370,6 +408,69 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 {project.location.city}, {project.location.state}
               </span>
             </div>
+
+            {/* Owner Actions */}
+            {isOwner && (
+              <div className="flex flex-wrap gap-2 mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <span className="text-sm text-gray-700 font-medium flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Your Project:
+                </span>
+                <Link
+                  href={`/projects/edit/${project.id}`}
+                  className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  Edit Project
+                </Link>
+                <button
+                  onClick={handleArchiveProject}
+                  disabled={isArchiving}
+                  className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                    project.isArchived
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-red-600 text-white hover:bg-red-700'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d={
+                        project.isArchived
+                          ? 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
+                          : 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4'
+                      }
+                    />
+                  </svg>
+                  {isArchiving
+                    ? 'Processing...'
+                    : project.isArchived
+                      ? 'Restore Project'
+                      : 'Archive Project'}
+                </button>
+              </div>
+            )}
 
             {/* Registered Agent Banner */}
             {showAgentBanner && (
