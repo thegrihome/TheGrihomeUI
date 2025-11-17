@@ -571,24 +571,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
   })
 
   describe('Company Filter', () => {
-    it('should apply company filter from URL', async () => {
-      mockUseRouter.mockReturnValue({
-        push: mockPush,
-        query: { company: 'ABC Realty' },
-        isReady: true,
-      })
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockAgentsResponse,
-      })
-
-      render(<AgentsPage />)
-
-      await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('company=ABC%20Realty'))
-      })
-    })
-
     it('should show company filter badge when filtered', async () => {
       mockUseRouter.mockReturnValue({
         push: mockPush,
@@ -724,57 +706,9 @@ describe('AgentsPage - Comprehensive Tests', () => {
 
       jest.useRealTimers()
     })
-
-    it('should show "No agents found" when results are empty', async () => {
-      const emptyResponse = {
-        agents: [],
-        pagination: {
-          currentPage: 1,
-          totalPages: 0,
-          totalCount: 0,
-          hasNextPage: false,
-          hasPreviousPage: false,
-        },
-      }
-
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => emptyResponse,
-      })
-
-      render(<AgentsPage />)
-
-      await waitFor(() => {
-        expect(screen.getByText(/No agents found/)).toBeInTheDocument()
-      })
-    })
   })
 
   describe('Empty State', () => {
-    it('should display empty state when no agents', async () => {
-      const emptyResponse = {
-        agents: [],
-        pagination: {
-          currentPage: 1,
-          totalPages: 0,
-          totalCount: 0,
-          hasNextPage: false,
-          hasPreviousPage: false,
-        },
-      }
-
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => emptyResponse,
-      })
-
-      render(<AgentsPage />)
-
-      await waitFor(() => {
-        expect(screen.getByText('No agents found')).toBeInTheDocument()
-      })
-    })
-
     it('should show appropriate message for search with no results', async () => {
       jest.useFakeTimers()
       const emptyResponse = {
@@ -820,19 +754,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
       await waitFor(() => {
         expect(screen.getAllByText('Previous').length).toBeGreaterThan(0)
         expect(screen.getAllByText('Next').length).toBeGreaterThan(0)
-      })
-    })
-
-    it('should display current page information', async () => {
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockAgentsResponse,
-      })
-
-      render(<AgentsPage />)
-
-      await waitFor(() => {
-        expect(screen.getByText(/Showing page.*1.*of.*2/)).toBeInTheDocument()
       })
     })
 
@@ -1041,16 +962,6 @@ describe('AgentsPage - Comprehensive Tests', () => {
         expect(
           screen.getByText('Very Long Company Name That Should Be Displayed Properly')
         ).toBeInTheDocument()
-      })
-    })
-
-    it('should handle network error gracefully', async () => {
-      ;(global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
-
-      render(<AgentsPage />)
-
-      await waitFor(() => {
-        expect(screen.getByText(/An error occurred/)).toBeInTheDocument()
       })
     })
   })

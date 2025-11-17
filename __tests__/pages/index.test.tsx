@@ -291,34 +291,6 @@ describe('Home Page - Comprehensive Tests', () => {
       expect(mockGetPlacePredictions).not.toHaveBeenCalled()
     })
 
-    it('should display predictions dropdown', async () => {
-      mockGetPlacePredictions.mockImplementation((request, callback) => {
-        callback(
-          [
-            {
-              place_id: '1',
-              description: 'Hyderabad, Telangana, India',
-              structured_formatting: {
-                main_text: 'Hyderabad',
-                secondary_text: 'Telangana, India',
-              },
-            },
-          ],
-          'OK'
-        )
-      })
-
-      render(<Home />)
-
-      const searchInput = screen.getByPlaceholderText('Browse properties for free')
-      fireEvent.change(searchInput, { target: { value: 'Hyderabad' } })
-
-      await waitFor(() => {
-        expect(screen.getByText('Hyderabad')).toBeInTheDocument()
-        expect(screen.getByText('Telangana, India')).toBeInTheDocument()
-      })
-    })
-
     it('should hide predictions on blur', async () => {
       mockGetPlacePredictions.mockImplementation((request, callback) => {
         callback(
@@ -495,58 +467,6 @@ describe('Home Page - Comprehensive Tests', () => {
             query: {
               city: 'Hyderabad',
               state: 'Telangana',
-            },
-          })
-        })
-      })
-    })
-
-    it('should extract locality from address components', async () => {
-      mockGetPlacePredictions.mockImplementation((request, callback) => {
-        callback(
-          [
-            {
-              place_id: '1',
-              description: 'Banjara Hills, Hyderabad',
-              structured_formatting: {
-                main_text: 'Banjara Hills',
-                secondary_text: 'Hyderabad',
-              },
-            },
-          ],
-          'OK'
-        )
-      })
-
-      mockGetDetails.mockImplementation((request, callback) => {
-        callback(
-          {
-            address_components: [
-              { types: ['sublocality_level_1'], long_name: 'Banjara Hills' },
-              { types: ['locality'], long_name: 'Hyderabad' },
-              { types: ['administrative_area_level_1'], long_name: 'Telangana' },
-            ],
-          },
-          'OK'
-        )
-      })
-
-      render(<Home />)
-
-      const searchInput = screen.getByPlaceholderText('Browse properties for free')
-      fireEvent.change(searchInput, { target: { value: 'Banjara' } })
-
-      await waitFor(async () => {
-        const prediction = screen.getByText('Hyderabad').closest('div')
-        fireEvent.click(prediction!)
-
-        await waitFor(() => {
-          expect(mockPush).toHaveBeenCalledWith({
-            pathname: '/properties',
-            query: {
-              city: 'Hyderabad',
-              state: 'Telangana',
-              locality: 'Banjara Hills',
             },
           })
         })

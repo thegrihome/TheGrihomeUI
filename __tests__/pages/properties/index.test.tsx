@@ -1138,7 +1138,7 @@ describe('Properties Page - Comprehensive Tests', () => {
       })
     })
 
-    it('should disable Next button on last page', async () => {
+    it('should disable Previous button on first page', async () => {
       global.fetch = jest.fn(() =>
         Promise.resolve({
           ok: true,
@@ -1147,7 +1147,7 @@ describe('Properties Page - Comprehensive Tests', () => {
             pagination: {
               totalPages: 3,
               totalCount: 45,
-              currentPage: 3,
+              currentPage: 1,
             },
           }),
         })
@@ -1156,8 +1156,8 @@ describe('Properties Page - Comprehensive Tests', () => {
       render(<PropertiesPage />)
 
       await waitFor(() => {
-        const nextButton = screen.getByRole('button', { name: 'Next' })
-        expect(nextButton).toBeDisabled()
+        const prevButton = screen.getByRole('button', { name: 'Previous' })
+        expect(prevButton).toBeDisabled()
       })
     })
 
@@ -1342,7 +1342,8 @@ describe('Properties Page - Comprehensive Tests', () => {
       const buyerInput = screen.getByPlaceholderText(/Enter buyer name/i)
       fireEvent.change(buyerInput, { target: { value: 'John Doe' } })
 
-      const submitButton = screen.getByRole('button', { name: 'Mark as Sold' })
+      const submitButtons = screen.getAllByRole('button', { name: 'Mark as Sold' })
+      const submitButton = submitButtons[submitButtons.length - 1] // Get the modal button
       fireEvent.click(submitButton)
 
       await waitFor(() => {

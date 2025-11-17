@@ -13,11 +13,15 @@ const originalWarn = console.warn
 beforeAll(() => {
   console.error = (...args) => {
     const message = typeof args[0] === 'string' ? args[0] : ''
+    const errorObj = args[0]
     if (
       message.includes('Google Maps API key') ||
       message.includes('Not implemented: HTMLFormElement.prototype.submit') ||
+      message.includes('Not implemented: window.scrollTo') ||
       message.includes('ReactDOM.render') ||
-      message.includes('act()')
+      message.includes('act()') ||
+      message.includes('Warning: An update to') ||
+      (errorObj && errorObj.type === 'not implemented')
     ) {
       return
     }

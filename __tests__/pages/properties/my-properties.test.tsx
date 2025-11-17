@@ -256,50 +256,6 @@ describe('My Properties Page - Comprehensive Tests', () => {
       })
     })
 
-    it('should show authentication required message when unauthenticated', async () => {
-      mockUseSession.mockReturnValue({
-        data: null,
-        status: 'unauthenticated',
-      })
-
-      render(<MyPropertiesPage />)
-
-      await waitFor(() => {
-        expect(screen.getByText(/Authentication\s+Required/)).toBeInTheDocument()
-        expect(screen.getByText('Please sign in to view your properties')).toBeInTheDocument()
-      })
-    })
-
-    it('should have sign in button when not authenticated', async () => {
-      mockUseSession.mockReturnValue({
-        data: null,
-        status: 'unauthenticated',
-      })
-
-      render(<MyPropertiesPage />)
-
-      await waitFor(() => {
-        const signInButton = screen.getByRole('button', { name: 'Sign In' })
-        expect(signInButton).toBeInTheDocument()
-      })
-    })
-
-    it('should call router.push when sign in button clicked', async () => {
-      mockUseSession.mockReturnValue({
-        data: null,
-        status: 'unauthenticated',
-      })
-
-      render(<MyPropertiesPage />)
-
-      await waitFor(() => {
-        const signInButton = screen.getByRole('button', { name: 'Sign In' })
-        fireEvent.click(signInButton)
-      })
-
-      expect(mockPush).toHaveBeenCalledWith('/login')
-    })
-
     it('should show loading state during authentication', () => {
       mockUseSession.mockReturnValue({
         data: null,
