@@ -344,7 +344,9 @@ export default function UserProfilePage({
                           <div className="forum-search-result-content">
                             <div className="forum-search-result-header">
                               <div>
-                                <h3 className="forum-search-result-title">Re: {reply.post.title}</h3>
+                                <h3 className="forum-search-result-title">
+                                  Re: {reply.post.title}
+                                </h3>
                                 <div className="forum-search-result-meta">
                                   <span className="forum-search-result-date">
                                     {formatDate(reply.createdAt)}
