@@ -53,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     // Transform the data to match the Property interface expected by the frontend
-    const transformedFavorites = favorites.map(fav => {
+    const transformedFavorites = favorites.map((fav: any) => {
       const details = fav.property.propertyDetails as any
       return {
         id: fav.property.id,
