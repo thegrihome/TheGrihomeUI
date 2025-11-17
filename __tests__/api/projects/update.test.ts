@@ -383,7 +383,8 @@ describe('/api/projects/update', () => {
     it('should upload new banner image when provided', async () => {
       req.body = {
         ...req.body,
-        bannerImageBase64: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        bannerImageBase64:
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
       }
 
       await handler(req as NextApiRequest, res as NextApiResponse)
@@ -423,10 +424,7 @@ describe('/api/projects/update', () => {
     it('should upload new floorplan images', async () => {
       req.body = {
         ...req.body,
-        floorplanImagesBase64: [
-          'data:image/png;base64,abc',
-          'data:image/png;base64,def',
-        ],
+        floorplanImagesBase64: ['data:image/png;base64,abc', 'data:image/png;base64,def'],
       }
 
       await handler(req as NextApiRequest, res as NextApiResponse)
@@ -434,10 +432,7 @@ describe('/api/projects/update', () => {
       expect(uploadMultipleProjectImages).toHaveBeenCalledWith(
         'Updated Project',
         'floorplans',
-        expect.arrayContaining([
-          'data:image/png;base64,abc',
-          'data:image/png;base64,def',
-        ])
+        expect.arrayContaining(['data:image/png;base64,abc', 'data:image/png;base64,def'])
       )
     })
 
