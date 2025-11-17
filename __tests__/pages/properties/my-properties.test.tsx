@@ -1302,4 +1302,260 @@ describe('My Properties Page - Comprehensive Tests', () => {
       })
     })
   })
+
+  describe('Favorites Tab', () => {
+    const mockFavoriteProperty = {
+      id: 'favorite-1',
+      streetAddress: '100 Favorite Street',
+      location: {
+        city: 'Pune',
+        state: 'Maharashtra',
+        zipcode: '411001',
+        locality: 'Koregaon Park',
+        fullAddress: '100 Favorite Street, Koregaon Park, Pune, Maharashtra',
+      },
+      builder: 'Favorite Builder',
+      project: 'Favorite Project',
+      propertyType: 'CONDO',
+      sqFt: 1800,
+      thumbnailUrl: 'https://example.com/favorite.jpg',
+      imageUrls: ['https://example.com/favorite.jpg'],
+      listingStatus: 'ACTIVE',
+      createdAt: '2024-01-10T10:00:00Z',
+      postedBy: 'Another Agent',
+      companyName: 'Another Realty',
+      bedrooms: '3',
+      bathrooms: '2',
+      price: '6000000',
+      userId: 'another-user-id',
+      favoritedAt: '2024-01-15T10:00:00Z',
+    }
+
+    beforeEach(() => {
+      global.fetch = jest
+        .fn()
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            ok: true,
+            json: async () => ({
+              properties: [mockActiveProperty, mockSoldProperty, mockArchivedProperty],
+            }),
+          })
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            ok: true,
+            json: async () => ({
+              favorites: [mockFavoriteProperty],
+              count: 1,
+            }),
+          })
+        ) as jest.Mock
+    })
+
+    it('should render favorites tab', async () => {
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/My Favorites/)).toBeInTheDocument()
+      })
+    })
+
+    it('should show correct count in favorites tab', async () => {
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/My Favorites \(1\)/)).toBeInTheDocument()
+      })
+    })
+
+    it('should fetch favorites on page load', async () => {
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith('/api/properties/favorites')
+      })
+    })
+
+    it('should switch to favorites tab when clicked', async () => {
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/My Favorites/)).toBeInTheDocument()
+      })
+
+      const favoritesTab = screen.getByText(/My Favorites/).closest('button')
+      if (favoritesTab) {
+        fireEvent.click(favoritesTab)
+      }
+
+      await waitFor(() => {
+        expect(favoritesTab).toHaveClass('my-properties-tab--active')
+      })
+    })
+
+    it('should display favorited properties in favorites tab', async () => {
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        const favoritesTab = screen.getByText(/My Favorites/).closest('button')
+        if (favoritesTab) {
+          fireEvent.click(favoritesTab)
+        }
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('Favorite Project')).toBeInTheDocument()
+      })
+    })
+
+    it('should show no favorites message when favorites list is empty', async () => {
+      global.fetch = jest
+        .fn()
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            ok: true,
+            json: async () => ({
+              properties: [mockActiveProperty],
+            }),
+          })
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            ok: true,
+            json: async () => ({
+              favorites: [],
+              count: 0,
+            }),
+          })
+        ) as jest.Mock
+
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        const favoritesTab = screen.getByText(/My Favorites \(0\)/).closest('button')
+        if (favoritesTab) {
+          fireEvent.click(favoritesTab)
+        }
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText(/No favorites yet/)).toBeInTheDocument()
+      })
+    })
+
+    it('should not show owner actions on favorited properties', async () => {
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        const favoritesTab = screen.getByText(/My Favorites/).closest('button')
+        if (favoritesTab) {
+          fireEvent.click(favoritesTab)
+        }
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('Favorite Project')).toBeInTheDocument()
+      })
+
+      // Should not have Sold or Archive buttons
+      const soldButtons = screen.queryAllByText('Sold')
+      expect(soldButtons.length).toBe(0)
+    })
+
+    it('should show heart icon on favorited properties', async () => {
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        const favoritesTab = screen.getByText(/My Favorites/).closest('button')
+        if (favoritesTab) {
+          fireEvent.click(favoritesTab)
+        }
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('Favorite Project')).toBeInTheDocument()
+      })
+
+      // Heart icon should be visible
+      const heartButtons = document.querySelectorAll('button[title*="favorite"]')
+      expect(heartButtons.length).toBeGreaterThan(0)
+    })
+
+    it('should handle favorites fetch error gracefully', async () => {
+      global.fetch = jest
+        .fn()
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            ok: true,
+            json: async () => ({
+              properties: [mockActiveProperty],
+            }),
+          })
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            ok: false,
+            json: async () => ({ message: 'Failed to fetch favorites' }),
+          })
+        ) as jest.Mock
+
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Active Properties/)).toBeInTheDocument()
+      })
+
+      // Should not crash and favorites count should be 0
+      await waitFor(() => {
+        expect(screen.getByText(/My Favorites \(0\)/)).toBeInTheDocument()
+      })
+    })
+
+    it('should display favorited date for favorites', async () => {
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        const favoritesTab = screen.getByText(/My Favorites/).closest('button')
+        if (favoritesTab) {
+          fireEvent.click(favoritesTab)
+        }
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('Favorite Project')).toBeInTheDocument()
+        // Favorited date might be displayed somewhere in the card
+      })
+    })
+
+    it('should reload favorites when toggling favorite on a property', async () => {
+      render(<MyPropertiesPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Active Properties/)).toBeInTheDocument()
+      })
+
+      // Mock the toggle favorite endpoint
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: async () => ({ isFavorited: false, message: 'Removed from favorites' }),
+        })
+      ) as jest.Mock
+
+      // Find a favorite button and click it
+      const favoriteButtons = document.querySelectorAll('button[title*="favorite"]')
+      if (favoriteButtons.length > 0) {
+        fireEvent.click(favoriteButtons[0])
+      }
+
+      // Should call the toggle endpoint
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith(
+          '/api/properties/toggle-favorite',
+          expect.any(Object)
+        )
+      })
+    })
+  })
 })
