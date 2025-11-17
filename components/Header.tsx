@@ -11,6 +11,7 @@ const Header: NextPage = () => {
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
   const [userImage, setUserImage] = useState<string | null>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
 
   const { data: session, status, update } = useSession()
   const router = useRouter()
@@ -65,6 +66,29 @@ const Header: NextPage = () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [userMenuOpen])
+
+  // Handle click outside mobile menu
+  useEffect(() => {
+    const handleMobileClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        navbarOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setNavbarOpen(false)
+      }
+    }
+
+    if (navbarOpen) {
+      document.addEventListener('mousedown', handleMobileClickOutside)
+      document.addEventListener('touchstart', handleMobileClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleMobileClickOutside)
+      document.removeEventListener('touchstart', handleMobileClickOutside)
+    }
+  }, [navbarOpen])
 
   const handleLogout = () => {
     signOut({ callbackUrl: '/' })
@@ -240,21 +264,9 @@ const Header: NextPage = () => {
 
         {/* Mobile Navigation Modal - Outside header container */}
         {navbarOpen && (
-          <div
-            className="mobile-modal-overlay"
-            onClick={() => setNavbarOpen(false)}
-            onTouchEnd={() => setNavbarOpen(false)}
-          >
-            <div
-              className="mobile-modal-backdrop"
-              onClick={() => setNavbarOpen(false)}
-              onTouchEnd={() => setNavbarOpen(false)}
-            />
-            <div
-              className="mobile-modal-panel"
-              onClick={e => e.stopPropagation()}
-              onTouchEnd={e => e.stopPropagation()}
-            >
+          <div className="mobile-modal-overlay">
+            <div className="mobile-modal-backdrop" />
+            <div ref={mobileMenuRef} className="mobile-modal-panel">
               <div className="mobile-modal-content">
                 <div className="mobile-modal-header">
                   <Link href="/" className="mobile-modal-logo">
