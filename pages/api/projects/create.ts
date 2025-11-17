@@ -32,6 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       builderId,
       builderWebsiteLink,
       brochureUrl,
+      brochurePdfBase64,
       locationAddress,
       bannerImageBase64,
       highlights,
@@ -94,11 +95,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Could not geocode the provided address' })
     }
 
-    // Upload images to Vercel Blob
+    // Upload images and PDF to Vercel Blob
     let bannerUrl: string | null = null
     let floorplanUrls: string[] = []
     let clubhouseUrls: string[] = []
     let galleryUrls: string[] = []
+    let brochurePdfUrl: string | null = null
 
     try {
       // Upload banner image
@@ -108,6 +110,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           folder: 'banner',
           base64Image: bannerImageBase64,
         })
+      }
+
+      // Upload brochure PDF
+      if (brochurePdfBase64) {
+        const { put } = await import('@vercel/blob')
+        const base64Data = brochurePdfBase64.split(',')[1]
+        const buffer = Buffer.from(base64Data, 'base64')
+        const normalizedProjectName = name
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+        const filename = `hyderabad-projects/${normalizedProjectName}/brochure.pdf`
+
+        const blob = await put(filename, buffer, {
+          access: 'public',
+          contentType: 'application/pdf',
+        })
+
+        brochurePdfUrl = blob.url
       }
 
       // Upload floorplan images (max 20)
@@ -129,8 +150,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     } catch (uploadError) {
       // eslint-disable-next-line no-console
-      console.error('Image upload error:', uploadError)
-      return res.status(500).json({ message: 'Failed to upload images' })
+      console.error('Image/PDF upload error:', uploadError)
+      return res.status(500).json({ message: 'Failed to upload images or PDF' })
     }
 
     // Create project
@@ -143,7 +164,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         locationId: locationRecord.id,
         postedByUserId: session.user.id,
         builderWebsiteLink: builderWebsiteLink || null,
-        brochureUrl: brochureUrl || null,
+        brochureUrl: brochurePdfUrl || brochureUrl || null,
         bannerImageUrl: bannerUrl,
         highlights: highlights || null,
         amenities: amenities || null,

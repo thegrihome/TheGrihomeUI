@@ -35,7 +35,10 @@ interface PropertyCardProps {
     userEmail?: string
   }
   isOwner?: boolean
+  isFavorited?: boolean
+  currentUserId?: string | null
   onMarkAsSold?: (propertyId: string) => void
+  onToggleFavorite?: (propertyId: string, currentState: boolean) => void
   processing?: boolean
 }
 
@@ -50,10 +53,23 @@ const propertyTypes = [
 export default function PropertyCard({
   property,
   isOwner = false,
+  isFavorited = false,
+  currentUserId = null,
   onMarkAsSold,
+  onToggleFavorite,
   processing = false,
 }: PropertyCardProps) {
   const router = useRouter()
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onToggleFavorite) {
+      onToggleFavorite(property.id, isFavorited)
+    }
+  }
+
+  // Show favorite button only if user is logged in and not the owner
+  const showFavoriteButton = currentUserId && !isOwner
 
   const formatIndianCurrency = (amount: string | number | null | undefined) => {
     if (!amount) return null
@@ -100,6 +116,29 @@ export default function PropertyCard({
               Rent
             </div>
           )
+        )}
+        {/* Favorite Heart Icon */}
+        {showFavoriteButton && (
+          <button
+            onClick={handleFavoriteClick}
+            className="absolute bottom-1.5 right-1.5 bg-white/90 hover:bg-white rounded-full p-1 transition-all duration-200 shadow-sm hover:shadow-md"
+            title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              className="w-4 h-4 transition-colors"
+              fill={isFavorited ? '#ef4444' : 'none'}
+              stroke={isFavorited ? '#ef4444' : '#6b7280'}
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+          </button>
         )}
       </div>
 

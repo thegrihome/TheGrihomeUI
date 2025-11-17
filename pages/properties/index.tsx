@@ -56,6 +56,7 @@ export default function PropertiesPage() {
   const [mounted, setMounted] = useState(false)
   const [properties, setProperties] = useState<Property[]>([])
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [autocompleteService, setAutocompleteService] =
     useState<google.maps.places.AutocompleteService | null>(null)
@@ -171,6 +172,25 @@ export default function PropertiesPage() {
         // Error handled silently
       })
   }, [])
+
+  // Fetch favorites when user is authenticated
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetch('/api/properties/favorites')
+        .then(res => res.json())
+        .then(data => {
+          if (data.favorites) {
+            const favoriteIds: string[] = data.favorites.map((fav: any) => fav.id as string)
+            const ids = new Set<string>(favoriteIds)
+            setFavoriteIds(ids)
+          }
+        })
+        .catch(error => {
+          // eslint-disable-next-line no-console
+          console.error('Failed to load favorites:', error)
+        })
+    }
+  }, [session?.user?.id])
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -368,6 +388,46 @@ export default function PropertiesPage() {
       setShowSoldModal(false)
       setBuyerName('')
       setSelectedPropertyId(null)
+    }
+  }
+
+  const handleToggleFavorite = async (propertyId: string, currentState: boolean) => {
+    if (!session?.user?.id) {
+      toast.error('Please login to save favorites')
+      router.push('/auth/login')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/properties/toggle-favorite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ propertyId }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.message || 'Failed to toggle favorite')
+      }
+
+      const data = await response.json()
+
+      // Update local state
+      setFavoriteIds(prev => {
+        const newSet = new Set(prev)
+        if (data.isFavorited) {
+          newSet.add(propertyId)
+          toast.success('Added to favorites')
+        } else {
+          newSet.delete(propertyId)
+          toast.success('Removed from favorites')
+        }
+        return newSet
+      })
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update favorite')
     }
   }
 
@@ -736,15 +796,19 @@ export default function PropertiesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {filteredProperties.map(property => {
                 const isOwner = session?.user?.email === property.userEmail
+                const isFavorited = favoriteIds.has(property.id)
                 return (
                   <PropertyCard
                     key={property.id}
                     property={property}
                     isOwner={isOwner}
+                    isFavorited={isFavorited}
+                    currentUserId={session?.user?.id || null}
                     onMarkAsSold={propertyId => {
                       setSelectedPropertyId(propertyId)
                       setShowSoldModal(true)
                     }}
+                    onToggleFavorite={handleToggleFavorite}
                     processing={processing}
                   />
                 )

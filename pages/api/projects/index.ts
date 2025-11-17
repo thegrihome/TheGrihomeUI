@@ -14,8 +14,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const skip = (currentPage - 1) * pageSize
 
     // Build search conditions - Support partial matching on all location fields
+    // Always exclude archived projects from public listings
     const searchConditions = search
       ? {
+          isArchived: false,
           OR: [
             {
               name: {
@@ -81,7 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
           ],
         }
-      : {}
+      : { isArchived: false }
 
     // Get total count
     const totalCount = await prisma.project.count({

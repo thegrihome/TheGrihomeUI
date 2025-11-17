@@ -63,9 +63,10 @@ export default function MyPropertiesPage() {
   const isAuthenticated = status === 'authenticated'
   const router = useRouter()
   const [properties, setProperties] = useState<Property[]>([])
+  const [favorites, setFavorites] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active')
+  const [activeTab, setActiveTab] = useState<'active' | 'archived' | 'favorites'>('active')
   const [showInterestModal, setShowInterestModal] = useState<string | null>(null)
   const [showSoldModal, setShowSoldModal] = useState<string | null>(null)
   const [soldToName, setSoldToName] = useState('')
@@ -115,6 +116,7 @@ export default function MyPropertiesPage() {
 
     if (isAuthenticated && user) {
       loadMyProperties()
+      loadFavorites()
     }
   }, [mounted, isAuthenticated, user, router])
 
@@ -151,6 +153,23 @@ export default function MyPropertiesPage() {
       setProperties([])
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadFavorites = async () => {
+    try {
+      const response = await fetch('/api/properties/favorites')
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch favorites')
+      }
+
+      const data = await response.json()
+      setFavorites(data.favorites || [])
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to load favorites:', error)
+      setFavorites([])
     }
   }
 
@@ -221,7 +240,12 @@ export default function MyPropertiesPage() {
     ].includes(p.listingStatus as any)
   )
 
-  const currentProperties = activeTab === 'active' ? activeProperties : archivedProperties
+  const currentProperties =
+    activeTab === 'active'
+      ? activeProperties
+      : activeTab === 'archived'
+        ? archivedProperties
+        : favorites
 
   if (!mounted || loading) {
     return (
@@ -298,6 +322,16 @@ export default function MyPropertiesPage() {
               >
                 Archived Properties ({archivedProperties.length})
               </button>
+              <button
+                onClick={() => setActiveTab('favorites')}
+                className={`${styles['my-properties-tab']} ${
+                  activeTab === 'favorites'
+                    ? styles['my-properties-tab--active']
+                    : styles['my-properties-tab--inactive']
+                }`}
+              >
+                My Favorites ({favorites.length})
+              </button>
             </div>
           </div>
 
@@ -311,7 +345,9 @@ export default function MyPropertiesPage() {
               <p className={styles['my-properties-empty-text']}>
                 {activeTab === 'active'
                   ? "You haven't listed any active properties yet."
-                  : "You don't have any archived properties."}
+                  : activeTab === 'archived'
+                    ? "You don't have any archived properties."
+                    : "You haven't favorited any properties yet."}
               </p>
               {activeTab === 'active' && (
                 <button
@@ -319,6 +355,14 @@ export default function MyPropertiesPage() {
                   className={styles['my-properties-empty-button']}
                 >
                   Add Your First Property
+                </button>
+              )}
+              {activeTab === 'favorites' && (
+                <button
+                  onClick={() => router.push('/properties')}
+                  className={styles['my-properties-empty-button']}
+                >
+                  Browse Properties
                 </button>
               )}
             </div>
