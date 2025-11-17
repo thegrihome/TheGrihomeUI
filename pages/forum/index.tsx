@@ -176,62 +176,73 @@ export default function Forum({ categories }: ForumProps) {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const categories = await prisma.forumCategory.findMany({
-    where: {
-      isActive: true,
-      parentId: null,
-    },
-    include: {
-      _count: {
-        select: { posts: true },
+  try {
+    const categories = await prisma.forumCategory.findMany({
+      where: {
+        isActive: true,
+        parentId: null,
       },
-      children: {
-        include: {
-          _count: {
-            select: { posts: true },
-          },
-          children: {
-            include: {
-              _count: {
-                select: { posts: true },
+      include: {
+        _count: {
+          select: { posts: true },
+        },
+        children: {
+          include: {
+            _count: {
+              select: { posts: true },
+            },
+            children: {
+              include: {
+                _count: {
+                  select: { posts: true },
+                },
               },
             },
           },
         },
       },
-    },
-    orderBy: { displayOrder: 'asc' },
-  })
+      orderBy: { displayOrder: 'asc' },
+    })
 
-  // Calculate cumulative post counts for parent categories
-  const categoriesWithCumulativeCounts = categories.map(category => {
-    let totalPosts = category._count.posts
+    // Calculate cumulative post counts for parent categories
+    const categoriesWithCumulativeCounts = categories.map(category => {
+      let totalPosts = category._count.posts
 
-    // Add posts from direct children
-    if (category.children) {
-      category.children.forEach(child => {
-        totalPosts += child._count.posts
-        // Add posts from grandchildren
-        if (child.children) {
-          child.children.forEach(grandchild => {
-            totalPosts += grandchild._count.posts
-          })
-        }
-      })
-    }
+      // Add posts from direct children
+      if (category.children) {
+        category.children.forEach(child => {
+          totalPosts += child._count.posts
+          // Add posts from grandchildren
+          if (child.children) {
+            child.children.forEach(grandchild => {
+              totalPosts += grandchild._count.posts
+            })
+          }
+        })
+      }
+
+      return {
+        ...category,
+        _count: {
+          posts: totalPosts,
+        },
+      }
+    })
 
     return {
-      ...category,
-      _count: {
-        posts: totalPosts,
+      props: {
+        categories: JSON.parse(JSON.stringify(categoriesWithCumulativeCounts)),
       },
+      revalidate: 300, // Revalidate every 5 minutes
     }
-  })
-
-  return {
-    props: {
-      categories: JSON.parse(JSON.stringify(categoriesWithCumulativeCounts)),
-    },
-    revalidate: 300, // Revalidate every 5 minutes
+  } catch (error) {
+    console.error('Database connection error during build:', error)
+    // Return empty categories if database is not available
+    return {
+      props: {
+        categories: [],
+      },
+      revalidate: 60, // Retry more frequently when database is unavailable
+    }
   }
 }

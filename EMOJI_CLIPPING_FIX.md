@@ -1,40 +1,44 @@
 # Emoji Clipping Fix - iPad Mini (768px)
 
 ## 🐛 Problem
+
 Emojis/icons on iPad Mini were being cut off at the top and bottom, making them look incomplete or truncated.
 
 ## ✅ What Was Fixed
 
 ### 1. Added Proper Line Height & Min Height
+
 ```css
 .home-city-icon {
-  line-height: 1.2;        /* Prevents vertical clipping */
-  min-height: 2.5rem;      /* Ensures enough vertical space */
-  overflow: visible;        /* Allows emoji to extend naturally */
+  line-height: 1.2; /* Prevents vertical clipping */
+  min-height: 2.5rem; /* Ensures enough vertical space */
+  overflow: visible; /* Allows emoji to extend naturally */
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .home-city-icon {
-    font-size: 2.5rem;      /* Increased from 2.25rem */
-    min-height: 3.5rem;     /* More vertical space for larger emojis */
+    font-size: 2.5rem; /* Increased from 2.25rem */
+    min-height: 3.5rem; /* More vertical space for larger emojis */
     line-height: 1.3;
   }
 }
 ```
 
 ### 2. Added Padding to Containers
+
 ```css
 .home-city-item {
   overflow: visible;
-  padding: 0.5rem 0.25rem;  /* Prevents clipping */
+  padding: 0.5rem 0.25rem; /* Prevents clipping */
 }
 
 .home-cities-container {
-  overflow: visible;  /* Ensures container doesn't clip children */
+  overflow: visible; /* Ensures container doesn't clip children */
 }
 ```
 
 ### 3. Improved Global Text Rendering
+
 ```css
 html {
   text-rendering: optimizeLegibility;
@@ -44,6 +48,7 @@ html {
 ```
 
 ### 4. Added Emoji-Fix Utility Class
+
 ```css
 .emoji-fix {
   line-height: 1;
@@ -59,10 +64,12 @@ html {
 ### Step-by-Step:
 
 1. **Hard Refresh your browser:**
+
    ```
    Press: Ctrl + Shift + R (Windows)
    Or: Cmd + Shift + R (Mac)
    ```
+
    This clears the CSS cache!
 
 2. **Open DevTools:**
@@ -77,7 +84,7 @@ html {
 
 5. **Check the city icons:**
    - 🟢 Bengaluru
-   - 🏙️ Chennai  
+   - 🏙️ Chennai
    - 🏛️ Delhi
    - 🕌 Gurgaon
    - 💎 Hyderabad
@@ -89,6 +96,7 @@ html {
 ### What You Should See Now:
 
 #### ✅ Icons Should:
+
 - **NOT be cut off** at top or bottom
 - **Display completely** with all parts visible
 - **Have proper spacing** around them
@@ -98,12 +106,14 @@ html {
 #### Before vs After:
 
 **Before (Cut off):**
+
 ```
   🏙️  ← Top cut off
   ▔▔
 ```
 
 **After (Complete):**
+
 ```
   🏙️  ← Full icon visible
 ```
@@ -113,6 +123,7 @@ html {
 ### Try These Steps:
 
 1. **Clear Browser Cache Completely:**
+
    ```
    Chrome/Edge: Ctrl + Shift + Delete
    - Select "Cached images and files"
@@ -120,6 +131,7 @@ html {
    ```
 
 2. **Restart Dev Server:**
+
    ```bash
    # Stop the server (Ctrl + C)
    npm run dev
@@ -130,6 +142,7 @@ html {
    - Make sure no 404 errors for CSS files
 
 4. **Verify Viewport:**
+
    ```
    In DevTools, ensure it shows:
    Width: 768px
@@ -145,26 +158,29 @@ html {
 If you have access to a real iPad Mini:
 
 1. Get your computer's IP:
+
    ```bash
    ipconfig  # Windows
    ifconfig  # Mac/Linux
    ```
 
 2. On iPad, open Safari:
+
    ```
    http://YOUR-IP:3000
    ```
+
    Example: `http://192.168.1.100:3000`
 
 3. Check if emojis display fully
 
 ## 🎨 Icon Sizes Comparison
 
-| Device | City Icons | Status |
-|--------|-----------|--------|
-| Mobile (< 768px) | 1.875rem (30px) | ✅ Working |
+| Device                | City Icons        | Status       |
+| --------------------- | ----------------- | ------------ |
+| Mobile (< 768px)      | 1.875rem (30px)   | ✅ Working   |
 | **iPad Mini (768px)** | **2.5rem (40px)** | ✅ **FIXED** |
-| Desktop (1024px+) | 1.875rem (30px) | ✅ Working |
+| Desktop (1024px+)     | 1.875rem (30px)   | ✅ Working   |
 
 ## 🔍 Technical Details
 
@@ -200,7 +216,7 @@ Test these at 768px width:
 
 - [ ] Home page city icons display fully (not cut off)
 - [ ] Bengaluru icon (🟢) shows completely
-- [ ] Chennai icon (🏙️) shows completely  
+- [ ] Chennai icon (🏙️) shows completely
 - [ ] All 9 city icons are visible and complete
 - [ ] Icons have proper spacing
 - [ ] Icons are centered
@@ -219,7 +235,7 @@ When adding emojis anywhere in the app:
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   /* Or use the utility class */
   @apply emoji-fix;
 }
@@ -243,6 +259,7 @@ http://localhost:3000
 **All emoji clipping issues on iPad Mini have been resolved!**
 
 ### What Changed:
+
 - ✅ Icons now 2.5rem (40px) on iPad Mini
 - ✅ Added proper line-height (1.2-1.3)
 - ✅ Added min-height for vertical space

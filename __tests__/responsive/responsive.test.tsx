@@ -242,9 +242,7 @@ describe('Responsive Design System', () => {
     })
 
     it('ensures images do not overflow', () => {
-      const { container } = render(
-        <img src="/test.jpg" alt="test" className="img-responsive" />
-      )
+      const { container } = render(<img src="/test.jpg" alt="test" className="img-responsive" />)
       const img = container.querySelector('img')
       expect(img).toHaveClass('img-responsive')
     })
@@ -252,25 +250,19 @@ describe('Responsive Design System', () => {
 
   describe('Responsive Text', () => {
     it('applies text-responsive-xs class', () => {
-      const { container } = render(
-        <span className="text-responsive-xs">Small Text</span>
-      )
+      const { container } = render(<span className="text-responsive-xs">Small Text</span>)
       const text = container.querySelector('.text-responsive-xs')
       expect(text).toBeInTheDocument()
     })
 
     it('applies text-responsive-sm class', () => {
-      const { container } = render(
-        <span className="text-responsive-sm">Medium Text</span>
-      )
+      const { container } = render(<span className="text-responsive-sm">Medium Text</span>)
       const text = container.querySelector('.text-responsive-sm')
       expect(text).toBeInTheDocument()
     })
 
     it('applies text-responsive-base class', () => {
-      const { container } = render(
-        <span className="text-responsive-base">Base Text</span>
-      )
+      const { container } = render(<span className="text-responsive-base">Base Text</span>)
       const text = container.querySelector('.text-responsive-base')
       expect(text).toBeInTheDocument()
     })

@@ -3,7 +3,7 @@
  * Helper functions for testing responsive designs across all screen sizes
  */
 
-export type ScreenSize = 
+export type ScreenSize =
   | 'mobile-small'
   | 'mobile'
   | 'mobile-landscape'
@@ -28,7 +28,7 @@ export const VIEWPORTS: Record<ScreenSize, ViewportDimensions> = {
     height: 640,
     devicePixelRatio: 2,
   },
-  'mobile': {
+  mobile: {
     width: 375,
     height: 667,
     devicePixelRatio: 2,
@@ -48,7 +48,7 @@ export const VIEWPORTS: Record<ScreenSize, ViewportDimensions> = {
     height: 768,
     devicePixelRatio: 2,
   },
-  'desktop': {
+  desktop: {
     width: 1280,
     height: 1024,
     devicePixelRatio: 1,
@@ -58,12 +58,12 @@ export const VIEWPORTS: Record<ScreenSize, ViewportDimensions> = {
     height: 864,
     devicePixelRatio: 1,
   },
-  'fullhd': {
+  fullhd: {
     width: 1920,
     height: 1080,
     devicePixelRatio: 1,
   },
-  'ultrawide': {
+  ultrawide: {
     width: 2560,
     height: 1440,
     devicePixelRatio: 1,
@@ -84,7 +84,7 @@ export const setViewport = (dimensions: ViewportDimensions) => {
     configurable: true,
     value: dimensions.width,
   })
-  
+
   Object.defineProperty(window, 'innerHeight', {
     writable: true,
     configurable: true,
@@ -126,7 +126,9 @@ export const testAcrossScreenSizes = (
 /**
  * Check if current viewport matches a breakpoint
  */
-export const matchesBreakpoint = (breakpoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl'): boolean => {
+export const matchesBreakpoint = (
+  breakpoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl'
+): boolean => {
   const breakpoints = {
     xs: 360,
     sm: 640,
@@ -176,7 +178,7 @@ export const changeOrientation = (orientation: 'portrait' | 'landscape') => {
  */
 export const isElementInViewport = (element: Element): boolean => {
   const rect = element.getBoundingClientRect()
-  
+
   return (
     rect.top >= 0 &&
     rect.left >= 0 &&
@@ -199,7 +201,7 @@ export const causesHorizontalOverflow = (element: Element): boolean => {
 export const mockMatchMedia = (query: string): void => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: jest.fn().mockImplementation((q) => ({
+    value: jest.fn().mockImplementation(q => ({
       matches: q === query,
       media: q,
       onchange: null,
@@ -232,14 +234,14 @@ export const getScreenSizeName = (width: number): string => {
  */
 export const assertElementIsResponsive = (element: Element): void => {
   const rect = element.getBoundingClientRect()
-  
+
   // Should not cause horizontal overflow
   expect(rect.right).toBeLessThanOrEqual(window.innerWidth)
-  
+
   // Should not have fixed width that's too large
   const computedStyle = window.getComputedStyle(element)
   const width = computedStyle.width
-  
+
   if (width && width !== 'auto' && !width.includes('%')) {
     const numericWidth = parseFloat(width)
     expect(numericWidth).toBeLessThanOrEqual(window.innerWidth)
@@ -252,7 +254,7 @@ export const assertElementIsResponsive = (element: Element): void => {
 export const assertTextIsReadable = (element: Element): void => {
   const computedStyle = window.getComputedStyle(element)
   const fontSize = parseFloat(computedStyle.fontSize)
-  
+
   // Minimum font size for readability (WCAG recommendation)
   const minFontSize = 14 // pixels
   expect(fontSize).toBeGreaterThanOrEqual(minFontSize)
@@ -263,7 +265,7 @@ export const assertTextIsReadable = (element: Element): void => {
  */
 export const assertTouchTargetIsAdequate = (element: Element): void => {
   const rect = element.getBoundingClientRect()
-  
+
   // WCAG recommends minimum 44x44 pixels for touch targets
   const minSize = 44
   expect(rect.width).toBeGreaterThanOrEqual(minSize)
@@ -300,7 +302,7 @@ export const COMMON_SCREEN_SIZES = [
 export const testAcrossCommonDevices = (
   callback: (device: { name: string; width: number; height: number }) => void
 ) => {
-  COMMON_SCREEN_SIZES.forEach((device) => {
+  COMMON_SCREEN_SIZES.forEach(device => {
     setViewport({ width: device.width, height: device.height })
     callback(device)
   })

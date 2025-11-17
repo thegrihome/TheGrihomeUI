@@ -7,28 +7,32 @@ TheGrihomeUI implements a comprehensive responsive design system that ensures op
 ## 📱 Supported Screen Sizes
 
 ### Mobile Devices
-| Breakpoint | Min Width | Description | Common Devices |
-|------------|-----------|-------------|----------------|
-| **xs** | 360px | Small mobile | iPhone SE, Galaxy S |
-| **sm** | 640px | Mobile landscape | iPhone 12/13 landscape |
+
+| Breakpoint | Min Width | Description      | Common Devices         |
+| ---------- | --------- | ---------------- | ---------------------- |
+| **xs**     | 360px     | Small mobile     | iPhone SE, Galaxy S    |
+| **sm**     | 640px     | Mobile landscape | iPhone 12/13 landscape |
 
 ### Tablet Devices
-| Breakpoint | Min Width | Description | Common Devices |
-|------------|-----------|-------------|----------------|
-| **md** | 768px | Tablet portrait | iPad Mini, iPad Air |
-| **lg** | 1024px | Tablet landscape | iPad Pro 11" |
+
+| Breakpoint | Min Width | Description      | Common Devices      |
+| ---------- | --------- | ---------------- | ------------------- |
+| **md**     | 768px     | Tablet portrait  | iPad Mini, iPad Air |
+| **lg**     | 1024px    | Tablet landscape | iPad Pro 11"        |
 
 ### Desktop Devices
-| Breakpoint | Min Width | Description | Common Devices |
-|------------|-----------|-------------|----------------|
-| **xl** | 1280px | Desktop | MacBook Air, Standard monitors |
-| **2xl** | 1536px | Large desktop | MacBook Pro 16", Large monitors |
+
+| Breakpoint | Min Width | Description   | Common Devices                  |
+| ---------- | --------- | ------------- | ------------------------------- |
+| **xl**     | 1280px    | Desktop       | MacBook Air, Standard monitors  |
+| **2xl**    | 1536px    | Large desktop | MacBook Pro 16", Large monitors |
 
 ### Ultra-Wide Displays
-| Breakpoint | Min Width | Description | Common Devices |
-|------------|-----------|-------------|----------------|
-| **3xl** | 1920px | Full HD | 1080p monitors |
-| **4xl** | 2560px | 2K/Ultra-wide | 1440p monitors, Ultra-wide displays |
+
+| Breakpoint | Min Width | Description   | Common Devices                      |
+| ---------- | --------- | ------------- | ----------------------------------- |
+| **3xl**    | 1920px    | Full HD       | 1080p monitors                      |
+| **4xl**    | 2560px    | 2K/Ultra-wide | 1440p monitors, Ultra-wide displays |
 
 ## 🎨 Tailwind Configuration
 
@@ -52,6 +56,7 @@ screens: {
 ### Container Classes
 
 #### `.container-responsive`
+
 Adaptive container that adjusts padding and max-width based on screen size:
 
 - **xs-sm**: 100% width, 1rem padding
@@ -63,6 +68,7 @@ Adaptive container that adjusts padding and max-width based on screen size:
 - **4xl**: 2560px max-width, 6rem padding
 
 **Usage:**
+
 ```html
 <div class="container-responsive">
   <!-- Content automatically adjusts to screen size -->
@@ -72,25 +78,32 @@ Adaptive container that adjusts padding and max-width based on screen size:
 ### Typography Classes
 
 #### `.text-responsive-xs`
+
 Small text that scales with viewport:
+
 - Mobile: 0.75rem (12px)
 - Desktop: 0.875rem (14px)
 - Large: 1rem (16px)
 
 #### `.text-responsive-sm`
+
 Medium text that scales with viewport:
+
 - Mobile: 0.875rem (14px)
 - Desktop: 1rem (16px)
 - Large: 1.125rem (18px)
 
 #### `.text-responsive-base`
+
 Base text that scales with viewport:
+
 - Mobile: 1rem (16px)
 - Desktop: 1.125rem (18px)
 - Large Desktop: 1.25rem (20px)
 - Full HD: 1.5rem (24px)
 
 **Usage:**
+
 ```html
 <p class="text-responsive-base">This text scales beautifully!</p>
 ```
@@ -98,6 +111,7 @@ Base text that scales with viewport:
 ### Grid Classes
 
 #### Responsive Grid System
+
 ```html
 <!-- 1 column on mobile, 2 on tablet, 3 on desktop, 4 on large displays -->
 <div class="grid-responsive-1 sm:grid-responsive-2 lg:grid-responsive-3 xl:grid-responsive-4">
@@ -109,6 +123,7 @@ Base text that scales with viewport:
 ```
 
 #### Individual Grid Classes
+
 - `.grid-responsive-1`: Single column (all sizes)
 - `.grid-responsive-2`: 2 columns (640px+)
 - `.grid-responsive-3`: 3 columns (1024px+)
@@ -118,19 +133,25 @@ Base text that scales with viewport:
 ### Image Classes
 
 #### `.img-responsive`
+
 Ensures images never exceed container width:
+
 ```html
 <img src="/photo.jpg" alt="Photo" class="img-responsive" />
 ```
 
 #### `.img-cover-responsive`
+
 Makes images fill their container while maintaining aspect ratio:
+
 ```html
 <img src="/background.jpg" alt="BG" class="img-cover-responsive" />
 ```
 
 #### `.img-contain-responsive`
+
 Fits entire image within container:
+
 ```html
 <img src="/logo.png" alt="Logo" class="img-contain-responsive" />
 ```
@@ -167,14 +188,10 @@ Use standard Tailwind modifiers with our custom breakpoints:
 </div>
 
 <!-- Responsive padding -->
-<div class="p-4 lg:p-8 3xl:p-12">
-  Content with growing padding
-</div>
+<div class="p-4 lg:p-8 3xl:p-12">Content with growing padding</div>
 
 <!-- Responsive text size -->
-<h1 class="text-2xl md:text-4xl xl:text-6xl 3xl:text-8xl">
-  Huge Heading
-</h1>
+<h1 class="text-2xl md:text-4xl xl:text-6xl 3xl:text-8xl">Huge Heading</h1>
 ```
 
 ## 🧪 Testing Responsive Designs
@@ -242,9 +259,7 @@ npm test responsive -- --coverage
 ```tsx
 <header className="header">
   {/* Mobile menu button - hidden on desktop */}
-  <button className="mobile-menu-button md:hidden">
-    ☰
-  </button>
+  <button className="mobile-menu-button md:hidden">☰</button>
 
   {/* Desktop nav - hidden on mobile */}
   <nav className="hidden md:flex desktop-nav">
@@ -275,9 +290,7 @@ npm test responsive -- --coverage
     <h1 className="text-3xl md:text-5xl xl:text-7xl 3xl:text-9xl font-bold">
       Find Your Dream Home
     </h1>
-    <p className="text-responsive-base mt-4">
-      Browse thousands of properties
-    </p>
+    <p className="text-responsive-base mt-4">Browse thousands of properties</p>
   </div>
 </section>
 ```
@@ -291,9 +304,7 @@ npm test responsive -- --coverage
     <input type="text" placeholder="Last Name" />
   </div>
   <input type="email" placeholder="Email" className="w-full mt-4" />
-  <button className="w-full md:w-auto mt-4 px-8 py-3">
-    Submit
-  </button>
+  <button className="w-full md:w-auto mt-4 px-8 py-3">Submit</button>
 </form>
 ```
 
@@ -320,7 +331,7 @@ npm test responsive -- --coverage
 Always use responsive images with proper sizing:
 
 ```tsx
-<img 
+<img
   src="/property.jpg"
   srcSet="/property-320.jpg 320w,
           /property-640.jpg 640w,
@@ -384,6 +395,7 @@ body {
 ### 3. Contrast Ratios
 
 Ensure WCAG AAA compliance:
+
 - Normal text: 7:1 ratio
 - Large text: 4.5:1 ratio
 
@@ -394,7 +406,7 @@ Make focus visible on all devices:
 ```css
 button:focus,
 a:focus {
-  outline: 2px solid #4F46E5;
+  outline: 2px solid #4f46e5;
   outline-offset: 2px;
 }
 ```
@@ -406,8 +418,10 @@ a:focus {
 **Problem:** Content extends beyond viewport width
 
 **Solution:**
+
 ```css
-html, body {
+html,
+body {
   overflow-x: hidden;
   width: 100%;
 }
@@ -422,6 +436,7 @@ html, body {
 **Problem:** Fixed pixel widths break on mobile
 
 **Solution:**
+
 ```css
 /* ❌ Bad */
 .container {
@@ -440,9 +455,11 @@ html, body {
 **Problem:** Buttons too small to tap on mobile
 
 **Solution:**
+
 ```css
 @media (max-width: 768px) {
-  button, a {
+  button,
+  a {
     min-width: 44px;
     min-height: 44px;
     padding: 12px;
@@ -455,6 +472,7 @@ html, body {
 **Problem:** Text too small to read
 
 **Solution:**
+
 ```html
 <!-- Use responsive text utilities -->
 <p class="text-responsive-base">Readable on all devices</p>

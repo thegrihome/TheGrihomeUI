@@ -162,59 +162,71 @@ export default function StatesPage({ states, totalPosts }: StatesPageProps) {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  // Get General Discussions category
-  const generalDiscussions = await prisma.forumCategory.findUnique({
-    where: { slug: 'general-discussions' },
-    select: { id: true },
-  })
+  try {
+    // Get General Discussions category
+    const generalDiscussions = await prisma.forumCategory.findUnique({
+      where: { slug: 'general-discussions' },
+      select: { id: true },
+    })
 
-  if (!generalDiscussions) {
-    return {
-      notFound: true,
+    if (!generalDiscussions) {
+      return {
+        notFound: true,
+      }
     }
-  }
 
-  // Get all states (categories with city field = null)
-  const states = await prisma.forumCategory.findMany({
-    where: {
-      isActive: true,
-      parentId: generalDiscussions.id,
-      city: null, // Only get states (city field is null for states)
-    },
-    include: {
-      children: {
-        where: { isActive: true },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          _count: {
-            select: { posts: true },
+    // Get all states (categories with city field = null)
+    const states = await prisma.forumCategory.findMany({
+      where: {
+        isActive: true,
+        parentId: generalDiscussions.id,
+        city: null, // Only get states (city field is null for states)
+      },
+      include: {
+        children: {
+          where: { isActive: true },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            _count: {
+              select: { posts: true },
+            },
           },
+          orderBy: { displayOrder: 'asc' },
         },
-        orderBy: { displayOrder: 'asc' },
+        _count: {
+          select: { posts: true },
+        },
       },
-      _count: {
-        select: { posts: true },
+      orderBy: { displayOrder: 'asc' },
+    })
+
+    // Calculate total posts for each state by summing posts from all property type children
+    const statesWithTotals = states.map(state => ({
+      ...state,
+      totalPosts: state.children.reduce((sum, child) => sum + child._count.posts, 0),
+    }))
+
+    // Calculate total posts across all states
+    const totalPosts = statesWithTotals.reduce((sum, state) => sum + state.totalPosts, 0)
+
+    return {
+      props: {
+        states: JSON.parse(JSON.stringify(statesWithTotals)),
+        totalPosts,
       },
-    },
-    orderBy: { displayOrder: 'asc' },
-  })
-
-  // Calculate total posts for each state by summing posts from all property type children
-  const statesWithTotals = states.map(state => ({
-    ...state,
-    totalPosts: state.children.reduce((sum, child) => sum + child._count.posts, 0),
-  }))
-
-  // Calculate total posts across all states
-  const totalPosts = statesWithTotals.reduce((sum, state) => sum + state.totalPosts, 0)
-
-  return {
-    props: {
-      states: JSON.parse(JSON.stringify(statesWithTotals)),
-      totalPosts,
-    },
-    revalidate: 300, // Revalidate every 5 minutes
+      revalidate: 300, // Revalidate every 5 minutes
+    }
+  } catch (error) {
+    console.error('Database connection error during build:', error)
+    // Return empty data if database is not available
+    return {
+      props: {
+        states: [],
+        totalPosts: 0,
+      },
+      revalidate: 60, // Retry more frequently when database is unavailable
+    }
   }
 }

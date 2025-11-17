@@ -30,7 +30,7 @@ const TestResponsiveLayout = () => (
       </nav>
       <button className="mobile-menu-button md:hidden">Menu</button>
     </header>
-    
+
     <main className="grid-responsive-1 sm:grid-responsive-2 lg:grid-responsive-3 xl:grid-responsive-4">
       <div className="card">
         <img src="/test.jpg" alt="Test" className="img-responsive" />
@@ -116,10 +116,10 @@ describe('Viewport Integration Tests', () => {
     it('renders correctly across all defined screen sizes', () => {
       testAcrossScreenSizes((screenSize, dimensions) => {
         const { container } = render(<TestResponsiveLayout />)
-        
+
         // Component should render without errors
         expect(container.querySelector('.container-responsive')).toBeInTheDocument()
-        
+
         // Viewport should match expected dimensions
         expect(window.innerWidth).toBe(dimensions.width)
         expect(window.innerHeight).toBe(dimensions.height)
@@ -127,13 +127,13 @@ describe('Viewport Integration Tests', () => {
     })
 
     it('maintains responsive classes across all screen sizes', () => {
-      testAcrossScreenSizes((screenSize) => {
+      testAcrossScreenSizes(screenSize => {
         const { container } = render(<TestResponsiveLayout />)
-        
+
         // Container should always be present
         const containerElement = container.querySelector('.container-responsive')
         expect(containerElement).toBeInTheDocument()
-        
+
         // Grid should be present
         const gridElement = container.querySelector('[class*="grid-responsive"]')
         expect(gridElement).toBeInTheDocument()
@@ -143,22 +143,22 @@ describe('Viewport Integration Tests', () => {
 
   describe('Common Devices Test', () => {
     it('renders correctly on all common devices', () => {
-      testAcrossCommonDevices((device) => {
+      testAcrossCommonDevices(device => {
         const { container } = render(<TestResponsiveLayout />)
-        
+
         // Should render on all devices
         expect(container.querySelector('.container-responsive')).toBeInTheDocument()
-        
+
         // Log for visibility
         console.log(`✓ Tested on ${device.name} (${device.width}x${device.height})`)
       })
     })
 
     it('no horizontal overflow on any common device', () => {
-      testAcrossCommonDevices((device) => {
+      testAcrossCommonDevices(device => {
         const { container } = render(<TestResponsiveLayout />)
         const element = container.querySelector('.container-responsive')
-        
+
         if (element) {
           assertElementIsResponsive(element)
         }
@@ -190,12 +190,12 @@ describe('Viewport Integration Tests', () => {
     it('component re-renders correctly after orientation change', () => {
       setScreenSize('mobile')
       const { container, rerender } = render(<TestResponsiveLayout />)
-      
+
       expect(container.querySelector('.container-responsive')).toBeInTheDocument()
-      
+
       changeOrientation('landscape')
       rerender(<TestResponsiveLayout />)
-      
+
       expect(container.querySelector('.container-responsive')).toBeInTheDocument()
     })
   })
@@ -205,7 +205,7 @@ describe('Viewport Integration Tests', () => {
       testAcrossScreenSizes(() => {
         const { container } = render(<TestResponsiveLayout />)
         const element = container.querySelector('.container-responsive')
-        
+
         if (element) {
           assertElementIsResponsive(element)
         }
@@ -216,8 +216,8 @@ describe('Viewport Integration Tests', () => {
       testAcrossScreenSizes(() => {
         const { container } = render(<TestResponsiveLayout />)
         const images = container.querySelectorAll('.img-responsive')
-        
-        images.forEach((img) => {
+
+        images.forEach(img => {
           assertElementIsResponsive(img)
         })
       })
@@ -227,8 +227,8 @@ describe('Viewport Integration Tests', () => {
       testAcrossScreenSizes(() => {
         const { container } = render(<TestResponsiveLayout />)
         const textElements = container.querySelectorAll('[class*="text-responsive"]')
-        
-        textElements.forEach((element) => {
+
+        textElements.forEach(element => {
           assertTextIsReadable(element)
         })
       })
@@ -238,13 +238,13 @@ describe('Viewport Integration Tests', () => {
   describe('Touch Target Validation', () => {
     const ButtonComponent = () => (
       <div>
-        <button 
+        <button
           className="btn-responsive"
           style={{ minWidth: '44px', minHeight: '44px', padding: '12px 24px' }}
         >
           Click Me
         </button>
-        <a 
+        <a
           href="/test"
           style={{ display: 'inline-block', minWidth: '44px', minHeight: '44px', padding: '12px' }}
         >
@@ -257,7 +257,7 @@ describe('Viewport Integration Tests', () => {
       setScreenSize('mobile')
       const { container } = render(<ButtonComponent />)
       const button = container.querySelector('button')
-      
+
       if (button) {
         assertTouchTargetIsAdequate(button)
       }
@@ -267,7 +267,7 @@ describe('Viewport Integration Tests', () => {
       setScreenSize('mobile')
       const { container } = render(<ButtonComponent />)
       const link = container.querySelector('a')
-      
+
       if (link) {
         assertTouchTargetIsAdequate(link)
       }
@@ -275,14 +275,14 @@ describe('Viewport Integration Tests', () => {
 
     it('touch targets are adequate across all mobile devices', () => {
       const mobileDevices = ['mobile-small', 'mobile', 'mobile-landscape'] as const
-      
-      mobileDevices.forEach((device) => {
+
+      mobileDevices.forEach(device => {
         setScreenSize(device)
         const { container } = render(<ButtonComponent />)
-        
+
         const button = container.querySelector('button')
         const link = container.querySelector('a')
-        
+
         if (button) assertTouchTargetIsAdequate(button)
         if (link) assertTouchTargetIsAdequate(link)
       })
@@ -312,7 +312,7 @@ describe('Viewport Integration Tests', () => {
         writable: true,
         value: 320,
       })
-      
+
       const { container } = render(<TestResponsiveLayout />)
       expect(container.querySelector('.container-responsive')).toBeInTheDocument()
     })
@@ -326,7 +326,7 @@ describe('Viewport Integration Tests', () => {
         writable: true,
         value: 2000,
       })
-      
+
       const { container } = render(<TestResponsiveLayout />)
       expect(container.querySelector('.container-responsive')).toBeInTheDocument()
     })
@@ -340,7 +340,7 @@ describe('Viewport Integration Tests', () => {
         writable: true,
         value: 2880,
       })
-      
+
       const { container } = render(<TestResponsiveLayout />)
       expect(container.querySelector('.container-responsive')).toBeInTheDocument()
     })
@@ -354,7 +354,7 @@ describe('Viewport Integration Tests', () => {
         writable: true,
         value: 1024,
       })
-      
+
       const { container } = render(<TestResponsiveLayout />)
       expect(container.querySelector('.container-responsive')).toBeInTheDocument()
     })
@@ -362,11 +362,11 @@ describe('Viewport Integration Tests', () => {
 
   describe('Performance Across Screen Sizes', () => {
     it('renders quickly on all screen sizes', () => {
-      testAcrossScreenSizes((screenSize) => {
+      testAcrossScreenSizes(screenSize => {
         const startTime = performance.now()
         render(<TestResponsiveLayout />)
         const endTime = performance.now()
-        
+
         const renderTime = endTime - startTime
         // Should render in less than 100ms
         expect(renderTime).toBeLessThan(100)

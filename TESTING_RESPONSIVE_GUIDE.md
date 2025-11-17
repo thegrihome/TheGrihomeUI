@@ -48,17 +48,20 @@ Your dev server is running at: **http://localhost:3000**
 In DevTools Device Toolbar, select these devices:
 
 ### Mobile Devices:
+
 1. **iPhone SE** (375 x 667)
 2. **iPhone 12 Pro** (390 x 844)
 3. **iPhone 14 Pro Max** (430 x 932)
 4. **Samsung Galaxy S20** (360 x 800)
 
 ### Tablets:
+
 5. **iPad Mini** (768 x 1024)
 6. **iPad Air** (820 x 1180)
 7. **iPad Pro** (1024 x 1366)
 
 ### Desktop:
+
 8. **Laptop** (1280 x 800)
 9. **Desktop** (1920 x 1080)
 
@@ -85,6 +88,7 @@ In DevTools Device Toolbar, select these devices:
 ## Method 4: Test Specific Components
 
 ### Home Page Tests:
+
 ```
 ✅ URL: http://localhost:3000
 
@@ -97,6 +101,7 @@ What to test:
 ```
 
 ### Properties Page:
+
 ```
 ✅ URL: http://localhost:3000/properties
 
@@ -108,6 +113,7 @@ What to test:
 ```
 
 ### Projects Page:
+
 ```
 ✅ URL: http://localhost:3000/projects
 
@@ -124,32 +130,38 @@ What to test:
 For each breakpoint, verify:
 
 ### Layout
+
 - [ ] No horizontal scrollbar appears
 - [ ] Content stays within viewport
 - [ ] Margins/padding look appropriate
 - [ ] Grid columns adjust correctly
 
 ### Typography
+
 - [ ] All text is readable (minimum 14px)
 - [ ] Headings scale appropriately
 - [ ] Line lengths aren't too long
 
 ### Images
+
 - [ ] Images never exceed container width
 - [ ] Images maintain aspect ratio
 - [ ] No broken/stretched images
 
 ### Navigation
+
 - [ ] Mobile: Hamburger menu visible
 - [ ] Desktop: Full navigation visible
 - [ ] Links are easily clickable
 
 ### Interactive Elements
+
 - [ ] Buttons have adequate size (min 44x44px on mobile)
 - [ ] Forms are usable
 - [ ] Touch targets are large enough
 
 ### Performance
+
 - [ ] Page loads quickly on all sizes
 - [ ] No layout shift while loading
 - [ ] Smooth transitions between breakpoints
@@ -162,20 +174,20 @@ Run this in your browser console on each page:
 
 ```javascript
 // Test all breakpoints automatically
-const breakpoints = [360, 640, 768, 1024, 1280, 1536, 1920, 2560];
+const breakpoints = [360, 640, 768, 1024, 1280, 1536, 1920, 2560]
 
 breakpoints.forEach(width => {
-  window.resizeTo(width, 800);
-  console.log(`Testing at ${width}px`);
-  
+  window.resizeTo(width, 800)
+  console.log(`Testing at ${width}px`)
+
   // Check for horizontal overflow
-  const hasOverflow = document.body.scrollWidth > window.innerWidth;
-  console.log(`  Horizontal overflow: ${hasOverflow ? '❌ YES' : '✅ NO'}`);
-  
+  const hasOverflow = document.body.scrollWidth > window.innerWidth
+  console.log(`  Horizontal overflow: ${hasOverflow ? '❌ YES' : '✅ NO'}`)
+
   // Check viewport meta
-  const viewport = document.querySelector('meta[name="viewport"]');
-  console.log(`  Viewport meta: ${viewport ? '✅ YES' : '❌ NO'}`);
-});
+  const viewport = document.querySelector('meta[name="viewport"]')
+  console.log(`  Viewport meta: ${viewport ? '✅ YES' : '❌ NO'}`)
+})
 ```
 
 ---
@@ -183,18 +195,23 @@ breakpoints.forEach(width => {
 ## Common Issues to Look For
 
 ### ❌ Problem: Horizontal scrollbar appears
+
 **Fix:** Check if any element has fixed width > viewport
 
 ### ❌ Problem: Text too small on mobile
+
 **Fix:** Use `.text-responsive-*` classes
 
 ### ❌ Problem: Images overflow on mobile
+
 **Fix:** Add `.img-responsive` class to images
 
 ### ❌ Problem: Buttons too small to tap
+
 **Fix:** Ensure minimum 44x44px on mobile
 
 ### ❌ Problem: Navigation not changing
+
 **Fix:** Check `hidden md:flex` or `md:hidden` classes
 
 ---
@@ -204,15 +221,18 @@ breakpoints.forEach(width => {
 ### Access from Phone/Tablet:
 
 1. **Get your computer's IP:**
+
    ```bash
    ipconfig
    # Look for IPv4 Address (e.g., 192.168.1.100)
    ```
 
 2. **On your mobile device, open:**
+
    ```
    http://YOUR-IP-ADDRESS:3000
    ```
+
    Example: `http://192.168.1.100:3000`
 
 3. **Test with real touch interactions**
@@ -260,6 +280,7 @@ npm test viewport.integration.test
 ### Recommended Workflow:
 
 1. **Start dev server** (already running):
+
    ```bash
    npm run dev
    ```
@@ -295,6 +316,7 @@ npm test viewport.integration.test
 ## Expected Results at Each Breakpoint
 
 ### 360px (Mobile Small)
+
 ```
 ✅ Single column layout
 ✅ Mobile menu button visible
@@ -305,6 +327,7 @@ npm test viewport.integration.test
 ```
 
 ### 768px (Tablet)
+
 ```
 ✅ 2-column grids
 ✅ Desktop nav appears
@@ -313,6 +336,7 @@ npm test viewport.integration.test
 ```
 
 ### 1024px (Desktop)
+
 ```
 ✅ 3-column grids
 ✅ Full desktop nav
@@ -321,6 +345,7 @@ npm test viewport.integration.test
 ```
 
 ### 1920px (Full HD)
+
 ```
 ✅ 4-5 column grids
 ✅ Maximum spacing
@@ -351,6 +376,7 @@ npm test viewport.integration.test
 ## Screenshots to Take
 
 Document your testing with screenshots at:
+
 - 360px (mobile)
 - 768px (tablet)
 - 1280px (desktop)
@@ -361,6 +387,7 @@ Document your testing with screenshots at:
 ## Need Help?
 
 If you see issues:
+
 1. Check `RESPONSIVE_DESIGN.md` for solutions
 2. Check browser console for errors
 3. Verify CSS classes are applied

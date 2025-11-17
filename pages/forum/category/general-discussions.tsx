@@ -217,75 +217,89 @@ export default function GeneralDiscussionsPage({
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  // Get General Discussions category
-  const generalDiscussions = await prisma.forumCategory.findUnique({
-    where: { slug: 'general-discussions' },
-    select: { id: true },
-  })
+  try {
+    // Get General Discussions category
+    const generalDiscussions = await prisma.forumCategory.findUnique({
+      where: { slug: 'general-discussions' },
+      select: { id: true },
+    })
 
-  if (!generalDiscussions) {
-    return {
-      notFound: true,
+    if (!generalDiscussions) {
+      return {
+        notFound: true,
+      }
     }
-  }
 
-  // Get all subcategories (cities and states)
-  const allCategories = await prisma.forumCategory.findMany({
-    where: {
-      isActive: true,
-      parentId: generalDiscussions.id,
-    },
-    include: {
-      children: {
-        where: { isActive: true },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          _count: {
-            select: { posts: true },
+    // Get all subcategories (cities and states)
+    const allCategories = await prisma.forumCategory.findMany({
+      where: {
+        isActive: true,
+        parentId: generalDiscussions.id,
+      },
+      include: {
+        children: {
+          where: { isActive: true },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            _count: {
+              select: { posts: true },
+            },
           },
+          orderBy: { name: 'asc' },
         },
-        orderBy: { name: 'asc' },
+        _count: {
+          select: { posts: true },
+        },
       },
-      _count: {
-        select: { posts: true },
+      orderBy: { name: 'asc' },
+    })
+
+    // Separate cities and states based on the 'city' field
+    // Cities have the city field populated, states don't
+    const cities = allCategories.filter(cat => cat.city !== null)
+    const states = allCategories.filter(cat => cat.city === null)
+
+    // Calculate total posts for each category by summing posts from all property type children
+    const citiesWithTotals = cities.map(city => ({
+      ...city,
+      totalPosts: city.children.reduce((sum, child) => sum + child._count.posts, 0),
+    }))
+
+    // Calculate total posts across all cities
+    const totalPosts = citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0)
+
+    // Calculate total posts for all states by summing posts from all property type children
+    const statesTotalPosts = states.reduce(
+      (sum, state) =>
+        sum + state.children.reduce((childSum, child) => childSum + child._count.posts, 0),
+      0
+    )
+
+    // Get count of states for the States & UTs entry
+    const statesCount = states.length
+
+    return {
+      props: {
+        cities: JSON.parse(JSON.stringify(citiesWithTotals)),
+        totalPosts,
+        statesCount,
+        statesTotalPosts,
       },
-    },
-    orderBy: { name: 'asc' },
-  })
-
-  // Separate cities and states based on the 'city' field
-  // Cities have the city field populated, states don't
-  const cities = allCategories.filter(cat => cat.city !== null)
-  const states = allCategories.filter(cat => cat.city === null)
-
-  // Calculate total posts for each category by summing posts from all property type children
-  const citiesWithTotals = cities.map(city => ({
-    ...city,
-    totalPosts: city.children.reduce((sum, child) => sum + child._count.posts, 0),
-  }))
-
-  // Calculate total posts across all cities
-  const totalPosts = citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0)
-
-  // Calculate total posts for all states by summing posts from all property type children
-  const statesTotalPosts = states.reduce(
-    (sum, state) =>
-      sum + state.children.reduce((childSum, child) => childSum + child._count.posts, 0),
-    0
-  )
-
-  // Get count of states for the States & UTs entry
-  const statesCount = states.length
-
-  return {
-    props: {
-      cities: JSON.parse(JSON.stringify(citiesWithTotals)),
-      totalPosts,
-      statesCount,
-      statesTotalPosts,
-    },
-    revalidate: 300, // Revalidate every 5 minutes
+      revalidate: 300, // Revalidate every 5 minutes
+    }
+  } catch (error) {
+    console.error('Database connection error during build:', error)
+    // Return empty data if database is not available
+    return {
+      props: {
+        cities: [],
+        totalPosts: 0,
+        statesCount: 0,
+        statesTotalPosts: 0,
+      },
+      revalidate: 60, // Retry more frequently when database is unavailable
+    }
   }
 }

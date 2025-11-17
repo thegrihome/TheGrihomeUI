@@ -40,9 +40,15 @@ const MockHeader = () => (
       </div>
       <nav className="desktop-nav">
         <div className="desktop-nav-links">
-          <a href="/properties" className="desktop-nav-link">Properties</a>
-          <a href="/projects" className="desktop-nav-link">Projects</a>
-          <a href="/forum" className="desktop-nav-link">Forum</a>
+          <a href="/properties" className="desktop-nav-link">
+            Properties
+          </a>
+          <a href="/projects" className="desktop-nav-link">
+            Projects
+          </a>
+          <a href="/forum" className="desktop-nav-link">
+            Forum
+          </a>
         </div>
       </nav>
     </div>
@@ -155,11 +161,7 @@ describe('Component Responsive Behavior', () => {
     const MockSearchBar = () => (
       <div className="home-search-container">
         <div className="home-search-wrapper">
-          <input
-            type="text"
-            className="home-search-input"
-            placeholder="Search properties..."
-          />
+          <input type="text" className="home-search-input" placeholder="Search properties..." />
           <button className="home-search-button">Search</button>
         </div>
       </div>
@@ -192,15 +194,23 @@ describe('Component Responsive Behavior', () => {
             <div className="footer-column">
               <h4 className="text-responsive-sm">Company</h4>
               <ul>
-                <li><a href="/about">About</a></li>
-                <li><a href="/contact">Contact</a></li>
+                <li>
+                  <a href="/about">About</a>
+                </li>
+                <li>
+                  <a href="/contact">Contact</a>
+                </li>
               </ul>
             </div>
             <div className="footer-column">
               <h4 className="text-responsive-sm">Resources</h4>
               <ul>
-                <li><a href="/blog">Blog</a></li>
-                <li><a href="/help">Help</a></li>
+                <li>
+                  <a href="/blog">Blog</a>
+                </li>
+                <li>
+                  <a href="/help">Help</a>
+                </li>
               </ul>
             </div>
           </div>
@@ -237,7 +247,9 @@ describe('Component Responsive Behavior', () => {
           <label className="text-responsive-sm">Message</label>
           <textarea className="form-input" />
         </div>
-        <button type="submit" className="btn-responsive">Submit</button>
+        <button type="submit" className="btn-responsive">
+          Submit
+        </button>
       </form>
     )
 
@@ -263,13 +275,8 @@ describe('Component Responsive Behavior', () => {
   describe('Image Gallery Responsiveness', () => {
     const MockImageGallery = () => (
       <div className="gallery-grid grid-responsive-1 grid-responsive-2 grid-responsive-3">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <img
-            key={i}
-            src={`/gallery${i}.jpg`}
-            alt={`Gallery ${i}`}
-            className="img-responsive"
-          />
+        {[1, 2, 3, 4, 5, 6].map(i => (
+          <img key={i} src={`/gallery${i}.jpg`} alt={`Gallery ${i}`} className="img-responsive" />
         ))}
       </div>
     )
@@ -288,14 +295,14 @@ describe('Component Responsive Behavior', () => {
     it('images do not overflow container', () => {
       const { container } = render(<MockImageGallery />)
       const images = container.querySelectorAll('.img-responsive')
-      images.forEach((img) => {
+      images.forEach(img => {
         expect(img).toHaveClass('img-responsive')
       })
     })
   })
 
   describe('Modal Responsiveness', () => {
-    const MockModal = ({ isOpen }: { isOpen: boolean }) => (
+    const MockModal = ({ isOpen }: { isOpen: boolean }) =>
       isOpen ? (
         <div className="modal-overlay">
           <div className="modal-content container-responsive">
@@ -305,7 +312,6 @@ describe('Component Responsive Behavior', () => {
           </div>
         </div>
       ) : null
-    )
 
     it('renders modal with responsive container', () => {
       const { container } = render(<MockModal isOpen={true} />)
@@ -328,7 +334,7 @@ describe('Component Responsive Behavior', () => {
     it('handles mobile menu toggle', () => {
       const { container } = render(<MockHeader />)
       const button = container.querySelector('.mobile-menu-button')
-      
+
       if (button) {
         fireEvent.click(button)
         // Mobile menu should toggle
