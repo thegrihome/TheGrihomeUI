@@ -135,7 +135,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { put } = await import('@vercel/blob')
         const base64Data = brochurePdfBase64.split(',')[1]
         const buffer = Buffer.from(base64Data, 'base64')
-        const normalizedProjectName = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+        const normalizedProjectName = name
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
         const filename = `hyderabad-projects/${normalizedProjectName}/brochure.pdf`
 
         const blob = await put(filename, buffer, {
@@ -147,28 +150,56 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Upload new floorplan images if provided
-      if (floorplanImagesBase64 && Array.isArray(floorplanImagesBase64) && floorplanImagesBase64.length > 0) {
-        const newFloorplans = floorplanImagesBase64.filter((img: string) => img.startsWith('data:image'))
+      if (
+        floorplanImagesBase64 &&
+        Array.isArray(floorplanImagesBase64) &&
+        floorplanImagesBase64.length > 0
+      ) {
+        const newFloorplans = floorplanImagesBase64.filter((img: string) =>
+          img.startsWith('data:image')
+        )
         if (newFloorplans.length > 0) {
-          const newUrls = await uploadMultipleProjectImages(name, 'floorplans', newFloorplans.slice(0, 20))
+          const newUrls = await uploadMultipleProjectImages(
+            name,
+            'floorplans',
+            newFloorplans.slice(0, 20)
+          )
           floorplanUrls = [...floorplanUrls, ...newUrls].slice(0, 20)
         }
       }
 
       // Upload new clubhouse images if provided
-      if (clubhouseImagesBase64 && Array.isArray(clubhouseImagesBase64) && clubhouseImagesBase64.length > 0) {
-        const newClubhouse = clubhouseImagesBase64.filter((img: string) => img.startsWith('data:image'))
+      if (
+        clubhouseImagesBase64 &&
+        Array.isArray(clubhouseImagesBase64) &&
+        clubhouseImagesBase64.length > 0
+      ) {
+        const newClubhouse = clubhouseImagesBase64.filter((img: string) =>
+          img.startsWith('data:image')
+        )
         if (newClubhouse.length > 0) {
-          const newUrls = await uploadMultipleProjectImages(name, 'clubhouse', newClubhouse.slice(0, 10))
+          const newUrls = await uploadMultipleProjectImages(
+            name,
+            'clubhouse',
+            newClubhouse.slice(0, 10)
+          )
           clubhouseUrls = [...clubhouseUrls, ...newUrls].slice(0, 10)
         }
       }
 
       // Upload new gallery images if provided
-      if (galleryImagesBase64 && Array.isArray(galleryImagesBase64) && galleryImagesBase64.length > 0) {
+      if (
+        galleryImagesBase64 &&
+        Array.isArray(galleryImagesBase64) &&
+        galleryImagesBase64.length > 0
+      ) {
         const newGallery = galleryImagesBase64.filter((img: string) => img.startsWith('data:image'))
         if (newGallery.length > 0) {
-          const newUrls = await uploadMultipleProjectImages(name, 'gallery', newGallery.slice(0, 20))
+          const newUrls = await uploadMultipleProjectImages(
+            name,
+            'gallery',
+            newGallery.slice(0, 20)
+          )
           galleryUrls = [...galleryUrls, ...newUrls].slice(0, 20)
         }
       }

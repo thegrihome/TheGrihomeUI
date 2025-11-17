@@ -117,7 +117,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { put } = await import('@vercel/blob')
         const base64Data = brochurePdfBase64.split(',')[1]
         const buffer = Buffer.from(base64Data, 'base64')
-        const normalizedProjectName = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+        const normalizedProjectName = name
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
         const filename = `hyderabad-projects/${normalizedProjectName}/brochure.pdf`
 
         const blob = await put(filename, buffer, {
