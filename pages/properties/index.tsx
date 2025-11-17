@@ -389,7 +389,7 @@ export default function PropertiesPage() {
       <Header />
 
       <main className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-full overflow-x-hidden">
           <div className="mb-6">
             <h1 className="text-2xl font-bold">
               <span className="text-gray-800">Browse</span>{' '}
@@ -400,13 +400,10 @@ export default function PropertiesPage() {
           </div>
 
           {/* Filters Section */}
-          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-            <div className="flex flex-wrap items-center gap-3">
+          <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6 overflow-x-hidden">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {/* Buy/Rent/All Slider Toggle */}
-              <div
-                className="relative inline-flex items-center bg-white border border-gray-300 rounded-full p-0.5"
-                style={{ width: '180px' }}
-              >
+              <div className="relative inline-flex items-center bg-white border border-gray-300 rounded-full p-0.5 w-full xs:w-[160px] sm:w-[180px] flex-shrink-0">
                 <div
                   className="absolute top-0.5 bottom-0.5 bg-blue-600 rounded-full transition-all duration-300 ease-in-out"
                   style={{
@@ -449,10 +446,10 @@ export default function PropertiesPage() {
               </div>
 
               {/* Property Type Filter */}
-              <div className="relative property-type-dropdown">
+              <div className="relative property-type-dropdown w-full xs:w-auto flex-shrink-0">
                 <button
                   onClick={() => setShowPropertyTypeDropdown(!showPropertyTypeDropdown)}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[160px] text-left"
+                  className="w-full xs:w-auto px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 xs:min-w-[140px] sm:min-w-[160px] text-left"
                 >
                   {filters.propertyType
                     ? `${propertyTypes.find(t => t.value === filters.propertyType)?.icon} ${propertyTypes.find(t => t.value === filters.propertyType)?.label}`
@@ -500,10 +497,10 @@ export default function PropertiesPage() {
 
               {/* Bedrooms Filter */}
               {showBedroomsBathroomsFilters && (
-                <div className="relative bedrooms-dropdown">
+                <div className="relative bedrooms-dropdown flex-shrink-0">
                   <button
                     onClick={() => setShowBedroomsDropdown(!showBedroomsDropdown)}
-                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[80px] text-left"
+                    className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-7 min-w-[70px] sm:min-w-[80px] text-left"
                   >
                     {filters.bedrooms || 'Beds'}
                   </button>
@@ -550,10 +547,10 @@ export default function PropertiesPage() {
 
               {/* Bathrooms Filter */}
               {showBedroomsBathroomsFilters && (
-                <div className="relative bathrooms-dropdown">
+                <div className="relative bathrooms-dropdown flex-shrink-0">
                   <button
                     onClick={() => setShowBathroomsDropdown(!showBathroomsDropdown)}
-                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[80px] text-left"
+                    className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-7 min-w-[70px] sm:min-w-[80px] text-left"
                   >
                     {filters.bathrooms || 'Baths'}
                   </button>
@@ -599,13 +596,13 @@ export default function PropertiesPage() {
               )}
 
               {/* Location Filter */}
-              <div className="relative flex-1 min-w-[250px]">
+              <div className="relative flex-1 min-w-full xs:min-w-[180px] sm:min-w-[200px] md:min-w-[250px]">
                 <input
                   type="text"
                   value={filters.location}
                   onChange={handleLocationSearch}
                   placeholder="Location..."
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   onFocus={() => predictions.length > 0 && setShowLocationPredictions(true)}
                   onBlur={() => setTimeout(() => setShowLocationPredictions(false), 200)}
                 />
@@ -653,16 +650,16 @@ export default function PropertiesPage() {
           </div>
 
           {/* Results Summary and Sort */}
-          <div className="mb-6 flex justify-between items-center">
-            <p className="text-gray-600">
+          <div className="mb-4 sm:mb-6 flex flex-col xs:flex-row justify-between items-start xs:items-center gap-3">
+            <p className="text-xs sm:text-sm text-gray-600 flex-shrink-0">
               Showing {filteredProperties.length} of {properties.length} properties
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 w-full xs:w-auto">
               {/* Sort Dropdown */}
-              <div className="relative sort-dropdown">
+              <div className="relative sort-dropdown flex-1 xs:flex-initial">
                 <button
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
-                  className="flex items-center gap-2 px-4 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                  className="w-full xs:w-auto flex items-center gap-2 px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors justify-between xs:justify-start"
                 >
                   Sort: {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Default'}
                   <svg
@@ -733,7 +730,7 @@ export default function PropertiesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {filteredProperties.map(property => {
                 const isOwner = session?.user?.email === property.userEmail
                 return (
@@ -754,11 +751,11 @@ export default function PropertiesPage() {
 
           {/* Pagination */}
           {!loading && filteredProperties.length > 0 && totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-2">
+            <div className="mt-6 sm:mt-8 flex flex-col xs:flex-row items-center justify-center gap-2 sm:gap-3">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 sm:px-4 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed w-full xs:w-auto"
               >
                 Previous
               </button>
@@ -783,7 +780,7 @@ export default function PropertiesPage() {
                         {showEllipsis && <span className="px-2 text-gray-400">...</span>}
                         <button
                           onClick={() => setCurrentPage(page)}
-                          className={`px-3 py-1.5 text-sm rounded-md ${
+                          className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-md ${
                             currentPage === page
                               ? 'bg-blue-600 text-white'
                               : 'border border-gray-300 hover:bg-gray-50'
@@ -799,12 +796,12 @@ export default function PropertiesPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 sm:px-4 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed w-full xs:w-auto"
               >
                 Next
               </button>
 
-              <span className="text-sm text-gray-600 ml-4">
+              <span className="text-xs sm:text-sm text-gray-600 text-center xs:ml-4 w-full xs:w-auto">
                 Page {currentPage} of {totalPages} ({totalCount} properties)
               </span>
             </div>
