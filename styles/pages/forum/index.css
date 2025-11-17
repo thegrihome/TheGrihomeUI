@@ -1237,7 +1237,8 @@
 
 .forum-post-content img,
 .forum-reply-body img {
-  max-width: 100%;
+  max-width: 400px;
+  width: 100%;
   height: auto;
   border-radius: 8px;
   margin: 1rem 0;

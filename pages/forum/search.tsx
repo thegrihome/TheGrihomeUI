@@ -92,8 +92,30 @@ export default function SearchPage({ results, error }: SearchPageProps) {
     return content.substring(0, maxLength).trim() + '...'
   }
 
-  const highlightSearchTerm = (text: string, searchQuery: string) => {
-    if (!searchQuery) return text
+  const getContentExcerpt = (content: string, searchQuery: string, maxLength: number = 200) => {
+    if (!searchQuery) return truncateContent(content, maxLength)
+
+    // Find the position of the search term (case insensitive)
+    const lowerContent = content.toLowerCase()
+    const lowerQuery = searchQuery.toLowerCase()
+    const matchIndex = lowerContent.indexOf(lowerQuery)
+
+    // If search term not found in content, return null (don't show content)
+    if (matchIndex === -1) return null
+
+    // Extract content around the match
+    const start = Math.max(0, matchIndex - 50)
+    const end = Math.min(content.length, matchIndex + searchQuery.length + 150)
+
+    let excerpt = content.substring(start, end)
+    if (start > 0) excerpt = '...' + excerpt
+    if (end < content.length) excerpt = excerpt + '...'
+
+    return excerpt
+  }
+
+  const highlightSearchTerm = (text: string | null, searchQuery: string) => {
+    if (!text || !searchQuery) return text
     const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'))
     return parts.map((part, index) =>
       part.toLowerCase() === searchQuery.toLowerCase() ? (
@@ -220,9 +242,14 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                               </div>
                             </div>
                           </div>
-                          <p className="forum-search-result-description">
-                            {highlightSearchTerm(truncateContent(post.content, 200), results.query)}
-                          </p>
+                          {(() => {
+                            const excerpt = getContentExcerpt(post.content, results.query, 200)
+                            return excerpt ? (
+                              <p className="forum-search-result-description">
+                                {highlightSearchTerm(excerpt, results.query)}
+                              </p>
+                            ) : null
+                          })()}
                           <div className="forum-search-result-stats">
                             <span className="forum-stat">{post._count.replies} replies</span>
                             <span className="forum-stat">{post.viewCount} views</span>
