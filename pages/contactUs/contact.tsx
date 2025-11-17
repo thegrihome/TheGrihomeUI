@@ -211,11 +211,7 @@ export default function ContactPage() {
                   Phone Number
                 </label>
                 <div className="contact-form__phone-group">
-                  <CountryCodeDropdown
-                    value={countryCode}
-                    onChange={setCountryCode}
-                    className="mr-2"
-                  />
+                  <CountryCodeDropdown value={countryCode} onChange={setCountryCode} />
                   <input
                     type="tel"
                     id="phone"
