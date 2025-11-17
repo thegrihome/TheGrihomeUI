@@ -180,7 +180,7 @@ export default function PropertiesPage() {
         .then(res => res.json())
         .then(data => {
           if (data.favorites) {
-            const ids = new Set(data.favorites.map((fav: any) => fav.id))
+            const ids = new Set<string>(data.favorites.map((fav: any) => fav.id))
             setFavoriteIds(ids)
           }
         })

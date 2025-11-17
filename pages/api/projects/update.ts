@@ -52,6 +52,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Find the project
     const existingProject = await prisma.project.findUnique({
       where: { id: projectId },
+      include: {
+        location: true,
+      },
     })
 
     if (!existingProject) {
