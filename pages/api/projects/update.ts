@@ -77,7 +77,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Geocode location if changed
     let locationId = existingProject.locationId
-    if (locationAddress !== existingProject.location?.formattedAddress) {
+    // Type assertion for included location relation
+    const currentLocation = (existingProject as any).location
+    if (locationAddress !== currentLocation?.formattedAddress) {
       const geocodeResult = await geocodeAddress(locationAddress)
       let locationRecord
 

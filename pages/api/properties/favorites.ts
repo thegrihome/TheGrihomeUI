@@ -54,43 +54,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Transform the data to match the Property interface expected by the frontend
     const transformedFavorites = favorites.map((fav: any) => {
-      const details = fav.property.propertyDetails as any
+      // Extract propertyDetails as any to avoid TypeScript errors with JSON field
+      const propertyData = fav.property
+      const detailsRaw: any = propertyData.propertyDetails
+
       return {
-        id: fav.property.id,
-        streetAddress: fav.property.streetAddress,
+        id: propertyData.id,
+        streetAddress: propertyData.streetAddress,
         location: {
-          city: fav.property.location.city,
-          state: fav.property.location.state,
-          zipcode: fav.property.location.zipcode || '',
-          locality: fav.property.location.locality || '',
-          fullAddress: fav.property.location.formattedAddress || '',
+          city: propertyData.location.city,
+          state: propertyData.location.state,
+          zipcode: propertyData.location.zipcode || '',
+          locality: propertyData.location.locality || '',
+          fullAddress: propertyData.location.formattedAddress || '',
         },
-        builder: fav.property.builder?.name || '',
-        project: fav.property.project
-          ? { id: fav.property.project.id, name: fav.property.project.name }
+        builder: propertyData.builder?.name || '',
+        project: propertyData.project
+          ? { id: propertyData.project.id, name: propertyData.project.name }
           : '',
-        propertyType: fav.property.propertyType,
-        listingType: fav.property.listingType,
-        sqFt: fav.property.sqFt,
-        thumbnailUrl: fav.property.thumbnailUrl,
-        imageUrls: fav.property.imageUrls,
-        listingStatus: fav.property.listingStatus,
-        soldTo: fav.property.soldTo,
-        soldToUserId: fav.property.soldToUserId,
-        soldDate: fav.property.soldDate?.toISOString(),
-        createdAt: fav.property.createdAt.toISOString(),
-        postedBy: fav.property.user.name || 'Unknown',
-        companyName: fav.property.user.companyName,
-        bedrooms: details?.bedrooms,
-        bathrooms: details?.bathrooms,
-        price: details?.price,
-        size: details?.size,
-        sizeUnit: details?.sizeUnit,
-        plotSize: details?.plotSize,
-        plotSizeUnit: details?.plotSizeUnit,
-        description: fav.property.streetAddress,
-        userId: fav.property.userId,
-        userEmail: fav.property.user.email,
+        propertyType: propertyData.propertyType,
+        listingType: propertyData.listingType,
+        sqFt: propertyData.sqFt,
+        thumbnailUrl: propertyData.thumbnailUrl,
+        imageUrls: propertyData.imageUrls,
+        listingStatus: propertyData.listingStatus,
+        soldTo: propertyData.soldTo,
+        soldToUserId: propertyData.soldToUserId,
+        soldDate: propertyData.soldDate?.toISOString(),
+        createdAt: propertyData.createdAt.toISOString(),
+        postedBy: propertyData.user.name || 'Unknown',
+        companyName: propertyData.user.companyName,
+        bedrooms: detailsRaw?.bedrooms,
+        bathrooms: detailsRaw?.bathrooms,
+        price: detailsRaw?.price,
+        size: detailsRaw?.size,
+        sizeUnit: detailsRaw?.sizeUnit,
+        plotSize: detailsRaw?.plotSize,
+        plotSizeUnit: detailsRaw?.plotSizeUnit,
+        description: propertyData.streetAddress,
+        userId: propertyData.userId,
+        userEmail: propertyData.user.email,
         favoritedAt: fav.createdAt.toISOString(),
       }
     })
