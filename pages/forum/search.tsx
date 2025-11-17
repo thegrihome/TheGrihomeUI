@@ -92,6 +92,20 @@ export default function SearchPage({ results, error }: SearchPageProps) {
     return content.substring(0, maxLength).trim() + '...'
   }
 
+  const highlightSearchTerm = (text: string, searchQuery: string) => {
+    if (!searchQuery) return text
+    const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'))
+    return parts.map((part, index) =>
+      part.toLowerCase() === searchQuery.toLowerCase() ? (
+        <mark key={index} className="forum-search-highlight">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    )
+  }
+
   const getCategoryUrl = (category: any) => {
     if (category.city && category.propertyType) {
       return `/forum/category/general-discussions/${category.city}/${category.slug.replace(`${category.city}-`, '')}`
@@ -161,53 +175,6 @@ export default function SearchPage({ results, error }: SearchPageProps) {
 
           {results && results.totalResults > 0 && (
             <>
-              {/* Categories/Sections Results */}
-              {results.categories.length > 0 && (
-                <div className="forum-search-section">
-                  <h2 className="forum-search-section-title">Sections</h2>
-                  <div className="forum-search-results">
-                    {results.categories.map(category => (
-                      <Link
-                        key={category.id}
-                        href={getCategoryUrl(category)}
-                        className="forum-search-result-item"
-                      >
-                        <div className="forum-search-result-content">
-                          <div className="forum-search-result-header">
-                            <div className="forum-category-icon">
-                              {category.city
-                                ? cityIcons[category.city] || '🏛️'
-                                : category.propertyType
-                                  ? propertyTypeIcons[category.propertyType] || '🏠'
-                                  : '💬'}
-                            </div>
-                            <div>
-                              <h3 className="forum-search-result-title">{category.name}</h3>
-                              {category.parent && (
-                                <span className="forum-search-result-parent">
-                                  in {category.parent.name}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          {category.description && (
-                            <p className="forum-search-result-description">
-                              {truncateContent(category.description, 150)}
-                            </p>
-                          )}
-                          <div className="forum-search-result-stats">
-                            <span className="forum-stat">
-                              {category._count.posts}{' '}
-                              {category._count.posts === 1 ? 'post' : 'posts'}
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Posts Results */}
               {results.posts.length > 0 && (
                 <div className="forum-search-section">
@@ -237,7 +204,9 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                               )}
                             </div>
                             <div>
-                              <h3 className="forum-search-result-title">{post.title}</h3>
+                              <h3 className="forum-search-result-title">
+                                {highlightSearchTerm(post.title, results.query)}
+                              </h3>
                               <div className="forum-search-result-meta">
                                 <span className="forum-search-result-author">
                                   by {post.author.username}
@@ -252,7 +221,7 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                             </div>
                           </div>
                           <p className="forum-search-result-description">
-                            {truncateContent(post.content, 200)}
+                            {highlightSearchTerm(truncateContent(post.content, 200), results.query)}
                           </p>
                           <div className="forum-search-result-stats">
                             <span className="forum-stat">{post._count.replies} replies</span>

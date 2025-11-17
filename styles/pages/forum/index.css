@@ -2419,3 +2419,22 @@
     align-self: center;
   }
 }
+
+/* Search Term Highlighting */
+.forum-search-highlight {
+  background-color: #fef08a;
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* Global Text Selection Color */
+::selection {
+  background-color: #bfdbfe;
+  color: #1e3a8a;
+}
+
+::-moz-selection {
+  background-color: #bfdbfe;
+  color: #1e3a8a;
+}
