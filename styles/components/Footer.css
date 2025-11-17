@@ -104,4 +104,14 @@
 .footer-social-icon {
   width: 1.25rem;
   height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .footer-social-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 }

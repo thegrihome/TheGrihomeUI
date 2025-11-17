@@ -18,15 +18,43 @@
 @import './pages/projects/add-project-request.css';
 @import './pages/projects/detail.css';
 
+/* ============================================
+   RESPONSIVE DESIGN SYSTEM
+   ============================================
+   Breakpoints:
+   - xs: 360px  (Small mobile)
+   - sm: 640px  (Mobile landscape)
+   - md: 768px  (Tablet portrait)
+   - lg: 1024px (Tablet landscape)
+   - xl: 1280px (Desktop)
+   - 2xl: 1536px (Large desktop)
+   - 3xl: 1920px (Full HD)
+   - 4xl: 2560px (2K/Ultra-wide)
+   ============================================ */
+
 html {
   min-width: 360px;
   scroll-behavior: smooth;
+  /* Prevent horizontal overflow */
+  overflow-x: hidden;
+  /* Better emoji rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  /* Prevent horizontal overflow */
+  overflow-x: hidden;
+  width: 100%;
 }
 
 #__next {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .sticky-nav {
@@ -37,16 +65,271 @@ html {
   transition: background-color 0.1 ease-in-out !important;
 }
 
+/* ============================================
+   RESPONSIVE CONTAINER UTILITIES
+   ============================================ */
+
+@layer utilities {
+  /* Emoji fix for better rendering across all devices */
+  .emoji-fix {
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  /* Responsive containers that adapt to screen size */
+  .container-responsive {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-responsive {
+      max-width: 640px;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container-responsive {
+      max-width: 768px;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-responsive {
+      max-width: 1024px;
+      padding-left: 2.5rem;
+      padding-right: 2.5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container-responsive {
+      max-width: 1280px;
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .container-responsive {
+      max-width: 1536px;
+      padding-left: 4rem;
+      padding-right: 4rem;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .container-responsive {
+      max-width: 1920px;
+      padding-left: 5rem;
+      padding-right: 5rem;
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .container-responsive {
+      max-width: 2560px;
+      padding-left: 6rem;
+      padding-right: 6rem;
+    }
+  }
+
+  /* Responsive text utilities */
+  .text-responsive-xs {
+    font-size: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-xs {
+      font-size: 0.875rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .text-responsive-xs {
+      font-size: 1rem;
+    }
+  }
+
+  .text-responsive-sm {
+    font-size: 0.875rem;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-sm {
+      font-size: 1rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .text-responsive-sm {
+      font-size: 1.125rem;
+    }
+  }
+
+  .text-responsive-base {
+    font-size: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-base {
+      font-size: 1.125rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .text-responsive-base {
+      font-size: 1.25rem;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .text-responsive-base {
+      font-size: 1.5rem;
+    }
+  }
+
+  /* Responsive grid utilities */
+  .grid-responsive-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .grid-responsive-2 {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid-responsive-3 {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .grid-responsive-4 {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2.5rem;
+    }
+  }
+
+  @media (min-width: 2560px) {
+    .grid-responsive-6 {
+      grid-template-columns: repeat(6, 1fr);
+      gap: 3rem;
+    }
+  }
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR (Responsive)
+   ============================================ */
+
 body::-webkit-scrollbar {
-  width: 0.75em;
+  width: 0.5em;
+}
+
+@media (min-width: 768px) {
+  body::-webkit-scrollbar {
+    width: 0.625em;
+  }
+}
+
+@media (min-width: 1024px) {
+  body::-webkit-scrollbar {
+    width: 0.75em;
+  }
 }
 
 body::-webkit-scrollbar-thumb {
   background-color: rgb(39, 39, 39);
   outline: 1px solid rgb(33, 34, 34);
+  border-radius: 4px;
+}
+
+body::-webkit-scrollbar-track {
+  background-color: rgb(245, 245, 245);
 }
 
 ::selection {
   background-color: #f81ce5;
   color: #fefefe;
+}
+
+/* ============================================
+   RESPONSIVE IMAGE UTILITIES
+   ============================================ */
+
+@layer utilities {
+  .img-responsive {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .img-cover-responsive {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .img-contain-responsive {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+/* ============================================
+   SAFE AREA UTILITIES (for notched devices)
+   ============================================ */
+
+@supports (padding: max(0px)) {
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+
+  .safe-left {
+    padding-left: max(env(safe-area-inset-left), 0px);
+  }
+
+  .safe-right {
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
 }
