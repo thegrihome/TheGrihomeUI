@@ -78,24 +78,6 @@ interface UserProfilePageProps {
   totalPages: number
 }
 
-const reactionEmojis = {
-  THANKS: '🙏',
-  LAUGH: '😂',
-  CONFUSED: '😕',
-  SAD: '😢',
-  ANGRY: '😠',
-  LOVE: '❤️',
-}
-
-const reactionLabels = {
-  THANKS: 'Thanks',
-  LAUGH: 'Laugh',
-  CONFUSED: 'Confused',
-  SAD: 'Sad',
-  ANGRY: 'Angry',
-  LOVE: 'Love',
-}
-
 export default function UserProfilePage({
   userStats,
   posts,
@@ -105,9 +87,7 @@ export default function UserProfilePage({
   currentPage,
   totalPages,
 }: UserProfilePageProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'posts' | 'replies' | 'reactions'>(
-    'posts'
-  )
+  const [activeTab, setActiveTab] = useState<'overview' | 'posts' | 'replies'>('overview')
   const router = useRouter()
   const { userId } = router.query
 
@@ -135,16 +115,6 @@ export default function UserProfilePage({
       return `${years} year${years === 1 ? '' : 's'} ago`
     }
   }
-
-  const getActivityLevel = (totalPosts: number) => {
-    if (totalPosts >= 100) return { label: 'Very Active', color: '#10b981' }
-    if (totalPosts >= 50) return { label: 'Active', color: '#3b82f6' }
-    if (totalPosts >= 20) return { label: 'Regular', color: '#8b5cf6' }
-    if (totalPosts >= 5) return { label: 'Occasional', color: '#f59e0b' }
-    return { label: 'New Member', color: '#6b7280' }
-  }
-
-  const activityLevel = getActivityLevel(userStats.totalPosts)
 
   const truncateContent = (content: string, maxLength: number = 150) => {
     const stripped = content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
@@ -204,15 +174,6 @@ export default function UserProfilePage({
             <div className="forum-user-info">
               <h1 className="forum-user-username">{userStats.user.username}</h1>
 
-              <div className="forum-user-badges">
-                <span
-                  className="forum-activity-badge"
-                  style={{ backgroundColor: activityLevel.color }}
-                >
-                  {activityLevel.label}
-                </span>
-              </div>
-
               <div className="forum-user-meta">
                 <div className="forum-user-meta-item">
                   <span className="forum-user-meta-label">Member since:</span>
@@ -227,6 +188,12 @@ export default function UserProfilePage({
 
           <div className="forum-user-tabs">
             <button
+              className={`forum-tab ${activeTab === 'overview' ? 'active' : ''}`}
+              onClick={() => setActiveTab('overview')}
+            >
+              Overview
+            </button>
+            <button
               className={`forum-tab ${activeTab === 'posts' ? 'active' : ''}`}
               onClick={() => setActiveTab('posts')}
             >
@@ -237,18 +204,6 @@ export default function UserProfilePage({
               onClick={() => setActiveTab('replies')}
             >
               Replies ({repliesCount})
-            </button>
-            <button
-              className={`forum-tab ${activeTab === 'overview' ? 'active' : ''}`}
-              onClick={() => setActiveTab('overview')}
-            >
-              Overview
-            </button>
-            <button
-              className={`forum-tab ${activeTab === 'reactions' ? 'active' : ''}`}
-              onClick={() => setActiveTab('reactions')}
-            >
-              Reactions
             </button>
           </div>
 
@@ -288,7 +243,6 @@ export default function UserProfilePage({
                             <div className="forum-search-result-stats">
                               <span className="forum-stat">{post._count.replies} replies</span>
                               <span className="forum-stat">{post.viewCount} views</span>
-                              <span className="forum-stat">{post._count.reactions} reactions</span>
                             </div>
                           </div>
                         </Link>
@@ -412,60 +366,6 @@ export default function UserProfilePage({
                     <h3 className="forum-stat-title">Total Activity</h3>
                     <div className="forum-stat-number">{userStats.totalPosts}</div>
                     <div className="forum-stat-description">Posts + Replies</div>
-                  </div>
-
-                  <div className="forum-stat-card">
-                    <h3 className="forum-stat-title">Reactions Received</h3>
-                    <div className="forum-stat-number">{userStats.totalReactionsReceived}</div>
-                    <div className="forum-stat-description">Total reactions on posts</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'reactions' && (
-              <div className="forum-user-reactions">
-                <div className="forum-reactions-section">
-                  <h3 className="forum-reactions-title">Reactions Received</h3>
-                  <div className="forum-reactions-grid">
-                    {Object.entries(userStats.reactionsReceived).map(([type, count]) => (
-                      <div key={type} className="forum-reaction-stat">
-                        <div className="forum-reaction-emoji">
-                          {reactionEmojis[type as keyof typeof reactionEmojis]}
-                        </div>
-                        <div className="forum-reaction-info">
-                          <div className="forum-reaction-count">{count}</div>
-                          <div className="forum-reaction-label">
-                            {reactionLabels[type as keyof typeof reactionLabels]}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="forum-reactions-total">
-                    Total: {userStats.totalReactionsReceived} reactions received
-                  </div>
-                </div>
-
-                <div className="forum-reactions-section">
-                  <h3 className="forum-reactions-title">Reactions Given</h3>
-                  <div className="forum-reactions-grid">
-                    {Object.entries(userStats.reactionsGiven).map(([type, count]) => (
-                      <div key={type} className="forum-reaction-stat">
-                        <div className="forum-reaction-emoji">
-                          {reactionEmojis[type as keyof typeof reactionEmojis]}
-                        </div>
-                        <div className="forum-reaction-info">
-                          <div className="forum-reaction-count">{count}</div>
-                          <div className="forum-reaction-label">
-                            {reactionLabels[type as keyof typeof reactionLabels]}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="forum-reactions-total">
-                    Total: {userStats.totalReactionsGiven} reactions given
                   </div>
                 </div>
               </div>
