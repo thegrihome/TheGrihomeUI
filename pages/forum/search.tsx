@@ -217,7 +217,6 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                                   alt={post.author.username}
                                   width={32}
                                   height={32}
-                                  className="w-full h-full object-cover"
                                 />
                               ) : (
                                 <div className="forum-avatar-placeholder">
@@ -231,7 +230,7 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                               </h3>
                               <div className="forum-search-result-meta">
                                 <span className="forum-search-result-author">
-                                  by {post.author.username}
+                                  by {highlightSearchTerm(post.author.username, results.query)}
                                 </span>
                                 <span className="forum-search-result-date">
                                   {formatDate(post.createdAt)}
