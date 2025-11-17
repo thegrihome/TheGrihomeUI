@@ -1478,4 +1478,150 @@ describe('Properties Page - Comprehensive Tests', () => {
       })
     })
   })
+
+  describe('Additional Coverage Tests', () => {
+    it('should handle location as plain string in query params', async () => {
+      mockUseRouter.mockReturnValue({
+        query: { location: 'Hyderabad' },
+        push: mockPush,
+        isReady: true,
+      })
+
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: async () => ({
+            properties: mockProperties,
+            pagination: { totalPages: 3, totalCount: 45, currentPage: 1 },
+          }),
+        })
+      ) as jest.Mock
+
+      render(<PropertiesPage />)
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('location=Hyderabad'))
+      })
+    })
+
+    it('should handle Google Maps autocomplete failure', async () => {
+      global.google = {
+        maps: {
+          places: {
+            AutocompleteService: jest.fn(() => ({
+              getPlacePredictions: (request: any, callback: any) => {
+                callback(null, 'ZERO_RESULTS')
+              },
+            })),
+            PlacesServiceStatus: {
+              OK: 'OK',
+              ZERO_RESULTS: 'ZERO_RESULTS',
+            },
+          },
+        },
+      } as any
+
+      render(<PropertiesPage />)
+
+      const locationInput = screen.getByPlaceholderText('Location...')
+      fireEvent.change(locationInput, { target: { value: 'InvalidPlace' } })
+
+      await waitFor(() => {
+        expect(locationInput).toHaveValue('InvalidPlace')
+      })
+    })
+
+    it('should handle mark as sold API error', async () => {
+      mockUseSession.mockReturnValue({
+        data: { user: { email: 'agent@example.com' } },
+        status: 'authenticated',
+      })
+
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            properties: mockProperties,
+            pagination: { totalPages: 1, totalCount: 3, currentPage: 1 },
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          json: async () => ({ message: 'Failed to archive property' }),
+        })
+
+      render(<PropertiesPage />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId('mark-sold-prop-1')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByTestId('mark-sold-prop-1'))
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/Enter buyer name/i)).toBeInTheDocument()
+      })
+
+      const submitButtons = screen.getAllByRole('button', { name: 'Mark as Sold' })
+      fireEvent.click(submitButtons[submitButtons.length - 1])
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('Failed to archive property')
+      })
+    })
+
+    it('should handle mark as sold network error', async () => {
+      mockUseSession.mockReturnValue({
+        data: { user: { email: 'agent@example.com' } },
+        status: 'authenticated',
+      })
+
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            properties: mockProperties,
+            pagination: { totalPages: 1, totalCount: 3, currentPage: 1 },
+          }),
+        })
+        .mockRejectedValueOnce(new Error('Network error'))
+
+      render(<PropertiesPage />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId('mark-sold-prop-1')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByTestId('mark-sold-prop-1'))
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/Enter buyer name/i)).toBeInTheDocument()
+      })
+
+      const submitButtons = screen.getAllByRole('button', { name: 'Mark as Sold' })
+      fireEvent.click(submitButtons[submitButtons.length - 1])
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('Network error')
+      })
+    })
+
+    it('should handle empty location input clearing predictions', async () => {
+      render(<PropertiesPage />)
+
+      const locationInput = screen.getByPlaceholderText('Location...')
+
+      // Type something first
+      fireEvent.change(locationInput, { target: { value: 'Hyderabad' } })
+
+      // Then clear it
+      fireEvent.change(locationInput, { target: { value: '' } })
+
+      await waitFor(() => {
+        expect(locationInput).toHaveValue('')
+      })
+    })
+  })
 })
