@@ -45,7 +45,7 @@
 .header-top {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   padding: 0.75rem 1rem;
   min-height: 64px;
@@ -82,7 +82,7 @@
 @media (max-width: 767px) {
   .header-logo {
     margin-bottom: 0;
-    align-items: center;
+    align-items: flex-end;
   }
 }
 
@@ -102,6 +102,7 @@
   .header-logo-image {
     margin-top: 0;
     margin-right: 0;
+    margin-bottom: 0.25rem;
   }
 }
 
@@ -117,7 +118,8 @@
 @media (max-width: 767px) {
   .header-logo-text {
     font-size: 1.25rem;
-    line-height: 1.2;
+    line-height: 1;
+    padding-bottom: 0.25rem;
   }
 }
 
@@ -254,7 +256,7 @@
 
 /* Mobile Menu Button */
 .mobile-menu-button {
-  padding: 0.5rem;
+  padding: 0;
   margin-left: auto;
   color: #000000;
   outline: none;
@@ -270,6 +272,14 @@
   flex-shrink: 0;
 }
 
+@media (max-width: 767px) {
+  .mobile-menu-button {
+    padding: 0.25rem;
+    padding-bottom: 0;
+    margin-bottom: 0.25rem;
+  }
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
   .mobile-menu-button {
     font-size: 1.75rem;
@@ -280,6 +290,12 @@
   width: 24px;
   height: 24px;
   stroke-width: 2;
+}
+
+@media (max-width: 767px) {
+  .mobile-menu-button svg {
+    display: block;
+  }
 }
 
 @media (max-width: 480px) {
