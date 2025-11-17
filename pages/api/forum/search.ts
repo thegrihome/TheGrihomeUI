@@ -6,7 +6,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
-  const { q: query, type = 'all', page = '1', limit = '20', categoryId, city } = req.query
+  const {
+    q: query,
+    type = 'all',
+    page = '1',
+    limit = '20',
+    categoryId,
+    city,
+    propertyType,
+  } = req.query
 
   if (!query || typeof query !== 'string') {
     return res.status(400).json({ message: 'Query parameter is required' })
@@ -18,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const pageNum = parseInt(page as string) || 1
-  const limitNum = parseInt(limit as string) || 20
+  const limitNum = Math.min(parseInt(limit as string) || 20, 50) // Max 50 results per page
   const skip = (pageNum - 1) * limitNum
 
   try {
@@ -31,18 +39,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       totalPages: 0,
     }
 
-    // Build category filter for posts
+    // Build category filter for posts and replies
     const categoryFilter: any = {}
     if (categoryId && typeof categoryId === 'string') {
       categoryFilter.categoryId = categoryId
     } else if (city && typeof city === 'string') {
-      categoryFilter.category = {
-        city: city,
+      const cityFilter: any = { city: city }
+      // If propertyType is also specified, add it to the filter
+      if (propertyType && typeof propertyType === 'string') {
+        cityFilter.propertyType = propertyType
       }
+      categoryFilter.category = cityFilter
     }
 
-    // Search in forum posts
+    // Search in forum posts and replies
     if (type === 'all' || type === 'posts') {
+      // Find posts matching the search query
       const postWhereClause: any = {
         ...categoryFilter,
         OR: [
@@ -51,7 +63,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ],
       }
 
-      const [posts, postsCount] = await Promise.all([
+      // Find posts that have replies matching the search query
+      const repliesWhereClause: any = {
+        content: { contains: searchQuery, mode: 'insensitive' },
+      }
+
+      // If we have category filters, apply them to the post in the reply search
+      if (Object.keys(categoryFilter).length > 0) {
+        repliesWhereClause.post = categoryFilter
+      }
+
+      const [posts, postsCount, repliesWithPosts] = await Promise.all([
+        // Search posts
         prisma.forumPost.findMany({
           where: postWhereClause,
           include: {
@@ -78,19 +101,73 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
           },
           orderBy: [{ createdAt: 'desc' }],
-          skip: type === 'posts' ? skip : 0,
-          take: type === 'posts' ? limitNum : 10,
         }),
+        // Count posts
         prisma.forumPost.count({
           where: postWhereClause,
         }),
+        // Search replies and get their parent posts
+        prisma.forumReply.findMany({
+          where: repliesWhereClause,
+          include: {
+            post: {
+              include: {
+                author: {
+                  select: {
+                    id: true,
+                    username: true,
+                    image: true,
+                  },
+                },
+                category: {
+                  select: {
+                    name: true,
+                    slug: true,
+                    city: true,
+                    propertyType: true,
+                  },
+                },
+                _count: {
+                  select: {
+                    replies: true,
+                    reactions: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: [{ createdAt: 'desc' }],
+        }),
       ])
 
-      results.posts = posts
-      if (type === 'posts') {
-        results.totalResults = postsCount
-        results.totalPages = Math.ceil(postsCount / limitNum)
-      }
+      // Combine posts from direct search and posts that have matching replies
+      const postMap = new Map()
+
+      // Add directly matching posts
+      posts.forEach(post => {
+        postMap.set(post.id, { ...post, matchType: 'post' })
+      })
+
+      // Add posts that have matching replies (if not already added)
+      repliesWithPosts.forEach(reply => {
+        if (!postMap.has(reply.post.id)) {
+          postMap.set(reply.post.id, { ...reply.post, matchType: 'reply' })
+        }
+      })
+
+      // Convert map to array and sort by creation date (most recent first)
+      const allMatchingPosts = Array.from(postMap.values()).sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
+      const totalCount = allMatchingPosts.length
+
+      // Apply pagination
+      const paginatedPosts = allMatchingPosts.slice(skip, skip + limitNum)
+
+      results.posts = paginatedPosts
+      results.totalResults = totalCount
+      results.totalPages = Math.ceil(totalCount / limitNum)
     }
 
     // Search in categories/sections
@@ -122,15 +199,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         },
         orderBy: [{ displayOrder: 'asc' }],
-        take: type === 'categories' ? limitNum : 5,
+        take: 5, // Limit categories to top 5 matches
       })
 
       results.categories = categories
-    }
 
-    // If searching all, combine results count
-    if (type === 'all') {
-      results.totalResults = results.posts.length + results.categories.length
+      // For 'all' type, add categories to total results count
+      if (type === 'all') {
+        results.totalResults = results.posts.length + results.categories.length
+      }
     }
 
     res.status(200).json(results)

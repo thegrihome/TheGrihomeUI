@@ -263,6 +263,53 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                       </Link>
                     ))}
                   </div>
+
+                  {/* Pagination */}
+                  {results.totalPages > 1 && (
+                    <div className="forum-pagination">
+                      {results.currentPage > 1 && (
+                        <Link
+                          href={`/forum/search?${new URLSearchParams({
+                            q: results.query,
+                            page: String(results.currentPage - 1),
+                            ...(router.query.categoryId && {
+                              categoryId: router.query.categoryId as string,
+                            }),
+                            ...(router.query.city && { city: router.query.city as string }),
+                            ...(router.query.propertyType && {
+                              propertyType: router.query.propertyType as string,
+                            }),
+                          }).toString()}`}
+                          className="forum-pagination-btn"
+                        >
+                          ← Previous
+                        </Link>
+                      )}
+
+                      <span className="forum-pagination-info">
+                        Page {results.currentPage} of {results.totalPages}
+                      </span>
+
+                      {results.currentPage < results.totalPages && (
+                        <Link
+                          href={`/forum/search?${new URLSearchParams({
+                            q: results.query,
+                            page: String(results.currentPage + 1),
+                            ...(router.query.categoryId && {
+                              categoryId: router.query.categoryId as string,
+                            }),
+                            ...(router.query.city && { city: router.query.city as string }),
+                            ...(router.query.propertyType && {
+                              propertyType: router.query.propertyType as string,
+                            }),
+                          }).toString()}`}
+                          className="forum-pagination-btn"
+                        >
+                          Next →
+                        </Link>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </>
@@ -276,7 +323,7 @@ export default function SearchPage({ results, error }: SearchPageProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  const { q: searchQuery } = query
+  const { q: searchQuery, page, categoryId, city, propertyType } = query
 
   if (!searchQuery || typeof searchQuery !== 'string') {
     return {
@@ -297,8 +344,15 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   }
 
   try {
+    const params = new URLSearchParams({ q: searchQuery })
+    if (page && typeof page === 'string') params.append('page', page)
+    if (categoryId && typeof categoryId === 'string') params.append('categoryId', categoryId)
+    if (city && typeof city === 'string') params.append('city', city)
+    if (propertyType && typeof propertyType === 'string')
+      params.append('propertyType', propertyType)
+
     const response = await fetch(
-      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/forum/search?q=${encodeURIComponent(searchQuery)}`,
+      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/forum/search?${params.toString()}`,
       {
         method: 'GET',
       }

@@ -73,6 +73,8 @@ interface UserProfilePageProps {
   replies: ForumReply[]
   postsCount: number
   repliesCount: number
+  currentPage: number
+  totalPages: number
 }
 
 const reactionEmojis = {
@@ -99,10 +101,14 @@ export default function UserProfilePage({
   replies,
   postsCount,
   repliesCount,
+  currentPage,
+  totalPages,
 }: UserProfilePageProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'posts' | 'replies' | 'reactions'>(
     'posts'
   )
+  const router = useRouter()
+  const { userId } = router.query
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -253,39 +259,68 @@ export default function UserProfilePage({
                     <p>No posts yet</p>
                   </div>
                 ) : (
-                  <div className="forum-search-results">
-                    {posts.map(post => (
-                      <Link
-                        key={post.id}
-                        href={`/forum/thread/${post.slug}`}
-                        className="forum-search-result-item"
-                      >
-                        <div className="forum-search-result-content">
-                          <div className="forum-search-result-header">
-                            <div>
-                              <h3 className="forum-search-result-title">{post.title}</h3>
-                              <div className="forum-search-result-meta">
-                                <span className="forum-search-result-date">
-                                  {formatDate(post.createdAt)}
-                                </span>
-                                <span className="forum-search-result-category">
-                                  in {post.category.name}
-                                </span>
+                  <>
+                    <div className="forum-search-results">
+                      {posts.map(post => (
+                        <Link
+                          key={post.id}
+                          href={`/forum/thread/${post.slug}`}
+                          className="forum-search-result-item"
+                        >
+                          <div className="forum-search-result-content">
+                            <div className="forum-search-result-header">
+                              <div>
+                                <h3 className="forum-search-result-title">{post.title}</h3>
+                                <div className="forum-search-result-meta">
+                                  <span className="forum-search-result-date">
+                                    {formatDate(post.createdAt)}
+                                  </span>
+                                  <span className="forum-search-result-category">
+                                    in {post.category.name}
+                                  </span>
+                                </div>
                               </div>
                             </div>
+                            <p className="forum-search-result-description">
+                              {truncateContent(post.content, 200)}
+                            </p>
+                            <div className="forum-search-result-stats">
+                              <span className="forum-stat">{post._count.replies} replies</span>
+                              <span className="forum-stat">{post.viewCount} views</span>
+                              <span className="forum-stat">{post._count.reactions} reactions</span>
+                            </div>
                           </div>
-                          <p className="forum-search-result-description">
-                            {truncateContent(post.content, 200)}
-                          </p>
-                          <div className="forum-search-result-stats">
-                            <span className="forum-stat">{post._count.replies} replies</span>
-                            <span className="forum-stat">{post.viewCount} views</span>
-                            <span className="forum-stat">{post._count.reactions} reactions</span>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+                        </Link>
+                      ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="forum-pagination">
+                        {currentPage > 1 && (
+                          <Link
+                            href={`/forum/user/${userId}?page=${currentPage - 1}`}
+                            className="forum-pagination-btn"
+                          >
+                            ← Previous
+                          </Link>
+                        )}
+
+                        <span className="forum-pagination-info">
+                          Page {currentPage} of {totalPages}
+                        </span>
+
+                        {currentPage < totalPages && (
+                          <Link
+                            href={`/forum/user/${userId}?page=${currentPage + 1}`}
+                            className="forum-pagination-btn"
+                          >
+                            Next →
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -297,31 +332,60 @@ export default function UserProfilePage({
                     <p>No replies yet</p>
                   </div>
                 ) : (
-                  <div className="forum-search-results">
-                    {replies.map(reply => (
-                      <Link
-                        key={reply.id}
-                        href={`/forum/thread/${reply.post.slug}`}
-                        className="forum-search-result-item"
-                      >
-                        <div className="forum-search-result-content">
-                          <div className="forum-search-result-header">
-                            <div>
-                              <h3 className="forum-search-result-title">Re: {reply.post.title}</h3>
-                              <div className="forum-search-result-meta">
-                                <span className="forum-search-result-date">
-                                  {formatDate(reply.createdAt)}
-                                </span>
+                  <>
+                    <div className="forum-search-results">
+                      {replies.map(reply => (
+                        <Link
+                          key={reply.id}
+                          href={`/forum/thread/${reply.post.slug}`}
+                          className="forum-search-result-item"
+                        >
+                          <div className="forum-search-result-content">
+                            <div className="forum-search-result-header">
+                              <div>
+                                <h3 className="forum-search-result-title">Re: {reply.post.title}</h3>
+                                <div className="forum-search-result-meta">
+                                  <span className="forum-search-result-date">
+                                    {formatDate(reply.createdAt)}
+                                  </span>
+                                </div>
                               </div>
                             </div>
+                            <p className="forum-search-result-description">
+                              {truncateContent(reply.content, 200)}
+                            </p>
                           </div>
-                          <p className="forum-search-result-description">
-                            {truncateContent(reply.content, 200)}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+                        </Link>
+                      ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="forum-pagination">
+                        {currentPage > 1 && (
+                          <Link
+                            href={`/forum/user/${userId}?page=${currentPage - 1}`}
+                            className="forum-pagination-btn"
+                          >
+                            ← Previous
+                          </Link>
+                        )}
+
+                        <span className="forum-pagination-info">
+                          Page {currentPage} of {totalPages}
+                        </span>
+
+                        {currentPage < totalPages && (
+                          <Link
+                            href={`/forum/user/${userId}?page=${currentPage + 1}`}
+                            className="forum-pagination-btn"
+                          >
+                            Next →
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -412,14 +476,16 @@ export default function UserProfilePage({
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps = async ({ params, query }) => {
   const { userId } = params!
+  const page = parseInt((query.page as string) || '1')
+  const limit = 20
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
 
   try {
     const [statsResponse, postsResponse] = await Promise.all([
       fetch(`${baseUrl}/api/forum/user/${userId}/stats`),
-      fetch(`${baseUrl}/api/forum/user/${userId}/posts?limit=20`),
+      fetch(`${baseUrl}/api/forum/user/${userId}/posts?page=${page}&limit=${limit}`),
     ])
 
     if (!statsResponse.ok || !postsResponse.ok) {
@@ -438,6 +504,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
         replies: postsData.replies || [],
         postsCount: postsData.postsCount || 0,
         repliesCount: postsData.repliesCount || 0,
+        currentPage: postsData.currentPage || 1,
+        totalPages: postsData.totalPages || 1,
       },
     }
   } catch (error) {
