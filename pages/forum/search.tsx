@@ -94,10 +94,13 @@ export default function SearchPage({ results, error }: SearchPageProps) {
   }
 
   const getContentExcerpt = (content: string, searchQuery: string, maxLength: number = 200) => {
-    if (!searchQuery) return truncateContent(content, maxLength)
+    // Strip HTML tags and entities from content
+    const strippedContent = content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
+
+    if (!searchQuery) return truncateContent(strippedContent, maxLength)
 
     // Find the position of the search term (case insensitive)
-    const lowerContent = content.toLowerCase()
+    const lowerContent = strippedContent.toLowerCase()
     const lowerQuery = searchQuery.toLowerCase()
     const matchIndex = lowerContent.indexOf(lowerQuery)
 
@@ -106,11 +109,11 @@ export default function SearchPage({ results, error }: SearchPageProps) {
 
     // Extract content around the match
     const start = Math.max(0, matchIndex - 50)
-    const end = Math.min(content.length, matchIndex + searchQuery.length + 150)
+    const end = Math.min(strippedContent.length, matchIndex + searchQuery.length + 150)
 
-    let excerpt = content.substring(start, end)
+    let excerpt = strippedContent.substring(start, end)
     if (start > 0) excerpt = '...' + excerpt
-    if (end < content.length) excerpt = excerpt + '...'
+    if (end < strippedContent.length) excerpt = excerpt + '...'
 
     return excerpt
   }
