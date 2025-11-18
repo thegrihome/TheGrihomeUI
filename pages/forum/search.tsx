@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ForumSearch from '@/components/forum/ForumSearch'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface SearchResult {
   posts: Array<{
@@ -329,7 +330,8 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     }
   }
 
-  if (searchQuery.trim().length < 2) {
+  const trimmedQuery = searchQuery.trim()
+  if (trimmedQuery.length < 2) {
     return {
       props: {
         results: null,
@@ -339,25 +341,79 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   }
 
   try {
-    const params = new URLSearchParams({ q: searchQuery })
-    if (page && typeof page === 'string') params.append('page', page)
-    if (categoryId && typeof categoryId === 'string') params.append('categoryId', categoryId)
-    if (city && typeof city === 'string') params.append('city', city)
-    if (propertyType && typeof propertyType === 'string')
-      params.append('propertyType', propertyType)
+    const pageNum = parseInt((page as string) || '1') || 1
+    const limitNum = 20
+    const skip = (pageNum - 1) * limitNum
 
-    const response = await fetch(
-      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/forum/search?${params.toString()}`,
-      {
-        method: 'GET',
-      }
-    )
-
-    if (!response.ok) {
-      throw new Error('Search failed')
+    const results: any = {
+      query: trimmedQuery,
+      posts: [],
+      categories: [],
+      totalResults: 0,
+      currentPage: pageNum,
+      totalPages: 0,
     }
 
-    const results = await response.json()
+    // Build category filter for posts
+    const categoryFilter: any = {}
+    if (categoryId && typeof categoryId === 'string') {
+      categoryFilter.categoryId = categoryId
+    } else if (city && typeof city === 'string') {
+      const cityFilter: any = { city: city as string }
+      if (propertyType && typeof propertyType === 'string') {
+        cityFilter.propertyType = propertyType
+      }
+      categoryFilter.category = cityFilter
+    }
+
+    // Search in forum posts (title, content, or author username)
+    const postWhereClause: any = {
+      ...categoryFilter,
+      OR: [
+        { title: { contains: trimmedQuery, mode: 'insensitive' } },
+        { content: { contains: trimmedQuery, mode: 'insensitive' } },
+        { author: { username: { contains: trimmedQuery, mode: 'insensitive' } } },
+      ],
+    }
+
+    const [posts, postsCount] = await Promise.all([
+      prisma.forumPost.findMany({
+        where: postWhereClause,
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              image: true,
+            },
+          },
+          category: {
+            select: {
+              name: true,
+              slug: true,
+              city: true,
+              propertyType: true,
+            },
+          },
+          _count: {
+            select: {
+              replies: true,
+              reactions: true,
+            },
+          },
+        },
+        orderBy: [{ createdAt: 'desc' }],
+        skip,
+        take: limitNum,
+      }),
+      prisma.forumPost.count({
+        where: postWhereClause,
+      }),
+    ])
+
+    results.posts = posts
+    results.totalResults = postsCount
+    results.totalPages = Math.ceil(postsCount / limitNum)
 
     return {
       props: {
