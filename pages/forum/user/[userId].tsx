@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface ForumPost {
   id: string
@@ -380,35 +381,188 @@ export default function UserProfilePage({
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ params, query }) => {
-  const { userId } = params!
+  const { userId } = params as { userId: string }
   const page = parseInt((query.page as string) || '1')
   const limit = 20
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const skip = (page - 1) * limit
 
   try {
-    const [statsResponse, postsResponse] = await Promise.all([
-      fetch(`${baseUrl}/api/forum/user/${userId}/stats`),
-      fetch(`${baseUrl}/api/forum/user/${userId}/posts?page=${page}&limit=${limit}`),
-    ])
+    // Get user info
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        image: true,
+        createdAt: true,
+      },
+    })
 
-    if (!statsResponse.ok || !postsResponse.ok) {
+    if (!user) {
       return {
         notFound: true,
       }
     }
 
-    const userStats = await statsResponse.json()
-    const postsData = await postsResponse.json()
+    // Get post count
+    const postCount = await prisma.forumPost.count({
+      where: { authorId: userId },
+    })
+
+    // Get reply count
+    const replyCount = await prisma.forumReply.count({
+      where: { authorId: userId },
+    })
+
+    // Get reactions received count by type
+    const postReactionsReceived = await prisma.postReaction.groupBy({
+      by: ['type'],
+      where: {
+        post: {
+          authorId: userId,
+        },
+      },
+      _count: {
+        type: true,
+      },
+    })
+
+    const replyReactionsReceived = await prisma.replyReaction.groupBy({
+      by: ['type'],
+      where: {
+        reply: {
+          authorId: userId,
+        },
+      },
+      _count: {
+        type: true,
+      },
+    })
+
+    // Get reactions given count by type
+    const postReactionsGiven = await prisma.postReaction.groupBy({
+      by: ['type'],
+      where: { userId },
+      _count: {
+        type: true,
+      },
+    })
+
+    const replyReactionsGiven = await prisma.replyReaction.groupBy({
+      by: ['type'],
+      where: { userId },
+      _count: {
+        type: true,
+      },
+    })
+
+    // Format reaction counts
+    const formatReactionCounts = (reactions: any[]) => {
+      const counts = {
+        THANKS: 0,
+        LAUGH: 0,
+        CONFUSED: 0,
+        SAD: 0,
+        ANGRY: 0,
+        LOVE: 0,
+      }
+      reactions.forEach(reaction => {
+        counts[reaction.type as keyof typeof counts] = reaction._count.type
+      })
+      return counts
+    }
+
+    const reactionsReceived = {
+      ...formatReactionCounts(postReactionsReceived),
+    }
+
+    // Add reply reactions to received counts
+    replyReactionsReceived.forEach(reaction => {
+      reactionsReceived[reaction.type as keyof typeof reactionsReceived] += reaction._count.type
+    })
+
+    const reactionsGiven = {
+      ...formatReactionCounts(postReactionsGiven),
+    }
+
+    // Add reply reactions to given counts
+    replyReactionsGiven.forEach(reaction => {
+      reactionsGiven[reaction.type as keyof typeof reactionsGiven] += reaction._count.type
+    })
+
+    const totalReactionsReceived = Object.values(reactionsReceived).reduce((a, b) => a + b, 0)
+    const totalReactionsGiven = Object.values(reactionsGiven).reduce((a, b) => a + b, 0)
+
+    const userStats = {
+      user,
+      postCount,
+      replyCount,
+      totalPosts: postCount + replyCount,
+      reactionsReceived,
+      reactionsGiven,
+      totalReactionsReceived,
+      totalReactionsGiven,
+    }
+
+    // Get user's posts and replies
+    const [posts, postsCount, replies, repliesCount] = await Promise.all([
+      prisma.forumPost.findMany({
+        where: { authorId: userId },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              city: true,
+              propertyType: true,
+            },
+          },
+          _count: {
+            select: {
+              replies: true,
+              reactions: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.forumPost.count({
+        where: { authorId: userId },
+      }),
+      prisma.forumReply.findMany({
+        where: { authorId: userId },
+        include: {
+          post: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.forumReply.count({
+        where: { authorId: userId },
+      }),
+    ])
+
+    const totalPages = Math.ceil(postsCount / limit)
 
     return {
       props: {
-        userStats,
-        posts: postsData.posts || [],
-        replies: postsData.replies || [],
-        postsCount: postsData.postsCount || 0,
-        repliesCount: postsData.repliesCount || 0,
-        currentPage: postsData.currentPage || 1,
-        totalPages: postsData.totalPages || 1,
+        userStats: JSON.parse(JSON.stringify(userStats)),
+        posts: JSON.parse(JSON.stringify(posts)),
+        replies: JSON.parse(JSON.stringify(replies)),
+        postsCount,
+        repliesCount,
+        currentPage: page,
+        totalPages,
       },
     }
   } catch (error) {
