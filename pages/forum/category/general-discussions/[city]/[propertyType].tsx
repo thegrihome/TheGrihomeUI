@@ -242,7 +242,11 @@ export default function PropertyTypePage({
             <span className="forum-breadcrumb-current">{category.name}</span>
           </div>
           <div className="forum-breadcrumb-search">
-            <ForumSearch categoryId={category.id} city={city.city || undefined} />
+            <ForumSearch
+              categoryId={category.id}
+              city={city.city || undefined}
+              propertyType={category.propertyType || undefined}
+            />
           </div>
         </div>
 

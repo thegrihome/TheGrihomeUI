@@ -455,6 +455,211 @@ describe('PropertyCard Component', () => {
     })
   })
 
+  describe('Favorites Functionality', () => {
+    const mockOnToggleFavorite = jest.fn()
+
+    beforeEach(() => {
+      mockOnToggleFavorite.mockClear()
+    })
+
+    it('should not show favorite button when user is not logged in', () => {
+      const { container } = render(
+        <PropertyCard property={mockProperty} currentUserId={null} isFavorited={false} />
+      )
+
+      const favoriteButton = container.querySelector('svg')
+      expect(favoriteButton).not.toBeInTheDocument()
+    })
+
+    it('should not show favorite button when user is the owner', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={true}
+          currentUserId="user123"
+          isFavorited={false}
+        />
+      )
+
+      // Only view details button should exist
+      const buttons = container.querySelectorAll('button')
+      expect(buttons).toHaveLength(0) // No favorite button for owners
+    })
+
+    it('should show favorite button for logged-in non-owners', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={false}
+          onToggleFavorite={mockOnToggleFavorite}
+        />
+      )
+
+      const favoriteButton = container.querySelector('button[title*="favorite"]')
+      expect(favoriteButton).toBeInTheDocument()
+    })
+
+    it('should display unfilled heart icon when not favorited', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={false}
+          onToggleFavorite={mockOnToggleFavorite}
+        />
+      )
+
+      const heartIcon = container.querySelector('svg')
+      expect(heartIcon).toBeInTheDocument()
+      expect(heartIcon?.getAttribute('fill')).toBe('none')
+      expect(heartIcon?.getAttribute('stroke')).toBe('#6b7280')
+    })
+
+    it('should display filled red heart icon when favorited', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={true}
+          onToggleFavorite={mockOnToggleFavorite}
+        />
+      )
+
+      const heartIcon = container.querySelector('svg')
+      expect(heartIcon).toBeInTheDocument()
+      expect(heartIcon?.getAttribute('fill')).toBe('#ef4444')
+      expect(heartIcon?.getAttribute('stroke')).toBe('#ef4444')
+    })
+
+    it('should call onToggleFavorite when favorite button is clicked', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={false}
+          onToggleFavorite={mockOnToggleFavorite}
+        />
+      )
+
+      const favoriteButton = container.querySelector('button[title*="favorite"]')
+      if (favoriteButton) {
+        fireEvent.click(favoriteButton)
+      }
+
+      expect(mockOnToggleFavorite).toHaveBeenCalledWith('prop123', false)
+    })
+
+    it('should call onToggleFavorite with correct state when favorited', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={true}
+          onToggleFavorite={mockOnToggleFavorite}
+        />
+      )
+
+      const favoriteButton = container.querySelector('button[title*="favorite"]')
+      if (favoriteButton) {
+        fireEvent.click(favoriteButton)
+      }
+
+      expect(mockOnToggleFavorite).toHaveBeenCalledWith('prop123', true)
+    })
+
+    it('should stop event propagation when favorite button is clicked', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={false}
+          onToggleFavorite={mockOnToggleFavorite}
+        />
+      )
+
+      const favoriteButton = container.querySelector('button[title*="favorite"]')
+      if (favoriteButton) {
+        const clickEvent = new MouseEvent('click', { bubbles: true })
+        const stopPropagationSpy = jest.spyOn(clickEvent, 'stopPropagation')
+        fireEvent(favoriteButton, clickEvent)
+
+        expect(stopPropagationSpy).toHaveBeenCalled()
+      }
+    })
+
+    it('should have correct tooltip for unfavorited property', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={false}
+          onToggleFavorite={mockOnToggleFavorite}
+        />
+      )
+
+      const favoriteButton = container.querySelector('button[title*="favorite"]')
+      expect(favoriteButton?.getAttribute('title')).toBe('Add to favorites')
+    })
+
+    it('should have correct tooltip for favorited property', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={true}
+          onToggleFavorite={mockOnToggleFavorite}
+        />
+      )
+
+      const favoriteButton = container.querySelector('button[title*="favorite"]')
+      expect(favoriteButton?.getAttribute('title')).toBe('Remove from favorites')
+    })
+
+    it('should not call onToggleFavorite if callback is not provided', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={false}
+        />
+      )
+
+      const favoriteButton = container.querySelector('button[title*="favorite"]')
+      if (favoriteButton) {
+        fireEvent.click(favoriteButton)
+      }
+
+      expect(mockOnToggleFavorite).not.toHaveBeenCalled()
+    })
+
+    it('should apply correct styling to favorite button', () => {
+      const { container } = render(
+        <PropertyCard
+          property={mockProperty}
+          isOwner={false}
+          currentUserId="other-user"
+          isFavorited={false}
+          onToggleFavorite={mockOnToggleFavorite}
+        />
+      )
+
+      const favoriteButton = container.querySelector('button[title*="favorite"]')
+      expect(favoriteButton?.className).toContain('bg-white')
+      expect(favoriteButton?.className).toContain('rounded-full')
+      expect(favoriteButton?.className).toContain('hover:bg-white')
+    })
+  })
+
   describe('Edge Cases', () => {
     it('should handle missing location data', () => {
       const propertyNoLocation = {

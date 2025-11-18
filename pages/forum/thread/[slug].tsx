@@ -353,7 +353,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
             <div className="forum-login-prompt">
               <p>
                 <Link href="/login">Login</Link> or <Link href="/signup">Sign up</Link> to post
-                replies and react to posts.
+                replies.
               </p>
             </div>
           )}

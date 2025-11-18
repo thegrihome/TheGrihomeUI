@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ForumSearch from '@/components/forum/ForumSearch'
+import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface SearchResult {
   posts: Array<{
@@ -92,6 +93,45 @@ export default function SearchPage({ results, error }: SearchPageProps) {
     return content.substring(0, maxLength).trim() + '...'
   }
 
+  const getContentExcerpt = (content: string, searchQuery: string, maxLength: number = 200) => {
+    // Strip HTML tags and entities from content
+    const strippedContent = content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
+
+    if (!searchQuery) return truncateContent(strippedContent, maxLength)
+
+    // Find the position of the search term (case insensitive)
+    const lowerContent = strippedContent.toLowerCase()
+    const lowerQuery = searchQuery.toLowerCase()
+    const matchIndex = lowerContent.indexOf(lowerQuery)
+
+    // If search term not found in content, return null (don't show content)
+    if (matchIndex === -1) return null
+
+    // Extract content around the match
+    const start = Math.max(0, matchIndex - 50)
+    const end = Math.min(strippedContent.length, matchIndex + searchQuery.length + 150)
+
+    let excerpt = strippedContent.substring(start, end)
+    if (start > 0) excerpt = '...' + excerpt
+    if (end < strippedContent.length) excerpt = excerpt + '...'
+
+    return excerpt
+  }
+
+  const highlightSearchTerm = (text: string | null, searchQuery: string) => {
+    if (!text || !searchQuery) return text
+    const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'))
+    return parts.map((part, index) =>
+      part.toLowerCase() === searchQuery.toLowerCase() ? (
+        <mark key={index} className="forum-search-highlight">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    )
+  }
+
   const getCategoryUrl = (category: any) => {
     if (category.city && category.propertyType) {
       return `/forum/category/general-discussions/${category.city}/${category.slug.replace(`${category.city}-`, '')}`
@@ -161,53 +201,6 @@ export default function SearchPage({ results, error }: SearchPageProps) {
 
           {results && results.totalResults > 0 && (
             <>
-              {/* Categories/Sections Results */}
-              {results.categories.length > 0 && (
-                <div className="forum-search-section">
-                  <h2 className="forum-search-section-title">Sections</h2>
-                  <div className="forum-search-results">
-                    {results.categories.map(category => (
-                      <Link
-                        key={category.id}
-                        href={getCategoryUrl(category)}
-                        className="forum-search-result-item"
-                      >
-                        <div className="forum-search-result-content">
-                          <div className="forum-search-result-header">
-                            <div className="forum-category-icon">
-                              {category.city
-                                ? cityIcons[category.city] || '🏛️'
-                                : category.propertyType
-                                  ? propertyTypeIcons[category.propertyType] || '🏠'
-                                  : '💬'}
-                            </div>
-                            <div>
-                              <h3 className="forum-search-result-title">{category.name}</h3>
-                              {category.parent && (
-                                <span className="forum-search-result-parent">
-                                  in {category.parent.name}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          {category.description && (
-                            <p className="forum-search-result-description">
-                              {truncateContent(category.description, 150)}
-                            </p>
-                          )}
-                          <div className="forum-search-result-stats">
-                            <span className="forum-stat">
-                              {category._count.posts}{' '}
-                              {category._count.posts === 1 ? 'post' : 'posts'}
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Posts Results */}
               {results.posts.length > 0 && (
                 <div className="forum-search-section">
@@ -228,7 +221,6 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                                   alt={post.author.username}
                                   width={32}
                                   height={32}
-                                  className="w-full h-full object-cover"
                                 />
                               ) : (
                                 <div className="forum-avatar-placeholder">
@@ -237,10 +229,12 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                               )}
                             </div>
                             <div>
-                              <h3 className="forum-search-result-title">{post.title}</h3>
+                              <h3 className="forum-search-result-title">
+                                {highlightSearchTerm(post.title, results.query)}
+                              </h3>
                               <div className="forum-search-result-meta">
                                 <span className="forum-search-result-author">
-                                  by {post.author.username}
+                                  by {highlightSearchTerm(post.author.username, results.query)}
                                 </span>
                                 <span className="forum-search-result-date">
                                   {formatDate(post.createdAt)}
@@ -251,9 +245,14 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                               </div>
                             </div>
                           </div>
-                          <p className="forum-search-result-description">
-                            {truncateContent(post.content, 200)}
-                          </p>
+                          {(() => {
+                            const excerpt = getContentExcerpt(post.content, results.query, 200)
+                            return excerpt ? (
+                              <p className="forum-search-result-description">
+                                {highlightSearchTerm(excerpt, results.query)}
+                              </p>
+                            ) : null
+                          })()}
                           <div className="forum-search-result-stats">
                             <span className="forum-stat">{post._count.replies} replies</span>
                             <span className="forum-stat">{post.viewCount} views</span>
@@ -263,6 +262,53 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                       </Link>
                     ))}
                   </div>
+
+                  {/* Pagination */}
+                  {results.totalPages > 1 && (
+                    <div className="forum-pagination">
+                      {results.currentPage > 1 && (
+                        <Link
+                          href={`/forum/search?${new URLSearchParams({
+                            q: results.query,
+                            page: String(results.currentPage - 1),
+                            ...(router.query.categoryId && {
+                              categoryId: router.query.categoryId as string,
+                            }),
+                            ...(router.query.city && { city: router.query.city as string }),
+                            ...(router.query.propertyType && {
+                              propertyType: router.query.propertyType as string,
+                            }),
+                          }).toString()}`}
+                          className="forum-pagination-btn"
+                        >
+                          ← Previous
+                        </Link>
+                      )}
+
+                      <span className="forum-pagination-info">
+                        Page {results.currentPage} of {results.totalPages}
+                      </span>
+
+                      {results.currentPage < results.totalPages && (
+                        <Link
+                          href={`/forum/search?${new URLSearchParams({
+                            q: results.query,
+                            page: String(results.currentPage + 1),
+                            ...(router.query.categoryId && {
+                              categoryId: router.query.categoryId as string,
+                            }),
+                            ...(router.query.city && { city: router.query.city as string }),
+                            ...(router.query.propertyType && {
+                              propertyType: router.query.propertyType as string,
+                            }),
+                          }).toString()}`}
+                          className="forum-pagination-btn"
+                        >
+                          Next →
+                        </Link>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </>
@@ -276,7 +322,7 @@ export default function SearchPage({ results, error }: SearchPageProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  const { q: searchQuery } = query
+  const { q: searchQuery, page, categoryId, city, propertyType } = query
 
   if (!searchQuery || typeof searchQuery !== 'string') {
     return {
@@ -287,7 +333,8 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     }
   }
 
-  if (searchQuery.trim().length < 2) {
+  const trimmedQuery = searchQuery.trim()
+  if (trimmedQuery.length < 2) {
     return {
       props: {
         results: null,
@@ -297,18 +344,79 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   }
 
   try {
-    const response = await fetch(
-      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/forum/search?q=${encodeURIComponent(searchQuery)}`,
-      {
-        method: 'GET',
-      }
-    )
+    const pageNum = parseInt((page as string) || '1') || 1
+    const limitNum = 20
+    const skip = (pageNum - 1) * limitNum
 
-    if (!response.ok) {
-      throw new Error('Search failed')
+    const results: any = {
+      query: trimmedQuery,
+      posts: [],
+      categories: [],
+      totalResults: 0,
+      currentPage: pageNum,
+      totalPages: 0,
     }
 
-    const results = await response.json()
+    // Build category filter for posts
+    const categoryFilter: any = {}
+    if (categoryId && typeof categoryId === 'string') {
+      categoryFilter.categoryId = categoryId
+    } else if (city && typeof city === 'string') {
+      const cityFilter: any = { city: city as string }
+      if (propertyType && typeof propertyType === 'string') {
+        cityFilter.propertyType = propertyType
+      }
+      categoryFilter.category = cityFilter
+    }
+
+    // Search in forum posts (title, content, or author username)
+    const postWhereClause: any = {
+      ...categoryFilter,
+      OR: [
+        { title: { contains: trimmedQuery, mode: 'insensitive' } },
+        { content: { contains: trimmedQuery, mode: 'insensitive' } },
+        { author: { username: { contains: trimmedQuery, mode: 'insensitive' } } },
+      ],
+    }
+
+    const [posts, postsCount] = await Promise.all([
+      prisma.forumPost.findMany({
+        where: postWhereClause,
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              image: true,
+            },
+          },
+          category: {
+            select: {
+              name: true,
+              slug: true,
+              city: true,
+              propertyType: true,
+            },
+          },
+          _count: {
+            select: {
+              replies: true,
+              reactions: true,
+            },
+          },
+        },
+        orderBy: [{ createdAt: 'desc' }],
+        skip,
+        take: limitNum,
+      }),
+      prisma.forumPost.count({
+        where: postWhereClause,
+      }),
+    ])
+
+    results.posts = posts
+    results.totalResults = postsCount
+    results.totalPages = Math.ceil(postsCount / limitNum)
 
     return {
       props: {

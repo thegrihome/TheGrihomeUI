@@ -59,7 +59,7 @@ export default function ContentRenderer({ content }: ContentRendererProps) {
     // Image URLs (direct image links)
     const imageRegex = /https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp|bmp)/gi
     processed = processed.replace(imageRegex, match => {
-      return `<img src="${match}" alt="Embedded image" style="max-width: 100%; height: auto; margin: 1rem 0; border-radius: 8px;" />`
+      return `<img src="${match}" alt="Embedded image" style="max-width: 400px; width: 100%; height: auto; margin: 1rem 0; border-radius: 8px;" />`
     })
 
     // Convert remaining plain URLs to clickable links (not already in <a> tags or embeds)

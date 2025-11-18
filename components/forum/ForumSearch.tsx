@@ -6,6 +6,7 @@ interface ForumSearchProps {
   className?: string
   categoryId?: string
   city?: string
+  propertyType?: string
 }
 
 export default function ForumSearch({
@@ -13,6 +14,7 @@ export default function ForumSearch({
   className = '',
   categoryId,
   city,
+  propertyType,
 }: ForumSearchProps) {
   const [query, setQuery] = useState('')
   const router = useRouter()
@@ -23,6 +25,7 @@ export default function ForumSearch({
       const params = new URLSearchParams({ q: query.trim() })
       if (categoryId) params.append('categoryId', categoryId)
       if (city) params.append('city', city)
+      if (propertyType) params.append('propertyType', propertyType)
       router.push(`/forum/search?${params.toString()}`)
     }
   }
