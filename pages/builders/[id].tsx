@@ -100,9 +100,9 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
         {/* Builder Header */}
         <div className="builder-header bg-white border-b">
           <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+            <div className="flex flex-col lg:flex-row lg:items-stretch gap-2 lg:gap-0">
               {/* Left Side - Logo, Name, Description */}
-              <div className="flex items-start gap-6 flex-1">
+              <div className="flex items-start gap-4 lg:w-1/2">
                 {builder.logoUrl && (
                   <div className="builder-logo-container flex-shrink-0">
                     <Image
@@ -126,10 +126,9 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                 </div>
               </div>
 
-              {/* Right Side - Contact Info */}
-              <div className="lg:w-80 space-y-3 lg:border-l lg:pl-6 lg:border-gray-200">
-                {/* Address */}
-                {builder.builderDetails?.address && (
+              {/* Middle Section - Address */}
+              {builder.builderDetails?.address && (
+                <div className="lg:w-1/4 lg:border-l lg:pl-4 lg:border-gray-200">
                   <div className="flex items-start gap-2">
                     <svg
                       className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
@@ -154,8 +153,11 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                       {builder.builderDetails.address}
                     </p>
                   </div>
-                )}
+                </div>
+              )}
 
+              {/* Right Section - Phone, Email, Website */}
+              <div className="lg:w-1/4 space-y-2 lg:border-l lg:pl-4 lg:border-gray-200">
                 {/* Phone - single */}
                 {builder.builderDetails?.phone && (
                   <div className="flex items-center gap-2">
@@ -208,8 +210,8 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                     </div>
                   ))}
 
-                {/* Email */}
-                {builder.builderDetails?.email && (
+                {/* Email - single */}
+                {builder.builderDetails?.email && !builder.builderDetails?.emails && (
                   <div className="flex items-center gap-2">
                     <svg
                       className="w-5 h-5 text-blue-600 flex-shrink-0"
@@ -233,14 +235,41 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                   </div>
                 )}
 
+                {/* Emails - multiple */}
+                {builder.builderDetails?.emails &&
+                  Array.isArray(builder.builderDetails.emails) &&
+                  builder.builderDetails.emails.map((email: string, index: number) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <svg
+                        className="w-5 h-5 text-blue-600 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <a
+                        href={`mailto:${email}`}
+                        className="text-sm text-gray-700 hover:text-blue-600 transition-colors"
+                      >
+                        {email}
+                      </a>
+                    </div>
+                  ))}
+
                 {/* Visit Website Button */}
                 {builder.website && (
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <a
                       href={builder.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
                     >
                       <svg
                         className="w-4 h-4"
