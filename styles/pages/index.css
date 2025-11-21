@@ -431,7 +431,7 @@
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1.5 / 1;
   min-height: 0;
 }
 
@@ -472,7 +472,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 0.3rem;
 }
 
 .benefit-header {
