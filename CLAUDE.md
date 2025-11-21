@@ -277,6 +277,7 @@ if (!session?.user?.email) {
 **Next.js Image Configuration**: Remote image patterns configured in `next.config.js`
 
 Allowed domains:
+
 - `jeczfxlhtp0pv0xq.public.blob.vercel-storage.com` (Vercel Blob)
 - `myhomeconstructions.com` and `www.myhomeconstructions.com`
 - `images.99acres.com`, `img.housing.com`, `images.magicbricks.com`
@@ -293,6 +294,7 @@ Allowed domains:
 - Requires `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
 
 **Location Model**:
+
 - All properties and projects linked to Location table
 - Supports geocoded coordinates for map display
 - Indexed by country/state/city, zipcode, lat/lng, locality, and neighborhood
@@ -310,16 +312,19 @@ Allowed domains:
 ### Reusable Components
 
 **Projects Components** (`/components/projects/`):
+
 - `BuilderSelector.tsx`: Searchable builder selection dropdown
 - `DynamicList.tsx`: Dynamic form list management (amenities, highlights)
 - `ImageUploader.tsx`: Multi-image upload with preview and reordering
 
 **Properties Components** (`/components/properties/`):
+
 - `PropertyCard.tsx`: Property listing card with image, details, and actions
 - `PropertyMap.tsx`: Google Maps integration for property location
 - `ExpressInterestButton.tsx`: Button to track user interest in properties
 
 **Forum Components** (`/components/forum/`):
+
 - Category management, post creation, reply threads
 - Reaction system (likes/dislikes)
 - User profile integration
@@ -327,12 +332,14 @@ Allowed domains:
 ### Forum System
 
 **Forum Structure**:
+
 - Categories: Organize discussions by topic
 - Posts: Top-level forum threads with title, content, and reactions
 - Replies: Nested responses to posts with reaction support
 - User Profiles: Per-user forum activity pages (`/forum/user/[userId]`)
 
 **Forum Search** (`/pages/forum/search.tsx`):
+
 - Full-text search across forum posts and replies
 - Search by keywords in title, content, and author
 - Results display with excerpts and highlighting
@@ -340,6 +347,7 @@ Allowed domains:
 - Proper avatar sizing and responsive layout
 
 **Reactions System**:
+
 - Like/dislike functionality on posts and replies
 - Stored in `PostReaction` and `ReplyReaction` tables
 - Real-time reaction count updates
@@ -348,6 +356,7 @@ Allowed domains:
 ### Builder Management
 
 **Builder Features**:
+
 - Builder directory listing (`/pages/builders/index.tsx`)
 - Individual builder pages (`/pages/builders/[id].tsx`)
 - Builder creation and editing (`/pages/builders/add-builder.tsx`)
@@ -356,6 +365,7 @@ Allowed domains:
 - Associated projects and properties
 
 **Builder-Project Relationship**:
+
 - Each project must be associated with a builder
 - Builders can have multiple projects
 - Builder details displayed on project pages
@@ -419,6 +429,7 @@ Required environment variables (see `.env.example` for full list):
 - `BLOB_READ_WRITE_TOKEN`: Vercel Blob storage token (auto-configured on Vercel)
 
 **CockroachDB SSL Certificate:**
+
 ```bash
 curl --create-dirs -o $HOME/.postgresql/root.crt 'https://cockroachlabs.cloud/clusters/67af60ef-fa9e-4e81-8e1c-544336573e5e/cert'
 ```
@@ -439,31 +450,37 @@ curl --create-dirs -o $HOME/.postgresql/root.crt 'https://cockroachlabs.cloud/cl
 ### Key File Locations
 
 **Core Configuration:**
+
 - Next.js config: `/next.config.js`
 - TypeScript config: `/tsconfig.json`
 - Jest config: `/jest.config.js`
 - Environment variables: `/.env.example`
 
 **Database:**
+
 - Prisma schema: `/prisma/schema.prisma`
 - Database client: `/lib/cockroachDB/prisma.ts`
 - Database config: `/lib/cockroachDB/database-config.ts`
 
 **Authentication:**
+
 - NextAuth config: `/pages/api/auth/[...nextauth].ts`
 - Type extensions: `/types/next-auth.d.ts`
 
 **Utilities:**
+
 - Geocoding: `/lib/utils/geocoding.ts`
 - Vercel Blob: `/lib/utils/vercel-blob.ts`
 - Country codes: `/lib/countryCodes.ts`
 
 **Styling:**
+
 - Global styles: `/styles/globals.css`
 - Component styles: `/styles/components/`
 - Page styles: `/styles/pages/`
 
 **Testing:**
+
 - Test setup: `/jest.setup.js`
 - Test suites: `/__tests__/`
 
@@ -472,18 +489,21 @@ curl --create-dirs -o $HOME/.postgresql/root.crt 'https://cockroachlabs.cloud/cl
 **Deployment Platform**: Vercel
 
 **Environment-Specific Behavior**:
+
 - Database selection automatically switches based on `NODE_ENV` and `VERCEL_ENV`
 - Development: Uses `grihome-dev-13513` database (5 connection pool)
 - Production: Uses `grihome-main-13512` database (50 connection pool)
 - Connection pooling configured in `/lib/cockroachDB/database-config.ts`
 
 **Vercel-Specific Features**:
+
 - Blob storage for images (automatic token configuration)
 - Cron jobs for automated tasks (ad expiration)
 - Environment variables managed through Vercel dashboard
 - Automatic SSL/TLS for all deployments
 
 **Build Process**:
+
 1. Prisma client generation (`npm run prisma:generate`)
 2. Type checking (`npm run type-check`)
 3. Linting (`npm run lint`)
@@ -491,6 +511,7 @@ curl --create-dirs -o $HOME/.postgresql/root.crt 'https://cockroachlabs.cloud/cl
 5. Next.js build (`next build`)
 
 **Common Deployment Issues**:
+
 - 404s on dynamic routes: Ensure pages use proper Next.js routing conventions
 - Database connection errors: Verify `DATABASE_URL` and SSL certificate
 - Image loading failures: Check remote patterns in `next.config.js`
@@ -499,17 +520,20 @@ curl --create-dirs -o $HOME/.postgresql/root.crt 'https://cockroachlabs.cloud/cl
 ## Recent Enhancements
 
 **Forum Search Improvements**:
+
 - Fixed HTML tags displaying in search result excerpts
 - Added username highlighting in search results
 - Improved avatar sizing and layout
 - Enhanced search relevance scoring
 
 **Routing Fixes**:
+
 - Resolved forum search page 404 errors on Vercel deployments
 - Fixed user profile page 404 issues
 - Improved dynamic route handling
 
 **UI/UX Improvements**:
+
 - Reduced height of search results header and search box
 - Better responsive design across mobile, tablet, and desktop
 - Improved search result presentation
