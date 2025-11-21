@@ -100,34 +100,39 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
         {/* Builder Header */}
         <div className="builder-header bg-white border-b">
           <div className="container mx-auto px-4 py-8">
-            <div className="flex items-start gap-6">
-              {/* Builder Logo */}
-              {builder.logoUrl && (
-                <div className="builder-logo-container flex-shrink-0">
-                  <Image
-                    src={builder.logoUrl}
-                    alt={`${builder.name} logo`}
-                    width={120}
-                    height={80}
-                    className="object-contain bg-gray-50 p-2 rounded-lg"
-                  />
-                </div>
-              )}
-
-              {/* Builder Info */}
-              <div className="builder-info flex-1">
-                <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">{builder.name}</h1>
-                {builder.description && (
-                  <p className="text-sm text-gray-600 mb-3 max-w-2xl leading-relaxed">
-                    {builder.description}
-                  </p>
+            <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+              {/* Left Side - Logo, Name, Description */}
+              <div className="flex items-start gap-6 flex-1">
+                {builder.logoUrl && (
+                  <div className="builder-logo-container flex-shrink-0">
+                    <Image
+                      src={builder.logoUrl}
+                      alt={`${builder.name} logo`}
+                      width={120}
+                      height={80}
+                      className="object-contain bg-gray-50 p-2 rounded-lg"
+                    />
+                  </div>
                 )}
+                <div className="builder-info">
+                  <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+                    {builder.name}
+                  </h1>
+                  {builder.description && (
+                    <p className="text-sm text-gray-600 max-w-xl leading-relaxed">
+                      {builder.description}
+                    </p>
+                  )}
+                </div>
+              </div>
 
+              {/* Right Side - Contact Info */}
+              <div className="lg:w-80 space-y-3 lg:border-l lg:pl-6 lg:border-gray-200">
                 {/* Address */}
                 {builder.builderDetails?.address && (
-                  <div className="mb-4 flex items-start gap-2">
+                  <div className="flex items-start gap-2">
                     <svg
-                      className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0"
+                      className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -145,20 +150,97 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                    <p className="text-sm text-gray-700 leading-relaxed max-w-xl">
+                    <p className="text-sm text-gray-700 leading-relaxed">
                       {builder.builderDetails.address}
                     </p>
                   </div>
                 )}
 
+                {/* Phone - single */}
+                {builder.builderDetails?.phone && (
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-blue-600 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                    <a
+                      href={`tel:${builder.builderDetails.phone}`}
+                      className="text-sm text-gray-700 hover:text-blue-600 transition-colors"
+                    >
+                      {builder.builderDetails.phone}
+                    </a>
+                  </div>
+                )}
+
+                {/* Phones - multiple */}
+                {builder.builderDetails?.phones &&
+                  Array.isArray(builder.builderDetails.phones) &&
+                  builder.builderDetails.phones.map((phone: string, index: number) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <svg
+                        className="w-5 h-5 text-blue-600 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                        />
+                      </svg>
+                      <a
+                        href={`tel:${phone.replace(/\s/g, '')}`}
+                        className="text-sm text-gray-700 hover:text-blue-600 transition-colors"
+                      >
+                        {phone}
+                      </a>
+                    </div>
+                  ))}
+
+                {/* Email */}
+                {builder.builderDetails?.email && (
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-blue-600 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <a
+                      href={`mailto:${builder.builderDetails.email}`}
+                      className="text-sm text-gray-700 hover:text-blue-600 transition-colors"
+                    >
+                      {builder.builderDetails.email}
+                    </a>
+                  </div>
+                )}
+
                 {/* Visit Website Button */}
                 {builder.website && (
-                  <div className="mt-4">
+                  <div className="pt-2">
                     <a
                       href={builder.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                     >
                       <svg
                         className="w-4 h-4"
