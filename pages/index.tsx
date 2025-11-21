@@ -385,30 +385,57 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Agents Showcase */}
-          <div className="showcase-section" style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h2 className="showcase-title">Connect with Top Agents</h2>
-            <p className="showcase-subtitle">
-              Work with experienced real estate professionals who understand the market
-            </p>
-            <Link href="/agents" className="showcase-link">
-              <button className="showcase-button-compact">
-                Browse All Agents
-                <svg
-                  className="showcase-arrow"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </Link>
+          {/* Showcase Grid - 2 tiles side by side */}
+          <div className="showcase-grid">
+            {/* Agents Showcase */}
+            <div className="showcase-section">
+              <h2 className="showcase-title">Connect with Top Agents</h2>
+              <p className="showcase-subtitle">
+                Work with experienced real estate professionals who understand the market
+              </p>
+              <Link href="/agents" className="showcase-link">
+                <button className="showcase-button-compact">
+                  Browse All Agents
+                  <svg
+                    className="showcase-arrow"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </Link>
+            </div>
+
+            {/* Builders Showcase */}
+            <div className="showcase-section">
+              <h2 className="showcase-title">Find Top Builders</h2>
+              <p className="showcase-subtitle">Discover trusted builders across India</p>
+              <Link href="/builders" className="showcase-link">
+                <button className="showcase-button-compact">
+                  Discover Builders
+                  <svg
+                    className="showcase-arrow"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
