@@ -116,9 +116,7 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
 
               {/* Builder Info */}
               <div className="builder-info flex-1">
-                <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
-                  {builder.name}
-                </h1>
+                <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">{builder.name}</h1>
                 {builder.description && (
                   <p className="text-sm text-gray-600 mb-3 max-w-2xl leading-relaxed">
                     {builder.description}
@@ -162,7 +160,12 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
