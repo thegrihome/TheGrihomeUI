@@ -100,53 +100,81 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
         {/* Builder Header */}
         <div className="builder-header bg-white border-b">
           <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-              {/* Builder Logo & Basic Info */}
-              <div className="flex items-start gap-6">
-                {builder.logoUrl && (
-                  <div className="builder-logo-container flex-shrink-0">
-                    <Image
-                      src={builder.logoUrl}
-                      alt={`${builder.name} logo`}
-                      width={120}
-                      height={80}
-                      className="object-contain bg-gray-50 p-2 rounded-lg"
-                    />
-                  </div>
-                )}
-                <div className="builder-info">
-                  <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
-                    {builder.name}
-                  </h1>
-                  {builder.description && (
-                    <p className="text-sm text-gray-600 mb-3 max-w-2xl leading-relaxed">
-                      {builder.description}
-                    </p>
-                  )}
+            <div className="flex items-start gap-6">
+              {/* Builder Logo */}
+              {builder.logoUrl && (
+                <div className="builder-logo-container flex-shrink-0">
+                  <Image
+                    src={builder.logoUrl}
+                    alt={`${builder.name} logo`}
+                    width={120}
+                    height={80}
+                    className="object-contain bg-gray-50 p-2 rounded-lg"
+                  />
                 </div>
-              </div>
+              )}
 
-              {/* Action Buttons */}
-              {builder.website && (
-                <div className="builder-actions flex gap-3 lg:ml-auto">
-                  <a
-                    href={builder.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 transition-colors flex items-center gap-1.5"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Builder Info */}
+              <div className="builder-info flex-1">
+                <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+                  {builder.name}
+                </h1>
+                {builder.description && (
+                  <p className="text-sm text-gray-600 mb-3 max-w-2xl leading-relaxed">
+                    {builder.description}
+                  </p>
+                )}
+
+                {/* Address */}
+                {builder.builderDetails?.address && (
+                  <div className="mb-4 flex items-start gap-2">
+                    <svg
+                      className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="2"
-                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                    Visit Website
-                  </a>
-                </div>
-              )}
+                    <p className="text-sm text-gray-700 leading-relaxed max-w-xl">
+                      {builder.builderDetails.address}
+                    </p>
+                  </div>
+                )}
+
+                {/* Visit Website Button */}
+                {builder.website && (
+                  <div className="mt-4">
+                    <a
+                      href={builder.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                        />
+                      </svg>
+                      Visit Website
+                    </a>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
