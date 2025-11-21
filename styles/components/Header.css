@@ -3,7 +3,7 @@
 /* Header Container */
 .header {
   width: 100%;
-  border-bottom: 1px solid #9333ea;
+  border-bottom: 1px solid #8B5CF6;
   position: sticky;
   top: 0;
   z-index: 50;
@@ -23,8 +23,9 @@
 @media (min-width: 768px) and (max-width: 1023px) {
   .header-container {
     flex-direction: row;
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1.5rem;
     align-items: center;
+    min-height: 64px;
   }
 }
 
@@ -32,12 +33,15 @@
   .header-container {
     flex-direction: row;
     padding: 1rem 2rem;
+    align-items: center;
+    min-height: 68px;
   }
 }
 
 @media (min-width: 1280px) {
   .header-container {
     padding: 1rem 2.5rem;
+    min-height: 70px;
   }
 }
 
@@ -45,15 +49,15 @@
 .header-top {
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  min-height: 64px;
+  padding: 1rem 0.75rem 1rem 0.75rem;
+  min-height: 60px;
 }
 
 @media (max-width: 480px) {
   .header-top {
-    padding: 0.5rem 0.75rem;
+    padding: 0.875rem 0.5rem 0.875rem 0.75rem;
     min-height: 56px;
   }
 }
@@ -68,12 +72,12 @@
 .header-logo {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
   margin-bottom: 1.1em;
   font-size: 1.5rem;
   font-weight: 500;
   color: #000000;
-  transition: color 0.3s ease;
+  transition: opacity 0.3s ease;
   text-decoration: none;
   flex-shrink: 0;
 }
@@ -82,28 +86,28 @@
 @media (max-width: 767px) {
   .header-logo {
     margin-bottom: 0;
-    align-items: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-logo {
+    gap: 0.625rem;
   }
 }
 
 .header-logo:hover {
-  color: #4b5563;
+  opacity: 0.85;
 }
 
 .header-logo-image {
-  border-radius: 0.375rem;
-  object-fit: contain;
-  margin-top: -0.75rem;
-  margin-right: -0.5rem;
-}
-
-/* Mobile logo image alignment fix */
-@media (max-width: 767px) {
-  .header-logo-image {
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0.25rem;
-  }
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .header-logo-text {
@@ -112,20 +116,42 @@
   line-height: 1;
   display: flex;
   align-items: center;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-image: linear-gradient(to right, #8B5CF6, #3B82F6, #1E40AF);
 }
 
-/* Mobile logo text sizing */
+/* Mobile logo text - bigger with gradient */
 @media (max-width: 767px) {
   .header-logo-text {
-    font-size: 1.25rem;
+    font-size: 1.3125rem;
     line-height: 1;
-    padding-bottom: 0.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-logo-text {
+    font-size: 1.1875rem;
+    line-height: 1;
   }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .header-logo-text {
-    font-size: 1.75rem;
+    font-size: 1.375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header-logo-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -162,18 +188,23 @@
   color: transparent;
   background-clip: text;
   -webkit-background-clip: text;
-  background-image: linear-gradient(to right, #ec4899, #8b5cf6, #6366f1);
+  background-image: linear-gradient(to right, #8B5CF6, #3B82F6, #1E40AF);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  border: 2px solid #000000;
-  border-radius: 0.375rem;
-  transition: transform 0.2s ease;
+  border: 2px solid rgba(139, 92, 246, 0.5);
+  border-radius: 9999px;
+  transition: all 0.2s ease;
   white-space: nowrap;
   min-height: 32px;
   flex-shrink: 0;
+}
+
+.header-add-property-link:hover {
+  border-color: rgba(139, 92, 246, 0.8);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -211,19 +242,23 @@
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.5;
-  background: linear-gradient(to right, #ec4899, #8b5cf6, #6366f1);
+  background: linear-gradient(to right, #8B5CF6, #3B82F6, #1E40AF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-decoration: none;
   display: block;
   text-align: center;
-  border-radius: 0.5rem;
-  border: 2px solid;
-  border-image: linear-gradient(to right, #ec4899, #8b5cf6, #6366f1) 1;
+  border-radius: 9999px;
+  border: 2px solid rgba(139, 92, 246, 0.5);
   position: relative;
   overflow: visible;
   min-height: 44px;
+  transition: all 0.2s ease;
+}
+
+.header-add-property-link-mobile:hover {
+  border-color: rgba(139, 92, 246, 0.8);
 }
 
 /* Ensure text is visible on all mobile screens */
@@ -248,35 +283,64 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) {
   .header-logo {
-    margin-right: 0.5rem;
+    margin-bottom: 0;
+    align-items: center;
+    gap: 0.75rem;
   }
 }
 
-/* Mobile Menu Button */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .header-logo {
+    margin-right: 0.5rem;
+    gap: 0.625rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header-logo {
+    gap: 0.875rem;
+  }
+}
+
+/* Mobile Menu Button - professional sizing like Wahed app */
 .mobile-menu-button {
-  padding: 0;
+  padding: 0.625rem;
   margin-left: auto;
+  margin-right: -0.25rem;
   color: #000000;
   outline: none;
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-menu-button:active {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 @media (max-width: 767px) {
   .mobile-menu-button {
-    padding: 0.25rem;
-    padding-bottom: 0;
-    margin-bottom: 0.25rem;
+    padding: 0.625rem;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-menu-button {
+    padding: 0.5rem;
+    width: 44px;
+    height: 44px;
   }
 }
 
@@ -287,21 +351,26 @@
 }
 
 .mobile-menu-button svg {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   stroke-width: 2;
+  flex-shrink: 0;
 }
 
 @media (max-width: 767px) {
   .mobile-menu-button svg {
     display: block;
+    width: 28px;
+    height: 28px;
+    stroke-width: 2;
   }
 }
 
 @media (max-width: 480px) {
   .mobile-menu-button svg {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
+    stroke-width: 2;
   }
 }
 
@@ -318,17 +387,40 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  min-height: 50px;
 }
 
 @media (min-width: 768px) {
   .desktop-nav {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+@media (min-width: 1280px) {
+  .desktop-nav {
+    justify-content: space-between;
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .desktop-nav {
+    padding: 0 4rem;
   }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .desktop-nav {
     gap: 0.5rem;
+    min-height: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-nav {
+    min-height: 52px;
   }
 }
 
@@ -336,10 +428,10 @@
   display: flex;
   align-items: center;
   gap: 2rem;
-  flex: 1;
   justify-content: center;
-  margin-left: 0;
   flex-wrap: wrap;
+  flex: 1;
+  max-width: 800px;
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -362,16 +454,37 @@
 }
 
 .desktop-nav-link {
-  color: #000000;
-  transition: color 0.3s ease;
+  color: #8B5CF6;
+  transition: all 0.3s ease;
   text-decoration: none;
   position: relative;
   padding-bottom: 0.25rem;
   font-size: 0.9375rem;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.desktop-nav-link:nth-child(1) {
+  color: #8B5CF6;
+}
+
+.desktop-nav-link:nth-child(2) {
+  color: #7C3AED;
+}
+
+.desktop-nav-link:nth-child(3) {
+  color: #3B82F6;
+}
+
+.desktop-nav-link:nth-child(4) {
+  color: #2563EB;
+}
+
+.desktop-nav-link:nth-child(5) {
+  color: #1E40AF;
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -400,7 +513,7 @@
   right: 0;
   bottom: 0;
   height: 2px;
-  background: linear-gradient(to right, #ec4899, #8b5cf6, #6366f1);
+  background: linear-gradient(to right, #8B5CF6, #1E40AF);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
@@ -415,7 +528,7 @@
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
-  margin-left: auto;
+  height: 100%;
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -437,6 +550,7 @@
   border: none;
   cursor: pointer;
   transition: color 0.3s ease;
+  padding: 0.25rem;
 }
 
 .user-menu-button:hover {
@@ -540,13 +654,14 @@
 }
 
 .signin-button {
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
   margin-right: 0.5rem;
-  color: #000000;
-  border: 1px solid #d1d5db;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.25rem;
+  color: #1E40AF;
+  border: 2px solid #1E40AF;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
   font-size: 0.875rem;
+  font-weight: 600;
   background: transparent;
   cursor: pointer;
   display: inline-flex;
@@ -554,13 +669,12 @@
   justify-content: center;
   min-height: 36px;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .signin-button:hover {
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  background-color: #f9fafb;
+  background-color: rgba(30, 64, 175, 0.1);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -581,23 +695,26 @@
 }
 
 .signup-button {
-  padding: 0.5rem 0.75rem;
-  transition: background-color 0.2s ease;
-  background-color: #000000;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+  background: #1E40AF;
   color: white;
-  border-radius: 0.25rem;
+  border-radius: 9999px;
   font-size: 0.875rem;
-  border: none;
+  border: 2px solid #1E40AF;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 36px;
   white-space: nowrap;
+  text-decoration: none;
+  font-weight: 600;
 }
 
 .signup-button:hover {
-  background-color: #1f2937;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -677,8 +794,11 @@
 
 .mobile-modal-logo {
   font-size: 1.25rem;
-  font-weight: 500;
-  color: #000000;
+  font-weight: 600;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-image: linear-gradient(to right, #8B5CF6, #3B82F6, #1E40AF);
   text-decoration: none;
 }
 
@@ -697,15 +817,36 @@
 }
 
 .mobile-nav-link {
-  color: #000000;
-  transition: color 0.3s ease;
+  color: #8B5CF6;
+  transition: all 0.3s ease;
   padding: 0.5rem 0;
   font-size: 1.125rem;
+  font-weight: 500;
   text-decoration: none;
 }
 
+.mobile-nav-link:nth-child(1) {
+  color: #8B5CF6;
+}
+
+.mobile-nav-link:nth-child(2) {
+  color: #7C3AED;
+}
+
+.mobile-nav-link:nth-child(3) {
+  color: #3B82F6;
+}
+
+.mobile-nav-link:nth-child(4) {
+  color: #2563EB;
+}
+
+.mobile-nav-link:nth-child(5) {
+  color: #1E40AF;
+}
+
 .mobile-nav-link:hover {
-  color: #4b5563;
+  opacity: 0.8;
 }
 
 .mobile-auth-section {
@@ -785,30 +926,33 @@
 
 .mobile-signin-button {
   width: 100%;
-  padding: 0.5rem 1rem;
-  color: #000000;
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
+  padding: 0.625rem 1rem;
+  color: #1E40AF;
+  border: 2px solid #1E40AF;
+  border-radius: 9999px;
   background: transparent;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-weight: 600;
 }
 
 .mobile-signin-button:hover {
-  background-color: #f9fafb;
+  background-color: rgba(30, 64, 175, 0.1);
 }
 
 .mobile-signup-button {
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1rem;
   color: white;
-  background-color: #000000;
-  border-radius: 0.25rem;
-  border: none;
+  background: #1E40AF;
+  border-radius: 9999px;
+  border: 2px solid #1E40AF;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-weight: 600;
 }
 
 .mobile-signup-button:hover {
-  background-color: #1f2937;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
 }

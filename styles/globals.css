@@ -47,6 +47,15 @@ body {
   /* Prevent horizontal overflow */
   overflow-x: hidden;
   width: 100%;
+  /* Subtle gradient background using Grihome brand colors */
+  background: linear-gradient(
+    to bottom,
+    rgba(139, 92, 246, 0.06) 0%,
+    rgba(59, 130, 246, 0.06) 50%,
+    rgba(30, 64, 175, 0.08) 100%
+  );
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 #__next {

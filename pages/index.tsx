@@ -191,48 +191,120 @@ export default function Home() {
                   href="/forum/category/general-discussions/bengaluru"
                   className="home-city-item"
                 >
-                  <div className="home-city-icon">🌳</div>
+                  <div className="home-city-icon">
+                    <Image
+                      src="/images/cities/Bengaluru.png"
+                      alt="Bengaluru"
+                      width={64}
+                      height={64}
+                      className="home-city-image"
+                    />
+                  </div>
                   <span className="home-city-name">Bengaluru</span>
                 </Link>
                 <Link href="/forum/category/general-discussions/chennai" className="home-city-item">
-                  <div className="home-city-icon">🏖️</div>
+                  <div className="home-city-icon">
+                    <Image
+                      src="/images/cities/Chennai.png"
+                      alt="Chennai"
+                      width={64}
+                      height={64}
+                      className="home-city-image"
+                    />
+                  </div>
                   <span className="home-city-name">Chennai</span>
                 </Link>
                 <Link href="/forum/category/general-discussions/delhi" className="home-city-item">
-                  <div className="home-city-icon">🏛️</div>
+                  <div className="home-city-icon">
+                    <Image
+                      src="/images/cities/Delhi.png"
+                      alt="Delhi"
+                      width={64}
+                      height={64}
+                      className="home-city-image"
+                    />
+                  </div>
                   <span className="home-city-name">Delhi</span>
                 </Link>
                 <Link href="/forum/category/general-discussions/gurgaon" className="home-city-item">
-                  <div className="home-city-icon">🏢</div>
+                  <div className="home-city-icon">
+                    <Image
+                      src="/images/cities/Gurgaon.png"
+                      alt="Gurgaon"
+                      width={64}
+                      height={64}
+                      className="home-city-image"
+                    />
+                  </div>
                   <span className="home-city-name">Gurgaon</span>
                 </Link>
                 <Link
                   href="/forum/category/general-discussions/hyderabad"
                   className="home-city-item"
                 >
-                  <div className="home-city-icon">💎</div>
+                  <div className="home-city-icon">
+                    <Image
+                      src="/images/cities/Hyderabad.png"
+                      alt="Hyderabad"
+                      width={64}
+                      height={64}
+                      className="home-city-image"
+                    />
+                  </div>
                   <span className="home-city-name">Hyderabad</span>
                 </Link>
                 <Link href="/forum/category/general-discussions/kolkata" className="home-city-item">
-                  <div className="home-city-icon">🌉</div>
+                  <div className="home-city-icon">
+                    <Image
+                      src="/images/cities/Kolkata.png"
+                      alt="Kolkata"
+                      width={64}
+                      height={64}
+                      className="home-city-image"
+                    />
+                  </div>
                   <span className="home-city-name">Kolkata</span>
                 </Link>
                 <Link href="/forum/category/general-discussions/mumbai" className="home-city-item">
-                  <div className="home-city-icon">🏙️</div>
+                  <div className="home-city-icon">
+                    <Image
+                      src="/images/cities/Mumbai.png"
+                      alt="Mumbai"
+                      width={64}
+                      height={64}
+                      className="home-city-image"
+                    />
+                  </div>
                   <span className="home-city-name">Mumbai</span>
                 </Link>
                 <Link href="/forum/category/general-discussions/noida" className="home-city-item">
-                  <div className="home-city-icon">🌇</div>
+                  <div className="home-city-icon">
+                    <Image
+                      src="/images/cities/Noida.png"
+                      alt="Noida"
+                      width={64}
+                      height={64}
+                      className="home-city-image"
+                    />
+                  </div>
                   <span className="home-city-name">Noida</span>
                 </Link>
                 <Link href="/forum/category/general-discussions/pune" className="home-city-item">
-                  <div className="home-city-icon">🎓</div>
+                  <div className="home-city-icon">
+                    <Image
+                      src="/images/cities/Pune.png"
+                      alt="Pune"
+                      width={64}
+                      height={64}
+                      className="home-city-image"
+                    />
+                  </div>
                   <span className="home-city-name">Pune</span>
                 </Link>
 
                 {/* States */}
                 <Link href="/forum/category/general-discussions/states" className="home-city-item">
-                  <div className="home-city-icon">🇮🇳</div>
+                  <div className="home-city-icon home-city-icon-emoji">🇮🇳</div>
                   <span className="home-city-name">States & UTs</span>
                 </Link>
               </div>

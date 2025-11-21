@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { NextPage } from 'next'
+import GrihomeLogo from './GrihomeLogo'
 
 const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
@@ -103,13 +104,7 @@ const Header: NextPage = () => {
         <div className="header-container">
           <div className="header-top">
             <Link href="/" className="header-logo">
-              <Image
-                src="/images/grihome-logo.png"
-                alt="Grihome Logo"
-                width={50}
-                height={50}
-                className="header-logo-image"
-              />
+              <GrihomeLogo size={32} className="header-logo-image" />
               <span className="header-logo-text">GRIHOME</span>
             </Link>
             <button
@@ -139,13 +134,7 @@ const Header: NextPage = () => {
           {/* Desktop Navigation */}
           <div className="desktop-nav">
             <Link href="/" className="header-logo">
-              <Image
-                src="/images/grihome-logo.png"
-                alt="Grihome Logo"
-                width={50}
-                height={50}
-                className="header-logo-image"
-              />
+              <GrihomeLogo size={40} className="header-logo-image" />
               <span className="header-logo-text">GRIHOME</span>
             </Link>
             <div className="desktop-nav-links flex items-center">

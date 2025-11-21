@@ -18,7 +18,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
               align-items: center;
               height: 100vh;
               margin: 0;
-              background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+              background: linear-gradient(135deg, #FF1493 0%, #00D4FF 100%);
               color: white;
             }
             .container {
