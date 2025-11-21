@@ -401,9 +401,9 @@
 .benefits-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: 2rem;
   margin-bottom: 3rem;
-  max-width: 900px;
+  max-width: 1000px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -424,14 +424,14 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 0.5rem 0.75rem;
+  padding: 1rem 1.25rem;
   background: white;
   border-radius: 0.75rem;
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
-  aspect-ratio: 1.5 / 1;
+  aspect-ratio: 1.6 / 1;
   min-height: 0;
 }
 
@@ -489,7 +489,7 @@
 }
 
 .benefit-title {
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #111827;
   margin: 0;
@@ -635,7 +635,7 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .benefit-item {
-    padding: 1.5rem;
+    padding: 1rem 1.25rem;
   }
 
   .benefit-icon {
@@ -643,7 +643,7 @@
   }
 
   .benefit-title {
-    font-size: 1.125rem;
+    font-size: 1.375rem;
   }
 
   .benefit-description {
