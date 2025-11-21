@@ -339,7 +339,7 @@ export default function Home() {
                 </div>
                 <ul
                   className="benefit-description"
-                  style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}
+                  style={{ listStyleType: 'disc', paddingLeft: '1.2rem' }}
                 >
                   <li>Browse thousands of verified listings without paywalls</li>
                   <li>Connect directly with sellers and agents</li>
@@ -357,7 +357,7 @@ export default function Home() {
                 </div>
                 <ul
                   className="benefit-description"
-                  style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}
+                  style={{ listStyleType: 'disc', paddingLeft: '1.2rem' }}
                 >
                   <li>List your property for free and reach thousands of buyers</li>
                   <li>Create detailed listings with photos and property information</li>
@@ -375,7 +375,7 @@ export default function Home() {
                 </div>
                 <ul
                   className="benefit-description"
-                  style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}
+                  style={{ listStyleType: 'disc', paddingLeft: '1.2rem' }}
                 >
                   <li>Manage listings and showcase your portfolio efficiently</li>
                   <li>Build reputation and connect with serious buyers and sellers</li>
