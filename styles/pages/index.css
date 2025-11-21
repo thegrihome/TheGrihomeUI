@@ -403,6 +403,9 @@
   grid-template-columns: 1fr;
   gap: 2rem;
   margin-bottom: 3rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media (min-width: 640px) {
@@ -413,7 +416,7 @@
 
 @media (min-width: 1024px) {
   .benefits-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -429,7 +432,8 @@
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
-  height: fit-content;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
 }
 
 .benefit-item:hover {

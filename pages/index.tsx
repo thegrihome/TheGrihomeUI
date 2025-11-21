@@ -341,12 +341,9 @@ export default function Home() {
                   className="benefit-description"
                   style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}
                 >
-                  <li>Discover your dream home from thousands of verified listings across India</li>
-                  <li>Browse properties without paywalls and compare prices transparently</li>
+                  <li>Browse thousands of verified listings without paywalls</li>
                   <li>Connect directly with sellers and agents</li>
-                  <li>
-                    Use our community forum to get real insights from other buyers and local experts
-                  </li>
+                  <li>Get real insights from community forum and local experts</li>
                 </ul>
               </div>
             </div>
@@ -362,18 +359,9 @@ export default function Home() {
                   className="benefit-description"
                   style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}
                 >
-                  <li>
-                    List your property for free and reach thousands of potential buyers instantly
-                  </li>
-                  <li>
-                    Create detailed listings with photos, virtual tours, and comprehensive property
-                    information
-                  </li>
-                  <li>Get genuine inquiries from verified users</li>
-                  <li>
-                    Maintain full control over your listing with real-time updates and easy
-                    management tools
-                  </li>
+                  <li>List your property for free and reach thousands of buyers</li>
+                  <li>Create detailed listings with photos and property information</li>
+                  <li>Maintain full control with real-time updates and easy management</li>
                 </ul>
               </div>
             </div>
@@ -389,27 +377,9 @@ export default function Home() {
                   className="benefit-description"
                   style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}
                 >
-                  <li>Grow your real estate business with our comprehensive agent platform</li>
-                  <li>
-                    Manage multiple listings efficiently and showcase your portfolio to potential
-                    clients
-                  </li>
-                  <li>Build your professional reputation through client reviews</li>
-                  <li>
-                    Connect with serious buyers and sellers while accessing powerful tools to
-                    streamline your workflow
-                  </li>
-                  <li>
-                    Showcase residential and commercial projects to qualified buyers across India
-                  </li>
-                  <li>
-                    Feature detailed floor plans, amenities, virtual walkthroughs, and project
-                    timelines
-                  </li>
-                  <li>
-                    Partner with builders and leverage our platform to maximize project visibility
-                    and sales
-                  </li>
+                  <li>Manage listings and showcase your portfolio efficiently</li>
+                  <li>Build reputation and connect with serious buyers and sellers</li>
+                  <li>Partner with builders to maximize project visibility and sales</li>
                 </ul>
               </div>
             </div>
