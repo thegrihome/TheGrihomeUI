@@ -19,6 +19,22 @@ const Header: NextPage = () => {
   const isAuthenticated = status === 'authenticated'
   const user = session?.user
 
+  // Loading Spinner Component
+  const LoadingSpinner = ({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) => {
+    const sizeClasses = {
+      sm: 'w-4 h-4 border-2',
+      md: 'w-6 h-6 border-2',
+      lg: 'w-8 h-8 border-3',
+    }
+    return (
+      <div className="flex items-center justify-center">
+        <div
+          className={`${sizeClasses[size]} border-blue-600 border-t-transparent rounded-full animate-spin`}
+        />
+      </div>
+    )
+  }
+
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -153,21 +169,29 @@ const Header: NextPage = () => {
               <Link href="/contactUs/contact" className="desktop-nav-link">
                 Contact Us
               </Link>
-              {status !== 'loading' && !isAuthenticated && (
+              {status === 'loading' ? (
+                <div className="header-add-property-link opacity-50 cursor-not-allowed flex items-center gap-2">
+                  <LoadingSpinner size="sm" />
+                  <span className="text-sm">Loading...</span>
+                </div>
+              ) : !isAuthenticated ? (
                 <Link href="/login" className="header-add-property-link">
                   Login to post property
                 </Link>
-              )}
-              {status !== 'loading' && isAuthenticated && user && (
-                <Link href="/properties/add-property" className="header-add-property-link">
-                  Post property for free
-                </Link>
+              ) : (
+                user && (
+                  <Link href="/properties/add-property" className="header-add-property-link">
+                    Post property for free
+                  </Link>
+                )
               )}
             </div>
 
             <div className="auth-section flex items-center">
               {status === 'loading' ? (
-                <div style={{ width: '120px', height: '40px' }} />
+                <div className="flex items-center gap-2 px-4">
+                  <LoadingSpinner size="md" />
+                </div>
               ) : isAuthenticated && user ? (
                 <>
                   <div className="user-menu" ref={userMenuRef}>
@@ -309,7 +333,12 @@ const Header: NextPage = () => {
                   >
                     Contact Us
                   </Link>
-                  {status !== 'loading' && !isAuthenticated && (
+                  {status === 'loading' ? (
+                    <div className="header-add-property-link-mobile opacity-50 cursor-not-allowed flex items-center justify-center gap-2">
+                      <LoadingSpinner size="sm" />
+                      <span className="text-sm">Loading...</span>
+                    </div>
+                  ) : !isAuthenticated ? (
                     <Link
                       href="/login"
                       className="header-add-property-link-mobile"
@@ -317,21 +346,24 @@ const Header: NextPage = () => {
                     >
                       Login to post property
                     </Link>
-                  )}
-                  {status !== 'loading' && isAuthenticated && user && (
-                    <Link
-                      href="/properties/add-property"
-                      className="header-add-property-link-mobile"
-                      onClick={() => setNavbarOpen(false)}
-                    >
-                      Post property for free
-                    </Link>
+                  ) : (
+                    user && (
+                      <Link
+                        href="/properties/add-property"
+                        className="header-add-property-link-mobile"
+                        onClick={() => setNavbarOpen(false)}
+                      >
+                        Post property for free
+                      </Link>
+                    )
                   )}
                 </nav>
 
                 <div className="mobile-auth-section">
                   {status === 'loading' ? (
-                    <div style={{ width: '100%', height: '80px' }} />
+                    <div className="flex items-center justify-center py-8">
+                      <LoadingSpinner size="lg" />
+                    </div>
                   ) : isAuthenticated && user ? (
                     <div>
                       <div className="mobile-user-info">

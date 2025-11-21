@@ -409,12 +409,14 @@ export default function Home() {
                   <div className="benefit-icon">🏠</div>
                   <h3 className="benefit-title">For Buyers</h3>
                 </div>
-                <p className="benefit-description">
-                  Discover your dream home from thousands of verified listings across India. Browse
-                  properties without paywalls, compare prices transparently, and connect directly
-                  with sellers and agents. Use our community forum to get real insights from other
-                  buyers and local experts before making your decision.
-                </p>
+                <ul
+                  className="benefit-description"
+                  style={{ listStyleType: 'disc', paddingLeft: '1rem' }}
+                >
+                  <li>Browse thousands of verified listings without paywalls</li>
+                  <li>Connect directly with sellers and agents</li>
+                  <li>Get real insights from community forum and local experts</li>
+                </ul>
               </div>
             </div>
 
@@ -425,12 +427,14 @@ export default function Home() {
                   <div className="benefit-icon">💼</div>
                   <h3 className="benefit-title">For Sellers</h3>
                 </div>
-                <p className="benefit-description">
-                  List your property for free and reach thousands of potential buyers instantly.
-                  Create detailed listings with photos, virtual tours, and comprehensive property
-                  information. Get genuine inquiries from verified users and maintain full control
-                  over your listing with real-time updates and easy management tools.
-                </p>
+                <ul
+                  className="benefit-description"
+                  style={{ listStyleType: 'disc', paddingLeft: '1rem' }}
+                >
+                  <li>List your property for free and reach thousands of buyers</li>
+                  <li>Create detailed listings with photos and property information</li>
+                  <li>Maintain full control with real-time updates and easy management</li>
+                </ul>
               </div>
             </div>
 
@@ -441,28 +445,14 @@ export default function Home() {
                   <div className="benefit-icon">🤝</div>
                   <h3 className="benefit-title">For Agents</h3>
                 </div>
-                <p className="benefit-description">
-                  Grow your real estate business with our comprehensive agent platform. Manage
-                  multiple listings efficiently, showcase your portfolio to potential clients, and
-                  build your professional reputation through client reviews. Connect with serious
-                  buyers and sellers while accessing powerful tools to streamline your workflow.
-                </p>
-              </div>
-            </div>
-
-            <div className="benefit-item">
-              <div className="benefit-divider benefit-divider-orange"></div>
-              <div className="benefit-content">
-                <div className="benefit-header">
-                  <div className="benefit-icon">🏗️</div>
-                  <h3 className="benefit-title">For Builders</h3>
-                </div>
-                <p className="benefit-description">
-                  Showcase your residential and commercial projects to qualified buyers across
-                  India. Feature detailed floor plans, amenities, virtual walkthroughs, and project
-                  timelines to attract the right customers. Partner with verified agents and
-                  leverage our platform to maximize your project visibility and sales.
-                </p>
+                <ul
+                  className="benefit-description"
+                  style={{ listStyleType: 'disc', paddingLeft: '1rem' }}
+                >
+                  <li>Manage listings and showcase your portfolio efficiently</li>
+                  <li>Build reputation and connect with serious buyers and sellers</li>
+                  <li>Partner with builders to maximize project visibility and sales</li>
+                </ul>
               </div>
             </div>
           </div>
