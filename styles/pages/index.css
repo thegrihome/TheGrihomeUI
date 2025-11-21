@@ -424,7 +424,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 0.25rem;
+  padding: 0.15rem 0.75rem;
   background: white;
   border-radius: 0.75rem;
   box-shadow:
@@ -472,24 +472,24 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 0.3rem;
+  justify-content: space-between;
+  padding: 0.25rem 0;
 }
 
 .benefit-header {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .benefit-icon {
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   line-height: 1;
   flex-shrink: 0;
 }
 
 .benefit-title {
-  font-size: 1.375rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #111827;
   margin: 0;
@@ -497,8 +497,8 @@
 }
 
 .benefit-description {
-  font-size: 1.0625rem;
-  line-height: 1.4;
+  font-size: 1.125rem;
+  line-height: 1.5;
   color: #4b5563;
   margin: 0;
 }
