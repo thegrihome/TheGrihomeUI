@@ -335,12 +335,12 @@
 /* Mission Section */
 .mission-section {
   background: linear-gradient(to bottom, #ffffff, #f9fafb);
-  padding: 3rem 1rem;
+  padding: 1.5rem 1rem;
 }
 
 @media (min-width: 768px) {
   .mission-section {
-    padding: 4rem 2rem;
+    padding: 2rem 2rem;
   }
 }
 
@@ -383,12 +383,12 @@
 /* Benefits Section */
 .benefits-section {
   background: linear-gradient(to bottom, #f9fafb, #ffffff);
-  padding: 3rem 1rem;
+  padding: 1.5rem 1rem;
 }
 
 @media (min-width: 768px) {
   .benefits-section {
-    padding: 4rem 2rem;
+    padding: 2rem 2rem;
   }
 }
 
