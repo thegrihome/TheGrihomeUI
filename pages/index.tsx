@@ -337,12 +337,12 @@ export default function Home() {
                   <div className="benefit-icon">🏠</div>
                   <h3 className="benefit-title">For Buyers</h3>
                 </div>
-                <p className="benefit-description">
-                  Discover your dream home from thousands of verified listings across India. Browse
-                  properties without paywalls, compare prices transparently, and connect directly
-                  with sellers and agents. Use our community forum to get real insights from other
-                  buyers and local experts before making your decision.
-                </p>
+                <ul className="benefit-description" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
+                  <li>Discover your dream home from thousands of verified listings across India</li>
+                  <li>Browse properties without paywalls and compare prices transparently</li>
+                  <li>Connect directly with sellers and agents</li>
+                  <li>Use our community forum to get real insights from other buyers and local experts</li>
+                </ul>
               </div>
             </div>
 
@@ -353,12 +353,12 @@ export default function Home() {
                   <div className="benefit-icon">💼</div>
                   <h3 className="benefit-title">For Sellers</h3>
                 </div>
-                <p className="benefit-description">
-                  List your property for free and reach thousands of potential buyers instantly.
-                  Create detailed listings with photos, virtual tours, and comprehensive property
-                  information. Get genuine inquiries from verified users and maintain full control
-                  over your listing with real-time updates and easy management tools.
-                </p>
+                <ul className="benefit-description" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
+                  <li>List your property for free and reach thousands of potential buyers instantly</li>
+                  <li>Create detailed listings with photos, virtual tours, and comprehensive property information</li>
+                  <li>Get genuine inquiries from verified users</li>
+                  <li>Maintain full control over your listing with real-time updates and easy management tools</li>
+                </ul>
               </div>
             </div>
 
@@ -369,83 +369,43 @@ export default function Home() {
                   <div className="benefit-icon">🤝</div>
                   <h3 className="benefit-title">For Agents</h3>
                 </div>
-                <p className="benefit-description">
-                  Grow your real estate business with our comprehensive agent platform. Manage
-                  multiple listings efficiently, showcase your portfolio to potential clients, and
-                  build your professional reputation through client reviews. Connect with serious
-                  buyers and sellers while accessing powerful tools to streamline your workflow.
-                </p>
-              </div>
-            </div>
-
-            <div className="benefit-item">
-              <div className="benefit-divider benefit-divider-orange"></div>
-              <div className="benefit-content">
-                <div className="benefit-header">
-                  <div className="benefit-icon">🏗️</div>
-                  <h3 className="benefit-title">For Builders</h3>
-                </div>
-                <p className="benefit-description">
-                  Showcase your residential and commercial projects to qualified buyers across
-                  India. Feature detailed floor plans, amenities, virtual walkthroughs, and project
-                  timelines to attract the right customers. Partner with verified agents and
-                  leverage our platform to maximize your project visibility and sales.
-                </p>
+                <ul className="benefit-description" style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
+                  <li>Grow your real estate business with our comprehensive agent platform</li>
+                  <li>Manage multiple listings efficiently and showcase your portfolio to potential clients</li>
+                  <li>Build your professional reputation through client reviews</li>
+                  <li>Connect with serious buyers and sellers while accessing powerful tools to streamline your workflow</li>
+                  <li>Showcase residential and commercial projects to qualified buyers across India</li>
+                  <li>Feature detailed floor plans, amenities, virtual walkthroughs, and project timelines</li>
+                  <li>Partner with builders and leverage our platform to maximize project visibility and sales</li>
+                </ul>
               </div>
             </div>
           </div>
 
-          {/* Showcase Grid - 2 tiles side by side */}
-          <div className="showcase-grid">
-            {/* Agents Showcase */}
-            <div className="showcase-section">
-              <h2 className="showcase-title">Connect with Top Agents</h2>
-              <p className="showcase-subtitle">
-                Work with experienced real estate professionals who understand the market
-              </p>
-              <Link href="/agents" className="showcase-link">
-                <button className="showcase-button-compact">
-                  Browse All Agents
-                  <svg
-                    className="showcase-arrow"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </Link>
-            </div>
-
-            {/* Builders Showcase */}
-            <div className="showcase-section">
-              <h2 className="showcase-title">Find Top Builders</h2>
-              <p className="showcase-subtitle">Discover trusted builders across India</p>
-              <Link href="/builders" className="showcase-link">
-                <button className="showcase-button-compact">
-                  Discover Builders
-                  <svg
-                    className="showcase-arrow"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </Link>
-            </div>
+          {/* Agents Showcase */}
+          <div className="showcase-section" style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <h2 className="showcase-title">Connect with Top Agents</h2>
+            <p className="showcase-subtitle">
+              Work with experienced real estate professionals who understand the market
+            </p>
+            <Link href="/agents" className="showcase-link">
+              <button className="showcase-button-compact">
+                Browse All Agents
+                <svg
+                  className="showcase-arrow"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </Link>
           </div>
         </div>
       </section>
