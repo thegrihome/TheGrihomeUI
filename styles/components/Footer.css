@@ -4,7 +4,7 @@
   color: #000000;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: saturate(180%) blur(20px);
-  border-top: 1px solid #8B5CF6;
+  border-top: 1px solid rgba(139, 92, 246, 0.15);
 }
 
 @media (min-width: 1024px) {

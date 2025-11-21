@@ -3,7 +3,7 @@
 /* Header Container */
 .header {
   width: 100%;
-  border-bottom: 1px solid #8B5CF6;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.15);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -73,7 +73,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1.1em;
   font-size: 1.5rem;
   font-weight: 500;
   color: #000000;
@@ -108,6 +107,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  vertical-align: middle;
+  line-height: 0;
 }
 
 .header-logo-text {
