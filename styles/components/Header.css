@@ -657,8 +657,8 @@
 .signin-button {
   transition: all 0.3s ease;
   margin-right: 0.5rem;
-  color: #1E40AF;
-  border: 2px solid #1E40AF;
+  color: #3B82F6;
+  border: 2px solid #3B82F6;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
   font-size: 0.875rem;
@@ -674,8 +674,8 @@
 }
 
 .signin-button:hover {
-  background-color: rgba(30, 64, 175, 0.1);
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+  background-color: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -698,11 +698,11 @@
 .signup-button {
   padding: 0.5rem 1rem;
   transition: all 0.3s ease;
-  background: #1E40AF;
+  background: #3B82F6;
   color: white;
   border-radius: 9999px;
   font-size: 0.875rem;
-  border: 2px solid #1E40AF;
+  border: 2px solid #3B82F6;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -715,7 +715,7 @@
 
 .signup-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -928,8 +928,8 @@
 .mobile-signin-button {
   width: 100%;
   padding: 0.625rem 1rem;
-  color: #1E40AF;
-  border: 2px solid #1E40AF;
+  color: #3B82F6;
+  border: 2px solid #3B82F6;
   border-radius: 9999px;
   background: transparent;
   cursor: pointer;
@@ -938,16 +938,16 @@
 }
 
 .mobile-signin-button:hover {
-  background-color: rgba(30, 64, 175, 0.1);
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
 .mobile-signup-button {
   width: 100%;
   padding: 0.625rem 1rem;
   color: white;
-  background: #1E40AF;
+  background: #3B82F6;
   border-radius: 9999px;
-  border: 2px solid #1E40AF;
+  border: 2px solid #3B82F6;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
@@ -955,5 +955,5 @@
 
 .mobile-signup-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
