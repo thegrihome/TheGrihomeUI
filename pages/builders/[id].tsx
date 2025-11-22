@@ -102,7 +102,7 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
           <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col lg:flex-row lg:items-stretch gap-2 lg:gap-0">
               {/* Left Side - Logo, Name, Description */}
-              <div className="flex items-start gap-4 lg:w-1/2">
+              <div className="flex items-start gap-4 lg:w-1/2 lg:pr-6">
                 {builder.logoUrl && (
                   <div className="builder-logo-container flex-shrink-0">
                     <Image
@@ -114,12 +114,12 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                     />
                   </div>
                 )}
-                <div className="builder-info">
+                <div className="builder-info flex-1">
                   <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
                     {builder.name}
                   </h1>
                   {builder.description && (
-                    <p className="text-sm text-gray-600 max-w-xl leading-relaxed">
+                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
                       {builder.description}
                     </p>
                   )}
