@@ -1,0 +1,77 @@
+/* Properties Page Styles */
+
+.properties-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.properties-main-content {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .properties-main-content {
+    padding: 2rem 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .properties-main-content {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .properties-main-content {
+    padding: 2rem 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .properties-main-content {
+    padding: 2rem 2.5rem;
+  }
+}
+
+/* Property Cards Grid */
+.properties-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .properties-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .properties-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .properties-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .properties-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Ensure property cards don't get too wide */
+.properties-grid > * {
+  max-width: 100%;
+  width: 100%;
+}

@@ -449,7 +449,7 @@ export default function PropertiesPage() {
       <Header />
 
       <main className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-full overflow-x-hidden">
+        <div className="properties-main-content">
           <div className="mb-6">
             <h1 className="text-2xl font-bold">
               <span className="text-gray-800">Browse</span>{' '}
@@ -790,7 +790,7 @@ export default function PropertiesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+            <div className="properties-grid">
               {filteredProperties.map(property => {
                 const isOwner = session?.user?.email === property.userEmail
                 const isFavorited = favoriteIds.has(property.id)

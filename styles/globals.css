@@ -13,6 +13,7 @@
 @import './pages/auth/signup.css';
 @import './pages/auth/userinfo.css';
 @import './pages/contactUs/contact.css';
+@import './pages/properties/index.css';
 @import './pages/properties/detail.css';
 @import './pages/properties/add-property.css';
 @import './pages/projects/add-project-request.css';
