@@ -73,7 +73,7 @@
 }
 
 .my-properties-empty-title-highlight {
-  background: linear-gradient(to right, #FF1493, #8B5CF6, #00D4FF);
+  background: linear-gradient(to right, #ff1493, #8b5cf6, #00d4ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

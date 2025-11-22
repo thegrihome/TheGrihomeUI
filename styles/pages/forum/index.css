@@ -22,7 +22,7 @@
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent !important;
-  background-image: linear-gradient(to right, #8B5CF6, #3B82F6, #1E40AF);
+  background-image: linear-gradient(to right, #8b5cf6, #3b82f6, #1e40af);
   display: inline;
 }
 

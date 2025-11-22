@@ -120,7 +120,7 @@
   color: transparent;
   background-clip: text;
   -webkit-background-clip: text;
-  background-image: linear-gradient(to right, #8B5CF6, #3B82F6, #1E40AF);
+  background-image: linear-gradient(to right, #8b5cf6, #3b82f6, #1e40af);
 }
 
 /* Mobile logo text - bigger with gradient */
@@ -189,7 +189,7 @@
   color: transparent;
   background-clip: text;
   -webkit-background-clip: text;
-  background-image: linear-gradient(to right, #8B5CF6, #3B82F6, #1E40AF);
+  background-image: linear-gradient(to right, #8b5cf6, #3b82f6, #1e40af);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -243,7 +243,7 @@
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.5;
-  background: linear-gradient(to right, #8B5CF6, #3B82F6, #1E40AF);
+  background: linear-gradient(to right, #8b5cf6, #3b82f6, #1e40af);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -455,7 +455,7 @@
 }
 
 .desktop-nav-link {
-  color: #8B5CF6;
+  color: #8b5cf6;
   transition: all 0.3s ease;
   text-decoration: none;
   position: relative;
@@ -469,23 +469,23 @@
 }
 
 .desktop-nav-link:nth-child(1) {
-  color: #8B5CF6;
+  color: #8b5cf6;
 }
 
 .desktop-nav-link:nth-child(2) {
-  color: #7C3AED;
+  color: #7c3aed;
 }
 
 .desktop-nav-link:nth-child(3) {
-  color: #3B82F6;
+  color: #3b82f6;
 }
 
 .desktop-nav-link:nth-child(4) {
-  color: #2563EB;
+  color: #2563eb;
 }
 
 .desktop-nav-link:nth-child(5) {
-  color: #1E40AF;
+  color: #1e40af;
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -514,7 +514,7 @@
   right: 0;
   bottom: 0;
   height: 2px;
-  background: linear-gradient(to right, #8B5CF6, #1E40AF);
+  background: linear-gradient(to right, #8b5cf6, #1e40af);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
@@ -657,8 +657,8 @@
 .signin-button {
   transition: all 0.3s ease;
   margin-right: 0.5rem;
-  color: #3B82F6;
-  border: 2px solid #3B82F6;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
   font-size: 0.875rem;
@@ -698,11 +698,11 @@
 .signup-button {
   padding: 0.5rem 1rem;
   transition: all 0.3s ease;
-  background: #3B82F6;
+  background: #3b82f6;
   color: white;
   border-radius: 9999px;
   font-size: 0.875rem;
-  border: 2px solid #3B82F6;
+  border: 2px solid #3b82f6;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -799,7 +799,7 @@
   color: transparent;
   background-clip: text;
   -webkit-background-clip: text;
-  background-image: linear-gradient(to right, #8B5CF6, #3B82F6, #1E40AF);
+  background-image: linear-gradient(to right, #8b5cf6, #3b82f6, #1e40af);
   text-decoration: none;
 }
 
@@ -818,7 +818,7 @@
 }
 
 .mobile-nav-link {
-  color: #8B5CF6;
+  color: #8b5cf6;
   transition: all 0.3s ease;
   padding: 0.5rem 0;
   font-size: 1.125rem;
@@ -827,23 +827,23 @@
 }
 
 .mobile-nav-link:nth-child(1) {
-  color: #8B5CF6;
+  color: #8b5cf6;
 }
 
 .mobile-nav-link:nth-child(2) {
-  color: #7C3AED;
+  color: #7c3aed;
 }
 
 .mobile-nav-link:nth-child(3) {
-  color: #3B82F6;
+  color: #3b82f6;
 }
 
 .mobile-nav-link:nth-child(4) {
-  color: #2563EB;
+  color: #2563eb;
 }
 
 .mobile-nav-link:nth-child(5) {
-  color: #1E40AF;
+  color: #1e40af;
 }
 
 .mobile-nav-link:hover {
@@ -928,8 +928,8 @@
 .mobile-signin-button {
   width: 100%;
   padding: 0.625rem 1rem;
-  color: #3B82F6;
-  border: 2px solid #3B82F6;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
   border-radius: 9999px;
   background: transparent;
   cursor: pointer;
@@ -945,9 +945,9 @@
   width: 100%;
   padding: 0.625rem 1rem;
   color: white;
-  background: #3B82F6;
+  background: #3b82f6;
   border-radius: 9999px;
-  border: 2px solid #3B82F6;
+  border: 2px solid #3b82f6;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
