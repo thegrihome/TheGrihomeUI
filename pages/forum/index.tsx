@@ -236,7 +236,6 @@ export const getStaticProps: GetStaticProps = async () => {
       revalidate: 300, // Revalidate every 5 minutes
     }
   } catch (error) {
-    console.error('Database connection error during build:', error)
     // Return empty categories if database is not available
     return {
       props: {
