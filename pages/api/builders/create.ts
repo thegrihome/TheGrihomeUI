@@ -24,11 +24,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Unauthorized' })
     }
 
-    const { name, description, website, address, logoBase64 } = req.body
+    const { name, description, website, address, emails, phones, logoBase64 } = req.body
 
     if (!name || !name.trim()) {
       return res.status(400).json({ message: 'Builder name is required' })
     }
+
+    // Parse comma-separated emails and phones
+    const emailsArray =
+      emails
+        ?.split(',')
+        .map((email: string) => email.trim())
+        .filter((email: string) => email.length > 0) || []
+
+    const phonesArray =
+      phones
+        ?.split(',')
+        .map((phone: string) => phone.trim())
+        .filter((phone: string) => phone.length > 0) || []
 
     // Check if builder already exists
     const existingBuilder = await prisma.builder.findFirst({
@@ -72,6 +85,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    // Create builderDetails object
+    const builderDetails: any = {}
+    if (address?.trim()) {
+      builderDetails.address = address.trim()
+    }
+    if (emailsArray.length > 0) {
+      builderDetails.emails = emailsArray
+    }
+    if (phonesArray.length > 0) {
+      builderDetails.phones = phonesArray
+    }
+
     // Create builder
     const builder = await prisma.builder.create({
       data: {
@@ -79,10 +104,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         description: description?.trim() || null,
         website: website?.trim() || null,
         logoUrl,
-        ...(address?.trim() && {
-          builderDetails: {
-            address: address.trim(),
-          },
+        ...(Object.keys(builderDetails).length > 0 && {
+          builderDetails,
         }),
       },
     })
