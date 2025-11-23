@@ -403,7 +403,7 @@ export default function MyPropertiesPage() {
 
                   <div className={styles['property-card-content']}>
                     {/* Title with price and line below */}
-                    <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-gray-200">
+                    <div className="flex items-center justify-between gap-1.5 mb-1.5 pb-1.5 border-b border-gray-200">
                       <h3 className="text-sm font-semibold text-gray-900 truncate">
                         {property.project}
                       </h3>
@@ -415,22 +415,22 @@ export default function MyPropertiesPage() {
                     </div>
 
                     {/* Two columns below title */}
-                    <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-start justify-between gap-1.5 mb-1.5">
                       {/* Left: Details and Posted on */}
                       <div className="flex-1">
-                        <p className="text-[10px] text-gray-700 leading-tight">
+                        <p className="text-xs text-gray-800 font-bold leading-snug mb-1">
                           {property.bedrooms && `${property.bedrooms} BHK`}
                           {property.bathrooms && ` • ${property.bathrooms} Bath`}
                           {property.sqFt && ` • ${property.sqFt} sq ft`}
                         </p>
-                        <p className="text-[10px] text-gray-500 leading-tight whitespace-nowrap">
+                        <p className="text-xs text-gray-600 font-bold leading-snug">
                           Posted on: {formatDate(property.createdAt)}
                         </p>
                       </div>
 
                       {/* Right: Location */}
                       <div className="text-right">
-                        <p className="text-[10px] text-gray-600 leading-tight whitespace-nowrap">
+                        <p className="text-xs text-gray-700 font-bold leading-snug">
                           {property.location.city}, {property.location.state}
                         </p>
                       </div>

@@ -234,6 +234,7 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
                 </h1>
                 <div className="forum-stats-summary">
                   <span className="forum-stat">{totalPosts} discussions</span>
+                  <span className="forum-stat-separator">•</span>
                   <span className="forum-stat">{propertyTypes.length} property categories</span>
                 </div>
               </div>

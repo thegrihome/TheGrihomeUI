@@ -121,7 +121,8 @@ model Project {
   id                     String            @id @default(cuid())
   locationId             String
   description            String
-  type                   ProjectType
+  type                   ProjectType       @default(RESIDENTIAL)
+  propertyType           String?
   numberOfUnits          Int?
   size                   Float?
   density                Float?

@@ -153,7 +153,7 @@ const Header: NextPage = () => {
               <GrihomeLogo size={40} className="header-logo-image" />
               <span className="header-logo-text">GRIHOME</span>
             </Link>
-            <div className="desktop-nav-links flex items-center">
+            <div className="desktop-nav-links">
               <Link href="/properties?type=buy" className="desktop-nav-link">
                 Buy
               </Link>
@@ -187,7 +187,7 @@ const Header: NextPage = () => {
               )}
             </div>
 
-            <div className="auth-section flex items-center">
+            <div className="auth-section">
               {status === 'loading' ? (
                 <div className="flex items-center gap-2 px-4">
                   <LoadingSpinner size="md" />
@@ -197,7 +197,7 @@ const Header: NextPage = () => {
                   <div className="user-menu" ref={userMenuRef}>
                     <button
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
-                      className="user-menu-button flex items-center"
+                      className="user-menu-button"
                     >
                       <span className="font-medium hidden md:block">
                         Welcome {user.name || user.email?.split('@')[0]}

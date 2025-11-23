@@ -18,15 +18,18 @@ export default function SubmitProject() {
   // Form state
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [type, setType] = useState('RESIDENTIAL')
+  const [propertyType, setPropertyType] = useState('')
   const [builderId, setBuilderId] = useState<string | null>(null)
-  const [builderWebsiteLink, setBuilderWebsiteLink] = useState('')
   const [brochureUrl, setBrochureUrl] = useState('')
   const [brochurePdf, setBrochurePdf] = useState<string | null>(null)
   const [locationAddress, setLocationAddress] = useState('')
   const [highlights, setHighlights] = useState<string[]>([])
   const [amenities, setAmenities] = useState<string[]>([])
   const [walkthroughVideoUrl, setWalkthroughVideoUrl] = useState('')
+  const [walkthroughVideo, setWalkthroughVideo] = useState<string | null>(null)
+
+  // Dropdown state
+  const [showPropertyTypeDropdown, setShowPropertyTypeDropdown] = useState(false)
 
   // Image state
   const [bannerImage, setBannerImage] = useState<string[]>([])
@@ -37,6 +40,34 @@ export default function SubmitProject() {
   // Google Maps autocomplete refs
   const locationInputRef = useRef<HTMLInputElement>(null)
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
+
+  // Property type options - using standardized types
+  const propertyTypeOptions = [
+    { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
+    { value: 'CONDO', label: 'Apartments', icon: '🏢' },
+    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
+    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
+    { value: 'COMMERCIAL', label: 'Commercial', icon: '🏬' },
+  ]
+
+  // Handle click outside dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+
+      if (!target.closest('.property-type-dropdown')) {
+        setShowPropertyTypeDropdown(false)
+      }
+    }
+
+    if (showPropertyTypeDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showPropertyTypeDropdown])
 
   // Initialize Google Maps Autocomplete
   useEffect(() => {
@@ -122,6 +153,27 @@ export default function SubmitProject() {
     reader.readAsDataURL(file)
   }
 
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('video/')) {
+      toast.error('Please upload a video file')
+      return
+    }
+
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error('Video file size must not exceed 100MB')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setWalkthroughVideo(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -154,9 +206,8 @@ export default function SubmitProject() {
         body: JSON.stringify({
           name: name.trim(),
           description: description.trim(),
-          type,
+          propertyType: propertyType || null,
           builderId,
-          builderWebsiteLink: builderWebsiteLink.trim() || null,
           brochureUrl: brochureUrl.trim() || null,
           brochurePdfBase64: brochurePdf || null,
           locationAddress: locationAddress.trim(),
@@ -167,6 +218,7 @@ export default function SubmitProject() {
           clubhouseImagesBase64: clubhouseImages,
           galleryImagesBase64: galleryImages,
           walkthroughVideoUrl: walkthroughVideoUrl.trim() || null,
+          walkthroughVideoBase64: walkthroughVideo || null,
         }),
       })
 
@@ -236,19 +288,67 @@ export default function SubmitProject() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Project Type</label>
-                <select
-                  value={type}
-                  onChange={e => setType(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="RESIDENTIAL">Residential</option>
-                  <option value="COMMERCIAL">Commercial</option>
-                  <option value="MIXED_USE">Mixed Use</option>
-                </select>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Property Type
+                </label>
+                <div className="relative property-type-dropdown">
+                  <button
+                    type="button"
+                    onClick={() => setShowPropertyTypeDropdown(!showPropertyTypeDropdown)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-left"
+                  >
+                    {propertyType
+                      ? `${propertyTypeOptions.find(t => t.value === propertyType)?.icon} ${propertyTypeOptions.find(t => t.value === propertyType)?.label}`
+                      : 'Select Property Type'}
+                  </button>
+                  <svg
+                    className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  {showPropertyTypeDropdown && (
+                    <div className="absolute z-10 w-full top-full mt-0 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      <div
+                        className="px-4 py-3 hover:bg-blue-50 cursor-pointer text-gray-500"
+                        onClick={() => {
+                          setPropertyType('')
+                          setShowPropertyTypeDropdown(false)
+                        }}
+                      >
+                        Select Property Type
+                      </div>
+                      {propertyTypeOptions.map(option => (
+                        <div
+                          key={option.value}
+                          className="px-4 py-3 hover:bg-blue-50 cursor-pointer flex items-center gap-2"
+                          onClick={() => {
+                            setPropertyType(option.value)
+                            setShowPropertyTypeDropdown(false)
+                          }}
+                        >
+                          <span>{option.icon}</span>
+                          <span>{option.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <BuilderSelector value={builderId} onChange={setBuilderId} className="w-full" />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Builder <span className="text-red-500">*</span>
+                </label>
+                <BuilderSelector value={builderId} onChange={setBuilderId} className="w-full" />
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -269,24 +369,11 @@ export default function SubmitProject() {
               </div>
             </div>
 
-            {/* Builder Information */}
+            {/* Brochure */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-                Builder Information
+                Project Brochure
               </h2>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Builder Website Link
-                </label>
-                <input
-                  type="url"
-                  value={builderWebsiteLink}
-                  onChange={e => setBuilderWebsiteLink(e.target.value)}
-                  placeholder="https://example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -373,15 +460,68 @@ export default function SubmitProject() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Walkthrough Video URL (YouTube)
+                  Walkthrough Video (YouTube Link or Upload)
                 </label>
                 <input
                   type="url"
                   value={walkthroughVideoUrl}
                   onChange={e => setWalkthroughVideoUrl(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+                  disabled={!!walkthroughVideo}
                 />
+                <div className="text-center text-gray-500 text-sm my-2">OR</div>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <label className="cursor-pointer block text-center">
+                    {walkthroughVideo ? (
+                      <div className="space-y-2">
+                        <div className="text-green-600">✓ Video Uploaded</div>
+                        <button
+                          type="button"
+                          onClick={() => setWalkthroughVideo(null)}
+                          className="text-sm text-red-600 hover:underline"
+                        >
+                          Remove Video
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <div className="text-sm text-gray-600 mt-2">
+                          <span className="text-blue-600 hover:text-blue-700 font-medium">
+                            Upload Video
+                          </span>{' '}
+                          or drag and drop
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Video up to 100MB (MP4, MOV, AVI)
+                        </p>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={handleVideoUpload}
+                      className="hidden"
+                      disabled={!!walkthroughVideoUrl.trim()}
+                    />
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Provide either a YouTube link or upload a video file
+                </p>
               </div>
             </div>
 

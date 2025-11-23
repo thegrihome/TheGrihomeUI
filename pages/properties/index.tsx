@@ -460,7 +460,7 @@ export default function PropertiesPage() {
           </div>
 
           {/* Filters Section */}
-          <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6 overflow-x-hidden">
+          <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {/* Buy/Rent/All Slider Toggle */}
               <div className="relative inline-flex items-center bg-white border border-gray-300 rounded-full p-0.5 w-full xs:w-[160px] sm:w-[180px] flex-shrink-0">
@@ -509,7 +509,7 @@ export default function PropertiesPage() {
               <div className="relative property-type-dropdown w-full xs:w-auto flex-shrink-0">
                 <button
                   onClick={() => setShowPropertyTypeDropdown(!showPropertyTypeDropdown)}
-                  className="w-full xs:w-auto px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 xs:min-w-[140px] sm:min-w-[160px] text-left"
+                  className="w-full xs:w-auto px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 xs:min-w-[160px] sm:min-w-[180px] text-left"
                 >
                   {filters.propertyType
                     ? `${propertyTypes.find(t => t.value === filters.propertyType)?.icon} ${propertyTypes.find(t => t.value === filters.propertyType)?.label}`

@@ -90,7 +90,7 @@ export default function PropertyCard({
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
       {/* Image */}
-      <div className="relative w-full h-32">
+      <div className="relative w-full h-36">
         <Image
           src={
             property.thumbnailUrl ||
@@ -143,26 +143,26 @@ export default function PropertyCard({
       </div>
 
       {/* Content */}
-      <div className="p-2">
-        <div className="flex items-start justify-between gap-1 mb-1">
-          <h3 className="font-semibold text-xs text-gray-900 truncate flex-1">
-            {getProjectName()}
-          </h3>
+      <div className="p-3">
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <h3 className="font-semibold text-sm text-gray-900 flex-1 min-w-0">{getProjectName()}</h3>
           {formattedPrice && (
-            <span className="font-bold text-sm text-blue-600 whitespace-nowrap">
+            <span className="font-bold text-sm text-blue-600 whitespace-nowrap flex-shrink-0">
               ₹{formattedPrice}
             </span>
           )}
         </div>
 
-        <div className="flex items-start justify-between gap-1 mb-0.5">
+        <div className="border-t border-gray-200 mb-2"></div>
+
+        <div className="flex items-start justify-between gap-1 mb-1">
           <div className="flex-1">
-            <p className="text-gray-600 text-[10px] truncate">
+            <p className="text-gray-700 text-xs font-semibold truncate">
               {property.bedrooms && `${property.bedrooms} BHK`}
               {property.bathrooms && ` • ${property.bathrooms} Bath`}
               {property.sqFt && ` • ${property.sqFt} sq ft`}
             </p>
-            <p className="text-gray-400 text-[9px]">
+            <p className="text-gray-500 text-[10px] font-semibold">
               Posted:{' '}
               {new Date(property.createdAt).toLocaleDateString('en-US', {
                 month: 'short',
@@ -177,17 +177,15 @@ export default function PropertyCard({
               })}
             </p>
           </div>
-          <p className="text-gray-500 text-[10px] whitespace-nowrap text-right">
+          <p className="text-gray-500 text-[10px] font-semibold whitespace-nowrap text-right">
             {property.location.city}
           </p>
         </div>
 
-        <div
-          className={`flex items-end gap-1 ${isOwner && property.listingStatus === 'ACTIVE' ? 'justify-between' : 'justify-end'}`}
-        >
+        <div className="flex items-center gap-2 justify-end">
           <button
             onClick={() => router.push(`/properties/${property.id}`)}
-            className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
+            className="bg-blue-600 text-white px-2.5 py-1 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
           >
             View Details
           </button>
@@ -196,7 +194,7 @@ export default function PropertyCard({
             <button
               onClick={() => onMarkAsSold(property.id)}
               disabled={processing}
-              className="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="bg-red-600 text-white px-2.5 py-1 rounded text-[10px] font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               Sold
             </button>

@@ -8,7 +8,7 @@ import { uploadProjectImage, uploadMultipleProjectImages } from '@/lib/utils/ver
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '50mb',
+      sizeLimit: '150mb', // Increased for video uploads
     },
   },
 }
@@ -28,9 +28,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const {
       name,
       description,
-      type,
+      propertyType,
       builderId,
-      builderWebsiteLink,
       brochureUrl,
       brochurePdfBase64,
       locationAddress,
@@ -41,6 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       clubhouseImagesBase64,
       galleryImagesBase64,
       walkthroughVideoUrl,
+      walkthroughVideoBase64,
     } = req.body
 
     // Validate required fields
@@ -95,12 +95,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Could not geocode the provided address' })
     }
 
-    // Upload images and PDF to Vercel Blob
+    // Upload images, PDF, and video to Vercel Blob
     let bannerUrl: string | null = null
     let floorplanUrls: string[] = []
     let clubhouseUrls: string[] = []
     let galleryUrls: string[] = []
     let brochurePdfUrl: string | null = null
+    let videoUrl: string | null = null
 
     try {
       // Upload banner image
@@ -131,6 +132,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         brochurePdfUrl = blob.url
       }
 
+      // Upload walkthrough video
+      if (walkthroughVideoBase64) {
+        const { put } = await import('@vercel/blob')
+        const base64Data = walkthroughVideoBase64.split(',')[1]
+        const buffer = Buffer.from(base64Data, 'base64')
+        const normalizedProjectName = name
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+        const filename = `hyderabad-projects/${normalizedProjectName}/walkthrough-video.mp4`
+
+        const blob = await put(filename, buffer, {
+          access: 'public',
+          contentType: 'video/mp4',
+        })
+
+        videoUrl = blob.url
+      }
+
       // Upload floorplan images (max 20)
       if (floorplanImagesBase64 && Array.isArray(floorplanImagesBase64)) {
         const floorplanImages = floorplanImagesBase64.slice(0, 20)
@@ -150,8 +170,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     } catch (uploadError) {
       // eslint-disable-next-line no-console
-      console.error('Image/PDF upload error:', uploadError)
-      return res.status(500).json({ message: 'Failed to upload images or PDF' })
+      console.error('Upload error:', uploadError)
+      return res.status(500).json({ message: 'Failed to upload files' })
     }
 
     // Create project
@@ -159,11 +179,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       data: {
         name,
         description,
-        type: type || 'RESIDENTIAL',
+        propertyType: propertyType || null,
         builderId,
         locationId: locationRecord.id,
         postedByUserId: session.user.id,
-        builderWebsiteLink: builderWebsiteLink || null,
         brochureUrl: brochurePdfUrl || brochureUrl || null,
         bannerImageUrl: bannerUrl,
         highlights: highlights || null,
@@ -173,7 +192,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         galleryImageUrls: galleryUrls,
         imageUrls: [...floorplanUrls, ...clubhouseUrls, ...galleryUrls],
         thumbnailUrl: bannerUrl || galleryUrls[0] || null,
-        walkthroughVideoUrl: walkthroughVideoUrl || null,
+        walkthroughVideoUrl: videoUrl || walkthroughVideoUrl || null,
         isArchived: false,
       },
       include: {

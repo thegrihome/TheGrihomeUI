@@ -11,6 +11,7 @@ interface Project {
   name: string
   description: string
   type: string
+  propertyType: string | null
   numberOfUnits: number | null
   size: number | null
   thumbnailUrl: string | null
@@ -368,9 +369,16 @@ export default function ProjectsPage() {
 
                       {/* Type Column */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {project.type}
-                        </span>
+                        <div className="flex flex-col gap-1.5">
+                          <span className="inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 w-fit">
+                            {project.type}
+                          </span>
+                          {project.propertyType && (
+                            <span className="inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800 w-fit">
+                              {project.propertyType}
+                            </span>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

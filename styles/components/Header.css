@@ -70,8 +70,8 @@
 
 /* Logo */
 .header-logo {
-  display: flex;
-  align-items: center;
+  display: inline-flex;
+  align-items: flex-end;
   gap: 0.5rem;
   font-size: 1.5rem;
   font-weight: 500;
@@ -103,20 +103,19 @@
 
 .header-logo-image {
   margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-bottom: 0.25rem;
+  display: block;
   flex-shrink: 0;
-  vertical-align: middle;
   line-height: 0;
+  height: 28px;
+  width: auto;
 }
 
 .header-logo-text {
   font-size: 1.5rem;
   font-weight: 500;
-  line-height: 1;
-  display: flex;
-  align-items: center;
+  line-height: 1.5;
+  display: inline-block;
   color: transparent;
   background-clip: text;
   -webkit-background-clip: text;
@@ -459,11 +458,11 @@
   transition: all 0.3s ease;
   text-decoration: none;
   position: relative;
-  padding-bottom: 0.25rem;
+  padding-bottom: 0;
   font-size: 0.9375rem;
   font-weight: 500;
-  display: inline-flex;
-  align-items: center;
+  line-height: 1.5;
+  display: inline-block;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -551,7 +550,12 @@
   border: none;
   cursor: pointer;
   transition: color 0.3s ease;
-  padding: 0.25rem;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.user-menu-button span {
+  line-height: 1.5;
 }
 
 .user-menu-button:hover {

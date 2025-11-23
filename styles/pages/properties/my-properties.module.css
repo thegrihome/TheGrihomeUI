@@ -128,6 +128,14 @@
 @media (min-width: 1280px) {
   .my-properties-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .my-properties-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
   }
 }
 
@@ -147,7 +155,7 @@
 
 .property-card-image {
   position: relative;
-  height: 10rem;
+  height: 9rem;
 }
 
 .property-card-badge {
@@ -190,7 +198,7 @@
 }
 
 .property-card-content {
-  padding: 0.5rem;
+  padding: 0.625rem;
 }
 
 .property-card-title {
@@ -200,13 +208,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .property-card-details {
   color: #4b5563;
-  font-size: 0.625rem;
-  margin-bottom: 0;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
 }
 
 /* Sold Info */
@@ -248,12 +256,13 @@
   color: #1e40af;
   font-size: 0.625rem;
   font-weight: 500;
-  padding: 0.25rem 0.5rem;
+  padding: 0.375rem 0.5rem;
   border-radius: 0.25rem;
   cursor: pointer;
   transition: background-color 0.2s;
   white-space: nowrap;
-  flex-shrink: 0;
+  text-align: center;
+  width: 100%;
 }
 
 .property-interest-button:hover {
@@ -262,20 +271,22 @@
 
 /* Property Actions */
 .property-card-actions {
-  display: flex;
-  gap: 0.25rem;
-  flex-wrap: nowrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+  align-items: center;
 }
 
 .property-action-button {
-  padding: 0.25rem 0.5rem;
+  padding: 0.375rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.625rem;
   transition: background-color 0.2s;
   border: none;
   cursor: pointer;
   white-space: nowrap;
+  text-align: center;
+  width: 100%;
 }
 
 .property-action-button--sold {
@@ -315,9 +326,8 @@
 }
 
 .property-action-button--compact {
-  padding: 0.125rem 0.375rem;
+  padding: 0.375rem 0.5rem;
   font-size: 0.625rem;
-  align-self: flex-start;
 }
 
 /* Modal Overlay */

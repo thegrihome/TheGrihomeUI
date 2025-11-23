@@ -9,12 +9,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **ALWAYS** verify that existing functionality still works after making changes
 - **NEVER** delete code or files without understanding their dependencies
 - **ALWAYS** check if deleted/moved files are imported elsewhere
+- **ALWAYS** use css files to add css changes. Don't add inline styles to react or javascript code.
 - **NEVER** assume a file is unused without searching for all references
 - **NEVER** create tsx files with inline css styling
 - **ALWAYS** ensure that the dev and prod schemas are in sync with each other
 - **ALWAYS** create css code in styles and make sure it works across all screens like mobile, ipad, desktop and ultra wide monitor
 - **NEVER** waste tokens to run the build or start the dev server. Ask the user to do it.
-- Common regression areas: navigation links, API endpoints, component imports, route redirects
+- **NEVER** break the Header CSS alignment - all header items must use `align-items: center` for proper vertical alignment
+- **ALWAYS** use standardized property types: Villas (SINGLE_FAMILY), Apartments (CONDO), Residential Lands (LAND_RESIDENTIAL), Agriculture Lands (LAND_AGRICULTURE), Commercial (COMMERCIAL) - these must be consistent across all pages (forum, properties, projects)
+- **ALWAYS** use `top-full mt-0` for dropdown positioning to align flush with the parent button/input
+- Common regression areas: navigation links, API endpoints, component imports, route redirects, header alignment, property type consistency
 
 ### 2. File Organization - Use Appropriate Subfolders
 
