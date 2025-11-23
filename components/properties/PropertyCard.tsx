@@ -144,10 +144,10 @@ export default function PropertyCard({
 
       {/* Content */}
       <div className="p-3">
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <h3 className="font-semibold text-sm text-gray-900 flex-1 min-w-0">{getProjectName()}</h3>
+        <div className="flex items-start gap-2 mb-2">
+          <h3 className="font-semibold text-sm text-gray-900 break-words">{getProjectName()}</h3>
           {formattedPrice && (
-            <span className="font-bold text-sm text-blue-600 whitespace-nowrap flex-shrink-0">
+            <span className="font-bold text-sm text-blue-600 whitespace-nowrap ml-auto">
               ₹{formattedPrice}
             </span>
           )}

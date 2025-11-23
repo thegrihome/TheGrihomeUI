@@ -72,6 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         project: propertyData.project
           ? { id: propertyData.project.id, name: propertyData.project.name }
           : '',
+        title: detailsRaw?.title || '',
         propertyType: propertyData.propertyType,
         listingType: propertyData.listingType,
         sqFt: propertyData.sqFt,

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { NextSeo } from 'next-seo'
-import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import PropertyCard from '@/components/properties/PropertyCard'
 import toast from 'react-hot-toast'
 import styles from '@/styles/pages/properties/my-properties.module.css'
 import {
@@ -26,7 +26,8 @@ interface Property {
     fullAddress: string
   }
   builder: string
-  project: string
+  project: string | { id: string; name: string }
+  title?: string
   propertyType: string
   sqFt: number
   thumbnailUrl?: string
@@ -66,7 +67,15 @@ export default function MyPropertiesPage() {
   const [favorites, setFavorites] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'active' | 'archived' | 'favorites'>('active')
+
+  // Get tab from URL or default to 'active'
+  const getTabFromUrl = (): 'active' | 'archived' | 'favorites' => {
+    const tab = router.query.tab as string
+    if (tab === 'archived' || tab === 'favorites') return tab
+    return 'active'
+  }
+
+  const [activeTab, setActiveTab] = useState<'active' | 'archived' | 'favorites'>(getTabFromUrl())
   const [showInterestModal, setShowInterestModal] = useState<string | null>(null)
   const [showSoldModal, setShowSoldModal] = useState<string | null>(null)
   const [soldToName, setSoldToName] = useState('')
@@ -105,6 +114,14 @@ export default function MyPropertiesPage() {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Update tab when URL changes
+  useEffect(() => {
+    if (router.isReady) {
+      setActiveTab(getTabFromUrl())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query.tab, router.isReady])
 
   useEffect(() => {
     if (!mounted) return
@@ -165,6 +182,8 @@ export default function MyPropertiesPage() {
       }
 
       const data = await response.json()
+      // eslint-disable-next-line no-console
+      console.log('Favorites data:', data.favorites)
       setFavorites(data.favorites || [])
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -291,7 +310,7 @@ export default function MyPropertiesPage() {
       <Header />
 
       <main className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="properties-main-content">
           <div className={styles['my-properties-header']}>
             <h1 className={styles['my-properties-title']}>My Properties</h1>
             <p className={styles['my-properties-subtitle']}>
@@ -303,7 +322,12 @@ export default function MyPropertiesPage() {
           <div className={styles['my-properties-tabs']}>
             <div className={styles['my-properties-tabs-nav']}>
               <button
-                onClick={() => setActiveTab('active')}
+                onClick={() => {
+                  setActiveTab('active')
+                  router.push('/properties/my-properties?tab=active', undefined, {
+                    shallow: true,
+                  })
+                }}
                 className={`${styles['my-properties-tab']} ${
                   activeTab === 'active'
                     ? styles['my-properties-tab--active']
@@ -313,7 +337,12 @@ export default function MyPropertiesPage() {
                 Active Properties ({activeProperties.length})
               </button>
               <button
-                onClick={() => setActiveTab('archived')}
+                onClick={() => {
+                  setActiveTab('archived')
+                  router.push('/properties/my-properties?tab=archived', undefined, {
+                    shallow: true,
+                  })
+                }}
                 className={`${styles['my-properties-tab']} ${
                   activeTab === 'archived'
                     ? styles['my-properties-tab--active']
@@ -323,7 +352,12 @@ export default function MyPropertiesPage() {
                 Archived Properties ({archivedProperties.length})
               </button>
               <button
-                onClick={() => setActiveTab('favorites')}
+                onClick={() => {
+                  setActiveTab('favorites')
+                  router.push('/properties/my-properties?tab=favorites', undefined, {
+                    shallow: true,
+                  })
+                }}
                 className={`${styles['my-properties-tab']} ${
                   activeTab === 'favorites'
                     ? styles['my-properties-tab--active']
@@ -367,158 +401,29 @@ export default function MyPropertiesPage() {
               )}
             </div>
           ) : (
-            <div className={styles['my-properties-grid']}>
+            <div className="properties-grid">
               {currentProperties.map(property => (
-                <div key={property.id} className={styles['property-card']}>
-                  <div className={styles['property-card-image']}>
-                    <Image
-                      src={
-                        property.thumbnailUrl ||
-                        property.imageUrls[0] ||
-                        'https://via.placeholder.com/400x300?text=Property'
-                      }
-                      alt={`${property.project} - ${property.propertyType}`}
-                      width={400}
-                      height={192}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className={styles['property-card-badge']}>
-                      {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
-                      {propertyTypes.find(t => t.value === property.propertyType)?.label}
-                    </div>
-                    {property.listingStatus !== LISTING_STATUS.ACTIVE && (
-                      <div
-                        className={`${styles['property-card-status']} ${
-                          property.listingStatus === LISTING_STATUS.SOLD
-                            ? styles['property-card-status--sold']
-                            : property.listingStatus === LISTING_STATUS.PENDING
-                              ? styles['property-card-status--pending']
-                              : styles['property-card-status--archived']
-                        }`}
-                      >
-                        {property.listingStatus}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className={styles['property-card-content']}>
-                    {/* Title with price and line below */}
-                    <div className="flex items-center justify-between gap-2 mb-1.5 pb-1.5 border-b border-gray-200">
-                      <h3 className="text-sm font-semibold text-gray-900 flex-1 min-w-0">
-                        {property.project}
-                      </h3>
-                      {property.price && (
-                        <p className="text-sm font-semibold text-gray-900 whitespace-nowrap flex-shrink-0">
-                          ₹{property.price}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Two columns below title */}
-                    <div className="flex items-start justify-between gap-2 mb-1.5">
-                      {/* Left: Details and Posted on */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-gray-800 font-semibold leading-snug mb-1">
-                          {property.bedrooms && `${property.bedrooms} BHK`}
-                          {property.bathrooms && ` • ${property.bathrooms} Bath`}
-                          {property.sqFt && ` • ${property.sqFt} sq ft`}
-                        </p>
-                        <p className="text-xs text-gray-600 font-semibold leading-snug">
-                          Posted: {formatDate(property.createdAt)}
-                        </p>
-                      </div>
-
-                      {/* Right: Location */}
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-xs text-gray-700 font-semibold leading-snug whitespace-nowrap">
-                          {property.location.city}, {property.location.state}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div
-                      className={
-                        activeTab === 'favorites'
-                          ? 'flex justify-end'
-                          : styles['property-card-actions']
-                      }
-                    >
-                      {/* Favorites tab: Just View Details button on the right */}
-                      {activeTab === 'favorites' ? (
-                        <>
-                          <div></div>
-                          <div></div>
-                          <button
-                            onClick={() => router.push(`/properties/${property.id}`)}
-                            className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
-                          >
-                            View Details
-                          </button>
-                        </>
-                      ) : property.listingStatus === LISTING_STATUS.SOLD ? (
-                        /* Sold Property: Sold info on left, View Details on right */
-                        <>
-                          <div className={styles['property-sold-info-inline']}>
-                            <p className={styles['property-sold-info-text']}>
-                              Sold to: {property.soldTo || 'External Buyer'}
-                              {property.soldDate && ` on ${formatDate(property.soldDate)}`}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => router.push(`/properties/${property.id}`)}
-                            className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
-                          >
-                            View Details
-                          </button>
-                        </>
-                      ) : (
-                        /* Active/Archived properties */
-                        <>
-                          {/* Column 1: Interested buyers or empty */}
-                          {activeTab === 'active' && property.interests.length > 0 ? (
-                            <button
-                              onClick={() => setShowInterestModal(property.id)}
-                              className={styles['property-interest-button']}
-                            >
-                              {property.interests.length} buyer
-                              {property.interests.length !== 1 ? 's' : ''}
-                            </button>
-                          ) : (
-                            <div></div>
-                          )}
-
-                          {/* Column 2: Sold or Reactivate or empty */}
-                          {activeTab === 'active' ? (
-                            <button
-                              onClick={() => setShowSoldModal(property.id)}
-                              className={`${styles['property-action-button']} ${styles['property-action-button--sold']}`}
-                            >
-                              Sold
-                            </button>
-                          ) : activeTab === 'archived' &&
-                            property.listingStatus === LISTING_STATUS.ARCHIVED ? (
-                            <button
-                              onClick={() => handleReactivateProperty(property.id)}
-                              className={`${styles['property-action-button']} ${styles['property-action-button--reactivate']}`}
-                            >
-                              Reactivate
-                            </button>
-                          ) : (
-                            <div></div>
-                          )}
-
-                          {/* Column 3: View Details - always present */}
-                          <button
-                            onClick={() => router.push(`/properties/${property.id}`)}
-                            className={`${styles['property-action-button']} ${styles['property-action-button--view']}`}
-                          >
-                            View Details
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <PropertyCard
+                  key={property.id}
+                  property={{
+                    ...property,
+                    project:
+                      property.title ||
+                      (typeof property.project === 'string'
+                        ? property.project
+                        : property.project?.name) ||
+                      '',
+                    listingType: 'SALE',
+                    userId: user?.id || '',
+                    userEmail: user?.email || '',
+                  }}
+                  isOwner={true}
+                  currentUserId={user?.id || null}
+                  onMarkAsSold={
+                    activeTab === 'active' ? propertyId => setShowSoldModal(propertyId) : undefined
+                  }
+                  processing={false}
+                />
               ))}
             </div>
           )}
