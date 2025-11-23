@@ -182,23 +182,26 @@ export default function PropertyCard({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 justify-end">
-          <button
-            onClick={() => router.push(`/properties/${property.id}`)}
-            className="bg-blue-600 text-white px-2.5 py-1 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
-          >
-            View Details
-          </button>
+        <div className="grid grid-cols-3 gap-2">
+          <div></div>
           {/* Owner Actions - Mark as Sold */}
-          {isOwner && property.listingStatus === 'ACTIVE' && onMarkAsSold && (
+          {isOwner && property.listingStatus === 'ACTIVE' && onMarkAsSold ? (
             <button
               onClick={() => onMarkAsSold(property.id)}
               disabled={processing}
-              className="bg-red-600 text-white px-2.5 py-1 rounded text-[10px] font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="bg-red-600 text-white px-1 py-1.5 rounded text-[10px] font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap text-center w-full leading-tight"
             >
               Sold
             </button>
+          ) : (
+            <div></div>
           )}
+          <button
+            onClick={() => router.push(`/properties/${property.id}`)}
+            className="bg-blue-600 text-white px-1 py-1.5 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap text-center w-full leading-tight"
+          >
+            View Details
+          </button>
         </div>
       </div>
     </div>
