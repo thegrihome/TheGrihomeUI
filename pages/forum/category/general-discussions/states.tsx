@@ -30,7 +30,6 @@ interface StatesPageProps {
   totalPosts: number
 }
 
-
 export default function StatesPage({ states, totalPosts }: StatesPageProps) {
   return (
     <div className="forum-container">

@@ -977,6 +977,80 @@ describe('Add Property Page - Comprehensive Tests', () => {
     })
   })
 
+  describe('Walkthrough Video Links', () => {
+    it('should render video URL input field', () => {
+      render(<AddProperty />)
+
+      const videoInput = screen.getByPlaceholderText(/youtube.com\/watch/i)
+      expect(videoInput).toBeInTheDocument()
+    })
+
+    it('should allow entering video URL', () => {
+      render(<AddProperty />)
+
+      const videoInput = screen.getByPlaceholderText(/youtube.com\/watch/i)
+      fireEvent.change(videoInput, { target: { value: 'https://youtube.com/watch?v=123' } })
+
+      expect(videoInput).toHaveValue('https://youtube.com/watch?v=123')
+    })
+
+    it('should show add button to add more video links', () => {
+      render(<AddProperty />)
+
+      const addButtons = screen.getAllByTitle('Add another video link')
+      expect(addButtons.length).toBeGreaterThan(0)
+    })
+
+    it('should add new video input when add button clicked', async () => {
+      render(<AddProperty />)
+
+      const initialInputs = screen.getAllByPlaceholderText(/youtube.com\/watch/i)
+      const initialCount = initialInputs.length
+
+      const addButton = screen.getByTitle('Add another video link')
+      fireEvent.click(addButton)
+
+      await waitFor(() => {
+        const newInputs = screen.getAllByPlaceholderText(/youtube.com\/watch/i)
+        expect(newInputs.length).toBe(initialCount + 1)
+      })
+    })
+
+    it('should show remove button when multiple video inputs exist', async () => {
+      render(<AddProperty />)
+
+      const addButton = screen.getByTitle('Add another video link')
+      fireEvent.click(addButton)
+
+      await waitFor(() => {
+        const removeButtons = screen.getAllByTitle('Remove video link')
+        expect(removeButtons.length).toBeGreaterThan(0)
+      })
+    })
+
+    it('should remove video input when remove button clicked', async () => {
+      render(<AddProperty />)
+
+      // Add a second input
+      const addButton = screen.getByTitle('Add another video link')
+      fireEvent.click(addButton)
+
+      await waitFor(() => {
+        const inputs = screen.getAllByPlaceholderText(/youtube.com\/watch/i)
+        expect(inputs.length).toBe(2)
+      })
+
+      // Remove the first input
+      const removeButtons = screen.getAllByTitle('Remove video link')
+      fireEvent.click(removeButtons[0])
+
+      await waitFor(() => {
+        const inputs = screen.getAllByPlaceholderText(/youtube.com\/watch/i)
+        expect(inputs.length).toBe(1)
+      })
+    })
+  })
+
   describe('Form Submission', () => {
     it('should show error if location not selected', async () => {
       render(<AddProperty />)

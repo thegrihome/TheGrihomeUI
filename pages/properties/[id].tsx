@@ -38,6 +38,7 @@ interface PropertyDetail {
   sqFt: number
   thumbnailUrl?: string
   imageUrls: string[]
+  walkthroughVideoUrl?: string | null
   listingStatus: string
   soldTo?: string
   soldDate?: string
@@ -516,6 +517,24 @@ export default function PropertyDetailPage() {
                       {property.builder !== 'Independent' && `Builder: ${property.builder}`}
                       {property.companyName && ` • Company: ${property.companyName}`}
                     </p>
+                  </div>
+                )}
+
+                {/* Walkthrough Video */}
+                {property.walkthroughVideoUrl && (
+                  <div className="mt-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                      Virtual Walkthrough
+                    </h3>
+                    <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg">
+                      <iframe
+                        src={property.walkthroughVideoUrl.replace('watch?v=', 'embed/')}
+                        title="Property Walkthrough"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-96"
+                      />
+                    </div>
                   </div>
                 )}
 

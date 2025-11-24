@@ -37,6 +37,7 @@ export default function AddProperty() {
   const [showProjectDropdown, setShowProjectDropdown] = useState(false)
   const [showPropertyTypeDropdown, setShowPropertyTypeDropdown] = useState(false)
   const [showFacingDropdown, setShowFacingDropdown] = useState(false)
+  const [walkthroughVideoUrls, setWalkthroughVideoUrls] = useState<string[]>([''])
   const [formData, setFormData] = useState({
     title: '',
     propertyType: '',
@@ -310,6 +311,24 @@ export default function AddProperty() {
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
   }
 
+  const handleVideoUrlChange = (index: number, value: string) => {
+    const newUrls = [...walkthroughVideoUrls]
+    newUrls[index] = value
+    setWalkthroughVideoUrls(newUrls)
+  }
+
+  const addVideoUrl = () => {
+    setWalkthroughVideoUrls([...walkthroughVideoUrls, ''])
+  }
+
+  const removeVideoUrl = (index: number) => {
+    if (walkthroughVideoUrls.length > 1) {
+      setWalkthroughVideoUrls(walkthroughVideoUrls.filter((_, i) => i !== index))
+    } else {
+      setWalkthroughVideoUrls([''])
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     // eslint-disable-next-line no-console
     console.log('handleSubmit function called!')
@@ -379,6 +398,7 @@ export default function AddProperty() {
           ...formData,
           imageUrls,
           thumbnailUrl: imageUrls[0] || null,
+          walkthroughVideoUrls: walkthroughVideoUrls.filter(url => url.trim() !== ''),
         }),
       })
 
@@ -948,6 +968,73 @@ export default function AddProperty() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Walkthrough Video Links */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Walkthrough Video Links (YouTube, Vimeo, etc.)
+              </label>
+              <div className="space-y-2">
+                {walkthroughVideoUrls.map((url, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="url"
+                      value={url}
+                      onChange={e => handleVideoUrlChange(index, e.target.value)}
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    {walkthroughVideoUrls.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeVideoUrl(index)}
+                        className="px-3 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50 transition-colors"
+                        title="Remove video link"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                    {index === walkthroughVideoUrls.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={addVideoUrl}
+                        className="px-3 py-2 border border-blue-300 text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+                        title="Add another video link"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Add links to walkthrough videos (YouTube, Vimeo, etc.)
+              </p>
             </div>
 
             {/* Submit */}

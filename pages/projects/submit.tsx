@@ -25,8 +25,7 @@ export default function SubmitProject() {
   const [locationAddress, setLocationAddress] = useState('')
   const [highlights, setHighlights] = useState<string[]>([])
   const [amenities, setAmenities] = useState<string[]>([])
-  const [walkthroughVideoUrl, setWalkthroughVideoUrl] = useState('')
-  const [walkthroughVideo, setWalkthroughVideo] = useState<string | null>(null)
+  const [walkthroughVideoUrls, setWalkthroughVideoUrls] = useState<string[]>([''])
 
   // Dropdown state
   const [showPropertyTypeDropdown, setShowPropertyTypeDropdown] = useState(false)
@@ -153,25 +152,22 @@ export default function SubmitProject() {
     reader.readAsDataURL(file)
   }
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleVideoUrlChange = (index: number, value: string) => {
+    const newUrls = [...walkthroughVideoUrls]
+    newUrls[index] = value
+    setWalkthroughVideoUrls(newUrls)
+  }
 
-    if (!file.type.startsWith('video/')) {
-      toast.error('Please upload a video file')
-      return
-    }
+  const addVideoUrl = () => {
+    setWalkthroughVideoUrls([...walkthroughVideoUrls, ''])
+  }
 
-    if (file.size > 100 * 1024 * 1024) {
-      toast.error('Video file size must not exceed 100MB')
-      return
+  const removeVideoUrl = (index: number) => {
+    if (walkthroughVideoUrls.length > 1) {
+      setWalkthroughVideoUrls(walkthroughVideoUrls.filter((_, i) => i !== index))
+    } else {
+      setWalkthroughVideoUrls([''])
     }
-
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setWalkthroughVideo(reader.result as string)
-    }
-    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -217,8 +213,7 @@ export default function SubmitProject() {
           floorplanImagesBase64: floorplanImages,
           clubhouseImagesBase64: clubhouseImages,
           galleryImagesBase64: galleryImages,
-          walkthroughVideoUrl: walkthroughVideoUrl.trim() || null,
-          walkthroughVideoBase64: walkthroughVideo || null,
+          walkthroughVideoUrls: walkthroughVideoUrls.filter(url => url.trim() !== ''),
         }),
       })
 
@@ -460,67 +455,67 @@ export default function SubmitProject() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Walkthrough Video (YouTube Link or Upload)
+                  Walkthrough Video Links (YouTube, Vimeo, etc.)
                 </label>
-                <input
-                  type="url"
-                  value={walkthroughVideoUrl}
-                  onChange={e => setWalkthroughVideoUrl(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                  disabled={!!walkthroughVideo}
-                />
-                <div className="text-center text-gray-500 text-sm my-2">OR</div>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  <label className="cursor-pointer block text-center">
-                    {walkthroughVideo ? (
-                      <div className="space-y-2">
-                        <div className="text-green-600">✓ Video Uploaded</div>
+                <div className="space-y-2">
+                  {walkthroughVideoUrls.map((url, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="url"
+                        value={url}
+                        onChange={e => handleVideoUrlChange(index, e.target.value)}
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      {walkthroughVideoUrls.length > 1 && (
                         <button
                           type="button"
-                          onClick={() => setWalkthroughVideo(null)}
-                          className="text-sm text-red-600 hover:underline"
+                          onClick={() => removeVideoUrl(index)}
+                          className="px-3 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                          title="Remove video link"
                         >
-                          Remove Video
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
                         </button>
-                      </div>
-                    ) : (
-                      <>
-                        <svg
-                          className="mx-auto h-12 w-12 text-gray-400"
-                          stroke="currentColor"
-                          fill="none"
-                          viewBox="0 0 48 48"
+                      )}
+                      {index === walkthroughVideoUrls.length - 1 && (
+                        <button
+                          type="button"
+                          onClick={addVideoUrl}
+                          className="px-3 py-3 border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                          title="Add another video link"
                         >
-                          <path
-                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                        <div className="text-sm text-gray-600 mt-2">
-                          <span className="text-blue-600 hover:text-blue-700 font-medium">
-                            Upload Video
-                          </span>{' '}
-                          or drag and drop
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Video up to 100MB (MP4, MOV, AVI)
-                        </p>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoUpload}
-                      className="hidden"
-                      disabled={!!walkthroughVideoUrl.trim()}
-                    />
-                  </label>
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Provide either a YouTube link or upload a video file
+                  Add links to walkthrough videos (YouTube, Vimeo, etc.)
                 </p>
               </div>
             </div>

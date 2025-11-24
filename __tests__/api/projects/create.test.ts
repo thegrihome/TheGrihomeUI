@@ -1019,14 +1019,17 @@ describe('/api/projects/create', () => {
       )
     })
 
-    it('should include walkthroughVideoUrl when provided', async () => {
+    it('should include first video URL when walkthroughVideoUrls provided', async () => {
       ;(prisma.project.create as jest.Mock).mockResolvedValue({})
 
       const { req, res } = createMocks({
         method: 'POST',
         body: {
           ...baseRequestBody,
-          walkthroughVideoUrl: 'https://youtube.com/watch?v=123',
+          walkthroughVideoUrls: [
+            'https://youtube.com/watch?v=123',
+            'https://youtube.com/watch?v=456',
+          ],
         },
       })
 

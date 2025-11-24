@@ -34,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       imageUrls,
       thumbnailUrl,
       projectId,
+      walkthroughVideoUrls,
     } = req.body
 
     // Validate required fields
@@ -157,6 +158,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         thumbnailUrl: thumbnailUrl || null,
         imageUrls: imageUrls || [],
         projectId: projectId && projectId.trim() !== '' ? projectId : null,
+        walkthroughVideoUrl:
+          walkthroughVideoUrls && walkthroughVideoUrls.length > 0 ? walkthroughVideoUrls[0] : null,
       },
     })
 

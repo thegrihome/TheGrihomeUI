@@ -94,6 +94,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
       sqFt: property.sqFt,
       thumbnailUrl: property.thumbnailUrl,
       imageUrls: property.imageUrls,
+      walkthroughVideoUrl: property.walkthroughVideoUrl,
       listingStatus: property.listingStatus,
       soldTo: property.soldTo,
       soldDate: property.soldDate?.toISOString(),

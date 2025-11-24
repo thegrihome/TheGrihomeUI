@@ -969,5 +969,44 @@ describe('/api/properties/create', () => {
 
       expect(statusMock).toHaveBeenCalledWith(201)
     })
+
+    it('should include first video URL when walkthroughVideoUrls provided', async () => {
+      req.body = {
+        ...validPropertyData,
+        walkthroughVideoUrls: [
+          'https://youtube.com/watch?v=123',
+          'https://youtube.com/watch?v=456',
+        ],
+      }
+
+      await handler(req as NextApiRequest, res as NextApiResponse)
+
+      expect(mockPrismaPropertyCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            walkthroughVideoUrl: 'https://youtube.com/watch?v=123',
+          }),
+        })
+      )
+      expect(statusMock).toHaveBeenCalledWith(201)
+    })
+
+    it('should handle property without video URLs', async () => {
+      req.body = {
+        ...validPropertyData,
+        walkthroughVideoUrls: undefined,
+      }
+
+      await handler(req as NextApiRequest, res as NextApiResponse)
+
+      expect(mockPrismaPropertyCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            walkthroughVideoUrl: null,
+          }),
+        })
+      )
+      expect(statusMock).toHaveBeenCalledWith(201)
+    })
   })
 })

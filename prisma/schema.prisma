@@ -182,6 +182,7 @@ model Property {
   sqFt              Float?
   thumbnailUrl      String?
   imageUrls         String[]
+  walkthroughVideoUrl String?
   thumbnailIndex    Int               @default(0)
   listingStatus     ListingStatus     @default(ACTIVE)
   soldTo            String?
