@@ -69,11 +69,11 @@ export default function AddProperty() {
   const projectDropdownRef = useRef<HTMLDivElement>(null)
 
   const propertyTypes = [
-    { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
-    { value: 'CONDO', label: 'Apartments', icon: '🏢' },
-    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
-    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
-    { value: 'COMMERCIAL', label: 'Commercial', icon: '🏬' },
+    { value: 'SINGLE_FAMILY', label: 'Villas' },
+    { value: 'CONDO', label: 'Apartments' },
+    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands' },
+    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands' },
+    { value: 'COMMERCIAL', label: 'Commercial' },
   ]
 
   useEffect(() => {
@@ -542,7 +542,7 @@ export default function AddProperty() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 text-left"
                 >
                   {formData.propertyType
-                    ? `${propertyTypes.find(t => t.value === formData.propertyType)?.icon} ${propertyTypes.find(t => t.value === formData.propertyType)?.label}`
+                    ? propertyTypes.find(t => t.value === formData.propertyType)?.label
                     : 'Select Type'}
                 </button>
                 <svg
@@ -578,7 +578,7 @@ export default function AddProperty() {
                           setShowPropertyTypeDropdown(false)
                         }}
                       >
-                        {type.icon} {type.label}
+                        {type.label}
                       </div>
                     ))}
                   </div>

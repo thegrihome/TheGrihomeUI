@@ -31,65 +31,6 @@ interface CityPageProps {
   totalPosts: number
 }
 
-const propertyTypeIcons: { [key: string]: string } = {
-  VILLAS: '🏡',
-  APARTMENTS: '🏢',
-  RESIDENTIAL_LANDS: '🏞️',
-  AGRICULTURE_LANDS: '🌾',
-  COMMERCIAL_PROPERTIES: '🏬',
-}
-
-const cityIcons: { [key: string]: string } = {
-  hyderabad: '🏛️',
-  chennai: '🏖️',
-  bengaluru: '🌆',
-  mumbai: '🏙️',
-  delhi: '🏛️',
-  kolkata: '🌉',
-  gurgaon: '🏢',
-  noida: '🌇',
-  pune: '🎓',
-  'other-cities': '🗺️',
-}
-
-const stateIcons: { [key: string]: string } = {
-  'andhra-pradesh': '🏛️',
-  'arunachal-pradesh': '⛰️',
-  assam: '🌿',
-  bihar: '🏛️',
-  chhattisgarh: '🌲',
-  goa: '🏖️',
-  gujarat: '🦁',
-  haryana: '🌾',
-  'himachal-pradesh': '🏔️',
-  'jammu-and-kashmir': '🏔️',
-  jharkhand: '⛰️',
-  karnataka: '🌆',
-  kerala: '🥥',
-  'madhya-pradesh': '🐅',
-  maharashtra: '🏙️',
-  manipur: '🦌',
-  meghalaya: '☔',
-  mizoram: '🌺',
-  nagaland: '🎭',
-  odisha: '🏛️',
-  punjab: '🌾',
-  rajasthan: '🐪',
-  sikkim: '🏔️',
-  'tamil-nadu': '🏛️',
-  telangana: '🏛️',
-  tripura: '🌺',
-  uttarakhand: '⛰️',
-  'uttar-pradesh': '🕌',
-  'west-bengal': '🌉',
-  'andaman-and-nicobar-islands': '🏝️',
-  chandigarh: '🏛️',
-  'dadra-and-nagar-haveli': '🌳',
-  'daman-and-diu': '🏖️',
-  lakshadweep: '🏝️',
-  puducherry: '🏖️',
-}
-
 export default function CityPage({ city, propertyTypes, totalPosts }: CityPageProps) {
   // Smart title formatter - determines which words should be gradient
   const formatTitle = (title: string) => {
@@ -225,9 +166,6 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
         <div className="forum-header">
           <div className="forum-header-content">
             <div className="forum-city-header-section">
-              <div className="forum-city-icon-large">
-                {city.city ? cityIcons[city.city] || '🏛️' : stateIcons[city.slug] || '🏛️'}
-              </div>
               <div>
                 <h1 className="forum-title">
                   {formatTitle(`${city.name} Real Estate Discussions`)}
@@ -256,9 +194,6 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
                 >
                   <div className="forum-simple-row">
                     <div className="forum-simple-left">
-                      <div className="forum-property-type-icon">
-                        {propertyTypeIcons[propertyType.propertyType || ''] || '🏠'}
-                      </div>
                       <div>
                         <h3 className="forum-property-type-name">
                           {propertyType.name.split(' in ')[0]}

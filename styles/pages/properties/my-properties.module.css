@@ -12,8 +12,18 @@
 .my-properties-title {
   font-size: 1.875rem;
   font-weight: bold;
-  color: #111827;
   margin-bottom: 0.5rem;
+}
+
+.my-properties-title-main {
+  color: #111827;
+}
+
+.my-properties-title-gradient {
+  background: linear-gradient(to right, #8b5cf6, #3b82f6, #1e40af);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .my-properties-subtitle {
@@ -73,7 +83,7 @@
 }
 
 .my-properties-empty-title-highlight {
-  background: linear-gradient(to right, #ff1493, #8b5cf6, #00d4ff);
+  background: linear-gradient(to right, #8b5cf6, #3b82f6, #1e40af);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

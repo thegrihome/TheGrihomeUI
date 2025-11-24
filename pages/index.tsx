@@ -406,7 +406,6 @@ export default function Home() {
               <div className="benefit-divider benefit-divider-blue"></div>
               <div className="benefit-content">
                 <div className="benefit-header">
-                  <div className="benefit-icon">🏠</div>
                   <h3 className="benefit-title">For Buyers</h3>
                 </div>
                 <ul
@@ -424,7 +423,6 @@ export default function Home() {
               <div className="benefit-divider benefit-divider-green"></div>
               <div className="benefit-content">
                 <div className="benefit-header">
-                  <div className="benefit-icon">💼</div>
                   <h3 className="benefit-title">For Sellers</h3>
                 </div>
                 <ul
@@ -442,7 +440,6 @@ export default function Home() {
               <div className="benefit-divider benefit-divider-purple"></div>
               <div className="benefit-content">
                 <div className="benefit-header">
-                  <div className="benefit-icon">🤝</div>
                   <h3 className="benefit-title">For Agents</h3>
                 </div>
                 <ul

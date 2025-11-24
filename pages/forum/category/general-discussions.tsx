@@ -1,6 +1,7 @@
 import { GetStaticProps } from 'next'
 import { NextSeo } from 'next-seo'
 import Link from 'next/link'
+import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ForumSearch from '@/components/forum/ForumSearch'
@@ -33,17 +34,16 @@ interface GeneralDiscussionsPageProps {
   statesTotalPosts: number
 }
 
-const cityIcons: { [key: string]: string } = {
-  hyderabad: '🏛️',
-  chennai: '🏖️',
-  bengaluru: '🌆',
-  mumbai: '🏙️',
-  delhi: '🏛️',
-  kolkata: '🌉',
-  gurgaon: '🏢',
-  noida: '🌇',
-  pune: '🎓',
-  'other-cities': '🗺️',
+const cityImages: { [key: string]: string } = {
+  hyderabad: '/images/cities/Hyderabad.png',
+  chennai: '/images/cities/Chennai.png',
+  bengaluru: '/images/cities/Bengaluru.png',
+  mumbai: '/images/cities/Mumbai.png',
+  delhi: '/images/cities/Delhi.png',
+  kolkata: '/images/cities/Kolkata.png',
+  gurgaon: '/images/cities/Gurgaon.png',
+  noida: '/images/cities/Noida.png',
+  pune: '/images/cities/Pune.png',
 }
 
 export default function GeneralDiscussionsPage({
@@ -152,7 +152,17 @@ export default function GeneralDiscussionsPage({
                 >
                   <div className="forum-city-list-content">
                     <div className="forum-city-list-info">
-                      <div className="forum-city-icon">{cityIcons[city.city || ''] || '🏛️'}</div>
+                      {cityImages[city.city || ''] && (
+                        <div className="forum-city-icon">
+                          <Image
+                            src={cityImages[city.city || '']}
+                            alt={city.name}
+                            width={48}
+                            height={48}
+                            className="forum-city-image"
+                          />
+                        </div>
+                      )}
                       <div className="forum-city-details">
                         <h3 className="forum-city-name">{city.name}</h3>
                         <p className="forum-city-description">
@@ -184,7 +194,7 @@ export default function GeneralDiscussionsPage({
               >
                 <div className="forum-city-list-content">
                   <div className="forum-city-list-info">
-                    <div className="forum-city-icon">🇮🇳</div>
+                    <div className="forum-city-icon forum-city-icon-emoji">🇮🇳</div>
                     <div className="forum-city-details">
                       <h3 className="forum-city-name">States & Union Territories</h3>
                       <p className="forum-city-description">

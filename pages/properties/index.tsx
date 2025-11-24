@@ -85,11 +85,11 @@ export default function PropertiesPage() {
   })
 
   const propertyTypes = [
-    { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
-    { value: 'CONDO', label: 'Apartments', icon: '🏢' },
-    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
-    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
-    { value: 'COMMERCIAL', label: 'Commercial', icon: '🏬' },
+    { value: 'SINGLE_FAMILY', label: 'Villas' },
+    { value: 'CONDO', label: 'Apartments' },
+    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands' },
+    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands' },
+    { value: 'COMMERCIAL', label: 'Commercial' },
   ]
 
   const bedroomOptions = ['1', '2', '3', '4', '5+']
@@ -512,7 +512,7 @@ export default function PropertiesPage() {
                   className="w-full xs:w-auto px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 xs:min-w-[160px] sm:min-w-[180px] text-left"
                 >
                   {filters.propertyType
-                    ? `${propertyTypes.find(t => t.value === filters.propertyType)?.icon} ${propertyTypes.find(t => t.value === filters.propertyType)?.label}`
+                    ? propertyTypes.find(t => t.value === filters.propertyType)?.label
                     : 'All Types'}
                 </button>
                 <svg
@@ -548,7 +548,7 @@ export default function PropertiesPage() {
                           setShowPropertyTypeDropdown(false)
                         }}
                       >
-                        {type.icon} {type.label}
+                        {type.label}
                       </div>
                     ))}
                   </div>

@@ -30,43 +30,6 @@ interface StatesPageProps {
   totalPosts: number
 }
 
-const stateIcons: { [key: string]: string } = {
-  'andhra-pradesh': '🌾',
-  'arunachal-pradesh': '🏔️',
-  assam: '🍵',
-  bihar: '📚',
-  chhattisgarh: '🌲',
-  goa: '🏖️',
-  gujarat: '🦁',
-  haryana: '🌾',
-  'himachal-pradesh': '⛰️',
-  'jammu-and-kashmir': '🏔️',
-  jharkhand: '⛰️',
-  karnataka: '🌳',
-  kerala: '🌴',
-  'madhya-pradesh': '🐅',
-  maharashtra: '🏙️',
-  manipur: '🏔️',
-  meghalaya: '☁️',
-  mizoram: '🌄',
-  nagaland: '⛰️',
-  odisha: '🏛️',
-  punjab: '🌾',
-  rajasthan: '🏜️',
-  sikkim: '🏔️',
-  'tamil-nadu': '🏛️',
-  telangana: '💎',
-  tripura: '🌳',
-  uttarakhand: '⛰️',
-  'uttar-pradesh': '🕌',
-  'west-bengal': '🎭',
-  'andaman-and-nicobar-islands': '🏝️',
-  chandigarh: '🏙️',
-  'dadra-and-nagar-haveli': '🌳',
-  'daman-and-diu': '🏖️',
-  lakshadweep: '🏝️',
-  puducherry: '🌊',
-}
 
 export default function StatesPage({ states, totalPosts }: StatesPageProps) {
   return (
@@ -100,7 +63,6 @@ export default function StatesPage({ states, totalPosts }: StatesPageProps) {
         <div className="forum-header">
           <div className="forum-header-content">
             <div className="forum-header-main">
-              <div className="forum-category-icon-large">🇮🇳</div>
               <div className="forum-header-text">
                 <h1 className="forum-title">
                   <span>States & Union </span>
@@ -129,7 +91,6 @@ export default function StatesPage({ states, totalPosts }: StatesPageProps) {
               >
                 <div className="forum-city-list-content">
                   <div className="forum-city-list-info">
-                    <div className="forum-city-icon">{stateIcons[state.slug] || '🏛️'}</div>
                     <div className="forum-city-details">
                       <h3 className="forum-city-name">{state.name}</h3>
                       <p className="forum-city-description">

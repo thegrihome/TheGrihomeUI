@@ -58,27 +58,6 @@ interface PropertyTypePageProps {
   totalPages: number
 }
 
-const propertyTypeIcons: { [key: string]: string } = {
-  VILLAS: '🏡',
-  APARTMENTS: '🏢',
-  RESIDENTIAL_LANDS: '🏞️',
-  AGRICULTURE_LANDS: '🌾',
-  COMMERCIAL_PROPERTIES: '🏬',
-}
-
-const cityIcons: { [key: string]: string } = {
-  hyderabad: '🏛️',
-  chennai: '🏖️',
-  bengaluru: '🌆',
-  mumbai: '🏙️',
-  delhi: '🏛️',
-  kolkata: '🌉',
-  gurgaon: '🏢',
-  noida: '🌇',
-  pune: '🎓',
-  'other-cities': '🗺️',
-}
-
 export default function PropertyTypePage({
   category,
   city,
@@ -253,11 +232,6 @@ export default function PropertyTypePage({
         <div className="forum-header">
           <div className="forum-header-content">
             <div className="forum-property-header-section">
-              <div className="forum-property-icons">
-                <div className="forum-property-type-icon">
-                  {propertyTypeIcons[category.propertyType || ''] || '🏠'}
-                </div>
-              </div>
               <div className="forum-header-text">
                 <h1 className="forum-title">
                   {formatTitle(

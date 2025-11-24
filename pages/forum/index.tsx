@@ -23,32 +23,11 @@ interface ForumProps {
   categories: ForumCategory[]
 }
 
-const cityIcons: { [key: string]: string } = {
-  hyderabad: '🏛️',
-  chennai: '🏖️',
-  bengaluru: '🌆',
-  mumbai: '🏙️',
-  delhi: '🏛️',
-  kolkata: '🌉',
-  gurgaon: '🏢',
-  noida: '🌇',
-  pune: '🎓',
-  'other-cities': '🗺️',
-}
-
 const categoryIcons: { [key: string]: string } = {
   'member-introductions': '👋',
   'latest-news': '📰',
   'grihome-latest-deals': '💰',
   'general-discussions': '💬',
-}
-
-const propertyTypeIcons: { [key: string]: string } = {
-  VILLAS: '🏡',
-  APARTMENTS: '🏢',
-  RESIDENTIAL_LANDS: '🏞️',
-  AGRICULTURE_LANDS: '🌾',
-  COMMERCIAL_PROPERTIES: '🏬',
 }
 
 export default function Forum({ categories }: ForumProps) {
@@ -136,9 +115,7 @@ export default function Forum({ categories }: ForumProps) {
                 <div className="forum-category-header">
                   <div className="forum-category-info">
                     <div className="forum-category-icon">
-                      {category.city
-                        ? cityIcons[category.city.toLowerCase()] || '🏛️'
-                        : categoryIcons[category.slug] || '📂'}
+                      {categoryIcons[category.slug] || '📂'}
                     </div>
                     <div className="forum-category-details">
                       <h3 className="forum-category-name">

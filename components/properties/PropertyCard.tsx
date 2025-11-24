@@ -43,11 +43,11 @@ interface PropertyCardProps {
 }
 
 const propertyTypes = [
-  { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
-  { value: 'CONDO', label: 'Apartments', icon: '🏢' },
-  { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
-  { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
-  { value: 'COMMERCIAL', label: 'Commercial', icon: '🏬' },
+  { value: 'SINGLE_FAMILY', label: 'Villas' },
+  { value: 'CONDO', label: 'Apartments' },
+  { value: 'LAND_RESIDENTIAL', label: 'Residential Lands' },
+  { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands' },
+  { value: 'COMMERCIAL', label: 'Commercial' },
 ]
 
 export default function PropertyCard({
@@ -103,7 +103,6 @@ export default function PropertyCard({
           className="w-full h-full object-cover"
         />
         <div className="absolute top-1.5 left-1.5 bg-blue-600 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
-          {propertyTypes.find(t => t.value === property.propertyType)?.icon}{' '}
           {propertyTypes.find(t => t.value === property.propertyType)?.label}
         </div>
         {property.listingStatus === 'SOLD' ? (

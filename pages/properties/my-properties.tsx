@@ -312,7 +312,10 @@ export default function MyPropertiesPage() {
       <main className="min-h-screen bg-gray-50">
         <div className="properties-main-content">
           <div className={styles['my-properties-header']}>
-            <h1 className={styles['my-properties-title']}>My Properties</h1>
+            <h1 className={styles['my-properties-title']}>
+              <span className={styles['my-properties-title-main']}>My </span>
+              <span className={styles['my-properties-title-gradient']}>Properties</span>
+            </h1>
             <p className={styles['my-properties-subtitle']}>
               Manage your property listings and view interested buyers
             </p>

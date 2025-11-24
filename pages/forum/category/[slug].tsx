@@ -74,12 +74,6 @@ export default function CategoryPage({
   const [showNewPostModal, setShowNewPostModal] = useState(false)
 
   // Category icons mapping
-  const categoryIcons: { [key: string]: string } = {
-    'member-introductions': '👋',
-    'latest-news': '📰',
-    'grihome-latest-deals': '💰',
-    'general-discussions': '💬',
-  }
 
   // Smart title formatter - determines which words should be gradient
   const formatTitle = (title: string) => {
@@ -176,9 +170,6 @@ export default function CategoryPage({
         <div className="forum-header">
           <div className="forum-header-content">
             <div className="forum-header-main">
-              <div className="forum-category-icon-large">
-                {categoryIcons[category.slug] || '📂'}
-              </div>
               <div className="forum-header-text">
                 <h1 className="forum-title">{formatTitle(category.name)}</h1>
                 {category.description && <p className="forum-subtitle">{category.description}</p>}

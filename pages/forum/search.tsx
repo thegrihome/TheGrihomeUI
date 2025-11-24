@@ -59,23 +59,6 @@ interface SearchPageProps {
   error?: string
 }
 
-const cityIcons: { [key: string]: string } = {
-  hyderabad: '🏛️',
-  chennai: '🏖️',
-  bengaluru: '🌆',
-  mumbai: '🏙️',
-  delhi: '🏛️',
-  kolkata: '🌉',
-}
-
-const propertyTypeIcons: { [key: string]: string } = {
-  VILLAS: '🏡',
-  APARTMENTS: '🏢',
-  RESIDENTIAL_LANDS: '🏞️',
-  AGRICULTURE_LANDS: '🌾',
-  COMMERCIAL_PROPERTIES: '🏬',
-}
-
 export default function SearchPage({ results, error }: SearchPageProps) {
   const router = useRouter()
   const { q: query } = router.query
