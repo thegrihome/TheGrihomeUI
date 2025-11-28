@@ -87,8 +87,22 @@ export default function PropertyCard({
 
   const formattedPrice = formatIndianCurrency(property.price)
 
+  const handleCardClick = () => {
+    router.push(`/properties/${property.id}`)
+  }
+
+  const handleMarkAsSoldClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onMarkAsSold) {
+      onMarkAsSold(property.id)
+    }
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
+    <div
+      onClick={handleCardClick}
+      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer"
+    >
       {/* Image */}
       <div className="relative w-full h-36">
         <Image
@@ -186,7 +200,7 @@ export default function PropertyCard({
           {/* Owner Actions - Mark as Sold */}
           {isOwner && property.listingStatus === 'ACTIVE' && onMarkAsSold ? (
             <button
-              onClick={() => onMarkAsSold(property.id)}
+              onClick={handleMarkAsSoldClick}
               disabled={processing}
               className="bg-red-600 text-white px-1 py-1.5 rounded text-[10px] font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap text-center w-full leading-tight"
             >
@@ -196,7 +210,7 @@ export default function PropertyCard({
             <div></div>
           )}
           <button
-            onClick={() => router.push(`/properties/${property.id}`)}
+            onClick={e => e.stopPropagation()}
             className="bg-blue-600 text-white px-1 py-1.5 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap text-center w-full leading-tight"
           >
             View Details
