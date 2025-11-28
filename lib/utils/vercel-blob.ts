@@ -2,7 +2,7 @@ import { put } from '@vercel/blob'
 
 export interface BlobUploadOptions {
   projectName: string
-  folder: 'banner' | 'logo' | 'layout' | 'clubhouse' | 'floorplans' | 'gallery'
+  folder: 'banner' | 'logo' | 'layout' | 'clubhouse' | 'floorplans' | 'gallery' | 'sitelayout'
   base64Image: string
   index?: number
 }
@@ -62,7 +62,7 @@ export async function uploadProjectImage(options: BlobUploadOptions): Promise<st
  */
 export async function uploadMultipleProjectImages(
   projectName: string,
-  folder: 'clubhouse' | 'floorplans' | 'gallery',
+  folder: 'clubhouse' | 'floorplans' | 'gallery' | 'sitelayout',
   base64Images: string[]
 ): Promise<string[]> {
   const uploadPromises = base64Images.map((base64Image, index) =>

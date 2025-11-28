@@ -320,10 +320,6 @@ export default function ProjectsPage() {
                             >
                               {project.name}
                             </Link>
-                            <div className="text-sm text-gray-500">
-                              {project.numberOfUnits && `${project.numberOfUnits} units`}
-                              {project.size && ` • ${project.size} acres`}
-                            </div>
                           </div>
                         </div>
                       </td>

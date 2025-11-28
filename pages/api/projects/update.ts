@@ -35,17 +35,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       brochureUrl,
       brochurePdfBase64,
       locationAddress,
+      googleMapsUrl,
       bannerImageBase64,
       highlights,
       amenities,
       floorplanImagesBase64,
       clubhouseImagesBase64,
       galleryImagesBase64,
+      siteLayoutImagesBase64,
       walkthroughVideoUrl,
     } = req.body
 
     // Validate required fields
-    if (!projectId || !name || !description || !builderId || !locationAddress) {
+    if (!projectId || !name || !description || !builderId || (!locationAddress && !googleMapsUrl)) {
       return res.status(400).json({ message: 'Missing required fields' })
     }
 
@@ -79,7 +81,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let locationId = existingProject.locationId
     // Type assertion for included location relation
     const currentLocation = (existingProject as any).location
-    if (locationAddress !== currentLocation?.formattedAddress) {
+
+    if (locationAddress && locationAddress !== currentLocation?.formattedAddress) {
       const geocodeResult = await geocodeAddress(locationAddress)
       let locationRecord
 
@@ -116,6 +119,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         locationId = locationRecord.id
       }
+    } else if (!locationAddress && googleMapsUrl) {
+      // Only Google Maps URL provided - create a basic location for Hyderabad if not exists
+      let locationRecord = await prisma.location.findFirst({
+        where: {
+          city: 'Hyderabad',
+          state: 'Telangana',
+        },
+      })
+
+      if (!locationRecord) {
+        locationRecord = await prisma.location.create({
+          data: {
+            city: 'Hyderabad',
+            state: 'Telangana',
+            country: 'India',
+            formattedAddress: 'Hyderabad, Telangana, India',
+          },
+        })
+      }
+
+      locationId = locationRecord.id
     }
 
     // Handle image and PDF uploads
@@ -123,6 +147,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let floorplanUrls: string[] = existingProject.floorplanImageUrls || []
     let clubhouseUrls: string[] = existingProject.clubhouseImageUrls || []
     let galleryUrls: string[] = existingProject.galleryImageUrls || []
+    let siteLayoutUrls: string[] = existingProject.siteLayoutImageUrls || []
     let brochurePdfUrl: string | null = null
 
     try {
@@ -208,6 +233,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           galleryUrls = [...galleryUrls, ...newUrls].slice(0, 20)
         }
       }
+
+      // Upload new site layout images if provided
+      if (
+        siteLayoutImagesBase64 &&
+        Array.isArray(siteLayoutImagesBase64) &&
+        siteLayoutImagesBase64.length > 0
+      ) {
+        const newSiteLayout = siteLayoutImagesBase64.filter((img: string) =>
+          img.startsWith('data:image')
+        )
+        if (newSiteLayout.length > 0) {
+          const newUrls = await uploadMultipleProjectImages(
+            name,
+            'sitelayout',
+            newSiteLayout.slice(0, 10)
+          )
+          siteLayoutUrls = [...siteLayoutUrls, ...newUrls].slice(0, 10)
+        }
+      }
     } catch (uploadError) {
       // eslint-disable-next-line no-console
       console.error('Image/PDF upload error:', uploadError)
@@ -225,13 +269,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         locationId,
         builderWebsiteLink: builderWebsiteLink || null,
         brochureUrl: brochurePdfUrl || brochureUrl || existingProject.brochureUrl,
+        googlePin: googleMapsUrl || existingProject.googlePin,
         bannerImageUrl: bannerUrl,
         highlights: highlights || null,
         amenities: amenities || null,
         floorplanImageUrls: floorplanUrls,
         clubhouseImageUrls: clubhouseUrls,
         galleryImageUrls: galleryUrls,
-        imageUrls: [...floorplanUrls, ...clubhouseUrls, ...galleryUrls],
+        siteLayoutImageUrls: siteLayoutUrls,
+        imageUrls: [...floorplanUrls, ...clubhouseUrls, ...galleryUrls, ...siteLayoutUrls],
         thumbnailUrl: bannerUrl || galleryUrls[0] || existingProject.thumbnailUrl,
         walkthroughVideoUrl: walkthroughVideoUrl || null,
       },

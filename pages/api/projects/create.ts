@@ -33,18 +33,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       brochureUrl,
       brochurePdfBase64,
       locationAddress,
+      googleMapsUrl,
       bannerImageBase64,
       highlights,
       amenities,
       floorplanImagesBase64,
       clubhouseImagesBase64,
       galleryImagesBase64,
+      siteLayoutImagesBase64,
       walkthroughVideoUrls,
     } = req.body
 
-    // Validate required fields
-    if (!name || !description || !builderId || !locationAddress) {
-      return res.status(400).json({ message: 'Missing required fields' })
+    // Validate required fields with specific error messages
+    if (!name) {
+      return res.status(400).json({ message: 'Missing required field: Project name is required' })
+    }
+    if (!description) {
+      return res.status(400).json({ message: 'Missing required field: Description is required' })
+    }
+    if (!builderId) {
+      return res.status(400).json({ message: 'Missing required field: Builder is required' })
+    }
+    if (!locationAddress && !googleMapsUrl) {
+      return res.status(400).json({
+        message: 'Missing required field: Location address or Google Maps URL is required',
+      })
     }
 
     // Verify builder exists
@@ -56,42 +69,64 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Invalid builder ID' })
     }
 
-    // Geocode location
-    const geocodeResult = await geocodeAddress(locationAddress)
+    // Geocode location - use locationAddress if provided, otherwise create a basic location
     let locationRecord
 
-    if (geocodeResult) {
-      const tolerance = 0.0001
+    if (locationAddress) {
+      const geocodeResult = await geocodeAddress(locationAddress)
+
+      if (geocodeResult) {
+        const tolerance = 0.0001
+        locationRecord = await prisma.location.findFirst({
+          where: {
+            latitude: {
+              gte: geocodeResult.latitude - tolerance,
+              lte: geocodeResult.latitude + tolerance,
+            },
+            longitude: {
+              gte: geocodeResult.longitude - tolerance,
+              lte: geocodeResult.longitude + tolerance,
+            },
+          },
+        })
+
+        if (!locationRecord) {
+          locationRecord = await prisma.location.create({
+            data: {
+              city: geocodeResult.city,
+              state: geocodeResult.state,
+              country: geocodeResult.country || 'India',
+              zipcode: geocodeResult.zipcode,
+              locality: geocodeResult.locality,
+              neighborhood: geocodeResult.neighborhood,
+              latitude: geocodeResult.latitude,
+              longitude: geocodeResult.longitude,
+              formattedAddress: geocodeResult.formattedAddress,
+            },
+          })
+        }
+      } else {
+        return res.status(400).json({ message: 'Could not geocode the provided address' })
+      }
+    } else {
+      // Only Google Maps URL provided - create a basic location for Hyderabad
       locationRecord = await prisma.location.findFirst({
         where: {
-          latitude: {
-            gte: geocodeResult.latitude - tolerance,
-            lte: geocodeResult.latitude + tolerance,
-          },
-          longitude: {
-            gte: geocodeResult.longitude - tolerance,
-            lte: geocodeResult.longitude + tolerance,
-          },
+          city: 'Hyderabad',
+          state: 'Telangana',
         },
       })
 
       if (!locationRecord) {
         locationRecord = await prisma.location.create({
           data: {
-            city: geocodeResult.city,
-            state: geocodeResult.state,
-            country: geocodeResult.country || 'India',
-            zipcode: geocodeResult.zipcode,
-            locality: geocodeResult.locality,
-            neighborhood: geocodeResult.neighborhood,
-            latitude: geocodeResult.latitude,
-            longitude: geocodeResult.longitude,
-            formattedAddress: geocodeResult.formattedAddress,
+            city: 'Hyderabad',
+            state: 'Telangana',
+            country: 'India',
+            formattedAddress: 'Hyderabad, Telangana, India',
           },
         })
       }
-    } else {
-      return res.status(400).json({ message: 'Could not geocode the provided address' })
     }
 
     // Upload images and PDF to Vercel Blob
@@ -99,6 +134,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let floorplanUrls: string[] = []
     let clubhouseUrls: string[] = []
     let galleryUrls: string[] = []
+    let siteLayoutUrls: string[] = []
     let brochurePdfUrl: string | null = null
 
     try {
@@ -147,6 +183,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const galleryImages = galleryImagesBase64.slice(0, 20)
         galleryUrls = await uploadMultipleProjectImages(name, 'gallery', galleryImages)
       }
+
+      // Upload site layout images (max 10)
+      if (siteLayoutImagesBase64 && Array.isArray(siteLayoutImagesBase64)) {
+        const siteLayoutImages = siteLayoutImagesBase64.slice(0, 10)
+        siteLayoutUrls = await uploadMultipleProjectImages(name, 'sitelayout', siteLayoutImages)
+      }
     } catch (uploadError) {
       // eslint-disable-next-line no-console
       console.error('Upload error:', uploadError)
@@ -164,12 +206,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         postedByUserId: session.user.id,
         brochureUrl: brochurePdfUrl || brochureUrl || null,
         bannerImageUrl: bannerUrl,
+        googlePin: googleMapsUrl || null,
         highlights: highlights || null,
         amenities: amenities || null,
         floorplanImageUrls: floorplanUrls,
         clubhouseImageUrls: clubhouseUrls,
         galleryImageUrls: galleryUrls,
-        imageUrls: [...floorplanUrls, ...clubhouseUrls, ...galleryUrls],
+        siteLayoutImageUrls: siteLayoutUrls,
+        imageUrls: [...floorplanUrls, ...clubhouseUrls, ...galleryUrls, ...siteLayoutUrls],
         thumbnailUrl: bannerUrl || galleryUrls[0] || null,
         walkthroughVideoUrl:
           walkthroughVideoUrls && walkthroughVideoUrls.length > 0 ? walkthroughVideoUrls[0] : null,

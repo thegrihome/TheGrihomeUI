@@ -26,9 +26,11 @@ interface ProjectData {
   floorplanImageUrls: string[]
   clubhouseImageUrls: string[]
   galleryImageUrls: string[]
+  siteLayoutImageUrls: string[]
   highlights: string[] | null
   amenities: string[] | null
   walkthroughVideoUrl: string | null
+  googlePin: string | null
   location: {
     formattedAddress: string | null
   }
@@ -52,6 +54,7 @@ export default function EditProject({ project }: EditProjectProps) {
   const [brochureUrl, setBrochureUrl] = useState('')
   const [brochurePdf, setBrochurePdf] = useState<string | null>(null)
   const [locationAddress, setLocationAddress] = useState('')
+  const [googleMapsUrl, setGoogleMapsUrl] = useState('')
   const [highlights, setHighlights] = useState<string[]>([])
   const [amenities, setAmenities] = useState<string[]>([])
   const [walkthroughVideoUrl, setWalkthroughVideoUrl] = useState('')
@@ -61,6 +64,7 @@ export default function EditProject({ project }: EditProjectProps) {
   const [floorplanImages, setFloorplanImages] = useState<string[]>([])
   const [clubhouseImages, setClubhouseImages] = useState<string[]>([])
   const [galleryImages, setGalleryImages] = useState<string[]>([])
+  const [siteLayoutImages, setSiteLayoutImages] = useState<string[]>([])
 
   // Google Maps autocomplete refs
   const locationInputRef = useRef<HTMLInputElement>(null)
@@ -76,6 +80,7 @@ export default function EditProject({ project }: EditProjectProps) {
       setBuilderWebsiteLink(project.builderWebsiteLink || '')
       setBrochureUrl(project.brochureUrl || '')
       setLocationAddress(project.location.formattedAddress || '')
+      setGoogleMapsUrl(project.googlePin || '')
       setHighlights(project.highlights || [])
       setAmenities(project.amenities || [])
       setWalkthroughVideoUrl(project.walkthroughVideoUrl || '')
@@ -85,6 +90,7 @@ export default function EditProject({ project }: EditProjectProps) {
       setFloorplanImages(project.floorplanImageUrls || [])
       setClubhouseImages(project.clubhouseImageUrls || [])
       setGalleryImages(project.galleryImageUrls || [])
+      setSiteLayoutImages(project.siteLayoutImageUrls || [])
     }
   }, [project])
 
@@ -97,19 +103,27 @@ export default function EditProject({ project }: EditProjectProps) {
       return
     }
 
-    const initializeAutocomplete = () => {
-      if (locationInputRef.current && window.google?.maps?.places?.Autocomplete) {
-        autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
-          types: ['geocode'],
-          componentRestrictions: { country: 'in' },
-        })
+    let isMounted = true
 
-        autocompleteRef.current.addListener('place_changed', () => {
-          const place = autocompleteRef.current?.getPlace()
-          if (place?.formatted_address) {
-            setLocationAddress(place.formatted_address)
-          }
-        })
+    const initializeAutocomplete = () => {
+      if (!isMounted) return
+      if (locationInputRef.current && window.google?.maps?.places?.Autocomplete) {
+        try {
+          autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
+            types: ['geocode'],
+            componentRestrictions: { country: 'in' },
+          })
+
+          autocompleteRef.current.addListener('place_changed', () => {
+            const place = autocompleteRef.current?.getPlace()
+            if (place?.formatted_address) {
+              setLocationAddress(place.formatted_address)
+            }
+          })
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error initializing autocomplete:', error)
+        }
       }
     }
 
@@ -127,7 +141,7 @@ export default function EditProject({ project }: EditProjectProps) {
     })
 
     loader
-      .load()
+      .importLibrary('places')
       .then(() => {
         initializeAutocomplete()
       })
@@ -135,6 +149,10 @@ export default function EditProject({ project }: EditProjectProps) {
         // eslint-disable-next-line no-console
         console.error('Error loading Google Maps API:', error)
       })
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   // Redirect if not authenticated
@@ -203,8 +221,8 @@ export default function EditProject({ project }: EditProjectProps) {
       toast.error('Please select a builder')
       return
     }
-    if (!locationAddress.trim()) {
-      toast.error('Location is required')
+    if (!locationAddress.trim() && !googleMapsUrl.trim()) {
+      toast.error('Location address or Google Maps URL is required')
       return
     }
 
@@ -215,6 +233,7 @@ export default function EditProject({ project }: EditProjectProps) {
       const newFloorplans = floorplanImages.filter(img => img.startsWith('data:image'))
       const newClubhouse = clubhouseImages.filter(img => img.startsWith('data:image'))
       const newGallery = galleryImages.filter(img => img.startsWith('data:image'))
+      const newSiteLayout = siteLayoutImages.filter(img => img.startsWith('data:image'))
 
       const response = await fetch('/api/projects/update', {
         method: 'PUT',
@@ -230,13 +249,15 @@ export default function EditProject({ project }: EditProjectProps) {
           builderWebsiteLink: builderWebsiteLink.trim() || null,
           brochureUrl: brochureUrl.trim() || null,
           brochurePdfBase64: brochurePdf || null,
-          locationAddress: locationAddress.trim(),
+          locationAddress: locationAddress.trim() || null,
+          googleMapsUrl: googleMapsUrl.trim() || null,
           bannerImageBase64: bannerImage[0]?.startsWith('data:image') ? bannerImage[0] : null,
           highlights: highlights.length > 0 ? highlights : null,
           amenities: amenities.length > 0 ? amenities : null,
           floorplanImagesBase64: newFloorplans,
           clubhouseImagesBase64: newClubhouse,
           galleryImagesBase64: newGallery,
+          siteLayoutImagesBase64: newSiteLayout,
           walkthroughVideoUrl: walkthroughVideoUrl.trim() || null,
         }),
       })
@@ -321,20 +342,40 @@ export default function EditProject({ project }: EditProjectProps) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Exact Google Maps Location <span className="text-red-500">*</span>
+                  Location <span className="text-red-500">*</span>
                 </label>
-                <input
-                  ref={locationInputRef}
-                  type="text"
-                  value={locationAddress}
-                  onChange={e => setLocationAddress(e.target.value)}
-                  placeholder="Start typing address... (e.g., Kokapet, Hyderabad, Telangana)"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-                <p className="text-sm text-gray-500 mt-1">
-                  Start typing and select from Google Maps suggestions for accurate location
-                </p>
+                <div className="flex items-center gap-3 mb-3">
+                  <input
+                    ref={locationInputRef}
+                    type="text"
+                    value={locationAddress}
+                    onChange={e => setLocationAddress(e.target.value)}
+                    placeholder="Type address (e.g., Kokapet, Hyderabad)"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-500 font-medium">OR</span>
+                  <input
+                    type="url"
+                    value={googleMapsUrl}
+                    onChange={e => setGoogleMapsUrl(e.target.value)}
+                    placeholder="Paste Google Maps URL"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                {locationAddress && (
+                  <div className="rounded-lg overflow-hidden border border-gray-300">
+                    <iframe
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent(locationAddress)}&output=embed`}
+                      width="100%"
+                      height="250"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Project Location Map"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -485,6 +526,13 @@ export default function EditProject({ project }: EditProjectProps) {
                 maxImages={20}
                 label="Gallery Images (up to 20 images)"
               />
+
+              <ImageUploader
+                images={siteLayoutImages}
+                onChange={setSiteLayoutImages}
+                maxImages={10}
+                label="Site Layout Images (up to 10 images)"
+              />
             </div>
 
             {/* Submit Button */}
@@ -493,14 +541,14 @@ export default function EditProject({ project }: EditProjectProps) {
                 <button
                   type="button"
                   onClick={() => router.back()}
-                  className="flex-1 bg-gray-200 text-gray-700 py-4 px-6 rounded-lg font-semibold text-lg hover:bg-gray-300 transition-colors"
+                  className="flex-1 bg-gray-200 text-gray-700 py-2.5 px-4 rounded-lg font-medium text-sm hover:bg-gray-300 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg font-medium text-sm hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                   {isSubmitting ? 'Updating Project...' : 'Update Project'}
                 </button>
@@ -543,6 +591,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
         floorplanImageUrls: true,
         clubhouseImageUrls: true,
         galleryImageUrls: true,
+        siteLayoutImageUrls: true,
+        googlePin: true,
         highlights: true,
         amenities: true,
         walkthroughVideoUrl: true,

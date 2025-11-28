@@ -23,10 +23,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ message: 'Project not found' })
     }
 
-    // Get all agents for this project
+    const now = new Date()
+
+    // Get only agents that have an active promotion (promotionEndDate > now)
+    // Agents with expired promotions will not appear
     const projectAgents = await prisma.projectAgent.findMany({
       where: {
         projectId,
+        isPromoted: true,
+        promotionEndDate: {
+          gt: now,
+        },
       },
       include: {
         user: {
@@ -58,23 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ],
     })
 
-    // Check if promotions have expired and update them
-    const now = new Date()
-    for (const agent of projectAgents) {
-      if (agent.isPromoted && agent.promotionEndDate && agent.promotionEndDate < now) {
-        await prisma.projectAgent.update({
-          where: { id: agent.id },
-          data: {
-            isPromoted: false,
-            promotionStartDate: null,
-            promotionEndDate: null,
-          },
-        })
-        agent.isPromoted = false
-      }
-    }
-
-    // Format response
+    // Format response - all agents here are actively promoted
     const agents = projectAgents.map(pa => ({
       id: pa.id,
       agent: {
@@ -90,13 +81,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         mobileVerified: pa.user.mobileVerified,
       },
       registeredAt: pa.registeredAt,
-      isFeatured: pa.isPromoted && pa.promotionEndDate && pa.promotionEndDate > now,
+      isFeatured: true, // All agents shown are featured (actively promoted)
       promotionEndDate: pa.promotionEndDate,
     }))
 
-    // Separate featured (top 5) and regular agents
-    const featuredAgents = agents.filter(a => a.isFeatured).slice(0, 5)
-    const regularAgents = agents.filter(a => !a.isFeatured)
+    // All agents are featured since we only fetch actively promoted ones
+    const featuredAgents = agents.slice(0, 5)
+    const regularAgents: typeof agents = [] // No regular agents anymore
 
     return res.status(200).json({
       featuredAgents,

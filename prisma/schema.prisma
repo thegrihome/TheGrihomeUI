@@ -149,6 +149,7 @@ model Project {
   floorplanImageUrls     String[]
   clubhouseImageUrls     String[]
   galleryImageUrls       String[]
+  siteLayoutImageUrls    String[]
   walkthroughVideoUrl    String?
   isArchived             Boolean           @default(false)
   ads                    Ad[]

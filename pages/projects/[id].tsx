@@ -12,6 +12,34 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { prisma } from '@/lib/cockroachDB/prisma'
 
+// Helper function to convert Google Maps URL to embeddable format
+const getEmbeddableMapUrl = (googlePin: string | null, fallbackAddress: string): string => {
+  if (!googlePin) {
+    return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+  }
+
+  // Already an embed URL
+  if (googlePin.includes('/embed') || googlePin.includes('output=embed')) {
+    return googlePin
+  }
+
+  // Extract coordinates from various Google Maps URL formats
+  // Format: https://www.google.com/maps/@17.4234,78.4456,17z
+  const atMatch = googlePin.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/)
+  if (atMatch) {
+    return `https://maps.google.com/maps?q=${atMatch[1]},${atMatch[2]}&z=15&output=embed`
+  }
+
+  // Format: https://www.google.com/maps/place/.../@17.4234,78.4456
+  const placeMatch = googlePin.match(/place\/[^/]+\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/)
+  if (placeMatch) {
+    return `https://maps.google.com/maps?q=${placeMatch[1]},${placeMatch[2]}&z=15&output=embed`
+  }
+
+  // For short URLs (maps.app.goo.gl) or unrecognized formats, fallback to address
+  return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`
+}
+
 const PropertyMap = dynamic(() => import('@/components/properties/PropertyMap'), {
   ssr: false,
   loading: () => (
@@ -26,6 +54,7 @@ interface ProjectDetails {
   name: string
   description: string
   type: string
+  propertyType: string | null
   numberOfUnits: number | null
   size: number | null
   googlePin: string | null
@@ -35,6 +64,7 @@ interface ProjectDetails {
   floorplanImageUrls: string[]
   clubhouseImageUrls: string[]
   galleryImageUrls: string[]
+  siteLayoutImageUrls: string[]
   walkthroughVideoUrl: string | null
   highlights: any
   amenities: any
@@ -81,6 +111,7 @@ interface Property {
   id: string
   streetAddress: string
   propertyType: string
+  listingType: string
   sqFt: number | null
   thumbnailUrl: string | null
   imageUrls: string[]
@@ -393,7 +424,22 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   className="object-contain"
                 />
               )}
-              <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                {project.name}
+                <svg
+                  className="w-6 h-6 text-blue-500 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-label="Verified Project"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </h1>
             </div>
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <Link
@@ -409,78 +455,50 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               </span>
             </div>
 
-            {/* Owner Actions */}
-            {isOwner && (
-              <div className="flex flex-wrap gap-2 mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <span className="text-sm text-gray-700 font-medium flex items-center">
-                  <svg
-                    className="w-4 h-4 mr-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  Your Project:
-                </span>
-                <Link
-                  href={`/projects/edit/${project.id}`}
-                  className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  <svg
-                    className="w-4 h-4 mr-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  Edit Project
-                </Link>
-                <button
-                  onClick={handleArchiveProject}
-                  disabled={isArchiving}
-                  className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-                    project.isArchived
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-red-600 text-white hover:bg-red-700'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  <svg
-                    className="w-4 h-4 mr-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d={
-                        project.isArchived
-                          ? 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
-                          : 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4'
-                      }
-                    />
-                  </svg>
-                  {isArchiving
-                    ? 'Processing...'
-                    : project.isArchived
-                      ? 'Restore Project'
-                      : 'Archive Project'}
-                </button>
+            {/* Property Type Tile + Owner Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div className="flex flex-wrap items-center gap-2">
+                {project.propertyType && (
+                  <>
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      {project.propertyType === 'SINGLE_FAMILY' && 'Villa'}
+                      {project.propertyType === 'CONDO' && 'Apartment'}
+                      {project.propertyType === 'LAND_RESIDENTIAL' && 'Residential Land'}
+                      {project.propertyType === 'LAND_AGRICULTURE' && 'Agriculture Land'}
+                      {project.propertyType === 'COMMERCIAL' && 'Commercial'}
+                    </span>
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                      For Sale
+                    </span>
+                  </>
+                )}
               </div>
-            )}
+              {isOwner && (
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/projects/edit/${project.id}`}
+                    className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Edit Project
+                  </Link>
+                  <button
+                    onClick={handleArchiveProject}
+                    disabled={isArchiving}
+                    className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                      project.isArchived
+                        ? 'bg-green-600 text-white hover:bg-green-700'
+                        : 'bg-red-600 text-white hover:bg-red-700'
+                    } disabled:opacity-50`}
+                  >
+                    {isArchiving
+                      ? '...'
+                      : project.isArchived
+                        ? 'Restore Project'
+                        : 'Archive Project'}
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Registered Agent Banner */}
             {showAgentBanner && (
@@ -571,13 +589,25 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             project.highlights.length > 0 && (
               <div className="project-section">
                 <h2 className="project-section-title">Highlights</h2>
-                <ul className="list-disc list-inside space-y-2 text-gray-700">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {project.highlights.map((highlight: string, index: number) => (
-                    <li key={index} className="text-lg">
-                      {highlight}
-                    </li>
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200"
+                    >
+                      <div className="flex-shrink-0 w-6 h-6 bg-amber-50 rounded flex items-center justify-center">
+                        <svg
+                          className="w-3.5 h-3.5 text-amber-500"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </div>
+                      <span className="text-gray-700 text-sm">{highlight}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
@@ -587,14 +617,29 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             project.amenities.length > 0 && (
               <div className="project-section">
                 <h2 className="project-section-title">Amenities</h2>
-                <ul className="grid grid-cols-2 md:grid-cols-3 gap-3 text-gray-700">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                   {project.amenities.map((amenity: string, index: number) => (
-                    <li key={index} className="flex items-center text-base">
-                      <span className="mr-2 text-green-600">✓</span>
-                      {amenity}
-                    </li>
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200"
+                    >
+                      <div className="flex-shrink-0 w-6 h-6 bg-green-50 rounded flex items-center justify-center">
+                        <svg
+                          className="w-3.5 h-3.5 text-green-500"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-gray-700 text-sm">{amenity}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
@@ -667,21 +712,69 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             </div>
           )}
 
-          {/* Walkthrough Video */}
-          {project.walkthroughVideoUrl && (
+          {/* Site Layout */}
+          {project.siteLayoutImageUrls && project.siteLayoutImageUrls.length > 0 && (
             <div className="project-section">
-              <h2 className="project-section-title">Virtual Walkthrough</h2>
-              <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg">
-                <iframe
-                  src={project.walkthroughVideoUrl.replace('watch?v=', 'embed/')}
-                  title="Project Walkthrough"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-96"
-                />
+              <h2 className="project-section-title">Site Layout</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {project.siteLayoutImageUrls.map((url: string, index: number) => (
+                  <div
+                    key={index}
+                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <Image
+                      src={url}
+                      alt={`Site Layout ${index + 1}`}
+                      width={600}
+                      height={400}
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           )}
+
+          {/* Walkthrough Video */}
+          {project.walkthroughVideoUrl &&
+            (() => {
+              // Helper function to convert YouTube URL to embed URL
+              const getYouTubeEmbedUrl = (url: string): string | null => {
+                if (!url) return null
+
+                // Handle youtu.be short URLs
+                let match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
+                if (match) return `https://www.youtube.com/embed/${match[1]}`
+
+                // Handle youtube.com watch URLs (with or without additional params)
+                match = url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/)
+                if (match) return `https://www.youtube.com/embed/${match[1]}`
+
+                // Handle youtube.com embed URLs (already correct)
+                if (url.includes('youtube.com/embed/')) return url
+
+                // Fallback: return the URL as-is
+                return url
+              }
+
+              const embedUrl = getYouTubeEmbedUrl(project.walkthroughVideoUrl)
+              if (!embedUrl) return null
+
+              return (
+                <div className="project-section">
+                  <h2 className="project-section-title">Virtual Walkthrough</h2>
+                  <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
+                    <iframe
+                      src={embedUrl}
+                      title="Project Walkthrough"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  </div>
+                </div>
+              )
+            })()}
 
           {/* Location Map */}
           {project.location.latitude && project.location.longitude && (
@@ -789,52 +882,28 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
         {/* Right Column - Sidebar */}
         <div className="project-detail-right">
-          {/* Location */}
-          <div className="sidebar-section">
-            <h3 className="sidebar-section-title">Location</h3>
-            <div className="location-map">
-              <iframe
-                src={
-                  project.googlePin ||
-                  `https://maps.google.com/maps?q=${encodeURIComponent(
-                    `${project.name}, ${project.location.locality ? project.location.locality + ', ' : ''}${project.location.city}, ${project.location.state}`
-                  )}&t=&z=15&ie=UTF8&iwloc=&output=embed`
-                }
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                title={`${project.name} Location`}
-              />
-            </div>
-            <div className="location-address">
-              {project.location.locality && `${project.location.locality}, `}
-              {project.location.city}, {project.location.state}
-              {project.location.zipcode && `, ${project.location.zipcode}`}
-            </div>
-          </div>
-
           {/* Posted By Section */}
           {isAuthenticated &&
             (project.postedBy ||
               (project.contactPersonFirstName && project.contactPersonEmail)) && (
               <div className="sidebar-section">
                 <h3 className="sidebar-section-title">Posted By</h3>
-                <div className="posted-by-card">
-                  <div className="posted-by-info">
-                    <div className="posted-by-name">
+                <div className="p-3 border rounded-lg">
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="font-medium text-gray-900 text-sm">
                       {project.contactPersonFirstName && project.contactPersonLastName
                         ? `${project.contactPersonFirstName} ${project.contactPersonLastName}`
                         : project.postedBy?.name || 'N/A'}
-                    </div>
-                    <div className="posted-by-detail">
-                      <span className="posted-by-label">Email:</span>{' '}
-                      {project.contactPersonEmail || project.postedBy?.email || 'N/A'}
-                    </div>
-                    <div className="posted-by-detail">
-                      <span className="posted-by-label">Phone:</span>{' '}
-                      {project.contactPersonPhone || project.postedBy?.phone || 'N/A'}
+                    </span>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-xs text-gray-600">
+                        {project.contactPersonEmail || project.postedBy?.email}
+                      </div>
+                      {(project.contactPersonPhone || project.postedBy?.phone) && (
+                        <div className="text-xs text-gray-600 mt-0.5">
+                          {project.contactPersonPhone || project.postedBy?.phone}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -874,80 +943,66 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             <div className="featured-items-container">
               {featuredProperties.map(property => (
                 <Link key={property.id} href={`/properties/${property.id}`}>
-                  <div
-                    className={`featured-property-card ${property.isFeatured ? 'featured' : ''}`}
-                  >
-                    {property.thumbnailUrl && (
-                      <Image
-                        src={property.thumbnailUrl}
-                        alt={property.streetAddress}
-                        width={300}
-                        height={120}
-                        className="property-thumbnail"
-                      />
-                    )}
-                    <div className="property-info">
-                      <div className="property-title flex items-center gap-1">
-                        {property.streetAddress}
-                        {property.isFeatured && (
-                          <svg
-                            className="w-4 h-4 text-blue-500 flex-shrink-0"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
-                            aria-label="Verified Property"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        )}
+                  <div className="featured-property-card p-2 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <span className="font-medium text-gray-900 text-sm">
+                          {property.streetAddress}
+                        </span>
+                        <svg
+                          className="w-3.5 h-3.5 text-blue-500 inline-block ml-1 align-middle"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
                       </div>
-                      <div className="property-price">
-                        {property.propertyDetails?.price
-                          ? `₹${(property.propertyDetails.price / 100000).toFixed(2)} Lakhs`
-                          : 'Price on Request'}
+                      <div className="flex items-start gap-1 flex-shrink-0">
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-xs font-medium ${property.listingType === 'RENT' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'}`}
+                        >
+                          {property.listingType === 'RENT' ? 'Rent' : 'Sale'}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          {property.propertyType === 'SINGLE_FAMILY'
+                            ? 'Villa'
+                            : property.propertyType === 'CONDO'
+                              ? 'Apt'
+                              : property.propertyType === 'LAND_RESIDENTIAL'
+                                ? 'Land'
+                                : property.propertyType === 'LAND_AGRICULTURE'
+                                  ? 'Agri'
+                                  : property.propertyType === 'COMMERCIAL'
+                                    ? 'Comm'
+                                    : property.propertyType === 'TOWNHOUSE'
+                                      ? 'Town'
+                                      : property.propertyType === 'MULTI_FAMILY'
+                                        ? 'Multi'
+                                        : 'Land'}
+                        </span>
                       </div>
-                      <div className="property-location">
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs text-gray-600">
                         {property.location?.locality && `${property.location.locality}, `}
                         {property.location?.city}
-                      </div>
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {property.propertyDetails?.price
+                          ? `₹${(property.propertyDetails.price / 100000).toFixed(1)}L`
+                          : 'Price on Request'}
+                      </span>
                     </div>
                   </div>
                 </Link>
               ))}
-              {regularProperties.map(property => (
-                <Link key={property.id} href={`/properties/${property.id}`}>
-                  <div className="featured-property-card">
-                    {property.thumbnailUrl && (
-                      <Image
-                        src={property.thumbnailUrl}
-                        alt={property.streetAddress}
-                        width={300}
-                        height={120}
-                        className="property-thumbnail"
-                      />
-                    )}
-                    <div className="property-info">
-                      <div className="property-title">{property.streetAddress}</div>
-                      <div className="property-price">
-                        {property.propertyDetails?.price
-                          ? `₹${(property.propertyDetails.price / 100000).toFixed(2)} Lakhs`
-                          : 'Price on Request'}
-                      </div>
-                      <div className="property-location">
-                        {property.location?.locality && `${property.location.locality}, `}
-                        {property.location?.city}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-              {featuredProperties.length === 0 && regularProperties.length === 0 && (
+              {featuredProperties.length === 0 && (
                 <p className="text-sm text-gray-500 text-center py-4">
-                  No properties are tagged for this project yet.
+                  No properties are promoted for this project yet.
                 </p>
               )}
             </div>
@@ -1103,6 +1158,30 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               )}
             </div>
           </div>
+
+          {/* Location */}
+          <div className="sidebar-section">
+            <h3 className="sidebar-section-title">Location</h3>
+            <div className="location-map">
+              <iframe
+                src={getEmbeddableMapUrl(
+                  project.googlePin,
+                  `${project.name}, ${project.location.locality ? project.location.locality + ', ' : ''}${project.location.city}, ${project.location.state}`
+                )}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                title={`${project.name} Location`}
+              />
+            </div>
+            <div className="location-address">
+              {project.location.locality && `${project.location.locality}, `}
+              {project.location.city}, {project.location.state}
+              {project.location.zipcode && `, ${project.location.zipcode}`}
+            </div>
+          </div>
         </div>
       </main>
 
@@ -1136,6 +1215,10 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
             country: true,
             locality: true,
             zipcode: true,
+            neighborhood: true,
+            latitude: true,
+            longitude: true,
+            formattedAddress: true,
           },
         },
         postedBy: {

@@ -34,7 +34,7 @@ export function getDatabaseConfig(): DatabaseConfig {
       environment: 'production',
     }
   } else {
-    // Development/preview environment - use dev database
+    // Development/preview/local environment - use dev database
     const devUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_DEV
     if (!devUrl) {
       throw new Error(

@@ -3,20 +3,10 @@ import { NextSeo } from 'next-seo'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import dynamic from 'next/dynamic'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import toast from 'react-hot-toast'
 import { SIZE_UNIT_LABELS } from '@/lib/constants'
-
-const PropertyMap = dynamic(() => import('@/components/properties/PropertyMap'), {
-  ssr: false,
-  loading: () => (
-    <div className="rounded-lg bg-gray-100 p-8 text-center" style={{ minHeight: '400px' }}>
-      <p className="text-gray-600">Loading map...</p>
-    </div>
-  ),
-})
 
 interface PropertyDetail {
   id: string
@@ -520,37 +510,6 @@ export default function PropertyDetailPage() {
                   </div>
                 )}
 
-                {/* Walkthrough Video */}
-                {property.walkthroughVideoUrl && (
-                  <div className="mt-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                      Virtual Walkthrough
-                    </h3>
-                    <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg">
-                      <iframe
-                        src={property.walkthroughVideoUrl.replace('watch?v=', 'embed/')}
-                        title="Property Walkthrough"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-96"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Location Map */}
-                {property.location.latitude && property.location.longitude && (
-                  <div className="mt-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Location</h3>
-                    <PropertyMap
-                      latitude={property.location.latitude}
-                      longitude={property.location.longitude}
-                      address={property.location.formattedAddress || property.location.fullAddress}
-                      className="w-full"
-                    />
-                  </div>
-                )}
-
                 {/* Sold Information */}
                 {property.listingStatus === 'SOLD' && (
                   <div className="property-sold-notice">
@@ -566,42 +525,111 @@ export default function PropertyDetailPage() {
 
             {/* Sidebar */}
             <div className="property-detail-sidebar-column">
-              {/* Interested Buyers (Owner Only) */}
-              {isOwner && (
-                <div className="property-buyers-card">
-                  <h3 className="property-buyers-card__title">
-                    Interested Buyers ({property.interests.length})
-                  </h3>
-                  {property.interests.length === 0 ? (
-                    <p className="property-buyers-card__empty">
-                      No one has expressed interest yet.
-                    </p>
-                  ) : (
-                    <div className="property-buyers-list-scroll">
-                      {property.interests.map(interest => (
-                        <div key={interest.id} className="property-buyer">
-                          <div className="property-buyer-row">
-                            {/* Left: Name and Date */}
-                            <div className="flex-1">
-                              <p className="property-buyer__name">{interest.user.name}</p>
-                              <p className="property-buyer__date">
-                                {formatDate(interest.createdAt)}
-                              </p>
-                            </div>
-                            {/* Right: Email and Phone */}
-                            <div className="text-right">
-                              <p className="property-buyer__email">{interest.user.email}</p>
-                              <p className="property-buyer__phone">{interest.user.phone}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              {/* Location Map - Show if we have coordinates OR an address */}
+              {(property.location.latitude && property.location.longitude) ||
+              property.location.fullAddress ||
+              property.location.formattedAddress ? (
+                <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Location</h3>
+                  <div className="rounded-lg overflow-hidden">
+                    <iframe
+                      src={
+                        property.location.latitude && property.location.longitude
+                          ? `https://maps.google.com/maps?q=${property.location.latitude},${property.location.longitude}&z=15&output=embed`
+                          : `https://maps.google.com/maps?q=${encodeURIComponent(property.location.formattedAddress || property.location.fullAddress)}&z=15&output=embed`
+                      }
+                      width="100%"
+                      height="250"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Property Location"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">
+                    {property.location.formattedAddress || property.location.fullAddress}
+                  </p>
                 </div>
-              )}
+              ) : null}
+
+              {/* Walkthrough Video */}
+              {property.walkthroughVideoUrl &&
+                (() => {
+                  // Helper function to convert YouTube URL to embed URL
+                  const getYouTubeEmbedUrl = (url: string): string | null => {
+                    if (!url) return null
+
+                    // Handle youtu.be short URLs
+                    let match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
+                    if (match) return `https://www.youtube.com/embed/${match[1]}`
+
+                    // Handle youtube.com watch URLs (with or without additional params)
+                    match = url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/)
+                    if (match) return `https://www.youtube.com/embed/${match[1]}`
+
+                    // Handle youtube.com embed URLs (already correct)
+                    if (url.includes('youtube.com/embed/')) return url
+
+                    // Fallback: return null for non-YouTube URLs
+                    return null
+                  }
+
+                  const embedUrl = getYouTubeEmbedUrl(property.walkthroughVideoUrl)
+                  if (!embedUrl) return null
+
+                  return (
+                    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        Virtual Walkthrough
+                      </h3>
+                      <div className="aspect-video rounded-lg overflow-hidden">
+                        <iframe
+                          src={embedUrl}
+                          title="Property Walkthrough"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full h-full"
+                        />
+                      </div>
+                    </div>
+                  )
+                })()}
             </div>
           </div>
+
+          {/* Interested Buyers Section - Full Width Below Both Columns (Owner Only) */}
+          {isOwner && (
+            <div className="mt-6">
+              <div className="property-buyers-card">
+                <h3 className="property-buyers-card__title">
+                  Interested Buyers ({property.interests.length})
+                </h3>
+                {property.interests.length === 0 ? (
+                  <p className="property-buyers-card__empty">No one has expressed interest yet.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {property.interests.map(interest => (
+                      <div key={interest.id} className="property-buyer">
+                        <div className="property-buyer-row">
+                          {/* Left: Name and Date */}
+                          <div className="flex-1">
+                            <p className="property-buyer__name">{interest.user.name}</p>
+                            <p className="property-buyer__date">{formatDate(interest.createdAt)}</p>
+                          </div>
+                          {/* Right: Email and Phone */}
+                          <div className="text-right">
+                            <p className="property-buyer__email">{interest.user.email}</p>
+                            <p className="property-buyer__phone">{interest.user.phone}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </main>
 

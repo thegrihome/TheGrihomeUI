@@ -6,8 +6,8 @@ import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BuilderSelector from '@/components/projects/BuilderSelector'
-import DynamicList from '@/components/projects/DynamicList'
 import ImageUploader from '@/components/projects/ImageUploader'
+import SimpleRichTextEditor from '@/components/common/SimpleRichTextEditor'
 import toast from 'react-hot-toast'
 
 export default function SubmitProject() {
@@ -23,8 +23,9 @@ export default function SubmitProject() {
   const [brochureUrl, setBrochureUrl] = useState('')
   const [brochurePdf, setBrochurePdf] = useState<string | null>(null)
   const [locationAddress, setLocationAddress] = useState('')
-  const [highlights, setHighlights] = useState<string[]>([])
-  const [amenities, setAmenities] = useState<string[]>([])
+  const [googleMapsUrl, setGoogleMapsUrl] = useState('')
+  const [highlightsText, setHighlightsText] = useState('')
+  const [amenitiesText, setAmenitiesText] = useState('')
   const [walkthroughVideoUrls, setWalkthroughVideoUrls] = useState<string[]>([''])
 
   // Dropdown state
@@ -35,6 +36,7 @@ export default function SubmitProject() {
   const [floorplanImages, setFloorplanImages] = useState<string[]>([])
   const [clubhouseImages, setClubhouseImages] = useState<string[]>([])
   const [galleryImages, setGalleryImages] = useState<string[]>([])
+  const [siteLayoutImages, setSiteLayoutImages] = useState<string[]>([])
 
   // Google Maps autocomplete refs
   const locationInputRef = useRef<HTMLInputElement>(null)
@@ -77,19 +79,27 @@ export default function SubmitProject() {
       return
     }
 
-    const initializeAutocomplete = () => {
-      if (locationInputRef.current && window.google?.maps?.places?.Autocomplete) {
-        autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
-          types: ['geocode'],
-          componentRestrictions: { country: 'in' },
-        })
+    let isMounted = true
 
-        autocompleteRef.current.addListener('place_changed', () => {
-          const place = autocompleteRef.current?.getPlace()
-          if (place?.formatted_address) {
-            setLocationAddress(place.formatted_address)
-          }
-        })
+    const initializeAutocomplete = () => {
+      if (!isMounted) return
+      if (locationInputRef.current && window.google?.maps?.places?.Autocomplete) {
+        try {
+          autocompleteRef.current = new google.maps.places.Autocomplete(locationInputRef.current, {
+            types: ['geocode'],
+            componentRestrictions: { country: 'in' },
+          })
+
+          autocompleteRef.current.addListener('place_changed', () => {
+            const place = autocompleteRef.current?.getPlace()
+            if (place?.formatted_address) {
+              setLocationAddress(place.formatted_address)
+            }
+          })
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error initializing autocomplete:', error)
+        }
       }
     }
 
@@ -107,7 +117,7 @@ export default function SubmitProject() {
     })
 
     loader
-      .load()
+      .importLibrary('places')
       .then(() => {
         initializeAutocomplete()
       })
@@ -115,6 +125,10 @@ export default function SubmitProject() {
         // eslint-disable-next-line no-console
         console.error('Error loading Google Maps API:', error)
       })
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   // Redirect if not authenticated
@@ -186,12 +200,22 @@ export default function SubmitProject() {
       toast.error('Please select a builder')
       return
     }
-    if (!locationAddress.trim()) {
-      toast.error('Location is required')
+    if (!locationAddress.trim() && !googleMapsUrl.trim()) {
+      toast.error('Location or Google Maps URL is required')
       return
     }
 
     setIsSubmitting(true)
+
+    // Parse comma-separated text into arrays
+    const highlightsArray = highlightsText
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+    const amenitiesArray = amenitiesText
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
 
     try {
       const response = await fetch('/api/projects/create', {
@@ -207,12 +231,14 @@ export default function SubmitProject() {
           brochureUrl: brochureUrl.trim() || null,
           brochurePdfBase64: brochurePdf || null,
           locationAddress: locationAddress.trim(),
+          googleMapsUrl: googleMapsUrl.trim() || null,
           bannerImageBase64: bannerImage[0] || null,
-          highlights: highlights.length > 0 ? highlights : null,
-          amenities: amenities.length > 0 ? amenities : null,
+          highlights: highlightsArray.length > 0 ? highlightsArray : null,
+          amenities: amenitiesArray.length > 0 ? amenitiesArray : null,
           floorplanImagesBase64: floorplanImages,
           clubhouseImagesBase64: clubhouseImages,
           galleryImagesBase64: galleryImages,
+          siteLayoutImagesBase64: siteLayoutImages,
           walkthroughVideoUrls: walkthroughVideoUrls.filter(url => url.trim() !== ''),
         }),
       })
@@ -272,12 +298,11 @@ export default function SubmitProject() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Description <span className="text-red-500">*</span>
                 </label>
-                <textarea
+                <SimpleRichTextEditor
                   value={description}
-                  onChange={e => setDescription(e.target.value)}
+                  onChange={setDescription}
                   placeholder="Describe your project..."
                   rows={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
@@ -347,20 +372,40 @@ export default function SubmitProject() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Exact Google Maps Location <span className="text-red-500">*</span>
+                  Location <span className="text-red-500">*</span>
                 </label>
-                <input
-                  ref={locationInputRef}
-                  type="text"
-                  value={locationAddress}
-                  onChange={e => setLocationAddress(e.target.value)}
-                  placeholder="Start typing address... (e.g., Kokapet, Hyderabad, Telangana)"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-                <p className="text-sm text-gray-500 mt-1">
-                  Start typing and select from Google Maps suggestions for accurate location
-                </p>
+                <div className="flex items-center gap-3 mb-3">
+                  <input
+                    ref={locationInputRef}
+                    type="text"
+                    value={locationAddress}
+                    onChange={e => setLocationAddress(e.target.value)}
+                    placeholder="Type address (e.g., Kokapet, Hyderabad)"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-500 font-medium">OR</span>
+                  <input
+                    type="url"
+                    value={googleMapsUrl}
+                    onChange={e => setGoogleMapsUrl(e.target.value)}
+                    placeholder="Paste Google Maps URL"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                {locationAddress && (
+                  <div className="rounded-lg overflow-hidden border border-gray-300">
+                    <iframe
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent(locationAddress)}&output=embed`}
+                      width="100%"
+                      height="250"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Project Location Map"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -439,19 +484,29 @@ export default function SubmitProject() {
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">Project Details</h2>
 
-              <DynamicList
-                items={highlights}
-                onChange={setHighlights}
-                label="Highlights"
-                placeholder="e.g., 2 & 3 BHK Apartments"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Highlights</label>
+                <textarea
+                  value={highlightsText}
+                  onChange={e => setHighlightsText(e.target.value)}
+                  placeholder="2 & 3 BHK Apartments, Premium Location, Gated Community, 24/7 Security"
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-sm text-gray-500 mt-1">Enter highlights separated by commas</p>
+              </div>
 
-              <DynamicList
-                items={amenities}
-                onChange={setAmenities}
-                label="Amenities"
-                placeholder="e.g., Swimming Pool"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Amenities</label>
+                <textarea
+                  value={amenitiesText}
+                  onChange={e => setAmenitiesText(e.target.value)}
+                  placeholder="Swimming Pool, Gym, Clubhouse, Children's Play Area, Jogging Track"
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-sm text-gray-500 mt-1">Enter amenities separated by commas</p>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -551,6 +606,13 @@ export default function SubmitProject() {
                 maxImages={20}
                 label="Gallery Images (up to 20 images)"
               />
+
+              <ImageUploader
+                images={siteLayoutImages}
+                onChange={setSiteLayoutImages}
+                maxImages={10}
+                label="Site Layout Images (up to 10 images)"
+              />
             </div>
 
             {/* Submit Button */}
@@ -558,9 +620,35 @@ export default function SubmitProject() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
-                {isSubmitting ? 'Submitting Project...' : 'Submit Project'}
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Submitting Project...
+                  </>
+                ) : (
+                  'Submit Project'
+                )}
               </button>
             </div>
           </form>
