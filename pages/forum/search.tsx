@@ -116,13 +116,20 @@ export default function SearchPage({ results, error }: SearchPageProps) {
   }
 
   const getCategoryUrl = (category: any) => {
-    if (category.city && category.propertyType) {
-      return `/forum/category/general-discussions/${category.city}/${category.slug.replace(`${category.city}-`, '')}`
-    } else if (category.city) {
-      return `/forum/category/general-discussions/${category.city}`
-    } else {
-      return `/forum/category/${category.slug}`
+    // For property type categories (e.g., "Villas in Chhattisgarh")
+    if (category.propertyType && category.parent) {
+      const locationSlug = category.city || category.parent.slug
+      return `/forum/category/general-discussions/${locationSlug}/${category.slug.replace(`${locationSlug}-`, '')}`
     }
+    // For city categories (city field is populated)
+    if (category.city) {
+      return `/forum/category/general-discussions/${category.city}`
+    }
+    // For state categories or top-level categories (use slug)
+    if (category.parent?.slug === 'general-discussions') {
+      return `/forum/category/general-discussions/${category.slug}`
+    }
+    return `/forum/category/${category.slug}`
   }
 
   return (

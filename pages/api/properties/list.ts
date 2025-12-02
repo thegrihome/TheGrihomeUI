@@ -12,6 +12,10 @@ interface QueryParams {
   sortBy?: string
   page?: string
   limit?: string
+  priceMin?: string
+  priceMax?: string
+  sizeMin?: string
+  sizeMax?: string
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -30,6 +34,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sortBy = 'newest',
       page = '1',
       limit = '12',
+      priceMin,
+      priceMax,
+      sizeMin,
+      sizeMax,
     } = req.query as QueryParams
 
     const pageNum = parseInt(page, 10)
@@ -165,12 +173,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get total count for pagination
     const totalCount = await prisma.property.count({ where })
 
+    // Determine if we need to fetch all records for in-memory filtering
+    const needsInMemoryProcessing =
+      sortBy === 'price_asc' ||
+      sortBy === 'price_desc' ||
+      priceMin ||
+      priceMax ||
+      sizeMin ||
+      sizeMax
+
     // Fetch properties
     const properties = await prisma.property.findMany({
       where,
       orderBy,
-      skip: sortBy === 'price_asc' || sortBy === 'price_desc' ? undefined : skip,
-      take: sortBy === 'price_asc' || sortBy === 'price_desc' ? undefined : limitNum,
+      skip: needsInMemoryProcessing ? undefined : skip,
+      take: needsInMemoryProcessing ? undefined : limitNum,
       include: {
         location: {
           select: {
@@ -246,6 +263,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     })
 
+    // Apply price and size filters (in-memory since Prisma doesn't support JSON field filtering well)
+    const hasPriceOrSizeFilter = priceMin || priceMax || sizeMin || sizeMax
+    if (hasPriceOrSizeFilter) {
+      transformedProperties = transformedProperties.filter(property => {
+        // Price filter
+        if (priceMin || priceMax) {
+          const propertyPrice = property.price ? parseFloat(property.price) : null
+          if (propertyPrice === null) return false // Exclude properties without price when price filter is active
+
+          if (priceMin && propertyPrice < parseFloat(priceMin)) return false
+          if (priceMax && propertyPrice > parseFloat(priceMax)) return false
+        }
+
+        // Size filter
+        if (sizeMin || sizeMax) {
+          const propertySize = property.size ? parseFloat(property.size) : null
+          if (propertySize === null) return false // Exclude properties without size when size filter is active
+
+          if (sizeMin && propertySize < parseFloat(sizeMin)) return false
+          if (sizeMax && propertySize > parseFloat(sizeMax)) return false
+        }
+
+        return true
+      })
+    }
+
     // Sort by price if requested (in-memory sorting since Prisma doesn't support JSON field sorting well)
     if (sortBy === 'price_asc' || sortBy === 'price_desc') {
       transformedProperties = transformedProperties.sort((a, b) => {
@@ -253,8 +296,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const priceB = b.price ? parseFloat(b.price) : 0
         return sortBy === 'price_asc' ? priceA - priceB : priceB - priceA
       })
+    }
 
-      // Apply pagination after sorting
+    // Calculate filtered count for pagination when using price/size filters
+    const filteredCount = hasPriceOrSizeFilter ? transformedProperties.length : totalCount
+
+    // Apply pagination after filtering/sorting when using in-memory processing
+    if (needsInMemoryProcessing) {
       transformedProperties = transformedProperties.slice(skip, skip + limitNum)
     }
 
@@ -262,9 +310,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       properties: transformedProperties,
       pagination: {
         currentPage: pageNum,
-        totalPages: Math.ceil(totalCount / limitNum),
-        totalCount,
-        hasNextPage: pageNum < Math.ceil(totalCount / limitNum),
+        totalPages: Math.ceil(filteredCount / limitNum),
+        totalCount: filteredCount,
+        hasNextPage: pageNum < Math.ceil(filteredCount / limitNum),
         hasPrevPage: pageNum > 1,
       },
     })

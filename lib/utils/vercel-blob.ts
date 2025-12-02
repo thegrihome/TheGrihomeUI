@@ -37,11 +37,11 @@ export async function uploadProjectImage(options: BlobUploadOptions): Promise<st
   let filename: string
   if (folder === 'banner' || folder === 'logo' || folder === 'layout') {
     // Root level images
-    filename = `hyderabad-projects/${normalizedProjectName}/${folder}.${extension}`
+    filename = `projects/${normalizedProjectName}/${folder}.${extension}`
   } else {
     // Subfolder images (clubhouse, floorplans, gallery)
     const imageIndex = index !== undefined ? index : Date.now()
-    filename = `hyderabad-projects/${normalizedProjectName}/${folder}/${folder}-${imageIndex}.${extension}`
+    filename = `projects/${normalizedProjectName}/${folder}/${folder}-${imageIndex}.${extension}`
   }
 
   // Upload to Vercel Blob

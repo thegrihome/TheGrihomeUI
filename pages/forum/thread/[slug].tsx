@@ -226,7 +226,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
           {post.category.parent && (
             <>
               <Link
-                href={`/forum/category/general-discussions/${post.category.city}`}
+                href={`/forum/category/general-discussions/${post.category.city || post.category.parent.slug}`}
                 className="forum-breadcrumb-link"
               >
                 {post.category.parent.name}
@@ -237,7 +237,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
           <Link
             href={
               post.category.parent?.parent
-                ? `/forum/category/general-discussions/${post.category.city}/${post.category.slug.replace(`${post.category.city}-`, '')}`
+                ? `/forum/category/general-discussions/${post.category.city || post.category.parent.slug}/${post.category.slug.replace(`${post.category.city || post.category.parent.slug}-`, '')}`
                 : `/forum/category/${post.category.slug}`
             }
             className="forum-breadcrumb-link"

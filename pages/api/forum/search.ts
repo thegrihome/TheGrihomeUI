@@ -82,6 +82,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 slug: true,
                 city: true,
                 propertyType: true,
+                parent: {
+                  select: {
+                    slug: true,
+                  },
+                },
               },
             },
             _count: {

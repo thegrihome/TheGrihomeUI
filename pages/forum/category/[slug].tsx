@@ -152,7 +152,7 @@ export default function CategoryPage({
             {category.parent && (
               <>
                 <Link
-                  href={`/forum/category/general-discussions/${category.city}`}
+                  href={`/forum/category/general-discussions/${category.city || category.parent.slug}`}
                   className="forum-breadcrumb-link"
                 >
                   {category.parent.name}

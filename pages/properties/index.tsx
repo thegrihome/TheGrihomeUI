@@ -48,6 +48,10 @@ interface Filters {
   bathrooms: string
   location: string
   sortBy: string
+  priceMin: string
+  priceMax: string
+  sizeMin: string
+  sizeMax: string
 }
 
 export default function PropertiesPage() {
@@ -82,7 +86,13 @@ export default function PropertiesPage() {
     bathrooms: '',
     location: '',
     sortBy: '',
+    priceMin: '',
+    priceMax: '',
+    sizeMin: '',
+    sizeMax: '',
   })
+  const [showPriceDropdown, setShowPriceDropdown] = useState(false)
+  const [showSizeDropdown, setShowSizeDropdown] = useState(false)
 
   const propertyTypes = [
     { value: 'SINGLE_FAMILY', label: 'Villas' },
@@ -100,6 +110,12 @@ export default function PropertiesPage() {
     { value: 'newest', label: 'Newest First' },
     { value: 'oldest', label: 'Oldest First' },
   ]
+
+  // Temporary state for price/size inputs before applying
+  const [tempPriceMin, setTempPriceMin] = useState('')
+  const [tempPriceMax, setTempPriceMax] = useState('')
+  const [tempSizeMin, setTempSizeMin] = useState('')
+  const [tempSizeMax, setTempSizeMax] = useState('')
 
   // Initialize from URL query parameters
   useEffect(() => {
@@ -208,13 +224,21 @@ export default function PropertiesPage() {
       if (!target.closest('.bathrooms-dropdown')) {
         setShowBathroomsDropdown(false)
       }
+      if (!target.closest('.price-dropdown')) {
+        setShowPriceDropdown(false)
+      }
+      if (!target.closest('.size-dropdown')) {
+        setShowSizeDropdown(false)
+      }
     }
 
     if (
       showSortDropdown ||
       showPropertyTypeDropdown ||
       showBedroomsDropdown ||
-      showBathroomsDropdown
+      showBathroomsDropdown ||
+      showPriceDropdown ||
+      showSizeDropdown
     ) {
       document.addEventListener('mousedown', handleClickOutside)
     }
@@ -222,7 +246,14 @@ export default function PropertiesPage() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showSortDropdown, showPropertyTypeDropdown, showBedroomsDropdown, showBathroomsDropdown])
+  }, [
+    showSortDropdown,
+    showPropertyTypeDropdown,
+    showBedroomsDropdown,
+    showBathroomsDropdown,
+    showPriceDropdown,
+    showSizeDropdown,
+  ])
 
   // Load properties from database
   useEffect(() => {
@@ -239,6 +270,10 @@ export default function PropertiesPage() {
         if (filters.bathrooms) queryParams.append('bathrooms', filters.bathrooms)
         if (filters.location) queryParams.append('location', filters.location)
         if (filters.sortBy) queryParams.append('sortBy', filters.sortBy)
+        if (filters.priceMin) queryParams.append('priceMin', filters.priceMin)
+        if (filters.priceMax) queryParams.append('priceMax', filters.priceMax)
+        if (filters.sizeMin) queryParams.append('sizeMin', filters.sizeMin)
+        if (filters.sizeMax) queryParams.append('sizeMax', filters.sizeMax)
         queryParams.append('page', currentPage.toString())
         queryParams.append('limit', propertiesPerPage.toString())
 
@@ -352,7 +387,88 @@ export default function PropertiesPage() {
       bathrooms: '',
       location: '',
       sortBy: '',
+      priceMin: '',
+      priceMax: '',
+      sizeMin: '',
+      sizeMax: '',
     })
+  }
+
+  // Helper to format price for display
+  const formatPrice = (value: string) => {
+    const num = parseFloat(value)
+    if (isNaN(num)) return value
+    if (num >= 10000000) return `${(num / 10000000).toFixed(num % 10000000 === 0 ? 0 : 1)} Cr`
+    if (num >= 100000) return `${(num / 100000).toFixed(num % 100000 === 0 ? 0 : 1)} Lac`
+    if (num >= 1000) return `${(num / 1000).toFixed(0)}K`
+    return value
+  }
+
+  // Helper to format price label
+  const getPriceLabel = () => {
+    if (filters.priceMin && filters.priceMax) {
+      return `${formatPrice(filters.priceMin)} - ${formatPrice(filters.priceMax)}`
+    }
+    if (filters.priceMin) {
+      return `${formatPrice(filters.priceMin)}+`
+    }
+    if (filters.priceMax) {
+      return `Up to ${formatPrice(filters.priceMax)}`
+    }
+    return 'Price'
+  }
+
+  // Helper to format size label
+  const getSizeLabel = () => {
+    if (filters.sizeMin && filters.sizeMax) {
+      return `${filters.sizeMin} - ${filters.sizeMax} sq.ft`
+    }
+    if (filters.sizeMin) {
+      return `${filters.sizeMin}+ sq.ft`
+    }
+    if (filters.sizeMax) {
+      return `Up to ${filters.sizeMax} sq.ft`
+    }
+    return 'Size'
+  }
+
+  // Apply price filter
+  const applyPriceFilter = () => {
+    setFilters(prev => ({
+      ...prev,
+      priceMin: tempPriceMin,
+      priceMax: tempPriceMax,
+    }))
+    setCurrentPage(1)
+    setShowPriceDropdown(false)
+  }
+
+  // Apply size filter
+  const applySizeFilter = () => {
+    setFilters(prev => ({
+      ...prev,
+      sizeMin: tempSizeMin,
+      sizeMax: tempSizeMax,
+    }))
+    setCurrentPage(1)
+    setShowSizeDropdown(false)
+  }
+
+  // Sync temp values when dropdown opens
+  const handlePriceDropdownToggle = () => {
+    if (!showPriceDropdown) {
+      setTempPriceMin(filters.priceMin)
+      setTempPriceMax(filters.priceMax)
+    }
+    setShowPriceDropdown(!showPriceDropdown)
+  }
+
+  const handleSizeDropdownToggle = () => {
+    if (!showSizeDropdown) {
+      setTempSizeMin(filters.sizeMin)
+      setTempSizeMax(filters.sizeMax)
+    }
+    setShowSizeDropdown(!showSizeDropdown)
   }
 
   const handleMarkAsSold = async () => {
@@ -703,6 +819,116 @@ export default function PropertiesPage() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Price Filter */}
+              <div className="relative price-dropdown flex-shrink-0">
+                <button
+                  onClick={handlePriceDropdownToggle}
+                  className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[100px] sm:min-w-[140px] text-left whitespace-nowrap"
+                >
+                  {getPriceLabel()}
+                </button>
+                <svg
+                  className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+                {showPriceDropdown && (
+                  <div className="absolute z-10 w-64 mt-0 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Min Price</label>
+                        <input
+                          type="number"
+                          value={tempPriceMin}
+                          onChange={e => setTempPriceMin(e.target.value)}
+                          placeholder="No Min"
+                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Max Price</label>
+                        <input
+                          type="number"
+                          value={tempPriceMax}
+                          onChange={e => setTempPriceMax(e.target.value)}
+                          placeholder="No Max"
+                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={applyPriceFilter}
+                      className="mt-3 w-full py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Size Filter */}
+              <div className="relative size-dropdown flex-shrink-0">
+                <button
+                  onClick={handleSizeDropdownToggle}
+                  className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[100px] sm:min-w-[160px] text-left whitespace-nowrap"
+                >
+                  {getSizeLabel()}
+                </button>
+                <svg
+                  className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+                {showSizeDropdown && (
+                  <div className="absolute z-10 w-64 mt-0 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Min Size (sq.ft)</label>
+                        <input
+                          type="number"
+                          value={tempSizeMin}
+                          onChange={e => setTempSizeMin(e.target.value)}
+                          placeholder="No Min"
+                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Max Size (sq.ft)</label>
+                        <input
+                          type="number"
+                          value={tempSizeMax}
+                          onChange={e => setTempSizeMax(e.target.value)}
+                          placeholder="No Max"
+                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={applySizeFilter}
+                      className="mt-3 w-full py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                      Apply
+                    </button>
                   </div>
                 )}
               </div>

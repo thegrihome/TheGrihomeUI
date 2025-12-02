@@ -28,7 +28,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/luxury-apartments/banner.jpeg',
+        'projects/luxury-apartments/banner.jpeg',
         expect.any(Buffer),
         expect.objectContaining({
           access: 'public',
@@ -49,7 +49,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/premium-villas/logo.png',
+        'projects/premium-villas/logo.png',
         expect.any(Buffer),
         expect.objectContaining({
           access: 'public',
@@ -70,7 +70,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/test-project/layout.jpeg',
+        'projects/test-project/layout.jpeg',
         expect.any(Buffer),
         expect.any(Object)
       )
@@ -89,7 +89,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/test-project/clubhouse/clubhouse-0.jpeg',
+        'projects/test-project/clubhouse/clubhouse-0.jpeg',
         expect.any(Buffer),
         expect.any(Object)
       )
@@ -108,7 +108,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/test-project/floorplans/floorplans-2.jpeg',
+        'projects/test-project/floorplans/floorplans-2.jpeg',
         expect.any(Buffer),
         expect.any(Object)
       )
@@ -127,7 +127,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/test-project/gallery/gallery-5.jpeg',
+        'projects/test-project/gallery/gallery-5.jpeg',
         expect.any(Buffer),
         expect.any(Object)
       )
@@ -165,7 +165,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/luxury-beach-apartments/banner.jpeg',
+        'projects/luxury-beach-apartments/banner.jpeg',
         expect.any(Buffer),
         expect.any(Object)
       )
@@ -182,7 +182,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/premiumvillas--apartments/banner.jpeg', // Double dash from normalization
+        'projects/premiumvillas--apartments/banner.jpeg', // Double dash from normalization
         expect.any(Buffer),
         expect.any(Object)
       )
@@ -199,7 +199,7 @@ describe('lib/utils/vercel-blob', () => {
       })
 
       expect(put).toHaveBeenCalledWith(
-        'hyderabad-projects/luxury-apartments/banner.jpeg',
+        'projects/luxury-apartments/banner.jpeg',
         expect.any(Buffer),
         expect.any(Object)
       )

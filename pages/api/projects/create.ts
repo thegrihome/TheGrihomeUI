@@ -156,7 +156,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           .toLowerCase()
           .replace(/\s+/g, '-')
           .replace(/[^a-z0-9-]/g, '')
-        const filename = `hyderabad-projects/${normalizedProjectName}/brochure.pdf`
+        const filename = `projects/${normalizedProjectName}/brochure.pdf`
 
         const blob = await put(filename, buffer, {
           access: 'public',
