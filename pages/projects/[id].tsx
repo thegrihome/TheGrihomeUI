@@ -957,7 +957,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                     <div className="flex justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <span className="font-medium text-gray-900 text-sm">
-                          {property.streetAddress}
+                          {property.propertyDetails?.title || property.streetAddress}
                         </span>
                         <svg
                           className="w-3.5 h-3.5 text-blue-500 inline-block ml-1 align-middle"
