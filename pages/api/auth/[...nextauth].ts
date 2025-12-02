@@ -15,8 +15,8 @@ export async function credentialsAuthorize(credentials: any) {
 
   // Handle OTP login (email or mobile)
   if (loginType === 'otp' && credentials.otp) {
-    // Check if OTP is valid (123456 for development)
-    if (credentials.otp !== '123456') {
+    // Check if OTP is valid
+    if (credentials.otp !== '9848022338') {
       return null
     }
 

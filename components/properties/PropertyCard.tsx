@@ -210,7 +210,7 @@ export default function PropertyCard({
             <div></div>
           )}
           <button
-            onClick={e => e.stopPropagation()}
+            onClick={handleCardClick}
             className="bg-blue-600 text-white px-1 py-1.5 rounded text-[10px] font-medium hover:bg-blue-700 transition-colors whitespace-nowrap text-center w-full leading-tight"
           >
             View Details

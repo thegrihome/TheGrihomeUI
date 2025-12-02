@@ -134,8 +134,12 @@ export default function SubmitProject() {
   // Redirect if not authenticated
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-gray-600">Loading...</div>
+        </main>
+        <Footer />
       </div>
     )
   }

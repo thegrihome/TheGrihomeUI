@@ -280,9 +280,9 @@ export default function AddProjectRequestPage() {
 
   if (status === 'loading') {
     return (
-      <div className="add-project-request-main">
+      <div className="add-project-request-main flex flex-col min-h-screen">
         <Header />
-        <div className="add-project-request-loading">
+        <div className="add-project-request-loading flex-1 flex items-center justify-center">
           <div className="add-project-request-spinner"></div>
         </div>
         <Footer />

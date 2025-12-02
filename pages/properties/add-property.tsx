@@ -38,6 +38,8 @@ export default function AddProperty() {
   const [showProjectDropdown, setShowProjectDropdown] = useState(false)
   const [showPropertyTypeDropdown, setShowPropertyTypeDropdown] = useState(false)
   const [showFacingDropdown, setShowFacingDropdown] = useState(false)
+  const [showPropertySizeUnitDropdown, setShowPropertySizeUnitDropdown] = useState(false)
+  const [showPlotSizeUnitDropdown, setShowPlotSizeUnitDropdown] = useState(false)
   const [walkthroughVideoUrls, setWalkthroughVideoUrls] = useState<string[]>([''])
   const [formData, setFormData] = useState({
     title: '',
@@ -48,9 +50,9 @@ export default function AddProperty() {
     bedrooms: '',
     bathrooms: '',
     propertySize: '',
-    propertySizeUnit: SIZE_UNITS.SQ_FT,
+    propertySizeUnit: SIZE_UNITS.SQ_FT as string,
     plotSize: '',
-    plotSizeUnit: SIZE_UNITS.SQ_FT,
+    plotSizeUnit: SIZE_UNITS.SQ_FT as string,
     facing: '',
     description: '',
     price: '',
@@ -180,16 +182,36 @@ export default function AddProperty() {
       if (!target.closest('.facing-dropdown')) {
         setShowFacingDropdown(false)
       }
+
+      if (!target.closest('.property-size-unit-dropdown')) {
+        setShowPropertySizeUnitDropdown(false)
+      }
+
+      if (!target.closest('.plot-size-unit-dropdown')) {
+        setShowPlotSizeUnitDropdown(false)
+      }
     }
 
-    if (showProjectDropdown || showPropertyTypeDropdown || showFacingDropdown) {
+    if (
+      showProjectDropdown ||
+      showPropertyTypeDropdown ||
+      showFacingDropdown ||
+      showPropertySizeUnitDropdown ||
+      showPlotSizeUnitDropdown
+    ) {
       document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showProjectDropdown, showPropertyTypeDropdown, showFacingDropdown])
+  }, [
+    showProjectDropdown,
+    showPropertyTypeDropdown,
+    showFacingDropdown,
+    showPropertySizeUnitDropdown,
+    showPlotSizeUnitDropdown,
+  ])
 
   useEffect(() => {
     // Initialize Google Places Autocomplete
@@ -430,11 +452,11 @@ export default function AddProperty() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <div className="flex justify-center items-center py-12">
+        <main className="flex-1 flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
+        </main>
         <Footer />
       </div>
     )
@@ -742,23 +764,45 @@ export default function AddProperty() {
                   className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Size"
                 />
-                <select
-                  name="propertySizeUnit"
-                  value={formData.propertySizeUnit}
-                  onChange={handleInputChange}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                  style={{ backgroundColor: 'white' }}
-                >
-                  {SIZE_UNIT_OPTIONS.map(unit => (
-                    <option
-                      key={unit.value}
-                      value={unit.value}
-                      style={{ backgroundColor: 'white' }}
-                    >
-                      {unit.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative property-size-unit-dropdown">
+                  <button
+                    type="button"
+                    onClick={() => setShowPropertySizeUnitDropdown(!showPropertySizeUnitDropdown)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 text-left"
+                  >
+                    {SIZE_UNIT_OPTIONS.find(u => u.value === formData.propertySizeUnit)?.label ||
+                      'Select Unit'}
+                  </button>
+                  <svg
+                    className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  {showPropertySizeUnitDropdown && (
+                    <ul className="absolute z-10 w-full top-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {SIZE_UNIT_OPTIONS.map(unit => (
+                        <li
+                          key={unit.value}
+                          className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, propertySizeUnit: unit.value }))
+                            setShowPropertySizeUnitDropdown(false)
+                          }}
+                        >
+                          {unit.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -776,23 +820,45 @@ export default function AddProperty() {
                     className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Plot Size"
                   />
-                  <select
-                    name="plotSizeUnit"
-                    value={formData.plotSizeUnit}
-                    onChange={handleInputChange}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                    style={{ backgroundColor: 'white' }}
-                  >
-                    {SIZE_UNIT_OPTIONS.map(unit => (
-                      <option
-                        key={unit.value}
-                        value={unit.value}
-                        style={{ backgroundColor: 'white' }}
-                      >
-                        {unit.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative plot-size-unit-dropdown">
+                    <button
+                      type="button"
+                      onClick={() => setShowPlotSizeUnitDropdown(!showPlotSizeUnitDropdown)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 text-left"
+                    >
+                      {SIZE_UNIT_OPTIONS.find(u => u.value === formData.plotSizeUnit)?.label ||
+                        'Select Unit'}
+                    </button>
+                    <svg
+                      className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                    {showPlotSizeUnitDropdown && (
+                      <ul className="absolute z-10 w-full top-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {SIZE_UNIT_OPTIONS.map(unit => (
+                          <li
+                            key={unit.value}
+                            className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, plotSizeUnit: unit.value }))
+                              setShowPlotSizeUnitDropdown(false)
+                            }}
+                          >
+                            {unit.label}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

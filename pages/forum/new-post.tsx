@@ -142,7 +142,15 @@ export default function NewPostPage({
   }
 
   if (status === 'loading') {
-    return <div>Loading...</div>
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-gray-600">Loading...</div>
+        </main>
+        <Footer />
+      </div>
+    )
   }
 
   if (!session) {

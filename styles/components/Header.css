@@ -71,7 +71,7 @@
 /* Logo */
 .header-logo {
   display: inline-flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.5rem;
   font-size: 1.5rem;
   font-weight: 500;
@@ -103,7 +103,7 @@
 
 .header-logo-image {
   margin: 0;
-  margin-bottom: 0.25rem;
+  margin-left: 0.25rem;
   display: block;
   flex-shrink: 0;
   line-height: 0;

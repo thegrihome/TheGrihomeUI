@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import { GetServerSideProps } from 'next'
@@ -8,6 +8,9 @@ import toast from 'react-hot-toast'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { prisma } from '@/lib/cockroachDB/prisma'
+import { PROPERTY_TYPE_LABELS } from '@/lib/constants'
+
+const DURATION_OPTIONS = Array.from({ length: 30 }, (_, i) => i + 1)
 
 interface Project {
   id: string
@@ -17,6 +20,7 @@ interface Project {
 
 interface Property {
   id: string
+  title: string
   streetAddress: string
   propertyType: string
 }
@@ -34,6 +38,18 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
   const [isProcessing, setIsProcessing] = useState(false)
   const [expiryDate, setExpiryDate] = useState<Date>(new Date())
 
+  // Property dropdown state
+  const [showPropertyDropdown, setShowPropertyDropdown] = useState(false)
+  const [propertySearch, setPropertySearch] = useState('')
+  const propertyDropdownRef = useRef<HTMLDivElement>(null)
+  const propertySearchRef = useRef<HTMLInputElement>(null)
+
+  // Duration dropdown state
+  const [showDurationDropdown, setShowDurationDropdown] = useState(false)
+  const [durationSearch, setDurationSearch] = useState('')
+  const durationDropdownRef = useRef<HTMLDivElement>(null)
+  const durationSearchRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
@@ -46,6 +62,57 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
     const expiry = new Date(today.getTime() + duration * 24 * 60 * 60 * 1000)
     setExpiryDate(expiry)
   }, [duration])
+
+  // Click outside handlers
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        propertyDropdownRef.current &&
+        !propertyDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowPropertyDropdown(false)
+        setPropertySearch('')
+      }
+      if (
+        durationDropdownRef.current &&
+        !durationDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowDurationDropdown(false)
+        setDurationSearch('')
+      }
+    }
+
+    if (showPropertyDropdown || showDurationDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showPropertyDropdown, showDurationDropdown])
+
+  useEffect(() => {
+    if (showPropertyDropdown && propertySearchRef.current) {
+      propertySearchRef.current.focus()
+    }
+  }, [showPropertyDropdown])
+
+  useEffect(() => {
+    if (showDurationDropdown && durationSearchRef.current) {
+      durationSearchRef.current.focus()
+    }
+  }, [showDurationDropdown])
+
+  const filteredProperties = userProperties.filter(
+    p =>
+      p.title.toLowerCase().includes(propertySearch.toLowerCase()) ||
+      p.streetAddress.toLowerCase().includes(propertySearch.toLowerCase()) ||
+      p.propertyType.toLowerCase().includes(propertySearch.toLowerCase())
+  )
+
+  const filteredDurations = DURATION_OPTIONS.filter(d => d.toString().includes(durationSearch))
+
+  const selectedProperty = userProperties.find(p => p.id === selectedPropertyId)
 
   if (!project) {
     return (
@@ -178,18 +245,71 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Property <span className="text-red-500">*</span>
               </label>
-              <select
-                value={selectedPropertyId}
-                onChange={e => setSelectedPropertyId(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Choose a property</option>
-                {userProperties.map(property => (
-                  <option key={property.id} value={property.id}>
-                    {property.streetAddress} ({property.propertyType})
-                  </option>
-                ))}
-              </select>
+              <div className="relative" ref={propertyDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowPropertyDropdown(!showPropertyDropdown)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-left flex items-center justify-between"
+                >
+                  <span className={selectedProperty ? 'text-gray-900' : 'text-gray-500'}>
+                    {selectedProperty
+                      ? `${selectedProperty.title} (${PROPERTY_TYPE_LABELS[selectedProperty.propertyType as keyof typeof PROPERTY_TYPE_LABELS] || selectedProperty.propertyType})`
+                      : 'Choose a property'}
+                  </span>
+                  <svg
+                    className={`w-5 h-5 text-gray-400 transition-transform ${showPropertyDropdown ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                {showPropertyDropdown && (
+                  <div className="absolute z-50 w-full top-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg">
+                    <div className="p-2 border-b border-gray-200">
+                      <input
+                        ref={propertySearchRef}
+                        type="text"
+                        placeholder="Search properties..."
+                        value={propertySearch}
+                        onChange={e => setPropertySearch(e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <ul className="max-h-48 overflow-y-auto">
+                      {filteredProperties.length > 0 ? (
+                        filteredProperties.map(property => (
+                          <li
+                            key={property.id}
+                            onClick={() => {
+                              setSelectedPropertyId(property.id)
+                              setShowPropertyDropdown(false)
+                              setPropertySearch('')
+                            }}
+                            className={`px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm ${
+                              selectedPropertyId === property.id ? 'bg-blue-50 font-medium' : ''
+                            }`}
+                          >
+                            {property.title} (
+                            {PROPERTY_TYPE_LABELS[
+                              property.propertyType as keyof typeof PROPERTY_TYPE_LABELS
+                            ] || property.propertyType}
+                            )
+                          </li>
+                        ))
+                      ) : (
+                        <li className="px-4 py-2 text-sm text-gray-500">No properties found</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
               <p className="mt-2 text-sm text-gray-500">
                 Select which property you want to promote
               </p>
@@ -200,15 +320,65 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Promotion Duration (Days) <span className="text-red-500">*</span>
               </label>
-              <input
-                type="number"
-                min="1"
-                max="365"
-                value={duration}
-                onChange={e => setDuration(parseInt(e.target.value) || 1)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter number of days"
-              />
+              <div className="relative" ref={durationDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowDurationDropdown(!showDurationDropdown)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-left flex items-center justify-between"
+                >
+                  <span>
+                    {duration} {duration === 1 ? 'day' : 'days'}
+                  </span>
+                  <svg
+                    className={`w-5 h-5 text-gray-400 transition-transform ${showDurationDropdown ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                {showDurationDropdown && (
+                  <div className="absolute z-50 w-full top-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg">
+                    <div className="p-2 border-b border-gray-200">
+                      <input
+                        ref={durationSearchRef}
+                        type="text"
+                        placeholder="Search days..."
+                        value={durationSearch}
+                        onChange={e => setDurationSearch(e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <ul className="max-h-48 overflow-y-auto">
+                      {filteredDurations.length > 0 ? (
+                        filteredDurations.map(d => (
+                          <li
+                            key={d}
+                            onClick={() => {
+                              setDuration(d)
+                              setShowDurationDropdown(false)
+                              setDurationSearch('')
+                            }}
+                            className={`px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm ${
+                              duration === d ? 'bg-blue-50 font-medium' : ''
+                            }`}
+                          >
+                            {d} {d === 1 ? 'day' : 'days'}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="px-4 py-2 text-sm text-gray-500">No results found</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
               <p className="mt-2 text-sm text-gray-500">
                 Choose how long you want your property to be featured
               </p>
@@ -342,7 +512,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
       })
 
       if (user) {
-        const properties = await prisma.property.findMany({
+        const propertiesFromDB = await prisma.property.findMany({
           where: {
             userId: user.id,
             projectId: id,
@@ -351,9 +521,19 @@ export const getServerSideProps: GetServerSideProps = async context => {
             id: true,
             streetAddress: true,
             propertyType: true,
+            propertyDetails: true,
           },
         })
-        userProperties = properties
+        // Transform to include title from propertyDetails
+        userProperties = propertiesFromDB.map(p => {
+          const details = p.propertyDetails as { title?: string } | null
+          return {
+            id: p.id,
+            title: details?.title || p.streetAddress,
+            streetAddress: p.streetAddress,
+            propertyType: p.propertyType,
+          }
+        })
       }
     }
 

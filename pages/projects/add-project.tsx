@@ -97,7 +97,7 @@ export default function AddProjectPage() {
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       setShowEmailOTP(true)
-      toast.success('OTP sent to your email! Use 123456 for testing')
+      toast.success('OTP sent to your email!')
     } catch (error) {
       toast.error('Failed to send OTP')
     } finally {
@@ -135,7 +135,7 @@ export default function AddProjectPage() {
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       setShowMobileOTP(true)
-      toast.success('OTP sent to your mobile! Use 123456 for testing')
+      toast.success('OTP sent to your mobile!')
     } catch (error) {
       toast.error('Failed to send OTP')
     } finally {
@@ -252,11 +252,11 @@ export default function AddProjectPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <div className="flex justify-center items-center py-12">
+        <main className="flex-1 flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
+        </main>
         <Footer />
       </div>
     )

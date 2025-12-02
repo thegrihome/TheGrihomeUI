@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import { GetServerSideProps } from 'next'
@@ -8,6 +8,8 @@ import toast from 'react-hot-toast'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { prisma } from '@/lib/cockroachDB/prisma'
+
+const DURATION_OPTIONS = Array.from({ length: 30 }, (_, i) => i + 1)
 
 interface Project {
   id: string
@@ -25,6 +27,10 @@ export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
   const [duration, setDuration] = useState<number>(30)
   const [isProcessing, setIsProcessing] = useState(false)
   const [expiryDate, setExpiryDate] = useState<Date>(new Date())
+  const [showDurationDropdown, setShowDurationDropdown] = useState(false)
+  const [durationSearch, setDurationSearch] = useState('')
+  const durationDropdownRef = useRef<HTMLDivElement>(null)
+  const durationSearchRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -38,6 +44,34 @@ export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
     const expiry = new Date(today.getTime() + duration * 24 * 60 * 60 * 1000)
     setExpiryDate(expiry)
   }, [duration])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        durationDropdownRef.current &&
+        !durationDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowDurationDropdown(false)
+        setDurationSearch('')
+      }
+    }
+
+    if (showDurationDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showDurationDropdown])
+
+  useEffect(() => {
+    if (showDurationDropdown && durationSearchRef.current) {
+      durationSearchRef.current.focus()
+    }
+  }, [showDurationDropdown])
+
+  const filteredDurations = DURATION_OPTIONS.filter(d => d.toString().includes(durationSearch))
 
   if (!project) {
     return (
@@ -143,15 +177,65 @@ export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Promotion Duration (Days) <span className="text-red-500">*</span>
               </label>
-              <input
-                type="number"
-                min="1"
-                max="365"
-                value={duration}
-                onChange={e => setDuration(parseInt(e.target.value) || 1)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter number of days"
-              />
+              <div className="relative" ref={durationDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowDurationDropdown(!showDurationDropdown)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-left flex items-center justify-between"
+                >
+                  <span>
+                    {duration} {duration === 1 ? 'day' : 'days'}
+                  </span>
+                  <svg
+                    className={`w-5 h-5 text-gray-400 transition-transform ${showDurationDropdown ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                {showDurationDropdown && (
+                  <div className="absolute z-50 w-full top-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg">
+                    <div className="p-2 border-b border-gray-200">
+                      <input
+                        ref={durationSearchRef}
+                        type="text"
+                        placeholder="Search days..."
+                        value={durationSearch}
+                        onChange={e => setDurationSearch(e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <ul className="max-h-48 overflow-y-auto">
+                      {filteredDurations.length > 0 ? (
+                        filteredDurations.map(d => (
+                          <li
+                            key={d}
+                            onClick={() => {
+                              setDuration(d)
+                              setShowDurationDropdown(false)
+                              setDurationSearch('')
+                            }}
+                            className={`px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm ${
+                              duration === d ? 'bg-blue-50 font-medium' : ''
+                            }`}
+                          >
+                            {d} {d === 1 ? 'day' : 'days'}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="px-4 py-2 text-sm text-gray-500">No results found</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
               <p className="mt-2 text-sm text-gray-500">
                 Choose how long you want to be featured as a verified agent
               </p>

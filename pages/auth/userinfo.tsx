@@ -241,8 +241,8 @@ export default function UserInfoPage() {
   }
 
   const handleVerifyEmail = async () => {
-    if (emailOtp !== '123456') {
-      showToast('Invalid OTP. Please enter 123456 for testing.', 'error')
+    if (emailOtp !== '9848022338') {
+      showToast('Invalid OTP', 'error')
       return
     }
 
@@ -288,8 +288,8 @@ export default function UserInfoPage() {
   }
 
   const handleVerifyMobile = async () => {
-    if (mobileOtp !== '123456') {
-      showToast('Invalid OTP. Please enter 123456 for testing.', 'error')
+    if (mobileOtp !== '9848022338') {
+      showToast('Invalid OTP', 'error')
       return
     }
 

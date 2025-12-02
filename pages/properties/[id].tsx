@@ -203,11 +203,13 @@ export default function PropertyDetailPage() {
 
   if (loading) {
     return (
-      <div className="property-detail-main">
+      <div className="property-detail-container">
         <Header />
-        <div className="property-detail-loading">
-          <div className="property-detail-spinner"></div>
-        </div>
+        <main className="property-detail-main">
+          <div className="property-detail-loading">
+            <div className="property-detail-spinner"></div>
+          </div>
+        </main>
         <Footer />
       </div>
     )
@@ -215,19 +217,21 @@ export default function PropertyDetailPage() {
 
   if (!property) {
     return (
-      <div className="property-detail-main">
+      <div className="property-detail-container">
         <Header />
-        <div className="property-detail-content">
-          <div className="property-not-found">
-            <h1 className="property-not-found__title">Property Not Found</h1>
-            <button
-              onClick={() => router.push('/properties')}
-              className="property-not-found__button"
-            >
-              Back to Properties
-            </button>
+        <main className="property-detail-main">
+          <div className="property-detail-content">
+            <div className="property-not-found">
+              <h1 className="property-not-found__title">Property Not Found</h1>
+              <button
+                onClick={() => router.push('/properties')}
+                className="property-not-found__button"
+              >
+                Back to Properties
+              </button>
+            </div>
           </div>
-        </div>
+        </main>
         <Footer />
       </div>
     )
@@ -495,7 +499,12 @@ export default function PropertyDetailPage() {
                 {property.description && (
                   <div className="property-description">
                     <h3 className="property-description__title">Description</h3>
-                    <p className="property-description__text">{property.description}</p>
+                    <div
+                      className="property-description__text"
+                      dangerouslySetInnerHTML={{
+                        __html: property.description.replace(/\n/g, '<br />'),
+                      }}
+                    />
                   </div>
                 )}
 
@@ -529,9 +538,9 @@ export default function PropertyDetailPage() {
               {(property.location.latitude && property.location.longitude) ||
               property.location.fullAddress ||
               property.location.formattedAddress ? (
-                <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+                <div className="property-sidebar-card bg-white rounded-lg shadow-md p-4 mb-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Location</h3>
-                  <div className="rounded-lg overflow-hidden">
+                  <div className="property-sidebar-map rounded-lg overflow-hidden">
                     <iframe
                       src={
                         property.location.latitude && property.location.longitude
@@ -579,11 +588,11 @@ export default function PropertyDetailPage() {
                   if (!embedUrl) return null
 
                   return (
-                    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+                    <div className="property-sidebar-card property-sidebar-video bg-white rounded-lg shadow-md p-4 mb-4">
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">
                         Virtual Walkthrough
                       </h3>
-                      <div className="aspect-video rounded-lg overflow-hidden">
+                      <div className="property-video-container rounded-lg overflow-hidden">
                         <iframe
                           src={embedUrl}
                           title="Property Walkthrough"
@@ -596,40 +605,44 @@ export default function PropertyDetailPage() {
                   )
                 })()}
             </div>
-          </div>
 
-          {/* Interested Buyers Section - Full Width Below Both Columns (Owner Only) */}
-          {isOwner && (
-            <div className="mt-6">
-              <div className="property-buyers-card">
-                <h3 className="property-buyers-card__title">
-                  Interested Buyers ({property.interests.length})
-                </h3>
-                {property.interests.length === 0 ? (
-                  <p className="property-buyers-card__empty">No one has expressed interest yet.</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {property.interests.map(interest => (
-                      <div key={interest.id} className="property-buyer">
-                        <div className="property-buyer-row">
-                          {/* Left: Name and Date */}
-                          <div className="flex-1">
-                            <p className="property-buyer__name">{interest.user.name}</p>
-                            <p className="property-buyer__date">{formatDate(interest.createdAt)}</p>
-                          </div>
-                          {/* Right: Email and Phone */}
-                          <div className="text-right">
-                            <p className="property-buyer__email">{interest.user.email}</p>
-                            <p className="property-buyer__phone">{interest.user.phone}</p>
+            {/* Interested Buyers Section - Full Width Below Both Columns (Owner Only) */}
+            {isOwner && (
+              <div className="property-buyers-fullwidth">
+                <div className="property-buyers-card">
+                  <h3 className="property-buyers-card__title">
+                    Interested Buyers ({property.interests.length})
+                  </h3>
+                  {property.interests.length === 0 ? (
+                    <p className="property-buyers-card__empty">
+                      No one has expressed interest yet.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {property.interests.map(interest => (
+                        <div key={interest.id} className="property-buyer">
+                          <div className="property-buyer-row">
+                            {/* Left: Name and Date */}
+                            <div className="flex-1">
+                              <p className="property-buyer__name">{interest.user.name}</p>
+                              <p className="property-buyer__date">
+                                {formatDate(interest.createdAt)}
+                              </p>
+                            </div>
+                            {/* Right: Email and Phone */}
+                            <div className="text-right">
+                              <p className="property-buyer__email">{interest.user.email}</p>
+                              <p className="property-buyer__phone">{interest.user.phone}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </main>
 

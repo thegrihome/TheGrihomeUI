@@ -131,11 +131,15 @@ export default function Login() {
   // Show loading while checking authentication
   if (status === 'loading' || status === 'authenticated') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </main>
+        <Footer />
       </div>
     )
   }
@@ -156,7 +160,7 @@ export default function Login() {
       // For now, we'll just simulate it
       await new Promise(resolve => setTimeout(resolve, 500))
       setOtpSent(true)
-      toast.success('OTP sent! Use 123456 for testing')
+      toast.success('OTP sent!')
     } catch (error) {
       toast.error('Failed to send OTP')
     } finally {
@@ -316,15 +320,14 @@ export default function Login() {
                         value={otp}
                         onChange={e => setOtp(e.target.value)}
                         className="login-form__input"
-                        placeholder="123456"
+                        placeholder="Enter OTP"
                         required
-                        maxLength={6}
+                        maxLength={10}
                       />
-                      <p className="login-form__hint">Default OTP: 123456</p>
                     </div>
                     <button
                       type="submit"
-                      disabled={loading || !otp || otp.length !== 6}
+                      disabled={loading || !otp || otp.length < 6}
                       className="login-form__submit"
                     >
                       {loading ? 'Verifying...' : 'Verify & Login'}
@@ -395,15 +398,14 @@ export default function Login() {
                         value={otp}
                         onChange={e => setOtp(e.target.value)}
                         className="login-form__input"
-                        placeholder="123456"
+                        placeholder="Enter OTP"
                         required
-                        maxLength={6}
+                        maxLength={10}
                       />
-                      <p className="login-form__hint">Default OTP: 123456</p>
                     </div>
                     <button
                       type="submit"
-                      disabled={loading || !otp || otp.length !== 6}
+                      disabled={loading || !otp || otp.length < 6}
                       className="login-form__submit"
                     >
                       {loading ? 'Verifying...' : 'Verify & Login'}

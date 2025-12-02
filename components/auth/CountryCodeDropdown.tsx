@@ -99,7 +99,7 @@ export default function CountryCodeDropdown({
       </div>
 
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-visible">
+        <div className="absolute z-50 w-64 top-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg">
           {/* Search input */}
           <div className="p-2 border-b border-gray-200">
             <input
@@ -113,32 +113,32 @@ export default function CountryCodeDropdown({
           </div>
 
           {/* Country list */}
-          <div className="max-h-48 overflow-y-auto overflow-x-visible">
+          <ul className="max-h-48 overflow-y-auto">
             {filteredCountries.length > 0 ? (
               filteredCountries.map(country => (
-                <div key={country.code} className="relative group">
+                <li key={country.code}>
                   <button
                     type="button"
                     onClick={() => handleCountrySelect(country)}
                     title={country.name}
-                    className={`w-full px-3 py-2 text-left hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition-colors ${
+                    className={`w-full px-3 py-2 text-left hover:bg-blue-50 focus:outline-none focus:bg-blue-50 transition-colors cursor-pointer ${
                       selectedCountry.code === country.code ? 'bg-blue-50' : ''
                     }`}
                   >
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-2">
                       <span className="text-lg flex-shrink-0">{country.flag}</span>
                       <span className="text-sm font-medium text-gray-900 flex-shrink-0">
                         {country.dialCode}
                       </span>
-                      <span className="text-sm text-gray-600 flex-shrink-0">{country.code3}</span>
+                      <span className="text-sm text-gray-600 truncate">{country.name}</span>
                     </div>
                   </button>
-                </div>
+                </li>
               ))
             ) : (
-              <div className="px-3 py-2 text-sm text-gray-500">No countries found</div>
+              <li className="px-3 py-2 text-sm text-gray-500">No countries found</li>
             )}
-          </div>
+          </ul>
         </div>
       )}
     </div>

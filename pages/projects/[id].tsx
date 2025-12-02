@@ -579,7 +579,11 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   <strong>TS RERA Regn No. {details.reraNumber}</strong>
                 </p>
               )}
-              <p style={{ whiteSpace: 'pre-line' }}>{project.description}</p>
+              <div
+                className="prose prose-sm max-w-none"
+                style={{ whiteSpace: 'pre-line' }}
+                dangerouslySetInnerHTML={{ __html: project.description.replace(/\n/g, '<br />') }}
+              />
             </div>
           </div>
 
@@ -833,7 +837,13 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               <h2 className="project-section-title">Clubhouse</h2>
               {details.clubhouse?.description && (
                 <div className="project-section-content mb-6">
-                  <p style={{ whiteSpace: 'pre-line' }}>{details.clubhouse.description}</p>
+                  <div
+                    className="prose prose-sm max-w-none"
+                    style={{ whiteSpace: 'pre-line' }}
+                    dangerouslySetInnerHTML={{
+                      __html: details.clubhouse.description.replace(/\n/g, '<br />'),
+                    }}
+                  />
                 </div>
               )}
               {details.clubhouse?.images && details.clubhouse.images.length > 0 && (

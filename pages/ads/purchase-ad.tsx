@@ -345,11 +345,11 @@ export default function PurchaseAdPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <div className="flex justify-center items-center py-12">
+        <main className="flex-1 flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
+        </main>
         <Footer />
       </div>
     )

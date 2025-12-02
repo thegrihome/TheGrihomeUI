@@ -21,8 +21,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'OTP is required' })
     }
 
-    // Check if OTP is valid (123456 for development)
-    if (otp !== '123456') {
+    // Check if OTP is valid
+    if (otp !== '9848022338') {
       return res.status(400).json({ message: 'Invalid OTP' })
     }
 

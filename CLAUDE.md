@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **NEVER** break the Header CSS alignment - all header items must use `align-items: center` for proper vertical alignment
 - **ALWAYS** use standardized property types: Villas (SINGLE_FAMILY), Apartments (CONDO), Residential Lands (LAND_RESIDENTIAL), Agriculture Lands (LAND_AGRICULTURE), Commercial (COMMERCIAL) - these must be consistent across all pages (forum, properties, projects)
 - **ALWAYS** use `top-full mt-0` for dropdown positioning to align flush with the parent button/input
+- **NEVER** use native HTML `<select>` elements for dropdowns. **ALWAYS** use custom `<ul>/<li>` style dropdowns with search functionality. This includes all form dropdowns, filters, and selection inputs throughout the application.
 - Common regression areas: navigation links, API endpoints, component imports, route redirects, header alignment, property type consistency
 
 ### 2. File Organization - Use Appropriate Subfolders

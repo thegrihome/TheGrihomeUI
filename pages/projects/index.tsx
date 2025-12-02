@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { NextSeo } from 'next-seo'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { PROPERTY_TYPE_LABELS } from '@/lib/constants'
 
 interface Project {
   id: string
@@ -371,7 +372,9 @@ export default function ProjectsPage() {
                           </span>
                           {project.propertyType && (
                             <span className="inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800 w-fit">
-                              {project.propertyType}
+                              {PROPERTY_TYPE_LABELS[
+                                project.propertyType as keyof typeof PROPERTY_TYPE_LABELS
+                              ] || project.propertyType}
                             </span>
                           )}
                         </div>
