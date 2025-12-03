@@ -412,83 +412,120 @@ export default function ProjectPage({ project }: ProjectPageProps) {
       <main className="project-detail-layout">
         {/* Left Column */}
         <div className="project-detail-left">
+          {/* Back Button */}
+          <Link href="/projects" className="project-back-link">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Back to Projects
+          </Link>
+
           {/* Project Title */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              {project.builder.logoUrl && (
-                <Image
-                  src={project.builder.logoUrl}
-                  alt={project.builder.name}
-                  width={80}
-                  height={40}
-                  className="object-contain"
-                />
-              )}
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                {project.name}
-                <svg
-                  className="w-6 h-6 text-blue-500 flex-shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-label="Verified Project"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
+            <div className="project-title-row">
+              <div className="project-title-left">
+                {project.builder.logoUrl && (
+                  <Image
+                    src={project.builder.logoUrl}
+                    alt={project.builder.name}
+                    width={80}
+                    height={40}
+                    className="object-contain"
                   />
-                </svg>
-              </h1>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <Link
-                href={`/builders/${project.builder.id}`}
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                {project.builder.name}
-              </Link>
-              <span className="text-gray-400">•</span>
-              <span className="text-gray-500 text-sm">
-                {project.location.locality && `${project.location.locality}, `}
-                {project.location.city}, {project.location.state}
-              </span>
-            </div>
-
-            {/* Property Type Tile + Owner Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div className="flex flex-wrap items-center gap-2">
-                {project.propertyType && (
-                  <>
-                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      {project.propertyType === 'SINGLE_FAMILY' && 'Villa'}
-                      {project.propertyType === 'CONDO' && 'Apartment'}
-                      {project.propertyType === 'LAND_RESIDENTIAL' && 'Residential Land'}
-                      {project.propertyType === 'LAND_AGRICULTURE' && 'Agriculture Land'}
-                      {project.propertyType === 'COMMERCIAL' && 'Commercial'}
-                    </span>
-                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                      For Sale
-                    </span>
-                  </>
                 )}
+                <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                  {project.name}
+                  <svg
+                    className="w-6 h-6 text-blue-500 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Verified Project"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </h1>
               </div>
               {isOwner && (
-                <div className="flex items-center gap-2">
+                <div className="project-title-right project-title-right--desktop">
                   <Link
                     href={`/projects/edit/${project.id}`}
-                    className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    className="project-header-btn project-header-btn--edit"
                   >
-                    Edit Project
+                    Edit Listing
                   </Link>
                   <button
                     onClick={handleArchiveProject}
                     disabled={isArchiving}
-                    className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                    className={`project-header-btn ${
                       project.isArchived
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-red-600 text-white hover:bg-red-700'
-                    } disabled:opacity-50`}
+                        ? 'project-header-btn--restore'
+                        : 'project-header-btn--archive'
+                    }`}
+                  >
+                    {isArchiving
+                      ? '...'
+                      : project.isArchived
+                        ? 'Restore Project'
+                        : 'Archive Project'}
+                  </button>
+                </div>
+              )}
+            </div>
+            {/* Builder info */}
+            <div className="project-info-wrapper">
+              <div className="project-info-left">
+                <div className="project-builder-row">
+                  <Link href={`/builders/${project.builder.id}`} className="project-builder-name">
+                    {project.builder.name}
+                  </Link>
+                  <div className="project-type-tiles">
+                    {project.propertyType && (
+                      <>
+                        <span className="project-type-badge project-type-badge--type">
+                          {project.propertyType === 'SINGLE_FAMILY' && 'Villa'}
+                          {project.propertyType === 'CONDO' && 'Apartment'}
+                          {project.propertyType === 'LAND_RESIDENTIAL' && 'Residential Land'}
+                          {project.propertyType === 'LAND_AGRICULTURE' && 'Agriculture Land'}
+                          {project.propertyType === 'COMMERCIAL' && 'Commercial'}
+                        </span>
+                        <span className="project-type-badge project-type-badge--sale">
+                          For Sale
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <span className="project-builder-location">
+                  {project.location.locality && `${project.location.locality}, `}
+                  {project.location.city}, {project.location.state}
+                </span>
+              </div>
+              {isOwner && (
+                <div className="project-title-right project-title-right--mobile">
+                  <Link
+                    href={`/projects/edit/${project.id}`}
+                    className="project-header-btn project-header-btn--edit"
+                  >
+                    Edit Listing
+                  </Link>
+                  <button
+                    onClick={handleArchiveProject}
+                    disabled={isArchiving}
+                    className={`project-header-btn ${
+                      project.isArchived
+                        ? 'project-header-btn--restore'
+                        : 'project-header-btn--archive'
+                    }`}
                   >
                     {isArchiving
                       ? '...'
@@ -517,42 +554,46 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
             {/* Header Actions */}
             <div className="project-header-actions">
-              <div className="relative group">
-                <button
-                  onClick={handleExpressInterest}
-                  disabled={isExpressingInterest}
-                  className="action-button action-button-primary"
-                >
-                  {isExpressingInterest ? 'Sending...' : 'Express Interest'}
-                </button>
-                <div className="absolute left-0 top-full mt-2 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                  <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
-                  ℹ️ Grihome will contact you and ensure your interest is submitted to the builder
-                  to help you finalize a deal.
+              <div className="project-header-actions-row1">
+                <div className="relative group">
+                  <button
+                    onClick={handleExpressInterest}
+                    disabled={isExpressingInterest}
+                    className="action-button action-button-primary"
+                  >
+                    {isExpressingInterest ? 'Sending...' : 'Express Interest'}
+                  </button>
+                  <div className="absolute left-0 top-full mt-2 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                    <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                    ℹ️ Grihome will contact you and ensure your interest is submitted to the builder
+                    to help you finalize a deal.
+                  </div>
                 </div>
+
+                {(project.builderWebsiteLink || project.builder.website) && (
+                  <a
+                    href={project.builderWebsiteLink || project.builder.website || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="action-button action-button-outline"
+                  >
+                    Visit Builder Website
+                  </a>
+                )}
               </div>
 
-              {(project.builderWebsiteLink || project.builder.website) && (
-                <a
-                  href={project.builderWebsiteLink || project.builder.website || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="action-button action-button-outline"
-                >
-                  Visit Builder Website
-                </a>
-              )}
-
               {(project.brochureUrl || project.builderProspectusUrl) && (
-                <a
-                  href={project.brochureUrl || project.builderProspectusUrl || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="action-button action-button-outline"
-                  download
-                >
-                  Download Brochure
-                </a>
+                <div className="project-header-actions-row2">
+                  <a
+                    href={project.brochureUrl || project.builderProspectusUrl || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="action-button action-button-outline"
+                    download
+                  >
+                    Download Brochure
+                  </a>
+                </div>
               )}
             </div>
           </div>

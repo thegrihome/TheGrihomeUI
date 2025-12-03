@@ -318,10 +318,6 @@ export default function PropertyTypePage({
                         <span className="forum-stat">
                           <span className="forum-stat-number">{post.replyCount}</span> replies
                         </span>
-                        <span className="forum-stat">
-                          <span className="forum-stat-number">{post._count.reactions}</span>{' '}
-                          reactions
-                        </span>
                       </div>
                     </div>
                     <div className="forum-post-row-2">

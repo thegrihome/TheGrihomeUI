@@ -246,7 +246,6 @@ export default function SearchPage({ results, error }: SearchPageProps) {
                           <div className="forum-search-result-stats">
                             <span className="forum-stat">{post._count.replies} replies</span>
                             <span className="forum-stat">{post.viewCount} views</span>
-                            <span className="forum-stat">{post._count.reactions} reactions</span>
                           </div>
                         </div>
                       </Link>

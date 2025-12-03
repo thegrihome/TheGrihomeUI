@@ -82,3 +82,32 @@
   max-width: 100%;
   width: 100%;
 }
+
+/* Task 5: Price and Size dropdown mobile responsiveness */
+@media (max-width: 640px) {
+  /* Make price and size dropdowns responsive on mobile */
+  .price-dropdown,
+  .size-dropdown {
+    position: static;
+  }
+
+  .price-dropdown > div[class*='absolute'],
+  .size-dropdown > div[class*='absolute'] {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    max-width: calc(100vw - 2rem);
+    z-index: 50;
+  }
+}
+
+/* Additional mobile filter adjustments */
+@media (max-width: 480px) {
+  .price-dropdown > div[class*='absolute'],
+  .size-dropdown > div[class*='absolute'] {
+    left: 0.5rem;
+    right: 0.5rem;
+    max-width: calc(100vw - 1rem);
+  }
+}

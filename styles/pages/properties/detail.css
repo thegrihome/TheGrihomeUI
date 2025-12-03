@@ -7,6 +7,241 @@
   min-height: 100vh;
 }
 
+/* Property Header Section */
+.property-header-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Grid layout: title/price rows aligned with buttons */
+.property-header-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0 1.5rem;
+  align-items: start;
+}
+
+.property-header-left {
+  display: contents;
+}
+
+.property-header-right {
+  display: contents;
+}
+
+/* Row 1: Title + Edit button */
+.property-header-title {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.property-header-btn--edit,
+.property-header-btn--interest {
+  grid-column: 2;
+  grid-row: 1;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Row 2: Price + Mark as Sold button */
+.property-header-price {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-top: 0.5rem;
+  line-height: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.property-header-btn--sold {
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: 0.5rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Row 3: Meta info */
+.property-header-meta {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.property-header-btn {
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.property-header-btn--edit {
+  background-color: #2563eb;
+  color: white;
+}
+
+.property-header-btn--edit:hover {
+  background-color: #1d4ed8;
+}
+
+.property-header-btn--sold {
+  background-color: #dc2626;
+  color: white;
+}
+
+.property-header-btn--sold:hover {
+  background-color: #b91c1c;
+}
+
+.property-header-btn--sold:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.property-header-btn--interest {
+  background-color: #2563eb;
+  color: white;
+}
+
+.property-header-btn--interest:hover {
+  background-color: #1d4ed8;
+}
+
+.property-header-btn--interest:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.property-header-location {
+  flex: 1;
+  min-width: 200px;
+}
+
+.property-header-date {
+  white-space: nowrap;
+}
+
+/* Mobile styles for property header */
+@media (max-width: 640px) {
+  .property-header-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .property-header-grid {
+    gap: 0.25rem 0.5rem;
+    align-items: stretch;
+  }
+
+  .property-header-title {
+    font-size: 1.125rem;
+    line-height: 1.5;
+    min-height: 1.75rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .property-header-btn--edit,
+  .property-header-btn--interest {
+    min-height: 1.75rem;
+    height: auto;
+  }
+
+  .property-header-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .property-header-price {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-top: 0;
+    min-height: 1.75rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .property-header-btn--sold {
+    min-height: 1.75rem;
+    height: auto;
+    margin-top: 0;
+  }
+
+  .property-header-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+  }
+
+  .property-header-location {
+    min-width: 100%;
+  }
+
+  /* Visitor layout: Title full width on row 1, price + button on row 2 */
+  .property-header-grid--visitor {
+    display: block;
+  }
+
+  .property-header-grid--visitor .property-header-left {
+    display: block;
+  }
+
+  .property-header-grid--visitor .property-header-title {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+
+  .property-header-grid--visitor .property-header-price {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0;
+  }
+
+  .property-header-grid--visitor .property-header-right--visitor {
+    display: inline-flex;
+    float: right;
+  }
+
+  .property-header-grid--visitor .property-header-right--visitor .property-header-btn {
+    white-space: nowrap;
+  }
+
+  .property-header-grid--visitor .property-header-meta {
+    clear: both;
+    margin-top: 0.375rem;
+  }
+}
+
 /* Main Layout */
 .property-detail-main {
   flex: 1;
@@ -126,9 +361,10 @@
 
 /* Sidebar items should fill available space on desktop */
 @media (min-width: 1024px) {
-  .property-detail-sidebar-column .property-sidebar-card:last-child {
+  /* Each sidebar card takes 50% of available space */
+  .property-detail-sidebar-column .property-sidebar-card {
     flex: 1;
-    margin-bottom: 0;
+    min-height: 0;
   }
 
   /* Make video container stretch to fill */
@@ -150,18 +386,15 @@
     min-height: 200px;
   }
 
-  /* Make map container stretch if it's the last item */
+  /* Make map container stretch */
   .property-sidebar-map {
-    min-height: 250px;
-  }
-
-  .property-detail-sidebar-column .property-sidebar-card:last-child .property-sidebar-map {
     flex: 1;
+    min-height: 200px;
   }
 
-  .property-detail-sidebar-column .property-sidebar-card:last-child .property-sidebar-map iframe {
+  .property-sidebar-map iframe {
     height: 100%;
-    min-height: 250px;
+    min-height: 200px;
   }
 }
 
@@ -585,4 +818,160 @@
 .property-buyer__date {
   font-size: 0.75rem;
   color: #6b7280;
+}
+
+/* Task 6: Property Detail Page - Full Mobile Responsiveness */
+@media (max-width: 768px) {
+  /* Reduce padding for mobile */
+  .property-detail-content {
+    padding: 1rem 0.75rem;
+  }
+
+  /* Stack grid columns */
+  .property-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Smaller back button */
+  .property-detail-back {
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  /* Responsive image gallery */
+  .property-image-gallery {
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+  }
+
+  .property-image-main {
+    height: 16rem;
+  }
+
+  /* Smaller navigation arrows */
+  .property-image-nav {
+    width: 32px;
+    height: 32px;
+  }
+
+  .property-image-nav--left {
+    left: 0.5rem;
+  }
+
+  .property-image-nav--right {
+    right: 0.5rem;
+  }
+
+  /* Property details section */
+  .property-details-section {
+    padding: 1rem;
+    border-radius: 0.375rem;
+  }
+
+  .property-details-title {
+    font-size: 1.25rem;
+  }
+
+  /* Property features grid - 2 columns on mobile */
+  .property-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .property-feature {
+    padding: 0.5rem;
+  }
+
+  .property-feature__value {
+    font-size: 1rem;
+  }
+
+  .property-feature__label {
+    font-size: 0.75rem;
+  }
+
+  /* Description section */
+  .property-description {
+    margin-bottom: 1rem;
+  }
+
+  .property-description__title {
+    font-size: 1rem;
+  }
+
+  .property-description__text {
+    font-size: 0.875rem;
+  }
+
+  /* Contact card */
+  .property-contact-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+  }
+
+  .property-contact-card__title {
+    font-size: 1rem;
+  }
+
+  /* Sidebar cards */
+  .property-sidebar-card {
+    margin-bottom: 1rem;
+  }
+
+  /* Match video height to map height on mobile */
+  .property-video-container {
+    height: 250px;
+  }
+
+  .property-video-container iframe {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Interest button full width */
+  .property-interest-button,
+  .property-login-prompt {
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  /* Buyers card */
+  .property-buyers-card {
+    padding: 1rem;
+    border-radius: 0.375rem;
+  }
+
+  .property-buyers-card__title {
+    font-size: 1rem;
+  }
+
+  .property-buyers-list-scroll {
+    max-height: 300px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .property-detail-content {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .property-image-main {
+    height: 12rem;
+  }
+
+  .property-features-grid {
+    gap: 0.5rem;
+  }
+
+  .property-feature {
+    padding: 0.375rem;
+  }
+
+  .property-feature__value {
+    font-size: 0.875rem;
+  }
 }

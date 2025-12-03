@@ -132,19 +132,18 @@ export default function ProjectsPage() {
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Header Section */}
         <div className="mb-8">
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Real Estate Projects</h1>
-              <p className="text-gray-600 mb-6">
-                Discover premium residential and commercial projects by trusted builders across
-                major cities in India.
-              </p>
-            </div>
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">Real Estate Projects</h1>
             <Link
               href="/projects/submit"
-              className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap flex-shrink-0"
             >
-              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-4 h-4 mr-1.5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -155,6 +154,10 @@ export default function ProjectsPage() {
               Submit Project
             </Link>
           </div>
+          <p className="text-gray-600 mb-6">
+            Discover premium residential and commercial projects by trusted builders across major
+            cities in India.
+          </p>
 
           {/* Search Bar */}
           <div className="w-full">

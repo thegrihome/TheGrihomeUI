@@ -124,7 +124,6 @@ export default function GeneralDiscussionsPage({
         <div className="forum-header">
           <div className="forum-header-content">
             <div className="forum-header-main">
-              <div className="forum-category-icon-large">💬</div>
               <div className="forum-header-text">
                 <h1 className="forum-title">{formatTitle('General Discussions')}</h1>
                 <p className="forum-subtitle">
