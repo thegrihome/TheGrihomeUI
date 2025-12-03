@@ -61,7 +61,7 @@ After setup, you can test the signup functionality:
 
 ## 🔒 Secure Deployment
 
-For production deployment with automatic environment-based database routing, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+For production deployment with automatic environment-based database routing, see [docs/setup/DEPLOYMENT.md](./docs/setup/DEPLOYMENT.md).
 
 ## 🚀 Features
 

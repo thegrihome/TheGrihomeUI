@@ -72,13 +72,7 @@ export default function AddProperty() {
   const locationInputRef = useRef<HTMLInputElement>(null)
   const projectDropdownRef = useRef<HTMLDivElement>(null)
 
-  const propertyTypes = [
-    { value: 'SINGLE_FAMILY', label: 'Villas' },
-    { value: 'CONDO', label: 'Apartments' },
-    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands' },
-    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands' },
-    { value: 'COMMERCIAL', label: 'Commercial' },
-  ]
+  // Using PROPERTY_TYPE_OPTIONS from lib/constants.ts for consistency with icons
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -584,9 +578,18 @@ export default function AddProperty() {
                   onClick={() => setShowPropertyTypeDropdown(!showPropertyTypeDropdown)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 text-left"
                 >
-                  {formData.propertyType
-                    ? propertyTypes.find(t => t.value === formData.propertyType)?.label
-                    : 'Select Type'}
+                  {formData.propertyType ? (
+                    <span className="flex items-center gap-2">
+                      <span>
+                        {PROPERTY_TYPE_OPTIONS.find(t => t.value === formData.propertyType)?.icon}
+                      </span>
+                      <span>
+                        {PROPERTY_TYPE_OPTIONS.find(t => t.value === formData.propertyType)?.label}
+                      </span>
+                    </span>
+                  ) : (
+                    'Select Type'
+                  )}
                 </button>
                 <svg
                   className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
@@ -612,16 +615,17 @@ export default function AddProperty() {
                     >
                       Select Type
                     </div>
-                    {propertyTypes.map(type => (
+                    {PROPERTY_TYPE_OPTIONS.map(type => (
                       <div
                         key={type.value}
-                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm flex items-center gap-2"
                         onClick={() => {
                           setFormData(prev => ({ ...prev, propertyType: type.value }))
                           setShowPropertyTypeDropdown(false)
                         }}
                       >
-                        {type.label}
+                        <span>{type.icon}</span>
+                        <span>{type.label}</span>
                       </div>
                     ))}
                   </div>

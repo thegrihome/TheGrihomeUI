@@ -120,7 +120,7 @@ export default function PropertyDetailPage() {
 
   const handleExpressInterest = async () => {
     if (!session?.user) {
-      router.push('/api/auth/signin')
+      router.push('/login')
       return
     }
 
@@ -370,7 +370,7 @@ export default function PropertyDetailPage() {
                         )
                       ) : (
                         <button
-                          onClick={() => router.push('/auth/signin')}
+                          onClick={() => router.push('/login')}
                           className="property-header-btn property-header-btn--interest"
                         >
                           Sign In to Send Interest

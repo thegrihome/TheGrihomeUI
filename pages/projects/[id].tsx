@@ -426,7 +426,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           </Link>
 
           {/* Project Title */}
-          <div>
+          <div className="project-header-section">
             <div className="project-title-row">
               <div className="project-title-left">
                 {project.builder.logoUrl && (
@@ -600,7 +600,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
           {/* Banner Image */}
           {project.bannerImageUrl && (
-            <div className="project-banner">
+            <div className="project-banner project-area-banner">
               <Image
                 src={project.bannerImageUrl}
                 alt={project.name}
@@ -612,7 +612,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           )}
 
           {/* Description */}
-          <div className="project-section">
+          <div className="project-section project-area-description">
             <h2 className="project-section-title">Description</h2>
             <div className="project-section-content">
               {details.reraNumber && (
@@ -937,7 +937,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           {isAuthenticated &&
             (project.postedBy ||
               (project.contactPersonFirstName && project.contactPersonEmail)) && (
-              <div className="sidebar-section">
+              <div className="sidebar-section sidebar-posted-by">
                 <h3 className="sidebar-section-title">Posted By</h3>
                 <div className="p-3 border rounded-lg">
                   <div className="flex items-start justify-between gap-4">
@@ -962,7 +962,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             )}
 
           {/* Properties */}
-          <div className="sidebar-section">
+          <div className="sidebar-section sidebar-properties">
             <div className="flex items-center justify-between mb-4">
               <h3 className="sidebar-section-title mb-0">
                 Properties ({featuredProperties.length + regularProperties.length})
@@ -1060,7 +1060,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           </div>
 
           {/* Agents */}
-          <div className="sidebar-section">
+          <div className="sidebar-section sidebar-agents">
             <div className="flex items-center justify-between mb-4">
               <h3 className="sidebar-section-title mb-0">
                 Agents ({featuredAgents.length + regularAgents.length})
@@ -1211,7 +1211,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           </div>
 
           {/* Location */}
-          <div className="sidebar-section">
+          <div className="sidebar-section sidebar-location">
             <h3 className="sidebar-section-title">Location</h3>
             <div className="location-map">
               <iframe

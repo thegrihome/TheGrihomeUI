@@ -569,6 +569,8 @@
   line-height: 1.7;
   color: #4b5563;
   margin: 0;
+  list-style-type: disc;
+  padding-left: 1rem;
 }
 
 /* Showcase Grid */

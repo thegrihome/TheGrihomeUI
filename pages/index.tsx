@@ -408,10 +408,7 @@ export default function Home() {
                 <div className="benefit-header">
                   <h3 className="benefit-title">For Buyers</h3>
                 </div>
-                <ul
-                  className="benefit-description"
-                  style={{ listStyleType: 'disc', paddingLeft: '1rem' }}
-                >
+                <ul className="benefit-description">
                   <li>Browse thousands of verified listings without paywalls</li>
                   <li>Connect directly with sellers and agents</li>
                   <li>Get real insights from community forum and local experts</li>
@@ -425,10 +422,7 @@ export default function Home() {
                 <div className="benefit-header">
                   <h3 className="benefit-title">For Sellers</h3>
                 </div>
-                <ul
-                  className="benefit-description"
-                  style={{ listStyleType: 'disc', paddingLeft: '1rem' }}
-                >
+                <ul className="benefit-description">
                   <li>List your property for free and reach thousands of buyers</li>
                   <li>Create detailed listings with photos and property information</li>
                   <li>Maintain full control with real-time updates and easy management</li>
@@ -442,10 +436,7 @@ export default function Home() {
                 <div className="benefit-header">
                   <h3 className="benefit-title">For Agents</h3>
                 </div>
-                <ul
-                  className="benefit-description"
-                  style={{ listStyleType: 'disc', paddingLeft: '1rem' }}
-                >
+                <ul className="benefit-description">
                   <li>Manage listings and showcase your portfolio efficiently</li>
                   <li>Build reputation and connect with serious buyers and sellers</li>
                   <li>Partner with builders to maximize project visibility and sales</li>

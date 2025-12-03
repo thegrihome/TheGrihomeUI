@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { NextPage } from 'next'
 import GrihomeLogo from './GrihomeLogo'
+import LoadingSpinner from './common/LoadingSpinner'
 
 const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
@@ -18,22 +19,6 @@ const Header: NextPage = () => {
   const router = useRouter()
   const isAuthenticated = status === 'authenticated'
   const user = session?.user
-
-  // Loading Spinner Component
-  const LoadingSpinner = ({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) => {
-    const sizeClasses = {
-      sm: 'w-4 h-4 border-2',
-      md: 'w-6 h-6 border-2',
-      lg: 'w-8 h-8 border-3',
-    }
-    return (
-      <div className="flex items-center justify-center">
-        <div
-          className={`${sizeClasses[size]} border-blue-600 border-t-transparent rounded-full animate-spin`}
-        />
-      </div>
-    )
-  }
 
   useEffect(() => {
     setMounted(true)

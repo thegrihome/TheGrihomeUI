@@ -212,3 +212,28 @@
 .builder-dropdown {
   position: relative;
 }
+
+/* Toggle Switch Container */
+.toggle-switch-container {
+  min-width: 200px;
+}
+
+/* Select Inputs */
+.select-white {
+  background-color: white;
+}
+
+.select-white option {
+  background-color: white;
+}
+
+/* Disabled Input */
+.input-disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+/* Map Embed */
+.map-embed {
+  border: 0;
+}

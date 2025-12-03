@@ -359,12 +359,8 @@ export default function ProjectsPage() {
                       {/* Location Column */}
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-900">
-                          {project.location.locality && `${project.location.locality}, `}
                           {project.location.city}, {project.location.state}
                         </div>
-                        {project.location.zipcode && (
-                          <div className="text-sm text-gray-500">{project.location.zipcode}</div>
-                        )}
                       </td>
 
                       {/* Type Column */}

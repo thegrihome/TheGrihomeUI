@@ -769,10 +769,53 @@
   .project-detail-layout {
     padding: 0.75rem;
     gap: 1rem;
+    display: flex;
+    flex-direction: column;
   }
 
   .project-detail-left {
-    gap: 1rem;
+    display: contents;
+  }
+
+  .project-detail-right {
+    display: contents;
+  }
+
+  /* Order: Back -> Header -> Banner -> Posted By/Properties/Agents -> Description -> rest -> Location */
+  .project-back-link {
+    order: 0;
+  }
+
+  .project-header-section {
+    order: 1;
+  }
+
+  .project-area-banner {
+    order: 2;
+  }
+
+  .sidebar-posted-by {
+    order: 3;
+  }
+
+  .sidebar-properties {
+    order: 4;
+  }
+
+  .sidebar-agents {
+    order: 5;
+  }
+
+  .project-area-description {
+    order: 6;
+  }
+
+  .project-section:not(.project-area-description):not(.project-area-banner) {
+    order: 7;
+  }
+
+  .sidebar-location {
+    order: 100;
   }
 
   .project-section {
@@ -845,6 +888,8 @@
   .project-header-btn {
     padding: 0.25rem 0.5rem;
     font-size: 0.6875rem;
+    min-width: 100px;
+    text-align: center;
   }
 
   /* Title row buttons should stretch to match left side height */

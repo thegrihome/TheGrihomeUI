@@ -2108,6 +2108,10 @@
     gap: 1rem;
   }
 
+  .forum-city-description {
+    margin-top: 0;
+  }
+
   .forum-city-icon-large {
     font-size: 3rem;
   }
@@ -2162,7 +2166,7 @@
   .forum-breadcrumb {
     font-size: 0.8rem;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .forum-breadcrumb-separator {

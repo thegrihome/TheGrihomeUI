@@ -29,7 +29,19 @@
 }
 
 .property-header-right {
-  display: contents;
+  grid-column: 2;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .property-header-right {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
 }
 
 /* Row 1: Title + Edit button */
@@ -40,16 +52,13 @@
   font-weight: 700;
   color: #111827;
   margin: 0;
-  line-height: 2rem;
-  display: flex;
-  align-items: center;
+  line-height: 1.4;
 }
 
 .property-header-btn--edit,
 .property-header-btn--interest {
-  grid-column: 2;
-  grid-row: 1;
-  height: 2rem;
+  flex: 1;
+  height: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -62,17 +71,13 @@
   font-size: 1.25rem;
   font-weight: 700;
   color: #111827;
-  margin-top: 0.5rem;
-  line-height: 2rem;
-  display: flex;
-  align-items: center;
+  margin-top: 0.25rem;
+  line-height: 1.4;
 }
 
 .property-header-btn--sold {
-  grid-column: 2;
-  grid-row: 2;
-  margin-top: 0.5rem;
-  height: 2rem;
+  flex: 1;
+  height: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -105,6 +110,9 @@
 .property-header-btn--edit {
   background-color: #2563eb;
   color: white;
+  padding: 0.5rem 1rem;
+  min-width: 120px;
+  text-align: center;
 }
 
 .property-header-btn--edit:hover {
@@ -114,6 +122,9 @@
 .property-header-btn--sold {
   background-color: #dc2626;
   color: white;
+  padding: 0.5rem 1rem;
+  min-width: 120px;
+  text-align: center;
 }
 
 .property-header-btn--sold:hover {
@@ -128,6 +139,7 @@
 .property-header-btn--interest {
   background-color: #2563eb;
   color: white;
+  padding: 0.5rem 1rem;
 }
 
 .property-header-btn--interest:hover {
@@ -206,30 +218,32 @@
     min-width: 100%;
   }
 
-  /* Visitor layout: Title full width on row 1, price + button on row 2 */
+  /* Visitor layout: Title + Interest button on row 1, price on row 2 */
   .property-header-grid--visitor {
-    display: block;
+    display: grid;
+    grid-template-columns: 1fr auto;
   }
 
   .property-header-grid--visitor .property-header-left {
-    display: block;
+    display: contents;
   }
 
   .property-header-grid--visitor .property-header-title {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.25rem;
+    grid-column: 1;
+    grid-row: 1;
   }
 
   .property-header-grid--visitor .property-header-price {
-    display: inline-flex;
-    align-items: center;
-    margin-top: 0;
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: 0.25rem;
   }
 
   .property-header-grid--visitor .property-header-right--visitor {
-    display: inline-flex;
-    float: right;
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
   }
 
   .property-header-grid--visitor .property-header-right--visitor .property-header-btn {
@@ -237,7 +251,8 @@
   }
 
   .property-header-grid--visitor .property-header-meta {
-    clear: both;
+    grid-column: 1 / -1;
+    grid-row: 3;
     margin-top: 0.375rem;
   }
 }

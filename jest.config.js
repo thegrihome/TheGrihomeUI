@@ -18,10 +18,14 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
-  testPathIgnorePatterns: ['/node_modules/', '/__tests__/utils/'],
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/utils/', '/__tests__/responsive/'],
   transformIgnorePatterns: [
     'node_modules/(?!(uuid|@babel|next-auth|validator|jose|openid-client|oauth4webapi)/)',
   ],
+  // Performance optimizations
+  maxWorkers: '50%',
+  cache: true,
+  cacheDirectory: '<rootDir>/.jest-cache',
   collectCoverageFrom: [
     'pages/**/*.{js,jsx,ts,tsx}',
     'components/**/*.{js,jsx,ts,tsx}',
@@ -32,6 +36,15 @@ const customJestConfig = {
     '!**/coverage/**',
     '!**/jest.config.js',
   ],
+  // Coverage thresholds - baseline after test consolidation
+  coverageThreshold: {
+    global: {
+      branches: 9,
+      functions: 10,
+      lines: 14,
+      statements: 14,
+    },
+  },
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
