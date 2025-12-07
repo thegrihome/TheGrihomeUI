@@ -151,6 +151,127 @@
   cursor: not-allowed;
 }
 
+/* Owner Action Icons - Position to right of title */
+.property-owner-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.75rem;
+  vertical-align: middle;
+}
+
+/* Icon Button Base Styles */
+.property-action-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.property-action-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Edit Icon Button */
+.property-action-icon--edit {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.property-action-icon--edit:hover {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Mark as Sold Icon Button */
+.property-action-icon--sold {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.property-action-icon--sold:hover {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.property-action-icon--sold:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Tooltip Styles */
+.property-action-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #1f2937;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* Tooltip Arrow */
+.property-action-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px;
+  border-style: solid;
+  border-color: transparent transparent #1f2937 transparent;
+}
+
+/* Show tooltip on hover */
+.property-action-icon:hover .property-action-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile responsiveness for action icons */
+@media (max-width: 640px) {
+  .property-owner-actions {
+    gap: 0.375rem;
+    margin-left: 0.5rem;
+  }
+
+  .property-action-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .property-action-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .property-action-tooltip {
+    font-size: 0.6875rem;
+    padding: 0.1875rem 0.375rem;
+  }
+}
+
 .property-header-location {
   flex: 1;
   min-width: 200px;

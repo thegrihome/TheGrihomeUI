@@ -3,6 +3,14 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
 
+/**
+ * Mobile Verification API
+ *
+ * Supports two modes:
+ * 1. Verify current mobile (no newMobile param): Updates mobileVerified in DB
+ * 2. Verify new mobile for profile edit (with newMobile param): Just validates OTP,
+ *    doesn't update DB - the update happens when profile is saved
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' })
@@ -15,25 +23,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Unauthorized' })
     }
 
-    const { otp } = req.body
+    const { otp, newMobile } = req.body
 
     if (!otp) {
       return res.status(400).json({ message: 'OTP is required' })
     }
 
-    // Check if OTP is valid
+    // Development OTP: 9848022338
     if (otp !== '9848022338') {
       return res.status(400).json({ message: 'Invalid OTP' })
     }
 
-    // Update mobile verification
+    // If verifying a NEW mobile (profile edit mode)
+    if (newMobile) {
+      // Check if new mobile is already taken by another user
+      const existingUser = await prisma.user.findFirst({
+        where: { phone: newMobile },
+      })
+
+      if (existingUser && existingUser.id !== session.user.id) {
+        return res.status(400).json({ message: 'This mobile number is already in use' })
+      }
+
+      // Don't update DB - just confirm OTP is valid
+      // The mobile will be updated when profile is saved
+      return res.status(200).json({
+        message: 'OTP verified successfully',
+        verified: true,
+        newMobile,
+      })
+    }
+
+    // If verifying CURRENT mobile (original behavior)
     await prisma.user.update({
       where: { id: session.user.id },
       data: { mobileVerified: new Date() },
     })
 
     return res.status(200).json({ message: 'Mobile verified successfully' })
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: 'Internal server error' })
   }
 }

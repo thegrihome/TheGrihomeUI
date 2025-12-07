@@ -12,6 +12,7 @@ const Header: NextPage = () => {
   const [mounted, setMounted] = useState<boolean>(false)
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
   const [userImage, setUserImage] = useState<string | null>(null)
+  const [canAccessAdmin, setCanAccessAdmin] = useState<boolean>(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
@@ -52,6 +53,28 @@ const Header: NextPage = () => {
     fetchUserImage()
     // Only run when authentication status or email changes, not on every user object change
   }, [isAuthenticated, user?.email, user?.image])
+
+  // Check admin access
+  useEffect(() => {
+    const checkAdminAccess = async () => {
+      if (isAuthenticated) {
+        try {
+          const response = await fetch('/api/admin/check-access')
+          if (response.ok) {
+            const data = await response.json()
+            setCanAccessAdmin(data.canAccessAdmin)
+          }
+        } catch (error) {
+          // Silent fail - admin link won't show
+          setCanAccessAdmin(false)
+        }
+      } else {
+        setCanAccessAdmin(false)
+      }
+    }
+
+    checkAdminAccess()
+  }, [isAuthenticated])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -239,6 +262,11 @@ const Header: NextPage = () => {
                         <Link href="/properties/my-properties" className="dropdown-link">
                           My Properties
                         </Link>
+                        {canAccessAdmin && (
+                          <Link href="/admin" className="dropdown-link dropdown-link-admin">
+                            Admin Dashboard
+                          </Link>
+                        )}
                         <button onClick={handleLogout} className="logout-button">
                           Logout
                         </button>
@@ -394,6 +422,15 @@ const Header: NextPage = () => {
                         >
                           My Properties
                         </Link>
+                        {canAccessAdmin && (
+                          <Link
+                            href="/admin"
+                            onClick={() => setNavbarOpen(false)}
+                            className="mobile-user-link mobile-user-link-admin"
+                          >
+                            Admin Dashboard
+                          </Link>
+                        )}
                       </div>
                       <button
                         onClick={() => {

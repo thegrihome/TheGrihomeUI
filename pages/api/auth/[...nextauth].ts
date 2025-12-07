@@ -139,6 +139,8 @@ export const authOptions: NextAuthOptions = {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
           select: {
+            name: true,
+            email: true,
             image: true,
             emailVerified: true,
             mobileVerified: true,
@@ -150,9 +152,11 @@ export const authOptions: NextAuthOptions = {
         })
 
         session.user.id = token.sub
+        session.user.name = dbUser?.name || session.user.name
+        session.user.email = dbUser?.email || session.user.email
         session.user.role = (token.role || dbUser?.role) as string
         session.user.username = (token.username || dbUser?.username) as string
-        session.user.mobileNumber = (token.mobileNumber || dbUser?.phone) as string
+        session.user.mobileNumber = (dbUser?.phone || token.mobileNumber) as string
         session.user.image = dbUser?.image as string
         session.user.imageLink = dbUser?.image as string
         session.user.isEmailVerified = !!dbUser?.emailVerified

@@ -283,7 +283,47 @@ export default function PropertyDetailPage() {
                 >
                   {/* Left Column: Title, Price, Location, Date */}
                   <div className="property-header-left">
-                    <h1 className="property-header-title">{property.project}</h1>
+                    <h1 className="property-header-title">
+                      {property.project}
+                      {isOwner && property.listingStatus === 'ACTIVE' && (
+                        <span className="property-owner-actions">
+                          {/* Edit Icon */}
+                          <button
+                            onClick={() => router.push(`/properties/edit/${property.id}`)}
+                            className="property-action-icon property-action-icon--edit"
+                            aria-label="Edit Listing"
+                          >
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                            <span className="property-action-tooltip">Edit Listing</span>
+                          </button>
+
+                          {/* Mark as Sold Icon */}
+                          <button
+                            onClick={() => setShowSoldModal(true)}
+                            disabled={processing}
+                            className="property-action-icon property-action-icon--sold"
+                            aria-label="Mark as Sold"
+                          >
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            <span className="property-action-tooltip">Mark as Sold</span>
+                          </button>
+                        </span>
+                      )}
+                    </h1>
                     {property.price && (
                       <div className="property-header-price">
                         ₹{formatIndianCurrency(property.price)}
@@ -298,25 +338,6 @@ export default function PropertyDetailPage() {
                       </span>
                     </div>
                   </div>
-
-                  {/* Right Column: Buttons (stacked on mobile) */}
-                  {isOwner && property.listingStatus === 'ACTIVE' && (
-                    <div className="property-header-right">
-                      <button
-                        onClick={() => router.push(`/properties/edit/${property.id}`)}
-                        className="property-header-btn property-header-btn--edit"
-                      >
-                        Edit Listing
-                      </button>
-                      <button
-                        onClick={() => setShowSoldModal(true)}
-                        disabled={processing}
-                        className="property-header-btn property-header-btn--sold"
-                      >
-                        Mark as Sold
-                      </button>
-                    </div>
-                  )}
                   {!isOwner && property.listingStatus === 'ACTIVE' && (
                     <div className="property-header-right property-header-right--visitor">
                       {status === 'authenticated' ? (

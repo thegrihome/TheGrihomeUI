@@ -46,6 +46,46 @@ export default function UserInfoPage() {
   const [countryCode, setCountryCode] = useState('')
   const [userProfileImage, setUserProfileImage] = useState<string>('')
 
+  // Edit mode states
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [editFirstName, setEditFirstName] = useState('')
+  const [editLastName, setEditLastName] = useState('')
+  const [editEmail, setEditEmail] = useState('')
+  const [editMobile, setEditMobile] = useState('')
+  const [editCountryCode, setEditCountryCode] = useState('+91')
+  const [originalValues, setOriginalValues] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    mobile: '',
+    countryCode: '+91',
+  })
+  const [newEmailVerified, setNewEmailVerified] = useState(false)
+  const [newMobileVerified, setNewMobileVerified] = useState(false)
+  const [newEmailOtp, setNewEmailOtp] = useState('')
+  const [newMobileOtp, setNewMobileOtp] = useState('')
+  const [newEmailOtpSent, setNewEmailOtpSent] = useState(false)
+  const [newMobileOtpSent, setNewMobileOtpSent] = useState(false)
+  const [newEmailTimeLeft, setNewEmailTimeLeft] = useState(180)
+  const [newMobileTimeLeft, setNewMobileTimeLeft] = useState(180)
+  const [savingProfile, setSavingProfile] = useState(false)
+
+  // Edit mode validation states
+  const [editValidationErrors, setEditValidationErrors] = useState({
+    email: '',
+    mobile: '',
+  })
+  const [checkingEditUnique, setCheckingEditUnique] = useState({
+    email: false,
+    mobile: false,
+  })
+
+  // OTP error states (for inline display)
+  const [emailOtpError, setEmailOtpError] = useState('')
+  const [mobileOtpError, setMobileOtpError] = useState('')
+  const [newEmailOtpError, setNewEmailOtpError] = useState('')
+  const [newMobileOtpError, setNewMobileOtpError] = useState('')
+
   useEffect(() => {
     setMounted(true)
     if (user?.mobileNumber) {
@@ -106,6 +146,115 @@ export default function UserInfoPage() {
       setMobileCanResend(true)
     }
   }, [mobileTimeLeft, mobileOtpSent])
+
+  // New Email OTP timer (for edit mode)
+  useEffect(() => {
+    if (newEmailOtpSent && newEmailTimeLeft > 0) {
+      const timer = setTimeout(() => setNewEmailTimeLeft(newEmailTimeLeft - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [newEmailTimeLeft, newEmailOtpSent])
+
+  // New Mobile OTP timer (for edit mode)
+  useEffect(() => {
+    if (newMobileOtpSent && newMobileTimeLeft > 0) {
+      const timer = setTimeout(() => setNewMobileTimeLeft(newMobileTimeLeft - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [newMobileTimeLeft, newMobileOtpSent])
+
+  // Debounced email validation (format + uniqueness) for edit mode
+  useEffect(() => {
+    if (!isEditMode || !editEmail || editEmail === originalValues.email) {
+      setEditValidationErrors(prev => ({ ...prev, email: '' }))
+      return
+    }
+
+    const checkEmailValidation = async () => {
+      setCheckingEditUnique(prev => ({ ...prev, email: true }))
+
+      try {
+        const response = await fetch('/api/auth/check-unique', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ field: 'email', value: editEmail }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          setEditValidationErrors(prev => ({
+            ...prev,
+            email: data.message || 'Invalid email format',
+          }))
+        } else if (!data.isUnique) {
+          setEditValidationErrors(prev => ({
+            ...prev,
+            email: 'Email is already registered',
+          }))
+        } else {
+          setEditValidationErrors(prev => ({ ...prev, email: '' }))
+        }
+      } catch {
+        // Silently fail for network errors
+      } finally {
+        setCheckingEditUnique(prev => ({ ...prev, email: false }))
+      }
+    }
+
+    const timer = setTimeout(() => {
+      checkEmailValidation()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [editEmail, isEditMode, originalValues.email])
+
+  // Debounced mobile validation (format + uniqueness) for edit mode
+  useEffect(() => {
+    const fullMobile = editCountryCode + editMobile
+    const originalFullMobile = originalValues.countryCode + originalValues.mobile
+
+    if (!isEditMode || !editMobile || fullMobile === originalFullMobile) {
+      setEditValidationErrors(prev => ({ ...prev, mobile: '' }))
+      return
+    }
+
+    const checkMobileValidation = async () => {
+      setCheckingEditUnique(prev => ({ ...prev, mobile: true }))
+
+      try {
+        const response = await fetch('/api/auth/check-unique', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ field: 'mobile', value: fullMobile }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          setEditValidationErrors(prev => ({
+            ...prev,
+            mobile: data.message || 'Invalid mobile number format',
+          }))
+        } else if (!data.isUnique) {
+          setEditValidationErrors(prev => ({
+            ...prev,
+            mobile: 'Mobile number is already registered',
+          }))
+        } else {
+          setEditValidationErrors(prev => ({ ...prev, mobile: '' }))
+        }
+      } catch {
+        // Silently fail for network errors
+      } finally {
+        setCheckingEditUnique(prev => ({ ...prev, mobile: false }))
+      }
+    }
+
+    const timer = setTimeout(() => {
+      checkMobileValidation()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [editMobile, editCountryCode, isEditMode, originalValues.mobile, originalValues.countryCode])
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ show: true, message, type })
@@ -242,10 +391,11 @@ export default function UserInfoPage() {
 
   const handleVerifyEmail = async () => {
     if (emailOtp !== '9848022338') {
-      showToast('Invalid OTP', 'error')
+      setEmailOtpError('Invalid OTP')
       return
     }
 
+    setEmailOtpError('')
     setEmailOtpLoading(true)
     try {
       const response = await fetch('/api/user/verify-email', {
@@ -289,10 +439,11 @@ export default function UserInfoPage() {
 
   const handleVerifyMobile = async () => {
     if (mobileOtp !== '9848022338') {
-      showToast('Invalid OTP', 'error')
+      setMobileOtpError('Invalid OTP')
       return
     }
 
+    setMobileOtpError('')
     setMobileOtpLoading(true)
     try {
       const response = await fetch('/api/user/verify-mobile', {
@@ -315,6 +466,227 @@ export default function UserInfoPage() {
       showToast(error instanceof Error ? error.message : 'Mobile verification failed', 'error')
     } finally {
       setMobileOtpLoading(false)
+    }
+  }
+
+  // Edit mode handlers
+  const enterEditMode = () => {
+    const currentFirst = user?.name?.split(' ')[0] || ''
+    const currentLast = user?.name?.split(' ').slice(1).join(' ') || ''
+    const currentMobile = getMobileWithoutCountryCode()
+
+    setEditFirstName(currentFirst)
+    setEditLastName(currentLast)
+    setEditEmail(user?.email || '')
+    setEditMobile(currentMobile)
+    setEditCountryCode(countryCode || '+91')
+    setOriginalValues({
+      firstName: currentFirst,
+      lastName: currentLast,
+      email: user?.email || '',
+      mobile: currentMobile,
+      countryCode: countryCode || '+91',
+    })
+    setNewEmailVerified(false)
+    setNewMobileVerified(false)
+    setNewEmailOtp('')
+    setNewMobileOtp('')
+    setNewEmailOtpSent(false)
+    setNewMobileOtpSent(false)
+    setEditValidationErrors({ email: '', mobile: '' })
+    setCheckingEditUnique({ email: false, mobile: false })
+    setNewEmailOtpError('')
+    setNewMobileOtpError('')
+    setIsEditMode(true)
+  }
+
+  const cancelEditMode = () => {
+    setIsEditMode(false)
+    setEditFirstName('')
+    setEditLastName('')
+    setEditEmail('')
+    setEditMobile('')
+    setNewEmailVerified(false)
+    setNewMobileVerified(false)
+    setNewEmailOtp('')
+    setNewMobileOtp('')
+    setNewEmailOtpSent(false)
+    setNewMobileOtpSent(false)
+    setEditValidationErrors({ email: '', mobile: '' })
+    setCheckingEditUnique({ email: false, mobile: false })
+    setNewEmailOtpError('')
+    setNewMobileOtpError('')
+  }
+
+  const hasEmailChanged = () => editEmail !== originalValues.email
+  const hasMobileChanged = () =>
+    editMobile !== originalValues.mobile || editCountryCode !== originalValues.countryCode
+
+  const canSaveProfile = () => {
+    // Check for validation errors
+    if (editValidationErrors.email || editValidationErrors.mobile) return false
+    // Check if validation is in progress
+    if (checkingEditUnique.email || checkingEditUnique.mobile) return false
+    // If email changed, it must be verified
+    if (hasEmailChanged() && !newEmailVerified) return false
+    // If mobile changed, it must be verified
+    if (hasMobileChanged() && !newMobileVerified) return false
+    return true
+  }
+
+  const hasValidationErrors = () => {
+    return editValidationErrors.email || editValidationErrors.mobile
+  }
+
+  const handleSendNewEmailOtp = async () => {
+    setEmailOtpLoading(true)
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setNewEmailOtpSent(true)
+      setNewEmailTimeLeft(180)
+      showToast('OTP sent to new email', 'success')
+    } catch {
+      showToast('Failed to send OTP', 'error')
+    } finally {
+      setEmailOtpLoading(false)
+    }
+  }
+
+  const handleVerifyNewEmail = async () => {
+    if (newEmailOtp !== '9848022338') {
+      setNewEmailOtpError('Invalid OTP')
+      return
+    }
+
+    setNewEmailOtpError('')
+    setEmailOtpLoading(true)
+    try {
+      const response = await fetch('/api/user/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: newEmailOtp, newEmail: editEmail }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Email verification failed')
+      }
+
+      setNewEmailVerified(true)
+      showToast('New email verified successfully', 'success')
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Email verification failed', 'error')
+    } finally {
+      setEmailOtpLoading(false)
+    }
+  }
+
+  const handleSendNewMobileOtp = async () => {
+    setMobileOtpLoading(true)
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setNewMobileOtpSent(true)
+      setNewMobileTimeLeft(180)
+      showToast('OTP sent to new mobile', 'success')
+    } catch {
+      showToast('Failed to send OTP', 'error')
+    } finally {
+      setMobileOtpLoading(false)
+    }
+  }
+
+  const handleVerifyNewMobile = async () => {
+    if (newMobileOtp !== '9848022338') {
+      setNewMobileOtpError('Invalid OTP')
+      return
+    }
+
+    setNewMobileOtpError('')
+    setMobileOtpLoading(true)
+    try {
+      const fullMobile = editCountryCode + editMobile
+      const response = await fetch('/api/user/verify-mobile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: newMobileOtp, newMobile: fullMobile }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Mobile verification failed')
+      }
+
+      setNewMobileVerified(true)
+      showToast('New mobile verified successfully', 'success')
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Mobile verification failed', 'error')
+    } finally {
+      setMobileOtpLoading(false)
+    }
+  }
+
+  const handleSaveProfile = async () => {
+    if (!canSaveProfile()) {
+      showToast('Please verify changed email/mobile before saving', 'error')
+      return
+    }
+
+    setSavingProfile(true)
+    try {
+      const updatePayload: {
+        firstName?: string
+        lastName?: string
+        newEmail?: string
+        emailVerified?: boolean
+        newMobile?: string
+        mobileVerified?: boolean
+      } = {}
+
+      // Always include name in edit mode - let the API determine if there's a change
+      updatePayload.firstName = editFirstName.trim()
+      updatePayload.lastName = editLastName.trim()
+
+      // Include email if changed and verified
+      if (hasEmailChanged() && newEmailVerified) {
+        updatePayload.newEmail = editEmail
+        updatePayload.emailVerified = true
+      }
+
+      // Include mobile if changed and verified
+      if (hasMobileChanged() && newMobileVerified) {
+        updatePayload.newMobile = editCountryCode + editMobile
+        updatePayload.mobileVerified = true
+      }
+
+      const response = await fetch('/api/user/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatePayload),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Profile update failed')
+      }
+
+      await update()
+      showToast(data.message || 'Profile updated successfully', 'success')
+      setIsEditMode(false)
+
+      // Reset edit states
+      setNewEmailVerified(false)
+      setNewMobileVerified(false)
+      setNewEmailOtp('')
+      setNewMobileOtp('')
+      setNewEmailOtpSent(false)
+      setNewMobileOtpSent(false)
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Profile update failed', 'error')
+    } finally {
+      setSavingProfile(false)
     }
   }
 
@@ -347,34 +719,82 @@ export default function UserInfoPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Personal Information */}
           <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Personal Information</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
+              {!isEditMode && (
+                <button
+                  onClick={enterEditMode}
+                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <svg
+                    className="w-4 h-4 mr-1.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
+                  Edit
+                </button>
+              )}
+            </div>
 
             <div className="space-y-4">
               {/* First Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">First Name</label>
-                <input
-                  type="text"
-                  value={user.name?.split(' ')[0] || ''}
-                  disabled
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
-                />
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={editFirstName}
+                    onChange={e => setEditFirstName(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter first name"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={user.name?.split(' ')[0] || ''}
+                    disabled
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                  />
+                )}
               </div>
 
               {/* Last Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                <input
-                  type="text"
-                  value={user.name?.split(' ').slice(1).join(' ') || ''}
-                  disabled
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
-                />
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={editLastName}
+                    onChange={e => setEditLastName(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter last name"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={user.name?.split(' ').slice(1).join(' ') || ''}
+                    disabled
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                  />
+                )}
               </div>
 
               {/* Username */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Username</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Username
+                  {isEditMode && (
+                    <span className="ml-2 text-xs text-gray-500">(cannot be changed)</span>
+                  )}
+                </label>
                 <input
                   type="text"
                   value={user.username || ''}
@@ -385,137 +805,31 @@ export default function UserInfoPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Email Address</label>
-                <div className="mt-1 relative">
-                  <input
-                    type="email"
-                    value={user.email || ''}
-                    disabled
-                    className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <div
-                      className="relative group cursor-help"
-                      title={
-                        user.isEmailVerified
-                          ? 'Email verified successfully'
-                          : 'Pending verification'
-                      }
-                    >
-                      {user.isEmailVerified ? (
-                        <svg
-                          className="w-5 h-5 text-green-500"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          className="w-5 h-5 text-red-500"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      )}
-                      {/* Tooltip */}
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-                        {user.isEmailVerified
-                          ? 'Email verified successfully'
-                          : 'Pending verification'}
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Email Verification */}
-                {!user.isEmailVerified && (
-                  <div className="mt-3 space-y-3">
-                    {!emailOtpSent ? (
-                      <button
-                        onClick={handleSendEmailOtp}
-                        disabled={emailOtpLoading}
-                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                      >
-                        {emailOtpLoading ? 'Sending...' : 'Send OTP'}
-                      </button>
-                    ) : (
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          value={emailOtp}
-                          onChange={e => setEmailOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Enter 6-digit OTP"
-                          maxLength={6}
-                        />
-                        <div className="flex items-center space-x-3">
-                          <button
-                            onClick={handleVerifyEmail}
-                            disabled={emailOtpLoading || emailOtp.length !== 6}
-                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-                          >
-                            {emailOtpLoading ? 'Verifying...' : 'Verify'}
-                          </button>
-                          {emailTimeLeft > 0 ? (
-                            <span className="text-sm text-gray-500">
-                              Resend in {formatTime(emailTimeLeft)}
-                            </span>
-                          ) : (
-                            <button
-                              onClick={handleSendEmailOtp}
-                              disabled={emailOtpLoading}
-                              className="text-sm text-blue-600 hover:text-blue-500"
-                            >
-                              Resend OTP
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Mobile Number */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Mobile Number</label>
-                <div className="mt-1 flex space-x-2">
-                  <div className="w-32">
-                    <CountryCodeDropdown
-                      value={countryCode}
-                      onChange={setCountryCode}
-                      disabled={true}
-                      className="bg-gray-50 text-gray-500 cursor-not-allowed"
-                    />
-                  </div>
-                  <div className="flex-1 relative">
-                    <input
-                      type="tel"
-                      value={getMobileWithoutCountryCode()}
-                      disabled
-                      className="block w-full h-[42px] px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                      <div
-                        className="relative group cursor-help"
-                        title={
-                          user.isMobileVerified
-                            ? 'Mobile verified successfully'
-                            : 'Pending verification'
-                        }
-                      >
-                        {user.isMobileVerified ? (
+                <label className="block text-sm font-medium text-gray-700">
+                  Email Address
+                  {isEditMode && checkingEditUnique.email && (
+                    <span className="ml-2 text-xs text-gray-500">(checking...)</span>
+                  )}
+                </label>
+                {isEditMode ? (
+                  <>
+                    <div className="mt-1 relative">
+                      <input
+                        type="email"
+                        value={editEmail}
+                        onChange={e => {
+                          setEditEmail(e.target.value)
+                          setNewEmailVerified(false)
+                          setNewEmailOtpSent(false)
+                          setNewEmailOtp('')
+                        }}
+                        className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                          editValidationErrors.email ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter email address"
+                      />
+                      {hasEmailChanged() && !editValidationErrors.email && newEmailVerified && (
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                           <svg
                             className="w-5 h-5 text-green-500"
                             fill="currentColor"
@@ -527,79 +841,416 @@ export default function UserInfoPage() {
                               clipRule="evenodd"
                             />
                           </svg>
-                        ) : (
-                          <svg
-                            className="w-5 h-5 text-red-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
+                        </div>
+                      )}
+                    </div>
+                    {/* Email validation error */}
+                    {editValidationErrors.email && (
+                      <p className="mt-1 text-sm text-red-600">{editValidationErrors.email}</p>
+                    )}
+                    {/* Needs verification message - shown below input */}
+                    {hasEmailChanged() && !editValidationErrors.email && !newEmailVerified && (
+                      <p className="mt-1 text-xs text-orange-600 font-medium">Needs verification</p>
+                    )}
+                    {/* New Email Verification */}
+                    {hasEmailChanged() && !newEmailVerified && !editValidationErrors.email && (
+                      <div className="mt-3 space-y-3">
+                        {!newEmailOtpSent ? (
+                          <button
+                            onClick={handleSendNewEmailOtp}
+                            disabled={emailOtpLoading || !editEmail || checkingEditUnique.email}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                           >
-                            <path
-                              fillRule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                              clipRule="evenodd"
+                            {emailOtpLoading ? 'Sending...' : 'Send OTP to New Email'}
+                          </button>
+                        ) : (
+                          <div className="space-y-2">
+                            <input
+                              type="text"
+                              value={newEmailOtp}
+                              onChange={e => {
+                                setNewEmailOtp(e.target.value.replace(/\D/g, ''))
+                                setNewEmailOtpError('')
+                              }}
+                              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Enter OTP"
                             />
-                          </svg>
+                            <div className="flex items-center space-x-3">
+                              <button
+                                onClick={handleVerifyNewEmail}
+                                disabled={emailOtpLoading || !newEmailOtp}
+                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                              >
+                                {emailOtpLoading ? 'Verifying...' : 'Verify'}
+                              </button>
+                              {newEmailOtpError && (
+                                <span className="text-sm text-red-600">{newEmailOtpError}</span>
+                              )}
+                              {newEmailTimeLeft > 0 ? (
+                                <span className="text-sm text-gray-500">
+                                  Resend in {formatTime(newEmailTimeLeft)}
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={handleSendNewEmailOtp}
+                                  disabled={emailOtpLoading}
+                                  className="text-sm text-blue-600 hover:text-blue-500"
+                                >
+                                  Resend OTP
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         )}
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-                          {user.isMobileVerified
-                            ? 'Mobile verified successfully'
-                            : 'Pending verification'}
-                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="mt-1 relative">
+                      <input
+                        type="email"
+                        value={user.email || ''}
+                        disabled
+                        className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                      />
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <div
+                          className="relative group cursor-help"
+                          title={
+                            user.isEmailVerified
+                              ? 'Email verified successfully'
+                              : 'Pending verification'
+                          }
+                        >
+                          {user.isEmailVerified ? (
+                            <svg
+                              className="w-5 h-5 text-green-500"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-5 h-5 text-red-500"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          )}
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                            {user.isEmailVerified
+                              ? 'Email verified successfully'
+                              : 'Pending verification'}
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Mobile Verification */}
-                {!user.isMobileVerified && (
-                  <div className="mt-3 space-y-3">
-                    {!mobileOtpSent ? (
-                      <button
-                        onClick={handleSendMobileOtp}
-                        disabled={mobileOtpLoading}
-                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                      >
-                        {mobileOtpLoading ? 'Sending...' : 'Send OTP'}
-                      </button>
-                    ) : (
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          value={mobileOtp}
-                          onChange={e =>
-                            setMobileOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
-                          }
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Enter 6-digit OTP"
-                          maxLength={6}
-                        />
-                        <div className="flex items-center space-x-3">
+                    {/* Email Verification */}
+                    {!user.isEmailVerified && (
+                      <div className="mt-3 space-y-3">
+                        {!emailOtpSent ? (
                           <button
-                            onClick={handleVerifyMobile}
-                            disabled={mobileOtpLoading || mobileOtp.length !== 6}
-                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                            onClick={handleSendEmailOtp}
+                            disabled={emailOtpLoading}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                           >
-                            {mobileOtpLoading ? 'Verifying...' : 'Verify'}
+                            {emailOtpLoading ? 'Sending...' : 'Send OTP'}
                           </button>
-                          {mobileTimeLeft > 0 ? (
-                            <span className="text-sm text-gray-500">
-                              Resend in {formatTime(mobileTimeLeft)}
-                            </span>
-                          ) : (
-                            <button
-                              onClick={handleSendMobileOtp}
-                              disabled={mobileOtpLoading}
-                              className="text-sm text-blue-600 hover:text-blue-500"
-                            >
-                              Resend OTP
-                            </button>
-                          )}
-                        </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <input
+                              type="text"
+                              value={emailOtp}
+                              onChange={e => {
+                                setEmailOtp(e.target.value.replace(/\D/g, ''))
+                                setEmailOtpError('')
+                              }}
+                              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Enter OTP"
+                            />
+                            <div className="flex items-center space-x-3">
+                              <button
+                                onClick={handleVerifyEmail}
+                                disabled={emailOtpLoading || !emailOtp}
+                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                              >
+                                {emailOtpLoading ? 'Verifying...' : 'Verify'}
+                              </button>
+                              {emailOtpError && (
+                                <span className="text-sm text-red-600">{emailOtpError}</span>
+                              )}
+                              {emailTimeLeft > 0 ? (
+                                <span className="text-sm text-gray-500">
+                                  Resend in {formatTime(emailTimeLeft)}
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={handleSendEmailOtp}
+                                  disabled={emailOtpLoading}
+                                  className="text-sm text-blue-600 hover:text-blue-500"
+                                >
+                                  Resend OTP
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
+                  </>
+                )}
+              </div>
+
+              {/* Mobile Number */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Mobile Number
+                  {isEditMode && checkingEditUnique.mobile && (
+                    <span className="ml-2 text-xs text-gray-500">(checking...)</span>
+                  )}
+                </label>
+                {isEditMode ? (
+                  <>
+                    <div className="mt-1 flex space-x-2">
+                      <div className="w-32">
+                        <CountryCodeDropdown
+                          value={editCountryCode}
+                          onChange={code => {
+                            setEditCountryCode(code)
+                            setNewMobileVerified(false)
+                            setNewMobileOtpSent(false)
+                            setNewMobileOtp('')
+                          }}
+                          disabled={false}
+                        />
+                      </div>
+                      <div className="flex-1 relative">
+                        <input
+                          type="tel"
+                          value={editMobile}
+                          onChange={e => {
+                            setEditMobile(e.target.value.replace(/\D/g, '').slice(0, 10))
+                            setNewMobileVerified(false)
+                            setNewMobileOtpSent(false)
+                            setNewMobileOtp('')
+                          }}
+                          className={`block w-full h-[42px] px-3 py-2 pr-10 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                            editValidationErrors.mobile ? 'border-red-500' : 'border-gray-300'
+                          }`}
+                          placeholder="Enter mobile number"
+                          maxLength={10}
+                        />
+                        {hasMobileChanged() &&
+                          !editValidationErrors.mobile &&
+                          newMobileVerified && (
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                              <svg
+                                className="w-5 h-5 text-green-500"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                    {/* Mobile validation error */}
+                    {editValidationErrors.mobile && (
+                      <p className="mt-1 text-sm text-red-600">{editValidationErrors.mobile}</p>
+                    )}
+                    {/* Needs verification message - shown below input */}
+                    {hasMobileChanged() && !editValidationErrors.mobile && !newMobileVerified && (
+                      <p className="mt-1 text-xs text-orange-600 font-medium">Needs verification</p>
+                    )}
+                    {/* New Mobile Verification */}
+                    {hasMobileChanged() && !newMobileVerified && !editValidationErrors.mobile && (
+                      <div className="mt-3 space-y-3">
+                        {!newMobileOtpSent ? (
+                          <button
+                            onClick={handleSendNewMobileOtp}
+                            disabled={mobileOtpLoading || !editMobile || checkingEditUnique.mobile}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                          >
+                            {mobileOtpLoading ? 'Sending...' : 'Send OTP to New Mobile'}
+                          </button>
+                        ) : (
+                          <div className="space-y-2">
+                            <input
+                              type="text"
+                              value={newMobileOtp}
+                              onChange={e => {
+                                setNewMobileOtp(e.target.value.replace(/\D/g, ''))
+                                setNewMobileOtpError('')
+                              }}
+                              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Enter OTP"
+                            />
+                            <div className="flex items-center space-x-3">
+                              <button
+                                onClick={handleVerifyNewMobile}
+                                disabled={mobileOtpLoading || !newMobileOtp}
+                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                              >
+                                {mobileOtpLoading ? 'Verifying...' : 'Verify'}
+                              </button>
+                              {newMobileOtpError && (
+                                <span className="text-sm text-red-600">{newMobileOtpError}</span>
+                              )}
+                              {newMobileTimeLeft > 0 ? (
+                                <span className="text-sm text-gray-500">
+                                  Resend in {formatTime(newMobileTimeLeft)}
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={handleSendNewMobileOtp}
+                                  disabled={mobileOtpLoading}
+                                  className="text-sm text-blue-600 hover:text-blue-500"
+                                >
+                                  Resend OTP
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="mt-1 flex space-x-2">
+                      <div className="w-32">
+                        <CountryCodeDropdown
+                          value={countryCode}
+                          onChange={setCountryCode}
+                          disabled={true}
+                          className="bg-gray-50 text-gray-500 cursor-not-allowed"
+                        />
+                      </div>
+                      <div className="flex-1 relative">
+                        <input
+                          type="tel"
+                          value={getMobileWithoutCountryCode()}
+                          disabled
+                          className="block w-full h-[42px] px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                        />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                          <div
+                            className="relative group cursor-help"
+                            title={
+                              user.isMobileVerified
+                                ? 'Mobile verified successfully'
+                                : 'Pending verification'
+                            }
+                          >
+                            {user.isMobileVerified ? (
+                              <svg
+                                className="w-5 h-5 text-green-500"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="w-5 h-5 text-red-500"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            )}
+                            {/* Tooltip */}
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                              {user.isMobileVerified
+                                ? 'Mobile verified successfully'
+                                : 'Pending verification'}
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mobile Verification */}
+                    {!user.isMobileVerified && (
+                      <div className="mt-3 space-y-3">
+                        {!mobileOtpSent ? (
+                          <button
+                            onClick={handleSendMobileOtp}
+                            disabled={mobileOtpLoading}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                          >
+                            {mobileOtpLoading ? 'Sending...' : 'Send OTP'}
+                          </button>
+                        ) : (
+                          <div className="space-y-2">
+                            <input
+                              type="text"
+                              value={mobileOtp}
+                              onChange={e => {
+                                setMobileOtp(e.target.value.replace(/\D/g, ''))
+                                setMobileOtpError('')
+                              }}
+                              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Enter OTP"
+                            />
+                            <div className="flex items-center space-x-3">
+                              <button
+                                onClick={handleVerifyMobile}
+                                disabled={mobileOtpLoading || !mobileOtp}
+                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                              >
+                                {mobileOtpLoading ? 'Verifying...' : 'Verify'}
+                              </button>
+                              {mobileOtpError && (
+                                <span className="text-sm text-red-600">{mobileOtpError}</span>
+                              )}
+                              {mobileTimeLeft > 0 ? (
+                                <span className="text-sm text-gray-500">
+                                  Resend in {formatTime(mobileTimeLeft)}
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={handleSendMobileOtp}
+                                  disabled={mobileOtpLoading}
+                                  className="text-sm text-blue-600 hover:text-blue-500"
+                                >
+                                  Resend OTP
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -614,6 +1265,39 @@ export default function UserInfoPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
                   />
                 </div>
+              )}
+
+              {/* Edit Mode Actions */}
+              {isEditMode && (
+                <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={savingProfile || !canSaveProfile()}
+                    className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {savingProfile ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button
+                    onClick={cancelEditMode}
+                    disabled={savingProfile}
+                    className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {/* Help text for edit mode */}
+              {isEditMode && (hasEmailChanged() || hasMobileChanged()) && (
+                <p
+                  className={`text-xs mt-2 ${hasValidationErrors() ? 'text-red-600' : 'text-gray-500'}`}
+                >
+                  {hasValidationErrors()
+                    ? 'Please fix validation errors before saving.'
+                    : !canSaveProfile()
+                      ? 'Please verify your new email/mobile before saving.'
+                      : 'All changes verified. Ready to save.'}
+                </p>
               )}
             </div>
           </div>

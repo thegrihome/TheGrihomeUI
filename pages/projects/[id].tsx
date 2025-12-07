@@ -453,33 +453,63 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                       clipRule="evenodd"
                     />
                   </svg>
+                  {isOwner && (
+                    <span className="project-owner-actions">
+                      {/* Edit Icon */}
+                      <Link
+                        href={`/projects/edit/${project.id}`}
+                        className="project-action-icon project-action-icon--edit"
+                        aria-label="Edit Listing"
+                      >
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                        <span className="project-action-tooltip">Edit Listing</span>
+                      </Link>
+
+                      {/* Archive/Restore Icon */}
+                      <button
+                        onClick={handleArchiveProject}
+                        disabled={isArchiving}
+                        className={`project-action-icon ${
+                          project.isArchived
+                            ? 'project-action-icon--restore'
+                            : 'project-action-icon--archive'
+                        }`}
+                        aria-label={project.isArchived ? 'Restore Project' : 'Archive Project'}
+                      >
+                        {project.isArchived ? (
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                          </svg>
+                        ) : (
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                            />
+                          </svg>
+                        )}
+                        <span className="project-action-tooltip">
+                          {project.isArchived ? 'Restore Project' : 'Archive Project'}
+                        </span>
+                      </button>
+                    </span>
+                  )}
                 </h1>
               </div>
-              {isOwner && (
-                <div className="project-title-right project-title-right--desktop">
-                  <Link
-                    href={`/projects/edit/${project.id}`}
-                    className="project-header-btn project-header-btn--edit"
-                  >
-                    Edit Listing
-                  </Link>
-                  <button
-                    onClick={handleArchiveProject}
-                    disabled={isArchiving}
-                    className={`project-header-btn ${
-                      project.isArchived
-                        ? 'project-header-btn--restore'
-                        : 'project-header-btn--archive'
-                    }`}
-                  >
-                    {isArchiving
-                      ? '...'
-                      : project.isArchived
-                        ? 'Restore Project'
-                        : 'Archive Project'}
-                  </button>
-                </div>
-              )}
             </div>
             {/* Builder info */}
             <div className="project-info-wrapper">
@@ -510,31 +540,6 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   {project.location.city}, {project.location.state}
                 </span>
               </div>
-              {isOwner && (
-                <div className="project-title-right project-title-right--mobile">
-                  <Link
-                    href={`/projects/edit/${project.id}`}
-                    className="project-header-btn project-header-btn--edit"
-                  >
-                    Edit Listing
-                  </Link>
-                  <button
-                    onClick={handleArchiveProject}
-                    disabled={isArchiving}
-                    className={`project-header-btn ${
-                      project.isArchived
-                        ? 'project-header-btn--restore'
-                        : 'project-header-btn--archive'
-                    }`}
-                  >
-                    {isArchiving
-                      ? '...'
-                      : project.isArchived
-                        ? 'Restore Project'
-                        : 'Archive Project'}
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Registered Agent Banner */}
