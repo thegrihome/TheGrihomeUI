@@ -38,6 +38,9 @@ yarn-error.log*
 # Coverage directory used by tools like istanbul
 coverage/
 
+# Jest cache
+.jest-cache/
+
 # Vercel
 .vercel
 
