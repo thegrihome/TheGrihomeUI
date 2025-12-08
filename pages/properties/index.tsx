@@ -62,6 +62,7 @@ export default function PropertiesPage() {
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [autocompleteService, setAutocompleteService] =
     useState<google.maps.places.AutocompleteService | null>(null)
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
@@ -294,6 +295,7 @@ export default function PropertiesPage() {
         setFilteredProperties([])
       } finally {
         setLoading(false)
+        setIsInitialLoad(false)
       }
     }
 
@@ -553,6 +555,21 @@ export default function PropertiesPage() {
     filters.propertyType === 'CONDO'
 
   if (!mounted) return null
+
+  // Only show full page loader on initial load
+  if (isInitialLoad && loading) {
+    return (
+      <div className="properties-container">
+        <Header />
+        <main className="min-h-screen bg-gray-50">
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
 
   return (
     <div className="properties-container">

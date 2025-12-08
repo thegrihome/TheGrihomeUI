@@ -66,6 +66,7 @@ export default function MyPropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([])
   const [favorites, setFavorites] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [mounted, setMounted] = useState(false)
 
   // Get tab from URL or default to 'active'
@@ -170,6 +171,7 @@ export default function MyPropertiesPage() {
       setProperties([])
     } finally {
       setLoading(false)
+      setIsInitialLoad(false)
     }
   }
 
@@ -266,7 +268,8 @@ export default function MyPropertiesPage() {
         ? archivedProperties
         : favorites
 
-  if (!mounted || loading) {
+  // Only show full page loader on initial load
+  if (!mounted || (isInitialLoad && loading)) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />

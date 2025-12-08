@@ -3,7 +3,7 @@ import { NextSeo } from 'next-seo'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -70,6 +70,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [displayedReplies, setDisplayedReplies] = useState(20)
+  const replyTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -183,6 +184,13 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
                       document
                         .querySelector('.forum-reply-form')
                         ?.scrollIntoView({ behavior: 'smooth' })
+                      // Focus the textarea after a short delay to ensure scroll completes
+                      setTimeout(() => {
+                        replyTextareaRef.current?.focus()
+                        // Move cursor to the end
+                        const length = replyTextareaRef.current?.value.length || 0
+                        replyTextareaRef.current?.setSelectionRange(length, length)
+                      }, 100)
                     }}
                   >
                     Reply
@@ -297,6 +305,13 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
                       document
                         .querySelector('.forum-reply-form')
                         ?.scrollIntoView({ behavior: 'smooth' })
+                      // Focus the textarea after a short delay to ensure scroll completes
+                      setTimeout(() => {
+                        replyTextareaRef.current?.focus()
+                        // Move cursor to the end
+                        const length = replyTextareaRef.current?.value.length || 0
+                        replyTextareaRef.current?.setSelectionRange(length, length)
+                      }, 100)
                     }}
                   >
                     Reply
@@ -330,6 +345,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
             <div className="forum-reply-form">
               <form onSubmit={handleSubmitReply}>
                 <textarea
+                  ref={replyTextareaRef}
                   value={replyContent}
                   onChange={e => setReplyContent(e.target.value)}
                   placeholder="Write your reply..."

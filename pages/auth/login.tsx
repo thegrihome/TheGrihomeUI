@@ -22,6 +22,7 @@ export default function Login() {
   const [checkingUser, setCheckingUser] = useState(false)
   const [userExists, setUserExists] = useState(false)
   const [validationError, setValidationError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
   const router = useRouter()
   const { data: session, status } = useSession()
 
@@ -197,6 +198,7 @@ export default function Login() {
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setPasswordError('')
     setLoading(true)
 
     try {
@@ -208,12 +210,14 @@ export default function Login() {
       })
 
       if (result?.error) {
+        setPasswordError('Invalid username or password')
         toast.error('Invalid username or password')
       } else {
         toast.success('Login successful!')
         router.push('/')
       }
     } catch (error) {
+      setPasswordError('Login failed. Please try again.')
       toast.error('Login failed. Please try again.')
     } finally {
       setLoading(false)
@@ -229,6 +233,7 @@ export default function Login() {
     setPassword('')
     setUserExists(false)
     setValidationError('')
+    setPasswordError('')
   }
 
   const handleMethodChange = (method: LoginMethod) => {
@@ -431,8 +436,11 @@ export default function Login() {
                   <input
                     type="text"
                     value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    className="login-form__input"
+                    onChange={e => {
+                      setUsername(e.target.value)
+                      setPasswordError('')
+                    }}
+                    className={`login-form__input ${passwordError ? 'login-form__input--error' : ''}`}
                     placeholder="Enter username or email"
                     required
                   />
@@ -442,11 +450,15 @@ export default function Login() {
                   <input
                     type="password"
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className="login-form__input"
+                    onChange={e => {
+                      setPassword(e.target.value)
+                      setPasswordError('')
+                    }}
+                    className={`login-form__input ${passwordError ? 'login-form__input--error' : ''}`}
                     placeholder="Your password"
                     required
                   />
+                  {passwordError && <span className="login-form__error">{passwordError}</span>}
                 </div>
                 <button type="submit" disabled={loading} className="login-form__submit">
                   {loading ? 'Signing in...' : 'Sign In'}
