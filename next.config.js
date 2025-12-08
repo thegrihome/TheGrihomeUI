@@ -1,5 +1,3 @@
-const path = require('path')
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -7,9 +5,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
+  // Empty turbopack config to use Turbopack (default in Next.js 16)
+  turbopack: {},
   images: {
     remotePatterns: [
       {
@@ -55,10 +52,6 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-  },
-  webpack: config => {
-    config.resolve.alias['@'] = path.resolve(__dirname)
-    return config
   },
 }
 

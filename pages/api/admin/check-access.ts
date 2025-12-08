@@ -33,22 +33,12 @@ export default async function handler(
     const userEmail = session?.user?.email
     const accessResult = checkAdminAccess(userEmail)
 
-    // eslint-disable-next-line no-console
-    console.log('[Admin Check API]', {
-      isAuthenticated: !!session?.user,
-      canAccessAdmin: accessResult.canAccessAdmin,
-      isProduction: accessResult.isProduction,
-      reason: accessResult.reason,
-    })
-
     return res.status(200).json({
       canAccessAdmin: accessResult.canAccessAdmin,
       isProduction: accessResult.isProduction,
       isAuthenticated: !!session?.user,
     })
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('[Admin Check API Error]', error)
+  } catch {
     return res.status(500).json({ message: 'Internal server error' })
   }
 }

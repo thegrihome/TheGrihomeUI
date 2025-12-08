@@ -33,15 +33,6 @@ export function checkAdminAccess(userEmail: string | null | undefined): AdminAcc
   // 2. Branch is 'main' (not a feature branch)
   const isProduction = vercelEnv === 'production' && gitBranch === 'main'
 
-  // Log for debugging (will appear in Vercel function logs)
-  // eslint-disable-next-line no-console
-  console.log('[Admin Access Check]', {
-    vercelEnv,
-    gitBranch,
-    isProduction,
-    userEmail: userEmail ? `${userEmail.substring(0, 3)}...` : null,
-  })
-
   if (!isProduction) {
     // Non-production: Everyone can access (for testing)
     // This includes: localhost, Vercel preview, and feature branch deployments

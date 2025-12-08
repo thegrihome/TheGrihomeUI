@@ -118,7 +118,7 @@ describe('/api/forum/init-cities', () => {
       })
       ;(prisma.forumCategory.findMany as jest.Mock).mockResolvedValue([])
 
-      let cityId = 'city-id'
+      const cityId = 'city-id'
       ;(prisma.forumCategory.create as jest.Mock).mockImplementation(args => {
         if (args.data.parentId === 'gen-disc-id') {
           return Promise.resolve({ id: cityId, ...args.data })

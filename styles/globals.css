@@ -1,8 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Import Component Styles */
+/* Import Component Styles - must be before @tailwind */
 @import './components/Header.css';
 @import './components/Footer.css';
 
@@ -19,6 +15,10 @@
 @import './pages/projects/add-project-request.css';
 @import './pages/projects/detail.css';
 @import './pages/admin/index.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ============================================
    RESPONSIVE DESIGN SYSTEM
