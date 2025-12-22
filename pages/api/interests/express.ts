@@ -2,10 +2,9 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]'
 import { PrismaClient } from '@prisma/client'
-import { Resend } from 'resend'
+import { sendInterestNotification } from '@/lib/msg91/email'
 
 const prisma = new PrismaClient()
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -70,18 +69,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Get project or property details for email
     let projectOrPropertyName = ''
-    let builderEmail = 'thegrihome@gmail.com' // Default fallback
 
     if (projectId) {
       const project = await prisma.project.findUnique({
         where: { id: projectId },
-        include: {
-          builder: {
-            select: {
-              name: true,
-              contactInfo: true,
-            },
-          },
+        select: {
+          name: true,
         },
       })
 
@@ -90,15 +83,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       projectOrPropertyName = project.name
-
-      // Try to get builder email from contactInfo JSON
-      if (project.builder.contactInfo && typeof project.builder.contactInfo === 'object') {
-        const contactInfo = project.builder.contactInfo as any
-        if (contactInfo.email) {
-          builderEmail = contactInfo.email
-        }
-      }
     }
+
+    // Variables for email notification
+    let sellerName = ''
+    let sellerEmail = ''
+    let sellerMobile = ''
+    let isSellerEmailVerified = false
+    let isSellerMobileVerified = false
 
     if (propertyId) {
       const property = await prisma.property.findUnique({
@@ -109,16 +101,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               name: true,
             },
           },
-          builder: {
-            select: {
-              name: true,
-              contactInfo: true,
-            },
-          },
           user: {
             select: {
               email: true,
               name: true,
+              phone: true,
+              emailVerified: true,
+              mobileVerified: true,
             },
           },
         },
@@ -133,18 +122,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'You cannot express interest in your own property' })
       }
 
-      projectOrPropertyName = property.project?.name || `Property at ${property.streetAddress}`
+      // Get property title from propertyDetails JSON
+      const propertyDetails = property.propertyDetails as { title?: string } | null
+      projectOrPropertyName =
+        propertyDetails?.title || property.project?.name || property.streetAddress
 
-      // Use property owner's email as primary recipient
-      builderEmail = property.user.email
-
-      // Try to get builder email from contactInfo JSON as secondary
-      if (property.builder?.contactInfo && typeof property.builder.contactInfo === 'object') {
-        const contactInfo = property.builder.contactInfo as any
-        if (contactInfo.email) {
-          builderEmail = contactInfo.email
-        }
-      }
+      // Get seller info from property owner
+      sellerName = property.user.name || 'Property Owner'
+      sellerEmail = property.user.email
+      sellerMobile = property.user.phone || ''
+      isSellerEmailVerified = property.user.emailVerified !== null
+      isSellerMobileVerified = property.user.mobileVerified !== null
     }
 
     // Create interest record
@@ -157,50 +145,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     })
 
-    // Send email notification
-    const emailSubject = `${user.username || user.name} is interested in your property: ${projectOrPropertyName}`
-
-    // Build contact info with only verified details
-    const verifiedContactInfo = []
-    verifiedContactInfo.push(`<li><strong>Name:</strong> ${user.name || user.username}</li>`)
-    if (user.emailVerified) {
-      verifiedContactInfo.push(`<li><strong>Email:</strong> ${user.email}</li>`)
-    }
-    if (user.mobileVerified && user.phone) {
-      verifiedContactInfo.push(`<li><strong>Phone:</strong> ${user.phone}</li>`)
-    }
-
-    const emailBody = `
-      <h2>New Interest in Your Property</h2>
-
-      <p>${user.name || user.username} is interested in your property: <strong>${projectOrPropertyName}</strong></p>
-
-      <h3>Contact Information:</h3>
-      <ul>
-        ${verifiedContactInfo.join('\n        ')}
-      </ul>
-
-      <p>Date: ${new Date().toLocaleDateString()}</p>
-
-      <hr>
-      <p><small>This is an automated message from TheGrihome platform.</small></p>
-    `
-
-    try {
-      // Send email to property owner and TheGrihome
-      const recipients = ['thegrihome@gmail.com']
-      if (builderEmail && builderEmail !== 'thegrihome@gmail.com') {
-        recipients.push(builderEmail)
+    // Send email notifications via MSG91
+    // Only send for property interests (not projects for now)
+    if (propertyId && sellerEmail) {
+      try {
+        await sendInterestNotification({
+          propertyName: projectOrPropertyName,
+          seller: {
+            name: sellerName,
+            email: sellerEmail,
+            mobile: sellerMobile,
+            isEmailVerified: isSellerEmailVerified,
+            isMobileVerified: isSellerMobileVerified,
+          },
+          buyer: {
+            name: user.name || user.username || 'Interested Buyer',
+            email: user.email,
+            mobile: user.phone || '',
+            isEmailVerified: user.emailVerified !== null,
+            isMobileVerified: user.mobileVerified !== null,
+          },
+        })
+      } catch {
+        // Don't fail the request if email fails, just continue
       }
+    }
 
-      await resend.emails.send({
-        from: 'TheGrihome <noreply@grihome.com>',
-        to: recipients,
-        subject: emailSubject,
-        html: emailBody,
-      })
-    } catch (emailError) {
-      // Don't fail the request if email fails, just continue
+    // For projects, we still need to handle notifications (can be extended later)
+    if (projectId) {
+      // Project interest notification can be added here if needed
+      // For now, just log that interest was expressed
     }
 
     res.status(201).json({
@@ -210,7 +184,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         createdAt: interest.createdAt,
       },
     })
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' })
   } finally {
     await prisma.$disconnect()
