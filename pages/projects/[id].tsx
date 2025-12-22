@@ -1096,7 +1096,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
             <div className="featured-items-container">
               {featuredAgents.map(agentData => (
-                <Link key={agentData.id} href={`/agents/${agentData.agent.id}`}>
+                <Link key={agentData.id} href={`/agents/${agentData.agent.id}/properties`}>
                   <div className="featured-agent-card">
                     <div className="flex items-start justify-between gap-2">
                       <div className="agent-header flex-shrink-0">
@@ -1152,7 +1152,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 </Link>
               ))}
               {regularAgents.map(agentData => (
-                <Link key={agentData.id} href={`/agents/${agentData.agent.id}`}>
+                <Link key={agentData.id} href={`/agents/${agentData.agent.id}/properties`}>
                   <div className="featured-agent-card">
                     <div className="flex items-start justify-between gap-2">
                       <div className="agent-header flex-shrink-0">

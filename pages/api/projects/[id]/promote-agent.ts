@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
+import { sendProjectTransactionNotification } from '@/lib/msg91/email'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -28,12 +29,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Duration must be between 1 and 365 days' })
     }
 
-    // Get user
+    // Get user with verification details for email notification
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: {
         id: true,
         role: true,
+        name: true,
+        email: true,
+        phone: true,
+        emailVerified: true,
+        mobileVerified: true,
       },
     })
 
@@ -44,6 +50,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Check if user is an agent
     if (user.role !== 'AGENT') {
       return res.status(403).json({ message: 'Only agents can promote themselves' })
+    }
+
+    // Get project name for email notification
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { name: true },
+    })
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' })
     }
 
     // Calculate dates
@@ -89,6 +105,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
+    // Send email notification
+    let emailStatus = { userEmailSent: false, adminEmailSent: false }
+    try {
+      emailStatus = await sendProjectTransactionNotification({
+        projectName: project.name,
+        user: {
+          name: user.name || 'Agent',
+          email: user.email,
+          mobile: user.phone || '',
+          isEmailVerified: user.emailVerified !== null,
+          isMobileVerified: user.mobileVerified !== null,
+        },
+        transaction: {
+          type: 'Agent Registration',
+          duration: `${days} days`,
+          amount: totalAmount === 0 ? 'Free' : `₹${totalAmount}`,
+        },
+      })
+    } catch {
+      // Don't fail the request if email fails
+    }
+
     return res.status(200).json({
       message: 'Agent promoted successfully',
       promotion: {
@@ -98,8 +136,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         totalAmount: projectAgent.promotionPaymentAmount,
         totalDays: days,
       },
+      emailStatus,
     })
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: 'Internal server error' })
   }
 }

@@ -585,7 +585,7 @@
   color: #6b7280;
   font-size: 0.875rem;
   text-decoration: none;
-  margin-bottom: 0.25rem;
+  margin-bottom: -1.5rem; /* Compensate for the gap in parent */
   transition: color 0.2s;
 }
 
@@ -653,8 +653,10 @@
 
 .project-info-left {
   display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .project-builder-row {
@@ -681,6 +683,14 @@
   color: #6b7280;
   font-size: 0.875rem;
   line-height: 1.5;
+}
+
+/* Separator dot between builder info and location on desktop */
+.project-builder-location::before {
+  content: '•';
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  color: #9ca3af;
 }
 
 .project-type-tiles {
@@ -968,7 +978,7 @@
 
   /* Back link - compact on mobile */
   .project-back-link {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
     font-size: 0.8125rem;
   }
 
@@ -996,6 +1006,9 @@
   .project-info-left {
     flex: 1;
     min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
   }
 
   .project-builder-row {
@@ -1005,11 +1018,16 @@
   }
 
   .project-builder-name {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
 
   .project-builder-location {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Remove separator dot on mobile since they're stacked */
+  .project-builder-location::before {
+    display: none;
   }
 
   .project-type-badge {

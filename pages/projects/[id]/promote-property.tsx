@@ -116,9 +116,9 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 py-16 flex-1">
           <div className="max-w-2xl mx-auto text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Project Not Found</h1>
             <Link href="/projects" className="text-blue-600 hover:text-blue-700">
@@ -133,9 +133,9 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
 
   if (userProperties.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 py-16 flex-1">
           <div className="max-w-2xl mx-auto text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">No Properties Found</h1>
             <p className="text-gray-600 mb-6">
@@ -195,22 +195,24 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
   const paymentAmount = 0 // Currently free
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Head>
         <title>Promote Property - {project.name}</title>
       </Head>
       <Header />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 flex-1">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6 space-y-1">
             <Link
               href={`/projects/${project.id}`}
-              className="text-blue-600 hover:text-blue-700 mb-4 inline-block"
+              className="text-blue-600 hover:text-blue-700 text-sm block"
             >
               ← Back to Project
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Add Your Property as Verified</h1>
+            <h1 className="text-3xl font-bold text-gray-900 !mt-1">
+              Add Your Property as Verified
+            </h1>
             <p className="text-gray-600">Project: {project.name}</p>
           </div>
 

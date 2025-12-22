@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
 import { NextSeo } from 'next-seo'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -337,17 +338,17 @@ export default function AgentsPage() {
                       {/* Agent Column */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0">
+                          <Link href={`/agents/${agent.id}/properties`} className="flex-shrink-0">
                             {agent.image ? (
                               <Image
                                 src={agent.image}
                                 alt={agent.name || agent.username}
                                 width={40}
                                 height={40}
-                                className="w-10 h-10 rounded-full object-cover"
+                                className="w-10 h-10 rounded-full object-cover hover:opacity-80 transition-opacity"
                               />
                             ) : (
-                              <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                              <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors">
                                 <span className="text-white font-medium text-sm">
                                   {agent.name
                                     ? agent.name
@@ -359,11 +360,14 @@ export default function AgentsPage() {
                                 </span>
                               </div>
                             )}
-                          </div>
+                          </Link>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <Link
+                              href={`/agents/${agent.id}/properties`}
+                              className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                            >
                               {agent.name || agent.username}
-                            </div>
+                            </Link>
                             <div className="text-sm text-gray-500">@{agent.username}</div>
                           </div>
                         </div>

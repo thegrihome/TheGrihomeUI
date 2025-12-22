@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Check if project exists
     const project = await prisma.project.findUnique({
       where: { id: projectId },
-      select: { id: true, name: true },
+      select: { id: true },
     })
 
     if (!project) {
@@ -78,7 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         registeredAt: projectAgent.registeredAt,
       },
     })
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: 'Internal server error' })
   }
 }
