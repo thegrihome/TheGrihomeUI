@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
+import { FALLBACK_OTP } from '@/lib/msg91/config'
 
 /**
  * Mobile Verification API
@@ -10,6 +11,10 @@ import { prisma } from '@/lib/cockroachDB/prisma'
  * 1. Verify current mobile (no newMobile param): Updates mobileVerified in DB
  * 2. Verify new mobile for profile edit (with newMobile param): Just validates OTP,
  *    doesn't update DB - the update happens when profile is saved
+ *
+ * OTP can be verified in two ways:
+ * 1. MSG91 widget verification (otpVerified: true) - OTP already verified client-side
+ * 2. Fallback OTP check - Direct OTP comparison for testing
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -23,15 +28,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Unauthorized' })
     }
 
-    const { otp, newMobile } = req.body
+    const { otp, newMobile, otpVerified } = req.body
 
-    if (!otp) {
-      return res.status(400).json({ message: 'OTP is required' })
-    }
+    // If OTP was already verified via MSG91 widget, skip OTP check
+    if (!otpVerified) {
+      if (!otp) {
+        return res.status(400).json({ message: 'OTP is required' })
+      }
 
-    // Development OTP: 9848022338
-    if (otp !== '9848022338') {
-      return res.status(400).json({ message: 'Invalid OTP' })
+      // Fallback OTP check
+      if (otp !== FALLBACK_OTP) {
+        return res.status(400).json({ message: 'Invalid OTP' })
+      }
     }
 
     // If verifying a NEW mobile (profile edit mode)

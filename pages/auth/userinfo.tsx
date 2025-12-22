@@ -5,6 +5,13 @@ import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import CountryCodeDropdown from '@/components/auth/CountryCodeDropdown'
+import {
+  sendOTP as sendMSG91OTP,
+  verifyOTP as verifyMSG91OTP,
+  formatPhoneForMSG91,
+  initializeMSG91Widget,
+  FALLBACK_OTP,
+} from '@/lib/msg91'
 
 interface ToastState {
   show: boolean
@@ -85,6 +92,22 @@ export default function UserInfoPage() {
   const [mobileOtpError, setMobileOtpError] = useState('')
   const [newEmailOtpError, setNewEmailOtpError] = useState('')
   const [newMobileOtpError, setNewMobileOtpError] = useState('')
+
+  // OTP sent success message states (for inline display)
+  const [newMobileOtpSuccess, setNewMobileOtpSuccess] = useState('')
+  const [newEmailOtpSuccess, setNewEmailOtpSuccess] = useState('')
+
+  // Widget ready state
+  const [widgetReady, setWidgetReady] = useState(false)
+
+  // Initialize MSG91 widget on mount
+  useEffect(() => {
+    const init = async () => {
+      const ready = await initializeMSG91Widget()
+      setWidgetReady(ready)
+    }
+    init()
+  }, [])
 
   useEffect(() => {
     setMounted(true)
@@ -374,34 +397,88 @@ export default function UserInfoPage() {
   }
 
   const handleSendEmailOtp = async () => {
+    if (!user?.email) return
+
     setEmailOtpLoading(true)
     try {
-      // Simulate OTP sending
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setEmailOtpSent(true)
-      setEmailTimeLeft(180)
-      setEmailCanResend(false)
-      showToast('OTP sent to your email', 'success')
-    } catch (error) {
+      // Use MSG91 widget to send OTP
+      const result = await sendMSG91OTP(user.email)
+      if (result.success) {
+        setEmailOtpSent(true)
+        setEmailTimeLeft(180)
+        setEmailCanResend(false)
+        showToast('OTP sent to your email', 'success')
+      } else {
+        showToast(result.message || 'Failed to send OTP', 'error')
+      }
+    } catch {
       showToast('Failed to send OTP', 'error')
     } finally {
       setEmailOtpLoading(false)
     }
   }
 
-  const handleVerifyEmail = async () => {
-    if (emailOtp !== '9848022338') {
-      setEmailOtpError('Invalid OTP')
-      return
-    }
-
-    setEmailOtpError('')
+  const handleResendEmailOtp = async () => {
+    if (!user?.email) return
     setEmailOtpLoading(true)
     try {
+      // Use MSG91 widget to resend OTP
+      const result = await sendMSG91OTP(user.email)
+      if (result.success) {
+        setEmailTimeLeft(180)
+        setEmailCanResend(false)
+        showToast('OTP resent to your email', 'success')
+      } else {
+        showToast(result.message || 'Failed to resend OTP', 'error')
+      }
+    } catch {
+      showToast('Failed to resend OTP', 'error')
+    } finally {
+      setEmailOtpLoading(false)
+    }
+  }
+
+  const handleVerifyEmail = async () => {
+    setEmailOtpError('')
+    setEmailOtpLoading(true)
+
+    try {
+      // Check for fallback OTP first
+      if (emailOtp === FALLBACK_OTP) {
+        // Fallback OTP - go directly to verify-email API
+        const response = await fetch('/api/user/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user?.id, otp: emailOtp, otpVerified: false }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Email verification failed')
+        }
+
+        await update()
+        showToast('Email verified successfully', 'success')
+        setEmailOtp('')
+        setEmailOtpSent(false)
+        setEmailOtpLoading(false)
+        return
+      }
+
+      // Verify OTP via MSG91 widget
+      const verifyResult = await verifyMSG91OTP(emailOtp)
+      if (!verifyResult.success) {
+        setEmailOtpError(verifyResult.message || 'Invalid OTP')
+        setEmailOtpLoading(false)
+        return
+      }
+
+      // Update user's email verification status (OTP already verified by MSG91)
       const response = await fetch('/api/user/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.id, otp: emailOtp }),
+        body: JSON.stringify({ userId: user?.id, otp: emailOtp, otpVerified: true }),
       })
 
       const data = await response.json()
@@ -422,34 +499,93 @@ export default function UserInfoPage() {
   }
 
   const handleSendMobileOtp = async () => {
+    if (!user?.mobileNumber) return
+
     setMobileOtpLoading(true)
     try {
-      // Simulate OTP sending
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setMobileOtpSent(true)
-      setMobileTimeLeft(180)
-      setMobileCanResend(false)
-      showToast('OTP sent to your mobile', 'success')
-    } catch (error) {
+      // Format phone number for MSG91 (remove +)
+      const formattedPhone = formatPhoneForMSG91(user.mobileNumber)
+      // Use MSG91 widget to send OTP
+      const result = await sendMSG91OTP(formattedPhone)
+
+      if (result.success) {
+        setMobileOtpSent(true)
+        setMobileTimeLeft(180)
+        setMobileCanResend(false)
+        showToast('OTP sent to your mobile', 'success')
+      } else {
+        showToast(result.message || 'Failed to send OTP', 'error')
+      }
+    } catch {
       showToast('Failed to send OTP', 'error')
     } finally {
       setMobileOtpLoading(false)
     }
   }
 
-  const handleVerifyMobile = async () => {
-    if (mobileOtp !== '9848022338') {
-      setMobileOtpError('Invalid OTP')
-      return
-    }
-
-    setMobileOtpError('')
+  const handleResendMobileOtp = async () => {
+    if (!user?.mobileNumber) return
     setMobileOtpLoading(true)
     try {
+      // Format phone number for MSG91 (remove +)
+      const formattedPhone = formatPhoneForMSG91(user.mobileNumber)
+      // Use MSG91 widget to resend OTP
+      const result = await sendMSG91OTP(formattedPhone)
+      if (result.success) {
+        setMobileTimeLeft(180)
+        setMobileCanResend(false)
+        showToast('OTP resent to your mobile', 'success')
+      } else {
+        showToast(result.message || 'Failed to resend OTP', 'error')
+      }
+    } catch {
+      showToast('Failed to resend OTP', 'error')
+    } finally {
+      setMobileOtpLoading(false)
+    }
+  }
+
+  const handleVerifyMobile = async () => {
+    setMobileOtpError('')
+    setMobileOtpLoading(true)
+
+    try {
+      // Check for fallback OTP first
+      if (mobileOtp === FALLBACK_OTP) {
+        // Fallback OTP - go directly to verify-mobile API
+        const response = await fetch('/api/user/verify-mobile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user?.id, otp: mobileOtp, otpVerified: false }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Mobile verification failed')
+        }
+
+        await update()
+        showToast('Mobile verified successfully', 'success')
+        setMobileOtp('')
+        setMobileOtpSent(false)
+        setMobileOtpLoading(false)
+        return
+      }
+
+      // Verify OTP via MSG91 widget
+      const verifyResult = await verifyMSG91OTP(mobileOtp)
+      if (!verifyResult.success) {
+        setMobileOtpError(verifyResult.message || 'Invalid OTP')
+        setMobileOtpLoading(false)
+        return
+      }
+
+      // Update user's mobile verification status (OTP already verified by MSG91)
       const response = await fetch('/api/user/verify-mobile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.id, otp: mobileOtp }),
+        body: JSON.stringify({ userId: user?.id, otp: mobileOtp, otpVerified: true }),
       })
 
       const data = await response.json()
@@ -516,6 +652,8 @@ export default function UserInfoPage() {
     setCheckingEditUnique({ email: false, mobile: false })
     setNewEmailOtpError('')
     setNewMobileOtpError('')
+    setNewEmailOtpSuccess('')
+    setNewMobileOtpSuccess('')
   }
 
   const hasEmailChanged = () => editEmail !== originalValues.email
@@ -539,32 +677,67 @@ export default function UserInfoPage() {
   }
 
   const handleSendNewEmailOtp = async () => {
+    if (!editEmail) return
+
     setEmailOtpLoading(true)
+    setNewEmailOtpSuccess('')
+    setNewEmailOtpError('')
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setNewEmailOtpSent(true)
-      setNewEmailTimeLeft(180)
-      showToast('OTP sent to new email', 'success')
+      // Use MSG91 widget to send OTP to new email
+      const result = await sendMSG91OTP(editEmail)
+      if (result.success) {
+        setNewEmailOtpSent(true)
+        setNewEmailTimeLeft(180)
+        setNewEmailOtpSuccess('OTP sent!')
+      } else {
+        setNewEmailOtpError(result.message || 'Failed to send OTP')
+      }
     } catch {
-      showToast('Failed to send OTP', 'error')
+      setNewEmailOtpError('Failed to send OTP')
     } finally {
       setEmailOtpLoading(false)
     }
   }
 
   const handleVerifyNewEmail = async () => {
-    if (newEmailOtp !== '9848022338') {
-      setNewEmailOtpError('Invalid OTP')
-      return
-    }
-
     setNewEmailOtpError('')
     setEmailOtpLoading(true)
+
     try {
+      // Check for fallback OTP first
+      if (newEmailOtp === FALLBACK_OTP) {
+        // Fallback OTP - go directly to verify-email API
+        const response = await fetch('/api/user/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ otp: newEmailOtp, newEmail: editEmail, otpVerified: false }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Email verification failed')
+        }
+
+        setNewEmailVerified(true)
+        showToast('New email verified successfully', 'success')
+        setEmailOtpLoading(false)
+        return
+      }
+
+      // Verify OTP via MSG91 widget
+      const verifyResult = await verifyMSG91OTP(newEmailOtp)
+      if (!verifyResult.success) {
+        setNewEmailOtpError(verifyResult.message || 'Invalid OTP')
+        setEmailOtpLoading(false)
+        return
+      }
+
+      // Update user's email verification status (OTP already verified by MSG91)
       const response = await fetch('/api/user/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ otp: newEmailOtp, newEmail: editEmail }),
+        body: JSON.stringify({ otp: newEmailOtp, newEmail: editEmail, otpVerified: true }),
       })
 
       const data = await response.json()
@@ -583,33 +756,72 @@ export default function UserInfoPage() {
   }
 
   const handleSendNewMobileOtp = async () => {
+    if (!editMobile) return
+
     setMobileOtpLoading(true)
+    setNewMobileOtpSuccess('')
+    setNewMobileOtpError('')
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setNewMobileOtpSent(true)
-      setNewMobileTimeLeft(180)
-      showToast('OTP sent to new mobile', 'success')
+      // Format phone number for MSG91 (remove +)
+      const formattedPhone = formatPhoneForMSG91(editMobile, editCountryCode.replace('+', ''))
+      // Use MSG91 widget to send OTP to new mobile
+      const result = await sendMSG91OTP(formattedPhone)
+
+      if (result.success) {
+        setNewMobileOtpSent(true)
+        setNewMobileTimeLeft(180)
+        setNewMobileOtpSuccess('OTP sent!')
+      } else {
+        setNewMobileOtpError(result.message || 'Failed to send OTP')
+      }
     } catch {
-      showToast('Failed to send OTP', 'error')
+      setNewMobileOtpError('Failed to send OTP')
     } finally {
       setMobileOtpLoading(false)
     }
   }
 
   const handleVerifyNewMobile = async () => {
-    if (newMobileOtp !== '9848022338') {
-      setNewMobileOtpError('Invalid OTP')
-      return
-    }
-
     setNewMobileOtpError('')
     setMobileOtpLoading(true)
+
     try {
       const fullMobile = editCountryCode + editMobile
+
+      // Check for fallback OTP first
+      if (newMobileOtp === FALLBACK_OTP) {
+        // Fallback OTP - go directly to verify-mobile API
+        const response = await fetch('/api/user/verify-mobile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ otp: newMobileOtp, newMobile: fullMobile, otpVerified: false }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Mobile verification failed')
+        }
+
+        setNewMobileVerified(true)
+        showToast('New mobile verified successfully', 'success')
+        setMobileOtpLoading(false)
+        return
+      }
+
+      // Verify OTP via MSG91 widget
+      const verifyResult = await verifyMSG91OTP(newMobileOtp)
+      if (!verifyResult.success) {
+        setNewMobileOtpError(verifyResult.message || 'Invalid OTP')
+        setMobileOtpLoading(false)
+        return
+      }
+
+      // Update user's mobile verification status (OTP already verified by MSG91)
       const response = await fetch('/api/user/verify-mobile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ otp: newMobileOtp, newMobile: fullMobile }),
+        body: JSON.stringify({ otp: newMobileOtp, newMobile: fullMobile, otpVerified: true }),
       })
 
       const data = await response.json()
@@ -858,24 +1070,30 @@ export default function UserInfoPage() {
                         {!newEmailOtpSent ? (
                           <button
                             onClick={handleSendNewEmailOtp}
-                            disabled={emailOtpLoading || !editEmail || checkingEditUnique.email}
+                            disabled={
+                              emailOtpLoading ||
+                              !editEmail ||
+                              checkingEditUnique.email ||
+                              !widgetReady
+                            }
                             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                           >
                             {emailOtpLoading ? 'Sending...' : 'Send OTP to New Email'}
                           </button>
                         ) : (
                           <div className="space-y-2">
-                            <input
-                              type="text"
-                              value={newEmailOtp}
-                              onChange={e => {
-                                setNewEmailOtp(e.target.value.replace(/\D/g, ''))
-                                setNewEmailOtpError('')
-                              }}
-                              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="Enter OTP"
-                            />
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="text"
+                                value={newEmailOtp}
+                                onChange={e => {
+                                  setNewEmailOtp(e.target.value.replace(/\D/g, ''))
+                                  setNewEmailOtpError('')
+                                  setNewEmailOtpSuccess('')
+                                }}
+                                className="block flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter OTP"
+                              />
                               <button
                                 onClick={handleVerifyNewEmail}
                                 disabled={emailOtpLoading || !newEmailOtp}
@@ -883,22 +1101,31 @@ export default function UserInfoPage() {
                               >
                                 {emailOtpLoading ? 'Verifying...' : 'Verify'}
                               </button>
-                              {newEmailOtpError && (
-                                <span className="text-sm text-red-600">{newEmailOtpError}</span>
-                              )}
-                              {newEmailTimeLeft > 0 ? (
-                                <span className="text-sm text-gray-500">
-                                  Resend in {formatTime(newEmailTimeLeft)}
-                                </span>
-                              ) : (
-                                <button
-                                  onClick={handleSendNewEmailOtp}
-                                  disabled={emailOtpLoading}
-                                  className="text-sm text-blue-600 hover:text-blue-500"
-                                >
-                                  Resend OTP
-                                </button>
-                              )}
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <div>
+                                {newEmailOtpSuccess && (
+                                  <span className="text-green-600">{newEmailOtpSuccess}</span>
+                                )}
+                                {newEmailOtpError && (
+                                  <span className="text-red-600">{newEmailOtpError}</span>
+                                )}
+                              </div>
+                              <div>
+                                {newEmailTimeLeft > 0 ? (
+                                  <span className="text-gray-500">
+                                    Resend in {formatTime(newEmailTimeLeft)}
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={handleSendNewEmailOtp}
+                                    disabled={emailOtpLoading}
+                                    className="text-blue-600 hover:text-blue-500"
+                                  >
+                                    Resend OTP
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
                         )}
@@ -965,7 +1192,7 @@ export default function UserInfoPage() {
                         {!emailOtpSent ? (
                           <button
                             onClick={handleSendEmailOtp}
-                            disabled={emailOtpLoading}
+                            disabled={emailOtpLoading || !widgetReady}
                             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                           >
                             {emailOtpLoading ? 'Sending...' : 'Send OTP'}
@@ -999,7 +1226,7 @@ export default function UserInfoPage() {
                                 </span>
                               ) : (
                                 <button
-                                  onClick={handleSendEmailOtp}
+                                  onClick={handleResendEmailOtp}
                                   disabled={emailOtpLoading}
                                   className="text-sm text-blue-600 hover:text-blue-500"
                                 >
@@ -1087,24 +1314,30 @@ export default function UserInfoPage() {
                         {!newMobileOtpSent ? (
                           <button
                             onClick={handleSendNewMobileOtp}
-                            disabled={mobileOtpLoading || !editMobile || checkingEditUnique.mobile}
+                            disabled={
+                              mobileOtpLoading ||
+                              !editMobile ||
+                              checkingEditUnique.mobile ||
+                              !widgetReady
+                            }
                             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                           >
                             {mobileOtpLoading ? 'Sending...' : 'Send OTP to New Mobile'}
                           </button>
                         ) : (
                           <div className="space-y-2">
-                            <input
-                              type="text"
-                              value={newMobileOtp}
-                              onChange={e => {
-                                setNewMobileOtp(e.target.value.replace(/\D/g, ''))
-                                setNewMobileOtpError('')
-                              }}
-                              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="Enter OTP"
-                            />
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="text"
+                                value={newMobileOtp}
+                                onChange={e => {
+                                  setNewMobileOtp(e.target.value.replace(/\D/g, ''))
+                                  setNewMobileOtpError('')
+                                  setNewMobileOtpSuccess('')
+                                }}
+                                className="block flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter OTP"
+                              />
                               <button
                                 onClick={handleVerifyNewMobile}
                                 disabled={mobileOtpLoading || !newMobileOtp}
@@ -1112,22 +1345,31 @@ export default function UserInfoPage() {
                               >
                                 {mobileOtpLoading ? 'Verifying...' : 'Verify'}
                               </button>
-                              {newMobileOtpError && (
-                                <span className="text-sm text-red-600">{newMobileOtpError}</span>
-                              )}
-                              {newMobileTimeLeft > 0 ? (
-                                <span className="text-sm text-gray-500">
-                                  Resend in {formatTime(newMobileTimeLeft)}
-                                </span>
-                              ) : (
-                                <button
-                                  onClick={handleSendNewMobileOtp}
-                                  disabled={mobileOtpLoading}
-                                  className="text-sm text-blue-600 hover:text-blue-500"
-                                >
-                                  Resend OTP
-                                </button>
-                              )}
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <div>
+                                {newMobileOtpSuccess && (
+                                  <span className="text-green-600">{newMobileOtpSuccess}</span>
+                                )}
+                                {newMobileOtpError && (
+                                  <span className="text-red-600">{newMobileOtpError}</span>
+                                )}
+                              </div>
+                              <div>
+                                {newMobileTimeLeft > 0 ? (
+                                  <span className="text-gray-500">
+                                    Resend in {formatTime(newMobileTimeLeft)}
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={handleSendNewMobileOtp}
+                                    disabled={mobileOtpLoading}
+                                    className="text-blue-600 hover:text-blue-500"
+                                  >
+                                    Resend OTP
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
                         )}
@@ -1204,7 +1446,7 @@ export default function UserInfoPage() {
                         {!mobileOtpSent ? (
                           <button
                             onClick={handleSendMobileOtp}
-                            disabled={mobileOtpLoading}
+                            disabled={mobileOtpLoading || !widgetReady}
                             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                           >
                             {mobileOtpLoading ? 'Sending...' : 'Send OTP'}
@@ -1238,7 +1480,7 @@ export default function UserInfoPage() {
                                 </span>
                               ) : (
                                 <button
-                                  onClick={handleSendMobileOtp}
+                                  onClick={handleResendMobileOtp}
                                   disabled={mobileOtpLoading}
                                   className="text-sm text-blue-600 hover:text-blue-500"
                                 >

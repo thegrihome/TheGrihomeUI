@@ -4,6 +4,8 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from '@/lib/cockroachDB/prisma'
 import bcrypt from 'bcryptjs'
+import { verifyAccessToken } from '@/lib/msg91/server'
+import { FALLBACK_OTP } from '@/lib/msg91/config'
 
 // Export authorize function for testing
 export async function credentialsAuthorize(credentials: any) {
@@ -15,16 +17,46 @@ export async function credentialsAuthorize(credentials: any) {
 
   // Handle OTP login (email or mobile)
   if (loginType === 'otp' && credentials.otp) {
-    // Check if OTP is valid
-    if (credentials.otp !== '9848022338') {
+    // Verify OTP via MSG91 or fallback OTP
+    let isOtpValid = false
+
+    // Check fallback OTP first (works in all environments)
+    if (credentials.otp === FALLBACK_OTP) {
+      isOtpValid = true
+    }
+    // Verify MSG91 token if provided
+    else if (credentials.msg91Token) {
+      const tokenResult = await verifyAccessToken(credentials.msg91Token)
+      isOtpValid = tokenResult.success
+    }
+
+    if (!isOtpValid) {
       return null
     }
 
     // Find user by email or mobile (can be verified or unverified, but must exist in DB)
     const isEmail = credentials.identifier.includes('@')
-    const user = await prisma.user.findFirst({
-      where: isEmail ? { email: credentials.identifier } : { phone: credentials.identifier },
-    })
+    let user = null
+
+    if (isEmail) {
+      user = await prisma.user.findFirst({
+        where: { email: credentials.identifier },
+      })
+    } else {
+      // Try multiple phone formats
+      const phoneFormats = [
+        credentials.identifier,
+        credentials.identifier.replace(/^\+/, ''),
+        `+${credentials.identifier.replace(/^\+/, '')}`,
+      ]
+
+      for (const phone of phoneFormats) {
+        user = await prisma.user.findFirst({
+          where: { phone },
+        })
+        if (user) break
+      }
+    }
 
     // User must exist in DB for OTP login
     if (!user) {
@@ -100,6 +132,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
         otp: { label: 'OTP', type: 'text' },
         loginType: { label: 'Login Type', type: 'text' },
+        msg91Token: { label: 'MSG91 Token', type: 'text' },
       },
       authorize: credentialsAuthorize,
     }),

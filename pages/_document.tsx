@@ -13,6 +13,48 @@ export default function Document() {
       <body>
         <Main />
         <NextScript />
+        {/* MSG91 OTP Widget */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              var configuration = {
+                widgetId: "356c6970364a393730313130",
+                tokenAuth: "480266TyctAMdwlC6938d6e3P1",
+                exposeMethods: true,
+                success: function(data) {
+                  console.log('MSG91 success:', data);
+                },
+                failure: function(error) {
+                  console.log('MSG91 failure:', error);
+                }
+              };
+              (function loadOtpScript(urls) {
+                var i = 0;
+                function attempt() {
+                  var s = document.createElement('script');
+                  s.src = urls[i];
+                  s.async = true;
+                  s.onload = function() {
+                    if (typeof window.initSendOTP === 'function') {
+                      window.initSendOTP(configuration);
+                    }
+                  };
+                  s.onerror = function() {
+                    i++;
+                    if (i < urls.length) {
+                      attempt();
+                    }
+                  };
+                  document.head.appendChild(s);
+                }
+                attempt();
+              })([
+                'https://verify.msg91.com/otp-provider.js',
+                'https://verify.phone91.com/otp-provider.js'
+              ]);
+            `,
+          }}
+        />
       </body>
     </Html>
   )

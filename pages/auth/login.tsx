@@ -6,6 +6,13 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import CountryCodeDropdown from '@/components/auth/CountryCodeDropdown'
 import toast from 'react-hot-toast'
+import {
+  sendOTP as sendMSG91OTP,
+  verifyOTP as verifyMSG91OTP,
+  formatPhoneForMSG91,
+  initializeMSG91Widget,
+  FALLBACK_OTP,
+} from '@/lib/msg91'
 
 type LoginMethod = 'email' | 'mobile' | 'password'
 
@@ -23,6 +30,8 @@ export default function Login() {
   const [userExists, setUserExists] = useState(false)
   const [validationError, setValidationError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const [otpError, setOtpError] = useState('')
+  const [widgetReady, setWidgetReady] = useState(false)
   const router = useRouter()
   const { data: session, status } = useSession()
 
@@ -31,6 +40,15 @@ export default function Login() {
       router.push('/')
     }
   }, [status, router])
+
+  // Initialize MSG91 widget on mount
+  useEffect(() => {
+    const init = async () => {
+      const ready = await initializeMSG91Widget()
+      setWidgetReady(ready)
+    }
+    init()
+  }, [])
 
   // Check if email exists in database
   useEffect(() => {
@@ -157,11 +175,21 @@ export default function Login() {
 
     setLoading(true)
     try {
-      // In production, this would send actual OTP
-      // For now, we'll just simulate it
-      await new Promise(resolve => setTimeout(resolve, 500))
-      setOtpSent(true)
-      toast.success('OTP sent!')
+      // Format identifier for MSG91
+      const identifier =
+        loginMethod === 'email'
+          ? email
+          : formatPhoneForMSG91(mobileNumber, countryCode.replace('+', ''))
+
+      // Send OTP via MSG91 widget
+      const result = await sendMSG91OTP(identifier)
+
+      if (result.success) {
+        setOtpSent(true)
+        toast.success('OTP sent!')
+      } else {
+        toast.error(result.message || 'Failed to send OTP')
+      }
     } catch (error) {
       toast.error('Failed to send OTP')
     } finally {
@@ -169,28 +197,73 @@ export default function Login() {
     }
   }
 
+  const handleResendOTP = async () => {
+    // Just call handleSendOTP again
+    await handleSendOTP()
+  }
+
   const handleOTPLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setOtpError('')
 
     try {
       const identifier = loginMethod === 'email' ? email : `${countryCode}${mobileNumber}`
 
+      // Check for fallback OTP first
+      if (otp === FALLBACK_OTP) {
+        // Fallback OTP - go directly to NextAuth
+        const result = await signIn('credentials', {
+          identifier,
+          otp,
+          loginType: 'otp',
+          redirect: false,
+        })
+
+        if (result?.error) {
+          const errorMsg = 'Login failed. User not found.'
+          setOtpError(errorMsg)
+          toast.error(errorMsg)
+        } else {
+          toast.success('Login successful!')
+          router.push('/')
+        }
+        setLoading(false)
+        return
+      }
+
+      // Verify OTP with MSG91 widget - returns JWT token
+      const verifyResult = await verifyMSG91OTP(otp)
+
+      if (!verifyResult.success) {
+        const errorMsg = verifyResult.message || 'Invalid OTP'
+        setOtpError(errorMsg)
+        toast.error(errorMsg)
+        setLoading(false)
+        return
+      }
+
+      // Now authenticate with NextAuth using the verified token
       const result = await signIn('credentials', {
         identifier,
         otp,
+        msg91Token: verifyResult.token,
         loginType: 'otp',
         redirect: false,
       })
 
       if (result?.error) {
-        toast.error('Invalid OTP or user not found')
+        const errorMsg = 'Login failed. User not found.'
+        setOtpError(errorMsg)
+        toast.error(errorMsg)
       } else {
         toast.success('Login successful!')
         router.push('/')
       }
-    } catch (error) {
-      toast.error('Login failed. Please try again.')
+    } catch {
+      const errorMsg = 'Login failed. Please try again.'
+      setOtpError(errorMsg)
+      toast.error(errorMsg)
     } finally {
       setLoading(false)
     }
@@ -234,6 +307,7 @@ export default function Login() {
     setUserExists(false)
     setValidationError('')
     setPasswordError('')
+    setOtpError('')
   }
 
   const handleMethodChange = (method: LoginMethod) => {
@@ -310,7 +384,7 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={handleSendOTP}
-                      disabled={loading || !userExists || checkingUser}
+                      disabled={loading || !userExists || checkingUser || !widgetReady}
                       className="login-form__submit"
                     >
                       {loading ? 'Sending...' : 'Send OTP'}
@@ -323,12 +397,16 @@ export default function Login() {
                       <input
                         type="text"
                         value={otp}
-                        onChange={e => setOtp(e.target.value)}
-                        className="login-form__input"
+                        onChange={e => {
+                          setOtp(e.target.value)
+                          setOtpError('')
+                        }}
+                        className={`login-form__input ${otpError ? 'login-form__input--error' : ''}`}
                         placeholder="Enter OTP"
                         required
                         maxLength={10}
                       />
+                      {otpError && <span className="login-form__error">{otpError}</span>}
                     </div>
                     <button
                       type="submit"
@@ -337,14 +415,24 @@ export default function Login() {
                     >
                       {loading ? 'Verifying...' : 'Verify & Login'}
                     </button>
-                    <button
-                      type="button"
-                      onClick={resetForm}
-                      className="login-form__back"
-                      disabled={loading}
-                    >
-                      Back
-                    </button>
+                    <div className="login-form__actions">
+                      <button
+                        type="button"
+                        onClick={handleResendOTP}
+                        className="login-form__resend"
+                        disabled={loading}
+                      >
+                        Resend OTP
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetForm}
+                        className="login-form__back"
+                        disabled={loading}
+                      >
+                        Back
+                      </button>
+                    </div>
                   </>
                 )}
               </form>
@@ -388,7 +476,7 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={handleSendOTP}
-                      disabled={loading || !userExists || checkingUser}
+                      disabled={loading || !userExists || checkingUser || !widgetReady}
                       className="login-form__submit"
                     >
                       {loading ? 'Sending...' : 'Send OTP'}
@@ -401,12 +489,16 @@ export default function Login() {
                       <input
                         type="text"
                         value={otp}
-                        onChange={e => setOtp(e.target.value)}
-                        className="login-form__input"
+                        onChange={e => {
+                          setOtp(e.target.value)
+                          setOtpError('')
+                        }}
+                        className={`login-form__input ${otpError ? 'login-form__input--error' : ''}`}
                         placeholder="Enter OTP"
                         required
                         maxLength={10}
                       />
+                      {otpError && <span className="login-form__error">{otpError}</span>}
                     </div>
                     <button
                       type="submit"
@@ -415,14 +507,24 @@ export default function Login() {
                     >
                       {loading ? 'Verifying...' : 'Verify & Login'}
                     </button>
-                    <button
-                      type="button"
-                      onClick={resetForm}
-                      className="login-form__back"
-                      disabled={loading}
-                    >
-                      Back
-                    </button>
+                    <div className="login-form__actions">
+                      <button
+                        type="button"
+                        onClick={handleResendOTP}
+                        className="login-form__resend"
+                        disabled={loading}
+                      >
+                        Resend OTP
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetForm}
+                        className="login-form__back"
+                        disabled={loading}
+                      >
+                        Back
+                      </button>
+                    </div>
                   </>
                 )}
               </form>
