@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '@/lib/cockroachDB/prisma'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../auth/[...nextauth]'
+import { generateSearchText } from '@/lib/utils/property-search'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
@@ -193,12 +194,11 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
       locality: location.locality,
     }
 
-    let locationId = null
+    let locationRecord = null
     if (location.address) {
-      const createdLocation = await prisma.location.create({
+      locationRecord = await prisma.location.create({
         data: locationData,
       })
-      locationId = createdLocation.id
     }
 
     // Build property details object
@@ -215,6 +215,9 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
       price: price ? parseFloat(price) : null,
     }
 
+    // Generate searchText for fast location search
+    const searchText = generateSearchText(location.address, locationRecord || locationData)
+
     // Update property
     const updatedProperty = await prisma.property.update({
       where: { id },
@@ -227,7 +230,8 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
         imageUrls: imageUrls || [],
         thumbnailUrl: thumbnailUrl || imageUrls?.[0] || null,
         propertyDetails: propertyDetails as any,
-        ...(locationId && { locationId }),
+        searchText,
+        ...(locationRecord && { locationId: locationRecord.id }),
       },
     })
 

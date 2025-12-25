@@ -66,73 +66,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where.listingType = listingType as ListingType
     }
 
-    // Location filters - Support partial matching on all location fields
+    // Location filter - use searchText for fast single-column search
     if (location) {
-      where.OR = [
-        {
-          streetAddress: {
-            contains: location,
-            mode: 'insensitive',
-          },
-        },
-        {
-          location: {
-            city: {
-              contains: location,
-              mode: 'insensitive',
-            },
-          },
-        },
-        {
-          location: {
-            state: {
-              contains: location,
-              mode: 'insensitive',
-            },
-          },
-        },
-        {
-          location: {
-            locality: {
-              contains: location,
-              mode: 'insensitive',
-            },
-          },
-        },
-        {
-          location: {
-            neighborhood: {
-              contains: location,
-              mode: 'insensitive',
-            },
-          },
-        },
-        {
-          location: {
-            zipcode: {
-              contains: location,
-              mode: 'insensitive',
-            },
-          },
-        },
-        {
-          location: {
-            formattedAddress: {
-              contains: location,
-              mode: 'insensitive',
-            },
-          },
-        },
-      ]
+      where.searchText = {
+        contains: location.toLowerCase(),
+        mode: 'insensitive',
+      }
     }
 
-    // Zipcode filter
+    // Zipcode filter - also use searchText for consistency
     if (zipcode) {
-      where.location = {
-        ...where.location,
-        zipcode: {
-          contains: zipcode,
-        },
+      where.searchText = {
+        ...where.searchText,
+        contains: zipcode.toLowerCase(),
+        mode: 'insensitive',
       }
     }
 

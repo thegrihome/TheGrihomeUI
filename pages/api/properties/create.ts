@@ -4,6 +4,7 @@ import { authOptions } from '../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
 import { PropertyType, ListingType } from '@prisma/client'
 import { geocodeAddress } from '@/lib/utils/geocoding'
+import { generateSearchText } from '@/lib/utils/property-search'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -144,6 +145,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    // Generate searchText for fast location search
+    const searchText = generateSearchText(location.address, locationRecord)
+
     // Create property
     const property = await prisma.property.create({
       data: {
@@ -160,6 +164,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         projectId: projectId && projectId.trim() !== '' ? projectId : null,
         walkthroughVideoUrl:
           walkthroughVideoUrls && walkthroughVideoUrls.length > 0 ? walkthroughVideoUrls[0] : null,
+        searchText,
       },
     })
 
