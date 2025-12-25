@@ -22,10 +22,10 @@ export default function Document() {
                 tokenAuth: "480266TyctAMdwlC6938d6e3P1",
                 exposeMethods: true,
                 success: function(data) {
-                  console.log('MSG91 success:', data);
+                  // OTP sent successfully
                 },
                 failure: function(error) {
-                  console.log('MSG91 failure:', error);
+                  // OTP sending failed
                 }
               };
               (function loadOtpScript(urls) {

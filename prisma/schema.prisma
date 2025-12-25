@@ -58,6 +58,7 @@ model User {
   postedProjects      Project[]        @relation("ProjectPostedBy")
   projectAgents       ProjectAgent[]
   projectRequests     ProjectRequest[]
+  projectReviews      ProjectReview[]
   purchasedProperties Property[]       @relation("SoldProperties")
   listedProperties    Property[]       @relation("AgentProperties")
   replyReactions      ReplyReaction[]
@@ -152,6 +153,8 @@ model Project {
   siteLayoutImageUrls    String[]
   walkthroughVideoUrl    String?
   isArchived             Boolean           @default(false)
+  averageRating          Float?            @default(0)
+  reviewCount            Int               @default(0)
   ads                    Ad[]
   interests              Interest[]
   builder                Builder           @relation(fields: [builderId], references: [id], onDelete: Cascade)
@@ -160,6 +163,7 @@ model Project {
   projectAgents          ProjectAgent[]
   projectProperties      ProjectProperty[]
   properties             Property[]
+  reviews                ProjectReview[]
 
   @@index([builderId])
   @@index([locationId])
@@ -466,6 +470,23 @@ model ProjectProperty {
   @@index([propertyId])
   @@index([promotionEndDate])
   @@index([isPromoted])
+}
+
+model ProjectReview {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  rating    Int
+  review    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 enum UserRole {

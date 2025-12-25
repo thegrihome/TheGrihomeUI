@@ -1,0 +1,199 @@
+/* Rating Page Styles */
+.rating-page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9fafb;
+}
+
+.rating-page-content {
+  flex: 1;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+.rating-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.rating-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.project-name {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+/* Star Rating Input */
+.rating-section {
+  margin-bottom: 1.5rem;
+}
+
+.rating-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.stars-input {
+  display: flex;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.star-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.star-button:hover {
+  transform: scale(1.1);
+}
+
+.star-button:active {
+  transform: scale(0.95);
+}
+
+.star-input-icon {
+  width: 32px;
+  height: 32px;
+  transition: color 0.15s;
+}
+
+.star-input-icon.filled {
+  color: #fbbf24;
+}
+
+.star-input-icon.empty {
+  color: #d1d5db;
+}
+
+.rating-selected {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+/* Review Textarea */
+.review-section {
+  margin-bottom: 1.5rem;
+}
+
+.review-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.review-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.review-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.review-char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+/* Action Buttons */
+.rating-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.cancel-button,
+.submit-button {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.cancel-button {
+  background: white;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.cancel-button:hover {
+  background: #f9fafb;
+}
+
+.submit-button {
+  background: #3b82f6;
+  color: white;
+}
+
+.submit-button:hover {
+  background: #2563eb;
+}
+
+.submit-button:disabled,
+.cancel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+  .rating-page-content {
+    margin: 1rem auto;
+  }
+
+  .rating-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .rating-title {
+    font-size: 1.25rem;
+  }
+
+  .star-input-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .rating-actions {
+    flex-direction: column;
+  }
+
+  .cancel-button,
+  .submit-button {
+    width: 100%;
+  }
+}
