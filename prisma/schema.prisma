@@ -214,6 +214,9 @@ model Property {
   @@index([propertyType])
   @@index([listingType])
   @@index([listingStatus])
+  @@index([listingStatus, listingType])
+  @@index([listingStatus, propertyType])
+  @@index([listingStatus, createdAt])
 }
 
 model PropertyImage {

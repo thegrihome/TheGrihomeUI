@@ -170,9 +170,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       orderBy = { createdAt: 'asc' }
     }
 
-    // Get total count for pagination
-    const totalCount = await prisma.property.count({ where })
-
     // Determine if we need to fetch all records for in-memory filtering
     const needsInMemoryProcessing =
       sortBy === 'price_asc' ||
@@ -182,47 +179,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       sizeMin ||
       sizeMax
 
-    // Fetch properties
-    const properties = await prisma.property.findMany({
-      where,
-      orderBy,
-      skip: needsInMemoryProcessing ? undefined : skip,
-      take: needsInMemoryProcessing ? undefined : limitNum,
-      include: {
-        location: {
-          select: {
-            city: true,
-            state: true,
-            zipcode: true,
-            locality: true,
+    // Run count and findMany in parallel for better performance
+    const [totalCount, properties] = await Promise.all([
+      prisma.property.count({ where }),
+      prisma.property.findMany({
+        where,
+        orderBy,
+        skip: needsInMemoryProcessing ? undefined : skip,
+        take: needsInMemoryProcessing ? undefined : limitNum,
+        include: {
+          location: {
+            select: {
+              city: true,
+              state: true,
+              zipcode: true,
+              locality: true,
+            },
+          },
+          builder: {
+            select: {
+              name: true,
+            },
+          },
+          project: {
+            select: {
+              name: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              companyName: true,
+            },
+          },
+          images: {
+            orderBy: {
+              displayOrder: 'asc',
+            },
+            take: 1,
           },
         },
-        builder: {
-          select: {
-            name: true,
-          },
-        },
-        project: {
-          select: {
-            name: true,
-          },
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            companyName: true,
-          },
-        },
-        images: {
-          orderBy: {
-            displayOrder: 'asc',
-          },
-          take: 1,
-        },
-      },
-    })
+      }),
+    ])
 
     // Transform properties for frontend
     let transformedProperties = properties.map(property => {

@@ -142,33 +142,36 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, trigger }) {
-      // On initial sign in, populate token from user object
+      // On initial sign in, fetch full user data and store in token
       if (user) {
-        token.role = user.role
-        token.username = user.username
-        token.mobileNumber = user.mobileNumber
-      }
-      // Refresh token data only on explicit update trigger
-      if (trigger === 'update' && token.sub) {
         const dbUser = await prisma.user.findUnique({
-          where: { id: token.sub },
+          where: { id: user.id },
           select: {
+            name: true,
+            email: true,
+            image: true,
+            emailVerified: true,
+            mobileVerified: true,
+            companyName: true,
             role: true,
             username: true,
             phone: true,
           },
         })
         if (dbUser) {
+          token.name = dbUser.name
+          token.email = dbUser.email
+          token.image = dbUser.image
           token.role = dbUser.role
           token.username = dbUser.username
           token.mobileNumber = dbUser.phone
+          token.isEmailVerified = !!dbUser.emailVerified
+          token.isMobileVerified = !!dbUser.mobileVerified
+          token.companyName = dbUser.companyName
         }
       }
-      return token
-    },
-    async session({ session, token }) {
-      if (token && token.sub) {
-        // Fetch user data from database for each session request
+      // Refresh token data only on explicit update trigger
+      if (trigger === 'update' && token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
           select: {
@@ -183,19 +186,35 @@ export const authOptions: NextAuthOptions = {
             phone: true,
           },
         })
-
+        if (dbUser) {
+          token.name = dbUser.name
+          token.email = dbUser.email
+          token.image = dbUser.image
+          token.role = dbUser.role
+          token.username = dbUser.username
+          token.mobileNumber = dbUser.phone
+          token.isEmailVerified = !!dbUser.emailVerified
+          token.isMobileVerified = !!dbUser.mobileVerified
+          token.companyName = dbUser.companyName
+        }
+      }
+      return token
+    },
+    async session({ session, token }) {
+      // Read all data from token - no database query needed
+      if (token && token.sub) {
         session.user.id = token.sub
-        session.user.name = dbUser?.name || session.user.name
-        session.user.email = dbUser?.email || session.user.email
-        session.user.role = (token.role || dbUser?.role) as string
-        session.user.username = (token.username || dbUser?.username) as string
-        session.user.mobileNumber = (dbUser?.phone || token.mobileNumber) as string
-        session.user.image = dbUser?.image as string
-        session.user.imageLink = dbUser?.image as string
-        session.user.isEmailVerified = !!dbUser?.emailVerified
-        session.user.isMobileVerified = !!dbUser?.mobileVerified
-        session.user.isAgent = (token.role || dbUser?.role) === 'AGENT'
-        session.user.companyName = dbUser?.companyName as string
+        session.user.name = (token.name as string) || session.user.name
+        session.user.email = (token.email as string) || session.user.email
+        session.user.role = token.role as string
+        session.user.username = token.username as string
+        session.user.mobileNumber = token.mobileNumber as string
+        session.user.image = token.image as string
+        session.user.imageLink = token.image as string
+        session.user.isEmailVerified = token.isEmailVerified as boolean
+        session.user.isMobileVerified = token.isMobileVerified as boolean
+        session.user.isAgent = token.role === 'AGENT'
+        session.user.companyName = token.companyName as string
       }
       return session
     },
