@@ -230,11 +230,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       project,
     })
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Create project error:', error)
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('Create project error:', error)
+    }
+
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('Unique constraint')) {
+        return res.status(400).json({ message: 'A project with this name may already exist' })
+      }
+      if (error.message.includes('Foreign key constraint')) {
+        return res.status(400).json({ message: 'Invalid builder or location reference' })
+      }
+    }
+
     res.status(500).json({
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error : undefined,
+      message: 'Failed to create project. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? String(error) : undefined,
     })
   }
 }

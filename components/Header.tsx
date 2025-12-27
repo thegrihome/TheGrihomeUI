@@ -262,6 +262,9 @@ const Header: NextPage = () => {
                         <Link href="/properties/my-properties" className="dropdown-link">
                           My Properties
                         </Link>
+                        <Link href="/saved-searches" className="dropdown-link">
+                          Saved Searches
+                        </Link>
                         {canAccessAdmin && (
                           <Link href="/admin" className="dropdown-link dropdown-link-admin">
                             Admin Dashboard
@@ -421,6 +424,13 @@ const Header: NextPage = () => {
                           className="mobile-user-link"
                         >
                           My Properties
+                        </Link>
+                        <Link
+                          href="/saved-searches"
+                          onClick={() => setNavbarOpen(false)}
+                          className="mobile-user-link"
+                        >
+                          Saved Searches
                         </Link>
                         {canAccessAdmin && (
                           <Link

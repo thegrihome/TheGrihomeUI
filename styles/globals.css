@@ -16,6 +16,7 @@
 @import './pages/projects/detail.css';
 @import './pages/projects/rating.css';
 @import './pages/admin/index.css';
+@import './pages/saved-searches/index.css';
 
 @tailwind base;
 @tailwind components;

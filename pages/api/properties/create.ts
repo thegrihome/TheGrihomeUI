@@ -173,6 +173,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       propertyId: property.id,
     })
   } catch (error) {
-    return res.status(500).json({ message: 'Internal server error' })
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('Property creation error:', error)
+    }
+
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('Unique constraint')) {
+        return res.status(400).json({ message: 'A property with similar details already exists' })
+      }
+      if (error.message.includes('Foreign key constraint')) {
+        return res.status(400).json({ message: 'Invalid project or user reference' })
+      }
+    }
+
+    return res.status(500).json({
+      message: 'Failed to create property. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? String(error) : undefined,
+    })
   }
 }

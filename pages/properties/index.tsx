@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { NextSeo } from 'next-seo'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
@@ -94,6 +94,7 @@ export default function PropertiesPage() {
   })
   const [showPriceDropdown, setShowPriceDropdown] = useState(false)
   const [showSizeDropdown, setShowSizeDropdown] = useState(false)
+  const [savingSearch, setSavingSearch] = useState(false)
 
   const propertyTypes = [
     { value: 'SINGLE_FAMILY', label: 'Villas' },
@@ -549,6 +550,69 @@ export default function PropertiesPage() {
     }
   }
 
+  // Check if there are any active filters
+  const hasActiveFilters = useCallback(() => {
+    return (
+      filters.propertyType ||
+      filters.listingType ||
+      filters.bedrooms ||
+      filters.bathrooms ||
+      filters.location ||
+      filters.priceMin ||
+      filters.priceMax ||
+      filters.sizeMin ||
+      filters.sizeMax
+    )
+  }, [filters])
+
+  const handleSaveSearch = async () => {
+    if (!session?.user?.id) {
+      toast.error('Please login to save searches')
+      router.push('/login')
+      return
+    }
+
+    if (!hasActiveFilters()) {
+      toast.error('Please apply at least one filter to save a search')
+      return
+    }
+
+    setSavingSearch(true)
+    try {
+      // Build search query object from current filters
+      const searchQuery: Record<string, unknown> = {}
+      if (filters.propertyType) searchQuery.propertyType = filters.propertyType
+      if (filters.listingType) searchQuery.listingType = filters.listingType
+      if (filters.bedrooms) searchQuery.bedrooms = filters.bedrooms
+      if (filters.bathrooms) searchQuery.bathrooms = filters.bathrooms
+      if (filters.location) searchQuery.location = filters.location
+      if (filters.priceMin) searchQuery.priceMin = filters.priceMin
+      if (filters.priceMax) searchQuery.priceMax = filters.priceMax
+      if (filters.sizeMin) searchQuery.sizeMin = filters.sizeMin
+      if (filters.sizeMax) searchQuery.sizeMax = filters.sizeMax
+
+      const response = await fetch('/api/saved-searches', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ searchQuery }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to save search')
+      }
+
+      toast.success('Search saved!')
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to save search')
+    } finally {
+      setSavingSearch(false)
+    }
+  }
+
   const showBedroomsBathroomsFilters =
     !filters.propertyType ||
     filters.propertyType === 'SINGLE_FAMILY' ||
@@ -958,6 +1022,26 @@ export default function PropertiesPage() {
               Showing {filteredProperties.length} of {properties.length} properties
             </p>
             <div className="flex items-center gap-2 sm:gap-4 w-full xs:w-auto">
+              {/* Save Search Button */}
+              <button
+                onClick={handleSaveSearch}
+                disabled={savingSearch || !hasActiveFilters()}
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title={!hasActiveFilters() ? 'Apply filters to save a search' : 'Save this search'}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  />
+                </svg>
+                <span className="hidden sm:inline">
+                  {savingSearch ? 'Saving...' : 'Save Search'}
+                </span>
+                <span className="sm:hidden">{savingSearch ? '...' : 'Save'}</span>
+              </button>
               {/* Sort Dropdown */}
               <div className="relative sort-dropdown flex-1 xs:flex-initial">
                 <button

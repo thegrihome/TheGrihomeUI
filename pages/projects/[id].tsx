@@ -540,7 +540,14 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
               {/* Star Rating Display */}
               <div
-                onClick={() => router.push(`/projects/${project.id}/rating`)}
+                onClick={() => {
+                  if (status === 'authenticated') {
+                    router.push(`/projects/${project.id}/rating`)
+                  } else {
+                    toast.error('Please log in to write a review')
+                    router.push('/login')
+                  }
+                }}
                 className="project-rating-display"
               >
                 <div className="stars-container">
