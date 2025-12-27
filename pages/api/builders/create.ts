@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
 import { put } from '@vercel/blob'
+import { checkUserVerification } from '@/lib/utils/verify-user'
 
 export const config = {
   api: {
@@ -20,8 +21,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const session = await getServerSession(req, res, authOptions)
 
-    if (!session?.user?.email) {
+    if (!session?.user?.email || !session?.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' })
+    }
+
+    // Check verification status
+    const verificationCheck = await checkUserVerification(session.user.id)
+    if (!verificationCheck.isVerified) {
+      return res.status(403).json({ message: verificationCheck.message })
     }
 
     const { name, description, website, address, emails, phones, logoBase64 } = req.body

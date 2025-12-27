@@ -32,6 +32,17 @@ export default function ProjectRatingPage() {
     }
   }, [status, router])
 
+  // Redirect unverified users
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      const isVerified = session.user.isEmailVerified || session.user.isMobileVerified
+      if (!isVerified) {
+        toast.error('Please verify your email or mobile to write a review')
+        router.push('/auth/userinfo')
+      }
+    }
+  }, [status, session, router])
+
   // Fetch existing review if user has already reviewed
   useEffect(() => {
     if (!id || !session) return

@@ -44,6 +44,17 @@ export default function AddBuilderPage() {
     }
   }, [status, router])
 
+  // Redirect unverified users
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      const isVerified = session.user.isEmailVerified || session.user.isMobileVerified
+      if (!isVerified) {
+        toast.error('Please verify your email or mobile to add a builder')
+        router.push('/auth/userinfo')
+      }
+    }
+  }, [status, session, router])
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({

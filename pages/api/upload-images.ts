@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { put } from '@vercel/blob'
 import { getServerSession } from 'next-auth'
 import { authOptions } from './auth/[...nextauth]'
+import { checkUserVerification } from '@/lib/utils/verify-user'
 
 export const config = {
   api: {
@@ -21,6 +22,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!session?.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' })
+    }
+
+    // Check verification status
+    const verificationCheck = await checkUserVerification(session.user.id)
+    if (!verificationCheck.isVerified) {
+      return res.status(403).json({ message: verificationCheck.message })
     }
 
     const { images } = req.body

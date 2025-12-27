@@ -5,6 +5,7 @@ import { prisma } from '@/lib/cockroachDB/prisma'
 import { PropertyType, ListingType } from '@prisma/client'
 import { geocodeAddress } from '@/lib/utils/geocoding'
 import { generateSearchText } from '@/lib/utils/property-search'
+import { checkUserVerification } from '@/lib/utils/verify-user'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -16,6 +17,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!session?.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' })
+    }
+
+    // Check verification status
+    const verificationCheck = await checkUserVerification(session.user.id)
+    if (!verificationCheck.isVerified) {
+      return res.status(403).json({ message: verificationCheck.message })
     }
 
     const {

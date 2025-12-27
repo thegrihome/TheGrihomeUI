@@ -2,12 +2,21 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
+import { checkUserVerification } from '@/lib/utils/verify-user'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions)
 
   if (!session?.user?.id) {
     return res.status(401).json({ message: 'Unauthorized' })
+  }
+
+  // Check verification status for all modifying operations
+  if (req.method === 'PATCH' || req.method === 'DELETE') {
+    const verificationCheck = await checkUserVerification(session.user.id)
+    if (!verificationCheck.isVerified) {
+      return res.status(403).json({ message: verificationCheck.message })
+    }
   }
 
   const { id } = req.query

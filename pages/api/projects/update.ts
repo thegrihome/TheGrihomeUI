@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { geocodeAddress } from '@/lib/utils/geocoding'
 import { uploadProjectImage, uploadMultipleProjectImages } from '@/lib/utils/vercel-blob'
+import { checkUserVerification } from '@/lib/utils/verify-user'
 
 export const config = {
   api: {
@@ -23,6 +24,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!session?.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' })
+    }
+
+    // Check verification status
+    const verificationCheck = await checkUserVerification(session.user.id)
+    if (!verificationCheck.isVerified) {
+      return res.status(403).json({ message: verificationCheck.message })
     }
 
     const {

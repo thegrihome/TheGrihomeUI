@@ -38,6 +38,17 @@ export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
     }
   }, [status, router])
 
+  // Redirect unverified users
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      const isVerified = session.user.isEmailVerified || session.user.isMobileVerified
+      if (!isVerified) {
+        toast.error('Please verify your email or mobile to promote your listing')
+        router.push('/auth/userinfo')
+      }
+    }
+  }, [status, session, router])
+
   useEffect(() => {
     // Calculate expiry date whenever duration changes
     const today = new Date()

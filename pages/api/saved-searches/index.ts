@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
+import { checkUserVerification } from '@/lib/utils/verify-user'
 
 // Helper function to auto-generate search name from filters
 function generateSearchName(filters: Record<string, unknown>): string {
@@ -81,6 +82,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
+      // Check verification status for POST (create)
+      const verificationCheck = await checkUserVerification(session.user.id)
+      if (!verificationCheck.isVerified) {
+        return res.status(403).json({ message: verificationCheck.message })
+      }
+
       const { searchQuery, name } = req.body
 
       if (!searchQuery || typeof searchQuery !== 'object') {

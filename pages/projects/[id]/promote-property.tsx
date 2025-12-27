@@ -56,6 +56,17 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
     }
   }, [status, router])
 
+  // Redirect unverified users
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      const isVerified = session.user.isEmailVerified || session.user.isMobileVerified
+      if (!isVerified) {
+        toast.error('Please verify your email or mobile to promote your property')
+        router.push('/auth/userinfo')
+      }
+    }
+  }, [status, session, router])
+
   useEffect(() => {
     // Calculate expiry date whenever duration changes
     const today = new Date()

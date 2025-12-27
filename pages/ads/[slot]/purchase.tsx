@@ -101,6 +101,17 @@ export default function PurchaseAdSlotPage() {
     }
   }, [status, slot, renew, router, loadSlotConfig, loadActiveListings])
 
+  // Redirect unverified users
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      const isVerified = session.user.isEmailVerified || session.user.isMobileVerified
+      if (!isVerified) {
+        toast.error('Please verify your email or mobile to purchase ads')
+        router.push('/auth/userinfo')
+      }
+    }
+  }, [status, session, router])
+
   useEffect(() => {
     if (slotConfig && selectedDays) {
       const amount = slotConfig.basePrice * selectedDays
