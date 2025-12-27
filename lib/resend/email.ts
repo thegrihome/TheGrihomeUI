@@ -142,11 +142,9 @@ export async function sendInterestNotification(params: {
       <p>Someone has expressed interest in your property: <strong>${propertyName}</strong></p>
 
       <h3 style="color: #1f2937;">Interested Buyer Details:</h3>
-      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px;">
-        <p style="margin: 5px 0;"><strong>Name:</strong> ${buyer.name}</p>
-        <p style="margin: 5px 0;"><strong>Email:</strong> ${buyerEmail}</p>
-        <p style="margin: 5px 0;"><strong>Mobile:</strong> ${buyerMobile}</p>
-      </div>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${buyer.name}</p>
+      <p style="margin: 5px 0;"><strong>Email:</strong> ${buyerEmail}</p>
+      <p style="margin: 5px 0;"><strong>Mobile:</strong> ${buyerMobile}</p>
 
       <p style="margin-top: 20px;">Please reach out to the buyer at your earliest convenience.</p>
 
@@ -176,23 +174,17 @@ export async function sendInterestNotification(params: {
       <p>A new interest has been expressed for a property on Grihome.</p>
 
       <h3 style="color: #1f2937;">Property</h3>
-      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-        <p style="margin: 5px 0;"><strong>Name:</strong> ${propertyName}</p>
-      </div>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${propertyName}</p>
 
       <h3 style="color: #1f2937;">Seller Details</h3>
-      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-        <p style="margin: 5px 0;"><strong>Name:</strong> ${seller.name}</p>
-        <p style="margin: 5px 0;"><strong>Email:</strong> ${sellerEmail}</p>
-        <p style="margin: 5px 0;"><strong>Mobile:</strong> ${sellerMobile}</p>
-      </div>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${seller.name}</p>
+      <p style="margin: 5px 0;"><strong>Email:</strong> ${sellerEmail}</p>
+      <p style="margin: 5px 0;"><strong>Mobile:</strong> ${sellerMobile}</p>
 
       <h3 style="color: #1f2937;">Buyer Details</h3>
-      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px;">
-        <p style="margin: 5px 0;"><strong>Name:</strong> ${buyer.name}</p>
-        <p style="margin: 5px 0;"><strong>Email:</strong> ${buyerEmail}</p>
-        <p style="margin: 5px 0;"><strong>Mobile:</strong> ${buyerMobile}</p>
-      </div>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${buyer.name}</p>
+      <p style="margin: 5px 0;"><strong>Email:</strong> ${buyerEmail}</p>
+      <p style="margin: 5px 0;"><strong>Mobile:</strong> ${buyerMobile}</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
       <p style="color: #6b7280; font-size: 12px;">Automated notification from TheGrihome platform.</p>
@@ -274,12 +266,10 @@ export async function sendProjectTransactionNotification(params: {
       <p>Your transaction has been processed successfully.</p>
 
       <h3 style="color: #1f2937;">Transaction Details:</h3>
-      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px;">
-        <p style="margin: 5px 0;"><strong>Project:</strong> ${projectName}</p>
-        <p style="margin: 5px 0;"><strong>Type:</strong> ${transaction.type}</p>
-        <p style="margin: 5px 0;"><strong>Duration:</strong> ${transaction.duration}</p>
-        <p style="margin: 5px 0;"><strong>Amount:</strong> ${transaction.amount}</p>
-      </div>
+      <p style="margin: 5px 0;"><strong>Project:</strong> ${projectName}</p>
+      <p style="margin: 5px 0;"><strong>Type:</strong> ${transaction.type}</p>
+      <p style="margin: 5px 0;"><strong>Duration:</strong> ${transaction.duration}</p>
+      <p style="margin: 5px 0;"><strong>Amount:</strong> ${transaction.amount}</p>
 
       <p style="margin-top: 20px;">Thank you for using Grihome!</p>
 
@@ -303,19 +293,15 @@ export async function sendProjectTransactionNotification(params: {
       <h2 style="color: #2563eb;">New Project Transaction</h2>
 
       <h3 style="color: #1f2937;">Transaction Details:</h3>
-      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-        <p style="margin: 5px 0;"><strong>Project:</strong> ${projectName}</p>
-        <p style="margin: 5px 0;"><strong>Type:</strong> ${transaction.type}</p>
-        <p style="margin: 5px 0;"><strong>Duration:</strong> ${transaction.duration}</p>
-        <p style="margin: 5px 0;"><strong>Amount:</strong> ${transaction.amount}</p>
-      </div>
+      <p style="margin: 5px 0;"><strong>Project:</strong> ${projectName}</p>
+      <p style="margin: 5px 0;"><strong>Type:</strong> ${transaction.type}</p>
+      <p style="margin: 5px 0;"><strong>Duration:</strong> ${transaction.duration}</p>
+      <p style="margin: 5px 0;"><strong>Amount:</strong> ${transaction.amount}</p>
 
       <h3 style="color: #1f2937;">User Details:</h3>
-      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px;">
-        <p style="margin: 5px 0;"><strong>Name:</strong> ${user.name}</p>
-        <p style="margin: 5px 0;"><strong>Email:</strong> ${userEmail}</p>
-        <p style="margin: 5px 0;"><strong>Mobile:</strong> ${userMobile}</p>
-      </div>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${user.name}</p>
+      <p style="margin: 5px 0;"><strong>Email:</strong> ${userEmail}</p>
+      <p style="margin: 5px 0;"><strong>Mobile:</strong> ${userMobile}</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
       <p style="color: #6b7280; font-size: 12px;">Automated notification from TheGrihome platform.</p>
