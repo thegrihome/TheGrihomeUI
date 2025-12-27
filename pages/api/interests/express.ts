@@ -2,7 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]'
 import { PrismaClient } from '@prisma/client'
-import { sendInterestNotification } from '@/lib/msg91/email'
+import { sendInterestNotification, sendProjectInterestNotification } from '@/lib/resend/email'
+import { sendProjectInterestWhatsApp } from '@/lib/msg91/whatsapp'
 
 const prisma = new PrismaClient()
 
@@ -171,10 +172,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // For projects, we still need to handle notifications (can be extended later)
-    if (projectId) {
-      // Project interest notification can be added here if needed
-      // For now, just log that interest was expressed
+    // Send notifications for project interest (to admin only)
+    if (projectId && projectOrPropertyName) {
+      try {
+        const userEmail = user.emailVerified ? user.email : 'Not verified'
+        const userMobile = user.mobileVerified && user.phone ? user.phone : 'Not verified'
+
+        // Send email to admin via Resend
+        await sendProjectInterestNotification({
+          projectName: projectOrPropertyName,
+          user: {
+            name: user.name || user.username || 'Interested User',
+            email: user.email,
+            mobile: user.phone || '',
+            isEmailVerified: user.emailVerified !== null,
+            isMobileVerified: user.mobileVerified !== null,
+          },
+        })
+
+        // Send WhatsApp to admin via MSG91
+        await sendProjectInterestWhatsApp({
+          projectName: projectOrPropertyName,
+          userName: user.name || user.username || 'Interested User',
+          userEmail,
+          userMobile,
+        })
+      } catch {
+        // Don't fail the request if notifications fail, just continue
+      }
     }
 
     res.status(201).json({

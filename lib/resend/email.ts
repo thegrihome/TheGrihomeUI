@@ -480,3 +480,46 @@ export async function sendProjectRequestEmail(params: {
     html,
   })
 }
+
+/**
+ * Send project interest notification to admin (email only - no seller for projects)
+ */
+export async function sendProjectInterestNotification(params: {
+  projectName: string
+  user: {
+    name: string
+    email: string
+    mobile: string
+    isEmailVerified: boolean
+    isMobileVerified: boolean
+  }
+}): Promise<SendEmailResult> {
+  const { projectName, user } = params
+
+  const userEmail = user.isEmailVerified ? user.email : 'Not verified'
+  const userMobile = user.isMobileVerified ? user.mobile : 'Not verified'
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #2563eb;">Project Interest Notification</h2>
+
+      <p>Hello Grihome Admin,</p>
+
+      <p>The following user has expressed interest in project <strong>${projectName}</strong></p>
+
+      <h3 style="color: #1f2937;">User Details:</h3>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${user.name}</p>
+      <p style="margin: 5px 0;"><strong>Email:</strong> ${userEmail}</p>
+      <p style="margin: 5px 0;"><strong>Mobile:</strong> ${userMobile}</p>
+
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+      <p style="color: #6b7280; font-size: 12px;">Automated notification from TheGrihome platform.</p>
+    </div>
+  `
+
+  return sendEmail({
+    to: ADMIN_EMAIL,
+    subject: `[Project Interest] ${projectName} - ${user.name}`,
+    html,
+  })
+}

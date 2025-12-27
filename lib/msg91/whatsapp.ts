@@ -426,3 +426,37 @@ export async function sendExpiryReminderWhatsApp(params: {
     ],
   })
 }
+
+/**
+ * Send project interest notification to admin via WhatsApp
+ * Uses grihome_notification template (5 params)
+ * - body_1: Project name
+ * - body_2: "Grihome Admin"
+ * - body_3: User name
+ * - body_4: User email
+ * - body_5: User mobile
+ */
+export async function sendProjectInterestWhatsApp(params: {
+  projectName: string
+  userName: string
+  userEmail: string
+  userMobile: string
+}): Promise<WhatsAppResult> {
+  const { projectName, userName, userEmail, userMobile } = params
+
+  return sendWhatsAppTemplate({
+    templateName: 'grihome_notification',
+    recipients: [
+      {
+        to: [ADMIN_PHONE],
+        components: {
+          body_1: { type: 'text', value: projectName },
+          body_2: { type: 'text', value: 'Grihome Admin' },
+          body_3: { type: 'text', value: userName },
+          body_4: { type: 'text', value: userEmail },
+          body_5: { type: 'text', value: userMobile },
+        },
+      },
+    ],
+  })
+}
