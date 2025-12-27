@@ -2,10 +2,9 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { PrismaClient } from '@prisma/client'
-import { Resend } from 'resend'
+import { sendProjectRequestEmail } from '@/lib/resend/email'
 
 const prisma = new PrismaClient()
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -68,82 +67,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     })
 
-    // Send email notification to admins
+    // Send email notification to admin
     try {
-      const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
-            New Project Addition Request
-          </h2>
-          
-          <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #1f2937; margin-top: 0;">Request ID: ${projectRequest.id}</h3>
-            <p style="margin: 5px 0;"><strong>Submitted by:</strong> ${session.user.name} (${session.user.email})</p>
-            <p style="margin: 5px 0;"><strong>Submitted on:</strong> ${new Date().toLocaleDateString(
-              'en-US',
-              {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              }
-            )}</p>
-          </div>
-
-          <h3 style="color: #1f2937;">Builder Information</h3>
-          <div style="background-color: #f1f5f9; padding: 15px; border-radius: 6px; margin: 10px 0;">
-            <p style="margin: 5px 0;"><strong>Builder Name:</strong> ${builderName}</p>
-            ${builderWebsite ? `<p style="margin: 5px 0;"><strong>Website:</strong> <a href="${builderWebsite}" target="_blank">${builderWebsite}</a></p>` : ''}
-          </div>
-
-          <h3 style="color: #1f2937;">Project Information</h3>
-          <div style="background-color: #f1f5f9; padding: 15px; border-radius: 6px; margin: 10px 0;">
-            <p style="margin: 5px 0;"><strong>Project Name:</strong> ${projectName}</p>
-            <p style="margin: 5px 0;"><strong>Project Type:</strong> ${projectType}</p>
-            <p style="margin: 5px 0;"><strong>Location:</strong> ${location}</p>
-            ${projectDescription ? `<p style="margin: 5px 0;"><strong>Description:</strong> ${projectDescription}</p>` : ''}
-          </div>
-
-          <h3 style="color: #1f2937;">Contact Information</h3>
-          <div style="background-color: #f1f5f9; padding: 15px; border-radius: 6px; margin: 10px 0;">
-            <p style="margin: 5px 0;"><strong>Contact Person:</strong> ${contactPersonName}</p>
-            <p style="margin: 5px 0;"><strong>Email:</strong> <a href="mailto:${contactPersonEmail}">${contactPersonEmail}</a></p>
-            <p style="margin: 5px 0;"><strong>Phone:</strong> <a href="tel:${contactPersonPhone}">${contactPersonPhone}</a></p>
-          </div>
-
-          ${
-            additionalInfo
-              ? `
-            <h3 style="color: #1f2937;">Additional Information</h3>
-            <div style="background-color: #f1f5f9; padding: 15px; border-radius: 6px; margin: 10px 0;">
-              <p style="margin: 5px 0;">${additionalInfo}</p>
-            </div>
-          `
-              : ''
-          }
-
-          <div style="margin-top: 30px; padding: 20px; background-color: #ecfdf5; border-radius: 8px; border-left: 4px solid #10b981;">
-            <h3 style="color: #065f46; margin-top: 0;">Next Steps</h3>
-            <p style="color: #047857; margin: 5px 0;">1. Review the project request details</p>
-            <p style="color: #047857; margin: 5px 0;">2. Contact the builder/requester for verification</p>
-            <p style="color: #047857; margin: 5px 0;">3. Add the project to Grihome database if approved</p>
-            <p style="color: #047857; margin: 5px 0;">4. Update the request status in admin panel</p>
-          </div>
-
-          <div style="margin-top: 20px; padding: 15px; background-color: #f3f4f6; border-radius: 6px; text-align: center;">
-            <p style="margin: 0; color: #6b7280; font-size: 14px;">
-              This email was generated automatically from Grihome project request system.
-            </p>
-          </div>
-        </div>
-      `
-
-      await resend.emails.send({
-        from: 'Grihome <noreply@grihome.vercel.app>',
-        to: ['admin@grihome.com'], // Replace with actual admin email(s)
-        subject: '[New Project Request] ' + projectName + ' by ' + builderName,
-        html: emailHtml,
+      await sendProjectRequestEmail({
+        requestId: projectRequest.id,
+        submittedBy: {
+          name: session.user.name || 'Unknown',
+          email: session.user.email || 'Unknown',
+        },
+        builderName,
+        builderWebsite: builderWebsite || undefined,
+        projectName,
+        projectType,
+        location,
+        projectDescription: projectDescription || undefined,
+        contactPersonName,
+        contactPersonEmail,
+        contactPersonPhone,
+        additionalInfo: additionalInfo || undefined,
       })
     } catch (emailError) {
       // Log error in development only

@@ -1,10 +1,11 @@
 /**
- * API Route: Verify OTP via MSG91
+ * API Route: Verify OTP
  *
  * This endpoint supports multiple verification methods:
- * 1. Direct OTP verification using MSG91's verify API (otp + identifier)
- * 2. JWT token verification from MSG91 widget (token)
- * 3. Fallback OTP for testing (otp === FALLBACK_OTP)
+ * 1. Email OTP verification using stored OTP (via Resend)
+ * 2. Mobile OTP verification using MSG91's verify API
+ * 3. JWT token verification from MSG91 widget (token)
+ * 4. Fallback OTP for testing (otp === FALLBACK_OTP)
  *
  * POST /api/auth/verify-otp
  * Body: { otp?: string, identifier?: string, token?: string }
@@ -13,6 +14,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { FALLBACK_OTP } from '@/lib/msg91/config'
+import { getStoredOtp, clearStoredOtp } from './send-otp'
 
 interface VerifyOTPRequest {
   token?: string
@@ -86,35 +88,64 @@ export default async function handler(
       })
     }
 
-    // Method 2: Direct OTP verification using MSG91 API
+    // Method 2: Direct OTP verification
     if (otp && identifier) {
       const isEmail = identifier.includes('@')
-      const params = isEmail
-        ? `email=${encodeURIComponent(identifier)}&otp=${otp}`
-        : `mobile=${identifier}&otp=${otp}`
 
-      const response = await fetch(`https://control.msg91.com/api/v5/otp/verify?${params}`, {
-        method: 'GET',
-        headers: {
-          authkey: authKey,
-        },
-      })
+      if (isEmail) {
+        // For email, verify against stored OTP
+        const storedOtp = getStoredOtp(identifier)
 
-      const data = await response.json()
+        if (!storedOtp) {
+          return res.status(400).json({
+            success: false,
+            message: 'OTP expired or not found. Please request a new OTP.',
+          })
+        }
 
-      if (data.type === 'error' || data.message !== 'OTP verified successfully') {
-        return res.status(400).json({
-          success: false,
-          message: data.message || 'Invalid OTP',
+        if (storedOtp !== otp) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid OTP',
+          })
+        }
+
+        // Clear OTP after successful verification
+        clearStoredOtp(identifier)
+
+        return res.status(200).json({
+          success: true,
+          message: 'OTP verified successfully',
+          identifier,
+          type: 'email',
+        })
+      } else {
+        // For mobile, use MSG91 API
+        const params = `mobile=${identifier}&otp=${otp}`
+
+        const response = await fetch(`https://control.msg91.com/api/v5/otp/verify?${params}`, {
+          method: 'GET',
+          headers: {
+            authkey: authKey,
+          },
+        })
+
+        const data = await response.json()
+
+        if (data.type === 'error' || data.message !== 'OTP verified successfully') {
+          return res.status(400).json({
+            success: false,
+            message: data.message || 'Invalid OTP',
+          })
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: 'OTP verified successfully',
+          identifier,
+          type: 'mobile',
         })
       }
-
-      return res.status(200).json({
-        success: true,
-        message: 'OTP verified successfully',
-        identifier,
-        type: isEmail ? 'email' : 'mobile',
-      })
     }
 
     return res.status(400).json({

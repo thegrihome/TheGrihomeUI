@@ -10,7 +10,7 @@ import Footer from '@/components/Footer'
 import { prisma } from '@/lib/cockroachDB/prisma'
 import { PROPERTY_TYPE_LABELS } from '@/lib/constants'
 
-const DURATION_OPTIONS = Array.from({ length: 30 }, (_, i) => i + 1)
+const DURATION_OPTIONS = Array.from({ length: 14 }, (_, i) => i + 1)
 
 interface Project {
   id: string
@@ -34,7 +34,7 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
   const router = useRouter()
   const { data: session, status } = useSession()
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('')
-  const [duration, setDuration] = useState<number>(30)
+  const [duration, setDuration] = useState<number>(14)
   const [isProcessing, setIsProcessing] = useState(false)
   const [expiryDate, setExpiryDate] = useState<Date>(new Date())
 

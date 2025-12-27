@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const { id: projectId } = req.query
-    const { duration = 30 } = req.body
+    const { duration = 14 } = req.body
 
     if (!projectId || typeof projectId !== 'string') {
       return res.status(400).json({ message: 'Invalid project ID' })
@@ -25,8 +25,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Validate duration
     const days = parseInt(String(duration))
-    if (isNaN(days) || days < 1 || days > 365) {
-      return res.status(400).json({ message: 'Duration must be between 1 and 365 days' })
+    if (isNaN(days) || days < 1 || days > 14) {
+      return res.status(400).json({ message: 'Duration must be between 1 and 14 days' })
     }
 
     // Get user with verification details for email notification

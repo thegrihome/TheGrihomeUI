@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import { sendContactEmail } from '@/lib/resend/email'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -17,18 +15,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    const emailData = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: 'thegrihome@gmail.com',
-      subject: `[Grihome.com Contact Request] ${name}`,
-      html: message.replace(/\n/g, '<br>'),
+    const result = await sendContactEmail({
+      name,
+      email,
+      phone,
+      message,
     })
+
+    if (!result.success) {
+      return res.status(500).json({
+        message: result.message,
+      })
+    }
 
     return res.status(200).json({
       message: 'Email sent successfully',
-      id: emailData.data?.id,
+      id: result.id,
     })
-  } catch (error) {
+  } catch {
     return res.status(500).json({
       message: 'Failed to send email',
     })

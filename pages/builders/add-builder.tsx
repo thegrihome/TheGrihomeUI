@@ -3,6 +3,10 @@ import { NextSeo } from 'next-seo'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
+import { GetServerSideProps } from 'next'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../api/auth/[...nextauth]'
+import { checkAdminAccess } from '@/lib/utils/admin-access'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import toast from 'react-hot-toast'
@@ -291,4 +295,22 @@ export default function AddBuilderPage() {
       <Footer />
     </div>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  const session = await getServerSession(context.req, context.res, authOptions)
+  const userEmail = session?.user?.email
+  const accessResult = checkAdminAccess(userEmail)
+
+  // In production, redirect non-admin users to contact page
+  if (accessResult.isProduction && !accessResult.canAccessAdmin) {
+    return {
+      redirect: {
+        destination: '/contactUs',
+        permanent: false,
+      },
+    }
+  }
+
+  return { props: {} }
 }

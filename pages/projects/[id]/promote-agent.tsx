@@ -9,7 +9,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { prisma } from '@/lib/cockroachDB/prisma'
 
-const DURATION_OPTIONS = Array.from({ length: 30 }, (_, i) => i + 1)
+const DURATION_OPTIONS = Array.from({ length: 14 }, (_, i) => i + 1)
 
 interface Project {
   id: string
@@ -24,7 +24,7 @@ interface PromoteAgentPageProps {
 export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
   const router = useRouter()
   const { data: session, status } = useSession()
-  const [duration, setDuration] = useState<number>(30)
+  const [duration, setDuration] = useState<number>(14)
   const [isProcessing, setIsProcessing] = useState(false)
   const [expiryDate, setExpiryDate] = useState<Date>(new Date())
   const [showDurationDropdown, setShowDurationDropdown] = useState(false)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { useSession, signIn } from 'next-auth/react'
 import Image from 'next/image'
@@ -34,6 +34,11 @@ export default function Signup() {
     email: false,
     mobileNumber: false,
   })
+  const [companyNames, setCompanyNames] = useState<string[]>([])
+  const [companySearch, setCompanySearch] = useState('')
+  const [showCompanyDropdown, setShowCompanyDropdown] = useState(false)
+  const companyDropdownRef = useRef<HTMLDivElement>(null)
+  const companySearchRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const { data: session, status } = useSession()
 
@@ -42,6 +47,51 @@ export default function Signup() {
       router.push('/')
     }
   }, [status, router])
+
+  // Fetch company names when user checks "I am a real estate agent"
+  useEffect(() => {
+    if (formData.isAgent) {
+      const fetchCompanyNames = async () => {
+        try {
+          const response = await fetch('/api/user/company-names')
+          if (response.ok) {
+            const data = await response.json()
+            setCompanyNames(data.companyNames || [])
+          }
+        } catch (error) {
+          // Silently fail, users can still enter new company names
+        }
+      }
+      fetchCompanyNames()
+    }
+  }, [formData.isAgent])
+
+  // Handle click outside to close company dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        companyDropdownRef.current &&
+        !companyDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowCompanyDropdown(false)
+      }
+    }
+
+    if (showCompanyDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showCompanyDropdown])
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (showCompanyDropdown && companySearchRef.current) {
+      companySearchRef.current.focus()
+    }
+  }, [showCompanyDropdown])
 
   // Debounced uniqueness check for username
   useEffect(() => {
@@ -558,15 +608,89 @@ export default function Signup() {
                 <label className="signup-form__label">
                   Company Name <span className="signup-form__required">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  className="signup-form__input"
-                  placeholder="Your company name"
-                  required={formData.isAgent}
-                />
+                <div className="signup-form__company-dropdown" ref={companyDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowCompanyDropdown(!showCompanyDropdown)}
+                    className="signup-form__company-dropdown-button"
+                  >
+                    <span style={{ color: formData.companyName ? '#374151' : '#9ca3af' }}>
+                      {formData.companyName || 'Select or enter company name'}
+                    </span>
+                    <svg
+                      className={`signup-form__company-dropdown-icon ${showCompanyDropdown ? 'signup-form__company-dropdown-icon--open' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  {showCompanyDropdown && (
+                    <div className="signup-form__company-dropdown-menu">
+                      <div className="signup-form__company-search">
+                        <input
+                          ref={companySearchRef}
+                          type="text"
+                          placeholder="Search or type new company name..."
+                          value={companySearch}
+                          onChange={e => setCompanySearch(e.target.value)}
+                          className="signup-form__company-search-input"
+                        />
+                      </div>
+                      <ul className="signup-form__company-list">
+                        {companyNames
+                          .filter(name => name.toLowerCase().includes(companySearch.toLowerCase()))
+                          .slice(0, 3)
+                          .map(name => (
+                            <li
+                              key={name}
+                              onClick={() => {
+                                setFormData(prev => ({ ...prev, companyName: name }))
+                                setShowCompanyDropdown(false)
+                                setCompanySearch('')
+                              }}
+                              className={`signup-form__company-item ${
+                                formData.companyName === name
+                                  ? 'signup-form__company-item--selected'
+                                  : ''
+                              }`}
+                            >
+                              {name}
+                            </li>
+                          ))}
+                        {companySearch.trim() &&
+                          !companyNames.some(
+                            name => name.toLowerCase() === companySearch.toLowerCase()
+                          ) && (
+                            <li
+                              onClick={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  companyName: companySearch.trim(),
+                                }))
+                                setShowCompanyDropdown(false)
+                                setCompanySearch('')
+                              }}
+                              className="signup-form__company-item signup-form__company-item--new"
+                            >
+                              + Add &quot;{companySearch.trim()}&quot; as new company
+                            </li>
+                          )}
+                        {!companySearch.trim() && companyNames.length === 0 && (
+                          <li className="signup-form__company-empty">
+                            Type to add a new company name
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
