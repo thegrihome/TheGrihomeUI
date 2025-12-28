@@ -7,6 +7,7 @@ import { Resend } from 'resend'
 import {
   sendInterestNotificationWhatsApp,
   sendProjectTransactionNotificationWhatsApp,
+  sendAgentContactNotificationWhatsApp,
 } from '@/lib/msg91/whatsapp'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -522,4 +523,131 @@ export async function sendProjectInterestNotification(params: {
     subject: `[Project Interest] ${projectName} - ${user.name}`,
     html,
   })
+}
+
+/**
+ * Send agent contact notifications via email and WhatsApp (to agent and admin)
+ */
+export async function sendAgentContactNotification(params: {
+  projectName: string
+  agent: {
+    name: string
+    email: string
+    phone: string
+    isEmailVerified: boolean
+    isMobileVerified: boolean
+  }
+  user: {
+    name: string
+    email: string
+    mobile: string
+    isEmailVerified: boolean
+    isMobileVerified: boolean
+  }
+}): Promise<{
+  agentEmailSent: boolean
+  adminEmailSent: boolean
+  agentWhatsAppSent: boolean
+  adminWhatsAppSent: boolean
+}> {
+  const { projectName, agent, user } = params
+
+  const results = {
+    agentEmailSent: false,
+    adminEmailSent: false,
+    agentWhatsAppSent: false,
+    adminWhatsAppSent: false,
+  }
+
+  // Prepare user info (only show verified details)
+  const userEmail = user.isEmailVerified ? user.email : 'Not verified'
+  const userMobile = user.isMobileVerified ? user.mobile : 'Not verified'
+
+  // Agent email template
+  const agentHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #2563eb;">New Interest in ${projectName}</h2>
+
+      <p>Hello ${agent.name},</p>
+
+      <p>A user has expressed interest in discussing <strong>${projectName}</strong> with you.</p>
+
+      <h3 style="color: #1f2937;">User Details:</h3>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${user.name}</p>
+      <p style="margin: 5px 0;"><strong>Email:</strong> ${userEmail}</p>
+      <p style="margin: 5px 0;"><strong>Mobile:</strong> ${userMobile}</p>
+
+      <p style="margin-top: 20px;">Please reach out to the user at your earliest convenience.</p>
+
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+      <p style="color: #6b7280; font-size: 12px;">This is an automated message from TheGrihome platform.</p>
+    </div>
+  `
+
+  // Send to agent if email is verified
+  if (agent.isEmailVerified && agent.email) {
+    const agentResult = await sendEmail({
+      to: agent.email,
+      subject: `New Interest in ${projectName} - Grihome`,
+      html: agentHtml,
+    })
+    results.agentEmailSent = agentResult.success
+  }
+
+  // Admin email template
+  const agentEmail = agent.isEmailVerified ? agent.email : 'Not verified'
+  const agentMobile = agent.isMobileVerified ? agent.phone : 'Not verified'
+
+  const adminHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #2563eb;">Agent Contact Notification</h2>
+
+      <p>A user has contacted an agent about a project on Grihome.</p>
+
+      <h3 style="color: #1f2937;">Project</h3>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${projectName}</p>
+
+      <h3 style="color: #1f2937;">Agent Details</h3>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${agent.name}</p>
+      <p style="margin: 5px 0;"><strong>Email:</strong> ${agentEmail}</p>
+      <p style="margin: 5px 0;"><strong>Mobile:</strong> ${agentMobile}</p>
+
+      <h3 style="color: #1f2937;">User Details</h3>
+      <p style="margin: 5px 0;"><strong>Name:</strong> ${user.name}</p>
+      <p style="margin: 5px 0;"><strong>Email:</strong> ${userEmail}</p>
+      <p style="margin: 5px 0;"><strong>Mobile:</strong> ${userMobile}</p>
+
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+      <p style="color: #6b7280; font-size: 12px;">Automated notification from TheGrihome platform.</p>
+    </div>
+  `
+
+  // Always send to admin
+  const adminResult = await sendEmail({
+    to: ADMIN_EMAIL,
+    subject: `[Agent Contact] ${projectName} - ${user.name} contacted ${agent.name}`,
+    html: adminHtml,
+  })
+  results.adminEmailSent = adminResult.success
+
+  // Send WhatsApp notifications
+  const whatsAppResults = await sendAgentContactNotificationWhatsApp({
+    projectName,
+    agent: {
+      name: agent.name,
+      phone: agent.phone,
+      isMobileVerified: agent.isMobileVerified,
+    },
+    user: {
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
+      isEmailVerified: user.isEmailVerified,
+      isMobileVerified: user.isMobileVerified,
+    },
+  })
+  results.agentWhatsAppSent = whatsAppResults.agentWhatsAppSent
+  results.adminWhatsAppSent = whatsAppResults.adminWhatsAppSent
+
+  return results
 }

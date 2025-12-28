@@ -122,8 +122,21 @@ export default function PropertiesPage() {
   // Initialize from URL query parameters
   useEffect(() => {
     if (router.isReady) {
-      const { city, state, locality, location, propertyType, bedrooms, bathrooms, sortBy, type } =
-        router.query
+      const {
+        city,
+        state,
+        locality,
+        location,
+        propertyType,
+        bedrooms,
+        bathrooms,
+        sortBy,
+        type,
+        priceMin,
+        priceMax,
+        sizeMin,
+        sizeMax,
+      } = router.query
 
       // Build location string from city, state, locality or use location directly
       let locationString = ''
@@ -153,7 +166,17 @@ export default function PropertiesPage() {
         bedrooms: (bedrooms as string) || '',
         bathrooms: (bathrooms as string) || '',
         sortBy: (sortBy as string) || '',
+        priceMin: (priceMin as string) || '',
+        priceMax: (priceMax as string) || '',
+        sizeMin: (sizeMin as string) || '',
+        sizeMax: (sizeMax as string) || '',
       }))
+
+      // Also set temp values for price and size inputs
+      if (priceMin) setTempPriceMin(priceMin as string)
+      if (priceMax) setTempPriceMax(priceMax as string)
+      if (sizeMin) setTempSizeMin(sizeMin as string)
+      if (sizeMax) setTempSizeMax(sizeMax as string)
     }
   }, [router.isReady, router.query])
 
@@ -572,11 +595,6 @@ export default function PropertiesPage() {
       return
     }
 
-    if (!hasActiveFilters()) {
-      toast.error('Please apply at least one filter to save a search')
-      return
-    }
-
     setSavingSearch(true)
     try {
       // Build search query object from current filters
@@ -602,12 +620,13 @@ export default function PropertiesPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to save search')
+        toast.error(data.message || 'Failed to save search')
+        return
       }
 
       toast.success('Search saved!')
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to save search')
+    } catch {
+      toast.error('Failed to save search')
     } finally {
       setSavingSearch(false)
     }
@@ -1025,9 +1044,9 @@ export default function PropertiesPage() {
               {/* Save Search Button */}
               <button
                 onClick={handleSaveSearch}
-                disabled={savingSearch || !hasActiveFilters()}
+                disabled={savingSearch}
                 className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title={!hasActiveFilters() ? 'Apply filters to save a search' : 'Save this search'}
+                title="Save this search"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path

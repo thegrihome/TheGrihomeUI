@@ -460,3 +460,104 @@ export async function sendProjectInterestWhatsApp(params: {
     ],
   })
 }
+
+/**
+ * Send agent contact notification via WhatsApp
+ * Uses grihome_notification template (5 params)
+ * - body_1: Project name
+ * - body_2: Recipient name (agent name)
+ * - body_3: User name
+ * - body_4: User email
+ * - body_5: User mobile
+ */
+export async function sendAgentContactWhatsApp(params: {
+  agentPhone: string
+  projectName: string
+  agentName: string
+  userName: string
+  userEmail: string
+  userMobile: string
+}): Promise<WhatsAppResult> {
+  const { agentPhone, projectName, agentName, userName, userEmail, userMobile } = params
+
+  const formattedPhone = formatPhoneNumber(agentPhone)
+
+  return sendWhatsAppTemplate({
+    templateName: 'grihome_notification',
+    recipients: [
+      {
+        to: [formattedPhone],
+        components: {
+          body_1: { type: 'text', value: projectName },
+          body_2: { type: 'text', value: agentName },
+          body_3: { type: 'text', value: userName },
+          body_4: { type: 'text', value: userEmail },
+          body_5: { type: 'text', value: userMobile },
+        },
+      },
+    ],
+  })
+}
+
+/**
+ * Send agent contact notifications via WhatsApp (to agent and admin)
+ */
+export async function sendAgentContactNotificationWhatsApp(params: {
+  projectName: string
+  agent: {
+    name: string
+    phone: string
+    isMobileVerified: boolean
+  }
+  user: {
+    name: string
+    email: string
+    mobile: string
+    isEmailVerified: boolean
+    isMobileVerified: boolean
+  }
+}): Promise<{ agentWhatsAppSent: boolean; adminWhatsAppSent: boolean }> {
+  const { projectName, agent, user } = params
+
+  const results = {
+    agentWhatsAppSent: false,
+    adminWhatsAppSent: false,
+  }
+
+  // Prepare user info (only show verified details)
+  const userEmail = user.isEmailVerified ? user.email : 'Not verified'
+  const userMobile = user.isMobileVerified ? user.mobile : 'Not verified'
+
+  // Send to agent if mobile is verified
+  if (agent.isMobileVerified && agent.phone) {
+    const agentResult = await sendAgentContactWhatsApp({
+      agentPhone: agent.phone,
+      projectName,
+      agentName: agent.name,
+      userName: user.name,
+      userEmail,
+      userMobile,
+    })
+    results.agentWhatsAppSent = agentResult.success
+  }
+
+  // Always send to admin
+  const adminResult = await sendWhatsAppTemplate({
+    templateName: 'grihome_notification',
+    recipients: [
+      {
+        to: [ADMIN_PHONE],
+        components: {
+          body_1: { type: 'text', value: projectName },
+          body_2: { type: 'text', value: 'Grihome Admin' },
+          body_3: { type: 'text', value: `${user.name} contacted ${agent.name}` },
+          body_4: { type: 'text', value: userEmail },
+          body_5: { type: 'text', value: userMobile },
+        },
+      },
+    ],
+  })
+  results.adminWhatsAppSent = adminResult.success
+
+  return results
+}

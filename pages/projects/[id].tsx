@@ -176,6 +176,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
   const [isRegisteringAgent, setIsRegisteringAgent] = useState(false)
   const [isArchiving, setIsArchiving] = useState(false)
   const [reviewsData, setReviewsData] = useState<ReviewsResponse | null>(null)
+  const [contactingAgentId, setContactingAgentId] = useState<string | null>(null)
 
   const { data: session, status } = useSession()
   const isAuthenticated = status === 'authenticated'
@@ -404,6 +405,36 @@ export default function ProjectPage({ project }: ProjectPageProps) {
       toast.error('Error archiving project. Please try again.')
     } finally {
       setIsArchiving(false)
+    }
+  }
+
+  const handleContactAgent = async (agentId: string) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to contact agent')
+      router.push('/login')
+      return
+    }
+
+    setContactingAgentId(agentId)
+    try {
+      const response = await fetch(`/api/projects/${project.id}/contact-agent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ agentId }),
+      })
+
+      if (response.ok) {
+        toast.success('Contact request sent! The agent will reach out to you soon.')
+      } else {
+        const data = await response.json()
+        toast.error(data.message || 'Failed to send contact request')
+      }
+    } catch (error) {
+      toast.error('Error sending contact request. Please try again.')
+    } finally {
+      setContactingAgentId(null)
     }
   }
 
@@ -1138,141 +1169,144 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 Agents ({featuredAgents.length + regularAgents.length})
               </h3>
 
-              {/* Add as Agent Button */}
-              {isAuthenticated && session?.user && (session.user as any).role === 'AGENT' && (
-                <button
-                  onClick={() => router.push(`/projects/${project.id}/promote-agent`)}
-                  className="bg-blue-600 text-white px-2.5 py-1.5 rounded text-xs font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-1"
-                >
-                  <svg
-                    className="w-3 h-3"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
+              {/* Add as Agent Button - Only show if user is agent and NOT already registered */}
+              {isAuthenticated &&
+                session?.user &&
+                (session.user as any).role === 'AGENT' &&
+                !isRegisteredAgent && (
+                  <button
+                    onClick={() => router.push(`/projects/${project.id}/promote-agent`)}
+                    className="bg-blue-600 text-white px-2.5 py-1.5 rounded text-xs font-medium hover:bg-blue-700 transition-colors inline-flex items-center gap-1"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Add as Agent
-                </button>
-              )}
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Add as Agent
+                  </button>
+                )}
             </div>
 
             <div className="featured-items-container">
               {featuredAgents.map(agentData => (
-                <Link key={agentData.id} href={`/agents/${agentData.agent.id}/properties`}>
-                  <div className="featured-agent-card">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="agent-header flex-shrink-0">
-                        {agentData.agent.image ? (
-                          <Image
-                            src={agentData.agent.image}
-                            alt={agentData.agent.name || agentData.agent.username}
-                            width={40}
-                            height={40}
-                            className="agent-avatar"
-                          />
-                        ) : (
-                          <div className="agent-avatar flex items-center justify-center">
-                            <span className="text-gray-500 text-sm">
-                              {(agentData.agent.name || agentData.agent.username || '')
-                                .charAt(0)
-                                .toUpperCase()}
-                            </span>
-                          </div>
-                        )}
-                        <div className="agent-info">
-                          <div className="agent-name flex items-center gap-1">
-                            {agentData.agent.name || agentData.agent.username}
-                            <svg
-                              className="w-4 h-4 text-blue-500 flex-shrink-0"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                              xmlns="http://www.w3.org/2000/svg"
-                              aria-label="Verified Agent"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </div>
-                          <div className="agent-role">
-                            {agentData.agent.companyName || 'Real Estate Agent'}
-                          </div>
+                <div key={agentData.id} className="featured-agent-card">
+                  <div className="flex items-start justify-between gap-2">
+                    <Link
+                      href={`/agents/${agentData.agent.id}/properties`}
+                      className="agent-header flex-shrink-0"
+                    >
+                      {agentData.agent.image ? (
+                        <Image
+                          src={agentData.agent.image}
+                          alt={agentData.agent.name || agentData.agent.username}
+                          width={40}
+                          height={40}
+                          className="agent-avatar"
+                        />
+                      ) : (
+                        <div className="agent-avatar flex items-center justify-center">
+                          <span className="text-gray-500 text-sm">
+                            {(agentData.agent.name || agentData.agent.username || '')
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="agent-info">
+                        <div className="agent-name flex items-center gap-1">
+                          {agentData.agent.name || agentData.agent.username}
+                          <svg
+                            className="w-4 h-4 text-blue-500 flex-shrink-0"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-label="Verified Agent"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <div className="agent-role">
+                          {agentData.agent.companyName || 'Real Estate Agent'}
                         </div>
                       </div>
-                      <div className="agent-contact-info text-right text-xs flex-shrink-0">
-                        {agentData.agent.emailVerified && agentData.agent.email && (
-                          <div className="text-gray-600 mb-1">{agentData.agent.email}</div>
-                        )}
-                        {agentData.agent.mobileVerified && agentData.agent.phone && (
-                          <div className="text-gray-600">{agentData.agent.phone}</div>
-                        )}
-                      </div>
-                    </div>
+                    </Link>
+                    <button
+                      onClick={() => handleContactAgent(agentData.agent.id)}
+                      className="contact-agent-button"
+                      disabled={contactingAgentId === agentData.agent.id}
+                    >
+                      {contactingAgentId === agentData.agent.id ? 'Sending...' : 'Contact Agent'}
+                    </button>
                   </div>
-                </Link>
+                </div>
               ))}
               {regularAgents.map(agentData => (
-                <Link key={agentData.id} href={`/agents/${agentData.agent.id}/properties`}>
-                  <div className="featured-agent-card">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="agent-header flex-shrink-0">
-                        {agentData.agent.image ? (
-                          <Image
-                            src={agentData.agent.image}
-                            alt={agentData.agent.name || agentData.agent.username}
-                            width={40}
-                            height={40}
-                            className="agent-avatar"
-                          />
-                        ) : (
-                          <div className="agent-avatar flex items-center justify-center">
-                            <span className="text-gray-500 text-sm">
-                              {(agentData.agent.name || agentData.agent.username || '')
-                                .charAt(0)
-                                .toUpperCase()}
-                            </span>
-                          </div>
-                        )}
-                        <div className="agent-info">
-                          <div className="agent-name flex items-center gap-1">
-                            {agentData.agent.name || agentData.agent.username}
-                            <svg
-                              className="w-4 h-4 text-blue-500 flex-shrink-0"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                              xmlns="http://www.w3.org/2000/svg"
-                              aria-label="Verified Agent"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </div>
-                          <div className="agent-role">
-                            {agentData.agent.companyName || 'Real Estate Agent'}
-                          </div>
+                <div key={agentData.id} className="featured-agent-card">
+                  <div className="flex items-start justify-between gap-2">
+                    <Link
+                      href={`/agents/${agentData.agent.id}/properties`}
+                      className="agent-header flex-shrink-0"
+                    >
+                      {agentData.agent.image ? (
+                        <Image
+                          src={agentData.agent.image}
+                          alt={agentData.agent.name || agentData.agent.username}
+                          width={40}
+                          height={40}
+                          className="agent-avatar"
+                        />
+                      ) : (
+                        <div className="agent-avatar flex items-center justify-center">
+                          <span className="text-gray-500 text-sm">
+                            {(agentData.agent.name || agentData.agent.username || '')
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="agent-info">
+                        <div className="agent-name flex items-center gap-1">
+                          {agentData.agent.name || agentData.agent.username}
+                          <svg
+                            className="w-4 h-4 text-blue-500 flex-shrink-0"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-label="Verified Agent"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <div className="agent-role">
+                          {agentData.agent.companyName || 'Real Estate Agent'}
                         </div>
                       </div>
-                      <div className="agent-contact-info text-right text-xs flex-shrink-0">
-                        {agentData.agent.emailVerified && agentData.agent.email && (
-                          <div className="text-gray-600 mb-1">{agentData.agent.email}</div>
-                        )}
-                        {agentData.agent.mobileVerified && agentData.agent.phone && (
-                          <div className="text-gray-600">{agentData.agent.phone}</div>
-                        )}
-                      </div>
-                    </div>
+                    </Link>
+                    <button
+                      onClick={() => handleContactAgent(agentData.agent.id)}
+                      className="contact-agent-button"
+                      disabled={contactingAgentId === agentData.agent.id}
+                    >
+                      {contactingAgentId === agentData.agent.id ? 'Sending...' : 'Contact Agent'}
+                    </button>
                   </div>
-                </Link>
+                </div>
               ))}
               {featuredAgents.length === 0 && regularAgents.length === 0 && (
                 <p className="text-sm text-gray-500 text-center py-4">

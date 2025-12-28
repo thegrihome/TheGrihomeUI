@@ -49,7 +49,16 @@ function generateSearchName(filters: Record<string, unknown>): string {
     }
   }
 
-  return parts.length > 0 ? parts.join(' ') : 'Property Search'
+  // Size
+  if (filters.sizeMin && filters.sizeMax) {
+    parts.push(`${filters.sizeMin}-${filters.sizeMax} sqft`)
+  } else if (filters.sizeMin) {
+    parts.push(`${filters.sizeMin}+ sqft`)
+  } else if (filters.sizeMax) {
+    parts.push(`under ${filters.sizeMax} sqft`)
+  }
+
+  return parts.length > 0 ? parts.join(' ') : 'All Properties'
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -90,9 +99,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const { searchQuery, name } = req.body
 
-      if (!searchQuery || typeof searchQuery !== 'object') {
+      // Validate searchQuery is an object (can be empty for "all properties" search)
+      if (searchQuery === undefined || searchQuery === null || typeof searchQuery !== 'object') {
         return res.status(400).json({ message: 'Search query is required' })
       }
+
+      // Empty searchQuery is allowed - means "All Properties"
 
       // Auto-generate name if not provided
       const searchName = name || generateSearchName(searchQuery)
@@ -108,7 +120,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
 
       if (existingSearch) {
-        return res.status(400).json({ message: 'You already have this search saved' })
+        return res.status(400).json({
+          message: `Search with same parameters already exists: "${existingSearch.name}"`,
+        })
       }
 
       const savedSearch = await prisma.savedSearch.create({
