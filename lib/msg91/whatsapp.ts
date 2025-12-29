@@ -256,7 +256,8 @@ export async function sendProjectTransactionWhatsApp(params: {
 }
 
 /**
- * Send interest notification via WhatsApp (to seller and admin)
+ * Send interest notification via WhatsApp (to seller only)
+ * Note: Admin receives email only to avoid WhatsApp rate limiting
  */
 export async function sendInterestNotificationWhatsApp(params: {
   propertyName: string
@@ -273,12 +274,11 @@ export async function sendInterestNotificationWhatsApp(params: {
     isEmailVerified: boolean
     isMobileVerified: boolean
   }
-}): Promise<{ sellerWhatsAppSent: boolean; adminWhatsAppSent: boolean }> {
+}): Promise<{ sellerWhatsAppSent: boolean }> {
   const { propertyName, seller, buyer } = params
 
   const results = {
     sellerWhatsAppSent: false,
-    adminWhatsAppSent: false,
   }
 
   // Prepare buyer info (only show verified details)
@@ -298,27 +298,14 @@ export async function sendInterestNotificationWhatsApp(params: {
     results.sellerWhatsAppSent = sellerResult.success
   }
 
-  // Prepare seller info for admin
-  const sellerEmail = seller.email || 'N/A'
-  const sellerMobile = seller.isMobileVerified ? seller.mobile : 'Not verified'
-
-  // Always send to admin
-  const adminResult = await sendAdminNotificationWhatsApp({
-    propertyName,
-    sellerName: seller.name,
-    sellerEmail,
-    sellerMobile,
-    buyerName: buyer.name,
-    buyerEmail,
-    buyerMobile,
-  })
-  results.adminWhatsAppSent = adminResult.success
+  // Admin receives email only (no WhatsApp to avoid rate limiting)
 
   return results
 }
 
 /**
- * Send project transaction notification via WhatsApp (to user and admin)
+ * Send project transaction notification via WhatsApp (to user only)
+ * Note: Admin receives email only to avoid WhatsApp rate limiting
  */
 export async function sendProjectTransactionNotificationWhatsApp(params: {
   projectName: string
@@ -334,12 +321,11 @@ export async function sendProjectTransactionNotificationWhatsApp(params: {
     duration: string
     amount: string
   }
-}): Promise<{ userWhatsAppSent: boolean; adminWhatsAppSent: boolean }> {
+}): Promise<{ userWhatsAppSent: boolean }> {
   const { projectName, user, transaction } = params
 
   const results = {
     userWhatsAppSent: false,
-    adminWhatsAppSent: false,
   }
 
   // Prepare user info (only show verified details)
@@ -361,18 +347,7 @@ export async function sendProjectTransactionNotificationWhatsApp(params: {
     results.userWhatsAppSent = userResult.success
   }
 
-  // Always send to admin
-  const adminResult = await sendProjectTransactionWhatsApp({
-    recipientPhone: ADMIN_PHONE,
-    projectName,
-    customerName: user.name,
-    customerEmail: userEmail,
-    customerMobile: userMobile,
-    transactionType: transaction.type,
-    duration: transaction.duration,
-    amount: transaction.amount,
-  })
-  results.adminWhatsAppSent = adminResult.success
+  // Admin receives email only (no WhatsApp to avoid rate limiting)
 
   return results
 }
@@ -500,7 +475,8 @@ export async function sendAgentContactWhatsApp(params: {
 }
 
 /**
- * Send agent contact notifications via WhatsApp (to agent and admin)
+ * Send agent contact notifications via WhatsApp (to agent only)
+ * Note: Admin receives email only to avoid WhatsApp rate limiting
  */
 export async function sendAgentContactNotificationWhatsApp(params: {
   projectName: string
@@ -516,12 +492,11 @@ export async function sendAgentContactNotificationWhatsApp(params: {
     isEmailVerified: boolean
     isMobileVerified: boolean
   }
-}): Promise<{ agentWhatsAppSent: boolean; adminWhatsAppSent: boolean }> {
+}): Promise<{ agentWhatsAppSent: boolean }> {
   const { projectName, agent, user } = params
 
   const results = {
     agentWhatsAppSent: false,
-    adminWhatsAppSent: false,
   }
 
   // Prepare user info (only show verified details)
@@ -541,23 +516,7 @@ export async function sendAgentContactNotificationWhatsApp(params: {
     results.agentWhatsAppSent = agentResult.success
   }
 
-  // Always send to admin
-  const adminResult = await sendWhatsAppTemplate({
-    templateName: 'grihome_notification',
-    recipients: [
-      {
-        to: [ADMIN_PHONE],
-        components: {
-          body_1: { type: 'text', value: projectName },
-          body_2: { type: 'text', value: 'Grihome Admin' },
-          body_3: { type: 'text', value: `${user.name} contacted ${agent.name}` },
-          body_4: { type: 'text', value: userEmail },
-          body_5: { type: 'text', value: userMobile },
-        },
-      },
-    ],
-  })
-  results.adminWhatsAppSent = adminResult.success
+  // Admin receives email only (no WhatsApp to avoid rate limiting)
 
   return results
 }

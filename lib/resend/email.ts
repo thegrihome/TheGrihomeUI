@@ -118,7 +118,6 @@ export async function sendInterestNotification(params: {
   sellerEmailSent: boolean
   adminEmailSent: boolean
   sellerWhatsAppSent: boolean
-  adminWhatsAppSent: boolean
 }> {
   const { propertyName, seller, buyer } = params
 
@@ -126,7 +125,6 @@ export async function sendInterestNotification(params: {
     sellerEmailSent: false,
     adminEmailSent: false,
     sellerWhatsAppSent: false,
-    adminWhatsAppSent: false,
   }
 
   // Prepare buyer info (only show verified details)
@@ -200,7 +198,7 @@ export async function sendInterestNotification(params: {
   })
   results.adminEmailSent = adminResult.success
 
-  // Send WhatsApp notifications
+  // Send WhatsApp to seller only (admin receives email only to avoid rate limiting)
   const whatsAppResults = await sendInterestNotificationWhatsApp({
     propertyName,
     seller: {
@@ -218,13 +216,13 @@ export async function sendInterestNotification(params: {
     },
   })
   results.sellerWhatsAppSent = whatsAppResults.sellerWhatsAppSent
-  results.adminWhatsAppSent = whatsAppResults.adminWhatsAppSent
 
   return results
 }
 
 /**
  * Send project transaction notification emails (agent registration, property promotion)
+ * Note: Admin receives email only (no WhatsApp to avoid rate limiting)
  */
 export async function sendProjectTransactionNotification(params: {
   projectName: string
@@ -244,7 +242,6 @@ export async function sendProjectTransactionNotification(params: {
   userEmailSent: boolean
   adminEmailSent: boolean
   userWhatsAppSent: boolean
-  adminWhatsAppSent: boolean
 }> {
   const { projectName, user, transaction } = params
 
@@ -252,7 +249,6 @@ export async function sendProjectTransactionNotification(params: {
     userEmailSent: false,
     adminEmailSent: false,
     userWhatsAppSent: false,
-    adminWhatsAppSent: false,
   }
 
   const userEmail = user.isEmailVerified ? user.email : 'Not verified'
@@ -317,7 +313,7 @@ export async function sendProjectTransactionNotification(params: {
   })
   results.adminEmailSent = adminResult.success
 
-  // Send WhatsApp notifications
+  // Send WhatsApp to user only (admin receives email only to avoid rate limiting)
   const whatsAppResults = await sendProjectTransactionNotificationWhatsApp({
     projectName,
     user: {
@@ -330,7 +326,6 @@ export async function sendProjectTransactionNotification(params: {
     transaction,
   })
   results.userWhatsAppSent = whatsAppResults.userWhatsAppSent
-  results.adminWhatsAppSent = whatsAppResults.adminWhatsAppSent
 
   return results
 }
@@ -526,7 +521,8 @@ export async function sendProjectInterestNotification(params: {
 }
 
 /**
- * Send agent contact notifications via email and WhatsApp (to agent and admin)
+ * Send agent contact notifications via email and WhatsApp
+ * Note: Admin receives email only (no WhatsApp to avoid rate limiting)
  */
 export async function sendAgentContactNotification(params: {
   projectName: string
@@ -548,7 +544,6 @@ export async function sendAgentContactNotification(params: {
   agentEmailSent: boolean
   adminEmailSent: boolean
   agentWhatsAppSent: boolean
-  adminWhatsAppSent: boolean
 }> {
   const { projectName, agent, user } = params
 
@@ -556,7 +551,6 @@ export async function sendAgentContactNotification(params: {
     agentEmailSent: false,
     adminEmailSent: false,
     agentWhatsAppSent: false,
-    adminWhatsAppSent: false,
   }
 
   // Prepare user info (only show verified details)
@@ -630,7 +624,7 @@ export async function sendAgentContactNotification(params: {
   })
   results.adminEmailSent = adminResult.success
 
-  // Send WhatsApp notifications
+  // Send WhatsApp to agent only (admin receives email only to avoid rate limiting)
   const whatsAppResults = await sendAgentContactNotificationWhatsApp({
     projectName,
     agent: {
@@ -647,7 +641,6 @@ export async function sendAgentContactNotification(params: {
     },
   })
   results.agentWhatsAppSent = whatsAppResults.agentWhatsAppSent
-  results.adminWhatsAppSent = whatsAppResults.adminWhatsAppSent
 
   return results
 }

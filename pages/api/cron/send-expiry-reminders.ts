@@ -5,7 +5,6 @@ import { sendExpiryReminderWhatsApp } from '@/lib/msg91/whatsapp'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const ADMIN_EMAIL = 'thegrihome@gmail.com'
-const ADMIN_PHONE = '919704786931'
 const FROM_EMAIL = 'TheGrihome <no-reply@grihome.com>'
 
 interface ExpiringAgent {
@@ -324,7 +323,7 @@ async function sendAgentExpiryReminder(
     html: adminBody,
   })
 
-  // Send WhatsApp reminder to user if phone is verified
+  // Send WhatsApp reminder to user if phone is verified (admin receives email only)
   if (user.mobileVerified && user.phone) {
     const whatsAppResult = await sendExpiryReminderWhatsApp({
       recipientPhone: user.phone,
@@ -339,17 +338,7 @@ async function sendAgentExpiryReminder(
     result.whatsAppSent = whatsAppResult.success
   }
 
-  // Send WhatsApp to admin
-  await sendExpiryReminderWhatsApp({
-    recipientPhone: ADMIN_PHONE,
-    projectName: project.name,
-    customerName: user.name || 'Agent',
-    customerEmail: user.emailVerified ? user.email : 'Not verified',
-    customerMobile: user.mobileVerified && user.phone ? user.phone : 'Not verified',
-    expiryType: 'Agent Registration',
-    daysRemaining,
-    expiryDate,
-  })
+  // Admin receives email only (no WhatsApp to avoid rate limiting)
 
   return result
 }
@@ -420,7 +409,7 @@ async function sendPropertyExpiryReminder(
     html: adminBody,
   })
 
-  // Send WhatsApp reminder to user if phone is verified
+  // Send WhatsApp reminder to user if phone is verified (admin receives email only)
   if (user.mobileVerified && user.phone) {
     const whatsAppResult = await sendExpiryReminderWhatsApp({
       recipientPhone: user.phone,
@@ -435,17 +424,7 @@ async function sendPropertyExpiryReminder(
     result.whatsAppSent = whatsAppResult.success
   }
 
-  // Send WhatsApp to admin
-  await sendExpiryReminderWhatsApp({
-    recipientPhone: ADMIN_PHONE,
-    projectName: project.name,
-    customerName: user.name || 'Property Owner',
-    customerEmail: user.emailVerified ? user.email : 'Not verified',
-    customerMobile: user.mobileVerified && user.phone ? user.phone : 'Not verified',
-    expiryType: 'Property Promotion',
-    daysRemaining,
-    expiryDate,
-  })
+  // Admin receives email only (no WhatsApp to avoid rate limiting)
 
   return result
 }

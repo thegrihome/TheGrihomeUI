@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]'
 import { PrismaClient } from '@prisma/client'
 import { sendInterestNotification, sendProjectInterestNotification } from '@/lib/resend/email'
-import { sendProjectInterestWhatsApp } from '@/lib/msg91/whatsapp'
 
 const prisma = new PrismaClient()
 
@@ -172,13 +171,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Send notifications for project interest (to admin only)
+    // Send notifications for project interest (to admin only - email only, no WhatsApp)
     if (projectId && projectOrPropertyName) {
       try {
-        const userEmail = user.emailVerified ? user.email : 'Not verified'
-        const userMobile = user.mobileVerified && user.phone ? user.phone : 'Not verified'
-
-        // Send email to admin via Resend
+        // Send email to admin via Resend (no WhatsApp to avoid rate limiting)
         await sendProjectInterestNotification({
           projectName: projectOrPropertyName,
           user: {
@@ -188,14 +184,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             isEmailVerified: user.emailVerified !== null,
             isMobileVerified: user.mobileVerified !== null,
           },
-        })
-
-        // Send WhatsApp to admin via MSG91
-        await sendProjectInterestWhatsApp({
-          projectName: projectOrPropertyName,
-          userName: user.name || user.username || 'Interested User',
-          userEmail,
-          userMobile,
         })
       } catch {
         // Don't fail the request if notifications fail, just continue
