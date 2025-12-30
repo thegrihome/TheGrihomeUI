@@ -1,7 +1,12 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { upload } from '@vercel/blob/client'
+
+// Generate a short unique ID
+const generateShortId = () => {
+  return Math.random().toString(36).substring(2, 10)
+}
 
 export interface UploadedImage {
   url: string
@@ -30,11 +35,19 @@ export default function ImageUploaderDirect({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
-  // Normalize property title for path
-  const normalizedPropertyTitle = propertyTitle
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
+  // Generate a stable unique folder ID for this upload session
+  const folderId = useMemo(() => generateShortId(), [])
+
+  // Normalize property title for path and add unique ID to avoid collisions
+  const normalizedPropertyTitle = useMemo(() => {
+    const normalized = propertyTitle
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-') // Replace multiple dashes with single dash
+      .replace(/^-|-$/g, '') // Remove leading/trailing dashes
+    return `${normalized || 'property'}-${folderId}`
+  }, [propertyTitle, folderId])
 
   const handleFileSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return
