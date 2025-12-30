@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import Image from 'next/image'
 import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SimpleRichTextEditor from '@/components/common/SimpleRichTextEditor'
+import ImageUploaderDirect, { UploadedImage } from '@/components/properties/ImageUploaderDirect'
 import toast from 'react-hot-toast'
 import {
   PROPERTY_TYPE_OPTIONS,
@@ -31,8 +31,7 @@ export default function AddProperty() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [images, setImages] = useState<File[]>([])
-  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [images, setImages] = useState<UploadedImage[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [projectSearch, setProjectSearch] = useState('')
   const [showProjectDropdown, setShowProjectDropdown] = useState(false)
@@ -297,37 +296,6 @@ export default function AddProperty() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-
-    if (images.length + files.length > 20) {
-      toast.error('Maximum 20 images allowed')
-      return
-    }
-
-    const totalSize = [...images, ...files].reduce((sum, file) => sum + file.size, 0)
-    if (totalSize > 10 * 1024 * 1024) {
-      toast.error('Total image size must not exceed 10MB')
-      return
-    }
-
-    setImages(prev => [...prev, ...files])
-
-    // Generate previews
-    files.forEach(file => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result as string])
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-
-  const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index))
-    setImagePreviews(prev => prev.filter((_, i) => i !== index))
-  }
-
   const handleVideoUrlChange = (index: number, value: string) => {
     const newUrls = [...walkthroughVideoUrls]
     newUrls[index] = value
@@ -346,12 +314,11 @@ export default function AddProperty() {
     }
   }
 
+  // Check if any images are still uploading
+  const isAnyImageUploading = images.some(img => img.uploading)
+
   const handleSubmit = async (e: React.FormEvent) => {
-    // eslint-disable-next-line no-console
-    console.log('handleSubmit function called!')
     e.preventDefault()
-    // eslint-disable-next-line no-console
-    console.log('Form submitted', { formData, images })
 
     // Validate location
     if (!formData.location.address) {
@@ -359,52 +326,17 @@ export default function AddProperty() {
       return
     }
 
+    // Check for pending uploads
+    if (isAnyImageUploading) {
+      toast.error('Please wait for all images to finish uploading')
+      return
+    }
+
     setLoading(true)
 
     try {
-      // Upload images via API
-      const imageUrls: string[] = []
-      if (images.length > 0) {
-        // eslint-disable-next-line no-console
-        console.log('Uploading images...', images.length)
-        toast.loading('Uploading images...', { id: 'upload' })
-
-        // Convert images to base64
-        const imageDataArray = await Promise.all(
-          images.map(
-            image =>
-              new Promise<{ name: string; type: string; data: string }>((resolve, reject) => {
-                const reader = new FileReader()
-                reader.onloadend = () => {
-                  resolve({
-                    name: image.name,
-                    type: image.type,
-                    data: reader.result as string,
-                  })
-                }
-                reader.onerror = reject
-                reader.readAsDataURL(image)
-              })
-          )
-        )
-
-        const uploadResponse = await fetch('/api/upload-images', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ images: imageDataArray }),
-        })
-
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload images')
-        }
-
-        const { imageUrls: uploadedUrls } = await uploadResponse.json()
-        imageUrls.push(...uploadedUrls)
-
-        toast.dismiss('upload')
-        // eslint-disable-next-line no-console
-        console.log('All images uploaded successfully', imageUrls)
-      }
+      // Extract URLs from uploaded images
+      const imageUrls = images.filter(img => img.url).map(img => img.url)
 
       // Create property
       toast.loading('Creating property...', { id: 'create' })
@@ -429,7 +361,6 @@ export default function AddProperty() {
       toast.success('Property added successfully!')
       router.push('/properties/my-properties')
     } catch (error) {
-      toast.dismiss('upload')
       toast.dismiss('create')
       toast.error(error instanceof Error ? error.message : 'Failed to add property')
     } finally {
@@ -973,70 +904,18 @@ export default function AddProperty() {
 
             {/* Images */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Images (Max 20, Total 10MB)
-                </label>
-                {images.length > 0 && (
-                  <span className="text-sm text-gray-600">
-                    {images.length} image{images.length !== 1 ? 's' : ''} •{' '}
-                    {(images.reduce((sum, img) => sum + img.size, 0) / (1024 * 1024)).toFixed(2)} MB
-                  </span>
-                )}
-              </div>
-              <input
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageSelect}
-                className="hidden"
-              />
-              <label
-                htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors"
-              >
-                <div className="flex flex-col items-center justify-center">
-                  <svg
-                    className="w-10 h-10 mb-2 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
-                  </svg>
-                  <p className="text-gray-600">
-                    <span className="text-blue-600 font-medium">Click here</span> to upload images
-                  </p>
-                </div>
-              </label>
-              {imagePreviews.length > 0 && (
-                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative">
-                      <Image
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                        width={200}
-                        height={150}
-                        className="w-full h-32 object-cover rounded"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
+              {!formData.title.trim() && (
+                <p className="text-amber-600 text-sm mb-4">
+                  Please enter a property title before uploading images
+                </p>
               )}
+              <ImageUploaderDirect
+                images={images}
+                onChange={setImages}
+                propertyTitle={formData.title || 'temp-property'}
+                maxImages={20}
+                label="Images (Max 20, 10MB each)"
+              />
             </div>
 
             {/* Walkthrough Video Links */}
@@ -1117,14 +996,14 @@ export default function AddProperty() {
               </button>
               <button
                 type="submit"
-                disabled={loading || !isVerified}
-                onClick={() => {
-                  // eslint-disable-next-line no-console
-                  console.log('Submit button clicked!')
-                }}
+                disabled={loading || !isVerified || isAnyImageUploading}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Adding Property...' : 'Add Property'}
+                {isAnyImageUploading
+                  ? 'Uploading Images...'
+                  : loading
+                    ? 'Adding Property...'
+                    : 'Add Property'}
               </button>
             </div>
           </form>
