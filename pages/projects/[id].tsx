@@ -10,6 +10,7 @@ import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ImageLightbox from '@/components/projects/ImageLightbox'
 import { prisma } from '@/lib/cockroachDB/prisma'
 
 // Helper function to convert Google Maps URL to embeddable format
@@ -177,6 +178,19 @@ export default function ProjectPage({ project }: ProjectPageProps) {
   const [isArchiving, setIsArchiving] = useState(false)
   const [reviewsData, setReviewsData] = useState<ReviewsResponse | null>(null)
   const [contactingAgentId, setContactingAgentId] = useState<string | null>(null)
+
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxImages, setLightboxImages] = useState<string[]>([])
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+  const [lightboxTitle, setLightboxTitle] = useState('')
+
+  const openLightbox = (images: string[], index: number, title: string) => {
+    setLightboxImages(images)
+    setLightboxIndex(index)
+    setLightboxTitle(title)
+    setLightboxOpen(true)
+  }
 
   const { data: session, status } = useSession()
   const isAuthenticated = status === 'authenticated'
@@ -703,7 +717,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
           {/* Banner Image */}
           {project.bannerImageUrl && (
-            <div className="project-banner project-area-banner">
+            <div
+              className="project-banner project-area-banner clickable-image"
+              onClick={() => openLightbox([project.bannerImageUrl!], 0, 'Banner')}
+            >
               <Image
                 src={project.bannerImageUrl}
                 alt={project.name}
@@ -799,7 +816,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 {project.floorplanImageUrls.map((url: string, index: number) => (
                   <div
                     key={index}
-                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                    className="border rounded-lg overflow-hidden shadow-sm clickable-image"
+                    onClick={() => openLightbox(project.floorplanImageUrls, index, 'Floor Plans')}
                   >
                     <Image
                       src={url}
@@ -822,7 +840,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 {project.clubhouseImageUrls.map((url: string, index: number) => (
                   <div
                     key={index}
-                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                    className="border rounded-lg overflow-hidden shadow-sm clickable-image"
+                    onClick={() => openLightbox(project.clubhouseImageUrls, index, 'Clubhouse')}
                   >
                     <Image
                       src={url}
@@ -845,7 +864,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 {project.galleryImageUrls.map((url: string, index: number) => (
                   <div
                     key={index}
-                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                    className="border rounded-lg overflow-hidden shadow-sm clickable-image"
+                    onClick={() => openLightbox(project.galleryImageUrls, index, 'Gallery')}
                   >
                     <Image
                       src={url}
@@ -868,7 +888,8 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 {project.siteLayoutImageUrls.map((url: string, index: number) => (
                   <div
                     key={index}
-                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                    className="border rounded-lg overflow-hidden shadow-sm clickable-image"
+                    onClick={() => openLightbox(project.siteLayoutImageUrls, index, 'Site Layout')}
                   >
                     <Image
                       src={url}
@@ -960,7 +981,17 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 <h2 className="project-section-title">Floor Plans</h2>
                 <div className="images-grid">
                   {details.floorPlans.map((floorPlan: any, index: number) => (
-                    <div key={index} className="image-item">
+                    <div
+                      key={index}
+                      className="image-item clickable-image"
+                      onClick={() =>
+                        openLightbox(
+                          details.floorPlans.map((fp: any) => fp.image),
+                          index,
+                          'Floor Plans'
+                        )
+                      }
+                    >
                       <Image
                         src={floorPlan.image}
                         alt={floorPlan.name}
@@ -993,7 +1024,17 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               {details.clubhouse?.images && details.clubhouse.images.length > 0 && (
                 <div className="clubhouse-images-grid">
                   {details.clubhouse.images.map((img: any, index: number) => (
-                    <div key={index} className="clubhouse-image-card">
+                    <div
+                      key={index}
+                      className="clubhouse-image-card clickable-image"
+                      onClick={() =>
+                        openLightbox(
+                          details.clubhouse.images.map((i: any) => i.url),
+                          index,
+                          'Clubhouse'
+                        )
+                      }
+                    >
                       <Image
                         src={img.url}
                         alt={img.name}
@@ -1018,7 +1059,17 @@ export default function ProjectPage({ project }: ProjectPageProps) {
               <h2 className="project-section-title">Gallery</h2>
               <div className="images-grid">
                 {details.gallery.map((img: any, index: number) => (
-                  <div key={index} className="image-item">
+                  <div
+                    key={index}
+                    className="image-item clickable-image"
+                    onClick={() =>
+                      openLightbox(
+                        details.gallery.map((g: any) => g.image),
+                        index,
+                        'Gallery'
+                      )
+                    }
+                  >
                     <Image
                       src={img.image}
                       alt={img.name}
@@ -1400,6 +1451,15 @@ export default function ProjectPage({ project }: ProjectPageProps) {
           </div>
         </div>
       </main>
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        images={lightboxImages}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        title={lightboxTitle}
+      />
 
       <Footer />
     </div>
