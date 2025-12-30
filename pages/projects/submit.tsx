@@ -10,9 +10,16 @@ import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BuilderSelector from '@/components/projects/BuilderSelector'
-import ImageUploader from '@/components/projects/ImageUploader'
+import ImageUploaderDirect from '@/components/projects/ImageUploaderDirect'
 import SimpleRichTextEditor from '@/components/common/SimpleRichTextEditor'
 import toast from 'react-hot-toast'
+
+interface UploadedImage {
+  url: string
+  uploading?: boolean
+  error?: boolean
+  localPreview?: string
+}
 
 export default function SubmitProject() {
   const router = useRouter()
@@ -25,7 +32,6 @@ export default function SubmitProject() {
   const [propertyType, setPropertyType] = useState('')
   const [builderId, setBuilderId] = useState<string | null>(null)
   const [brochureUrl, setBrochureUrl] = useState('')
-  const [brochurePdf, setBrochurePdf] = useState<string | null>(null)
   const [locationAddress, setLocationAddress] = useState('')
   const [googleMapsUrl, setGoogleMapsUrl] = useState('')
   const [highlightsText, setHighlightsText] = useState('')
@@ -35,12 +41,12 @@ export default function SubmitProject() {
   // Dropdown state
   const [showPropertyTypeDropdown, setShowPropertyTypeDropdown] = useState(false)
 
-  // Image state
-  const [bannerImage, setBannerImage] = useState<string[]>([])
-  const [floorplanImages, setFloorplanImages] = useState<string[]>([])
-  const [clubhouseImages, setClubhouseImages] = useState<string[]>([])
-  const [galleryImages, setGalleryImages] = useState<string[]>([])
-  const [siteLayoutImages, setSiteLayoutImages] = useState<string[]>([])
+  // Image state - now stores URLs from direct blob uploads
+  const [bannerImage, setBannerImage] = useState<UploadedImage[]>([])
+  const [floorplanImages, setFloorplanImages] = useState<UploadedImage[]>([])
+  const [clubhouseImages, setClubhouseImages] = useState<UploadedImage[]>([])
+  const [galleryImages, setGalleryImages] = useState<UploadedImage[]>([])
+  const [siteLayoutImages, setSiteLayoutImages] = useState<UploadedImage[]>([])
 
   // Google Maps autocomplete refs
   const locationInputRef = useRef<HTMLInputElement>(null)
@@ -153,27 +159,6 @@ export default function SubmitProject() {
     return null
   }
 
-  const handleBrochurePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (file.type !== 'application/pdf') {
-      toast.error('Please upload a PDF file')
-      return
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('PDF file size must not exceed 10MB')
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setBrochurePdf(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-  }
-
   const handleVideoUrlChange = (index: number, value: string) => {
     const newUrls = [...walkthroughVideoUrls]
     newUrls[index] = value
@@ -191,6 +176,14 @@ export default function SubmitProject() {
       setWalkthroughVideoUrls([''])
     }
   }
+
+  // Check if any images are still uploading
+  const isAnyImageUploading =
+    bannerImage.some(img => img.uploading) ||
+    floorplanImages.some(img => img.uploading) ||
+    clubhouseImages.some(img => img.uploading) ||
+    galleryImages.some(img => img.uploading) ||
+    siteLayoutImages.some(img => img.uploading)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -213,6 +206,12 @@ export default function SubmitProject() {
       return
     }
 
+    // Check for pending uploads
+    if (isAnyImageUploading) {
+      toast.error('Please wait for all uploads to complete')
+      return
+    }
+
     setIsSubmitting(true)
 
     // Parse comma-separated text into arrays
@@ -224,6 +223,13 @@ export default function SubmitProject() {
       .split(',')
       .map(s => s.trim())
       .filter(Boolean)
+
+    // Extract URLs from uploaded images
+    const bannerUrl = bannerImage[0]?.url || null
+    const floorplanUrls = floorplanImages.filter(img => img.url).map(img => img.url)
+    const clubhouseUrls = clubhouseImages.filter(img => img.url).map(img => img.url)
+    const galleryUrls = galleryImages.filter(img => img.url).map(img => img.url)
+    const siteLayoutUrls = siteLayoutImages.filter(img => img.url).map(img => img.url)
 
     try {
       const response = await fetch('/api/projects/create', {
@@ -237,16 +243,15 @@ export default function SubmitProject() {
           propertyType: propertyType || null,
           builderId,
           brochureUrl: brochureUrl.trim() || null,
-          brochurePdfBase64: brochurePdf || null,
           locationAddress: locationAddress.trim(),
           googleMapsUrl: googleMapsUrl.trim() || null,
-          bannerImageBase64: bannerImage[0] || null,
+          bannerImageUrl: bannerUrl,
           highlights: highlightsArray.length > 0 ? highlightsArray : null,
           amenities: amenitiesArray.length > 0 ? amenitiesArray : null,
-          floorplanImagesBase64: floorplanImages,
-          clubhouseImagesBase64: clubhouseImages,
-          galleryImagesBase64: galleryImages,
-          siteLayoutImagesBase64: siteLayoutImages,
+          floorplanImageUrls: floorplanUrls,
+          clubhouseImageUrls: clubhouseUrls,
+          galleryImageUrls: galleryUrls,
+          siteLayoutImageUrls: siteLayoutUrls,
           walkthroughVideoUrls: walkthroughVideoUrls.filter(url => url.trim() !== ''),
         }),
       })
@@ -425,65 +430,17 @@ export default function SubmitProject() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Brochure Link or PDF Upload
+                  Brochure Link
                 </label>
                 <input
                   type="url"
                   value={brochureUrl}
                   onChange={e => setBrochureUrl(e.target.value)}
                   placeholder="https://example.com/brochure.pdf"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                  disabled={!!brochurePdf}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <div className="text-center text-gray-500 text-sm my-2">OR</div>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  <label className="cursor-pointer block text-center">
-                    {brochurePdf ? (
-                      <div className="space-y-2">
-                        <div className="text-green-600">✓ PDF Uploaded</div>
-                        <button
-                          type="button"
-                          onClick={() => setBrochurePdf(null)}
-                          className="text-sm text-red-600 hover:underline"
-                        >
-                          Remove PDF
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <svg
-                          className="mx-auto h-12 w-12 text-gray-400"
-                          stroke="currentColor"
-                          fill="none"
-                          viewBox="0 0 48 48"
-                        >
-                          <path
-                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                        <div className="text-sm text-gray-600 mt-2">
-                          <span className="text-blue-600 hover:text-blue-700 font-medium">
-                            Upload PDF
-                          </span>{' '}
-                          or drag and drop
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">PDF up to 10MB</p>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      onChange={handleBrochurePdfUpload}
-                      className="hidden"
-                      disabled={!!brochureUrl.trim()}
-                    />
-                  </label>
-                </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Provide either a direct link to the brochure or upload a PDF file
+                  Provide a direct link to the project brochure
                 </p>
               </div>
             </div>
@@ -587,37 +544,53 @@ export default function SubmitProject() {
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">Images</h2>
 
-              <ImageUploader
+              {!name.trim() && (
+                <p className="text-amber-600 text-sm">
+                  Please enter a project name before uploading images
+                </p>
+              )}
+
+              <ImageUploaderDirect
                 images={bannerImage}
                 onChange={setBannerImage}
+                projectName={name || 'temp-project'}
+                folder="banner"
                 maxImages={1}
                 label="Banner Image"
               />
 
-              <ImageUploader
+              <ImageUploaderDirect
                 images={floorplanImages}
                 onChange={setFloorplanImages}
+                projectName={name || 'temp-project'}
+                folder="floorplans"
                 maxImages={20}
                 label="Floor Plans (up to 20 images)"
               />
 
-              <ImageUploader
+              <ImageUploaderDirect
                 images={clubhouseImages}
                 onChange={setClubhouseImages}
+                projectName={name || 'temp-project'}
+                folder="clubhouse"
                 maxImages={10}
                 label="Clubhouse Images (up to 10 images)"
               />
 
-              <ImageUploader
+              <ImageUploaderDirect
                 images={galleryImages}
                 onChange={setGalleryImages}
+                projectName={name || 'temp-project'}
+                folder="gallery"
                 maxImages={20}
                 label="Gallery Images (up to 20 images)"
               />
 
-              <ImageUploader
+              <ImageUploaderDirect
                 images={siteLayoutImages}
                 onChange={setSiteLayoutImages}
+                projectName={name || 'temp-project'}
+                folder="sitelayout"
                 maxImages={10}
                 label="Site Layout Images (up to 10 images)"
               />
@@ -627,10 +600,34 @@ export default function SubmitProject() {
             <div className="pt-6 border-t">
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isAnyImageUploading}
                 className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
-                {isSubmitting ? (
+                {isAnyImageUploading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Uploading Images...
+                  </>
+                ) : isSubmitting ? (
                   <>
                     <svg
                       className="animate-spin h-5 w-5 text-white"

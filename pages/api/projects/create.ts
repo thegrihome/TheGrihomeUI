@@ -13,7 +13,7 @@ import { checkUserVerification } from '@/lib/utils/verify-user'
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '1gb', // For image and PDF uploads (max 60 images at 10MB each + overhead)
+      sizeLimit: '4mb', // Small payload - images are uploaded directly to blob storage
     },
   },
 }
@@ -42,16 +42,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       propertyType,
       builderId,
       brochureUrl,
-      brochurePdfBase64,
       locationAddress,
       googleMapsUrl,
+      // URL-based fields (from direct blob uploads)
+      bannerImageUrl,
+      floorplanImageUrls,
+      clubhouseImageUrls,
+      galleryImageUrls,
+      siteLayoutImageUrls,
+      // Legacy base64 fields (for backward compatibility)
       bannerImageBase64,
-      highlights,
-      amenities,
       floorplanImagesBase64,
       clubhouseImagesBase64,
       galleryImagesBase64,
       siteLayoutImagesBase64,
+      highlights,
+      amenities,
       walkthroughVideoUrls,
     } = req.body
 
@@ -140,78 +146,72 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Upload images and PDF to Vercel Blob
-    let bannerUrl: string | null = null
-    let floorplanUrls: string[] = []
-    let clubhouseUrls: string[] = []
-    let galleryUrls: string[] = []
-    let siteLayoutUrls: string[] = []
-    let brochurePdfUrl: string | null = null
+    // Handle images - prefer pre-uploaded URLs, fall back to base64 upload
+    let bannerUrl: string | null = bannerImageUrl || null
+    let floorplanUrls: string[] = floorplanImageUrls || []
+    let clubhouseUrls: string[] = clubhouseImageUrls || []
+    let galleryUrls: string[] = galleryImageUrls || []
+    let siteLayoutUrls: string[] = siteLayoutImageUrls || []
 
-    // Helper to collect all uploaded URLs for cleanup
-    const getUploadedUrls = () => [
-      ...(bannerUrl ? [bannerUrl] : []),
-      ...(brochurePdfUrl ? [brochurePdfUrl] : []),
-      ...floorplanUrls,
-      ...clubhouseUrls,
-      ...galleryUrls,
-      ...siteLayoutUrls,
-    ]
+    // Track URLs uploaded via base64 (legacy) for cleanup on failure
+    const base64UploadedUrls: string[] = []
 
+    // Helper to collect all base64-uploaded URLs for cleanup
+    const getUploadedUrls = () => base64UploadedUrls
+
+    // Only do server-side uploads if base64 data is provided (legacy flow)
     try {
-      // Upload banner image
-      if (bannerImageBase64) {
+      // Upload banner image (legacy base64 flow)
+      if (!bannerUrl && bannerImageBase64) {
         bannerUrl = await uploadProjectImage({
           projectName: name,
           folder: 'banner',
           base64Image: bannerImageBase64,
         })
+        base64UploadedUrls.push(bannerUrl)
       }
 
-      // Upload brochure PDF
-      if (brochurePdfBase64) {
-        const { put } = await import('@vercel/blob')
-        const base64Data = brochurePdfBase64.split(',')[1]
-        const buffer = Buffer.from(base64Data, 'base64')
-        const normalizedProjectName = name
-          .toLowerCase()
-          .replace(/\s+/g, '-')
-          .replace(/[^a-z0-9-]/g, '')
-        const filename = `projects/${normalizedProjectName}/brochure.pdf`
-
-        const blob = await put(filename, buffer, {
-          access: 'public',
-          contentType: 'application/pdf',
-        })
-
-        brochurePdfUrl = blob.url
-      }
-
-      // Upload floorplan images (max 20)
-      if (floorplanImagesBase64 && Array.isArray(floorplanImagesBase64)) {
+      // Upload floorplan images (legacy base64 flow, max 20)
+      if (
+        floorplanUrls.length === 0 &&
+        floorplanImagesBase64 &&
+        Array.isArray(floorplanImagesBase64)
+      ) {
         const floorplanImages = floorplanImagesBase64.slice(0, 20)
         floorplanUrls = await uploadMultipleProjectImages(name, 'floorplans', floorplanImages)
+        base64UploadedUrls.push(...floorplanUrls)
       }
 
-      // Upload clubhouse images (max 10)
-      if (clubhouseImagesBase64 && Array.isArray(clubhouseImagesBase64)) {
+      // Upload clubhouse images (legacy base64 flow, max 10)
+      if (
+        clubhouseUrls.length === 0 &&
+        clubhouseImagesBase64 &&
+        Array.isArray(clubhouseImagesBase64)
+      ) {
         const clubhouseImages = clubhouseImagesBase64.slice(0, 10)
         clubhouseUrls = await uploadMultipleProjectImages(name, 'clubhouse', clubhouseImages)
+        base64UploadedUrls.push(...clubhouseUrls)
       }
 
-      // Upload gallery images (max 20)
-      if (galleryImagesBase64 && Array.isArray(galleryImagesBase64)) {
+      // Upload gallery images (legacy base64 flow, max 20)
+      if (galleryUrls.length === 0 && galleryImagesBase64 && Array.isArray(galleryImagesBase64)) {
         const galleryImages = galleryImagesBase64.slice(0, 20)
         galleryUrls = await uploadMultipleProjectImages(name, 'gallery', galleryImages)
+        base64UploadedUrls.push(...galleryUrls)
       }
 
-      // Upload site layout images (max 10)
-      if (siteLayoutImagesBase64 && Array.isArray(siteLayoutImagesBase64)) {
+      // Upload site layout images (legacy base64 flow, max 10)
+      if (
+        siteLayoutUrls.length === 0 &&
+        siteLayoutImagesBase64 &&
+        Array.isArray(siteLayoutImagesBase64)
+      ) {
         const siteLayoutImages = siteLayoutImagesBase64.slice(0, 10)
         siteLayoutUrls = await uploadMultipleProjectImages(name, 'sitelayout', siteLayoutImages)
+        base64UploadedUrls.push(...siteLayoutUrls)
       }
     } catch (uploadError) {
-      // Upload failed midway - clean up any already uploaded blobs
+      // Upload failed midway - clean up any already uploaded blobs (only base64 uploads)
       // eslint-disable-next-line no-console
       console.error('Upload error, cleaning up partial uploads:', uploadError)
       await deleteBlobs(getUploadedUrls())
@@ -228,7 +228,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           builderId,
           locationId: locationRecord.id,
           postedByUserId: session.user.id,
-          brochureUrl: brochurePdfUrl || brochureUrl || null,
+          brochureUrl: brochureUrl || null,
           bannerImageUrl: bannerUrl,
           googlePin: googleMapsUrl || null,
           highlights: highlights || null,
