@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import bcrypt from 'bcryptjs'
 import validator from 'validator'
+import { put } from '@vercel/blob'
 import { prisma } from '@/lib/cockroachDB/prisma'
 
 export const config = {
@@ -101,6 +102,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
+    // Upload avatar to Vercel Blob if provided
+    let avatarUrl: string | null = null
+    if (imageLink && imageLink.startsWith('data:image/')) {
+      try {
+        const base64Data = imageLink.replace(/^data:image\/\w+;base64,/, '')
+        const buffer = Buffer.from(base64Data, 'base64')
+        const filename = `user-avatars/${username}-${Date.now()}.jpg`
+        const blob = await put(filename, buffer, {
+          access: 'public',
+          contentType: 'image/jpeg',
+        })
+        avatarUrl = blob.url
+      } catch {
+        // Avatar upload failed, continue without avatar
+        avatarUrl = null
+      }
+    }
+
     // Create user
     const user = await prisma.user.create({
       data: {
@@ -111,7 +130,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         password: hashedPassword,
         role: isAgent ? 'AGENT' : 'BUYER',
         companyName: isAgent ? companyName : null,
-        image: imageLink || null,
+        image: avatarUrl,
       },
       select: {
         id: true,
