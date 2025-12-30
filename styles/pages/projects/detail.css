@@ -955,7 +955,7 @@
     display: contents;
   }
 
-  /* Order: Back -> Header -> Banner -> Posted By/Properties/Agents -> Description -> rest -> Location */
+  /* Order: Back -> Header -> Banner -> Reviews -> Posted By/Properties/Agents -> Description -> rest -> Location */
   .project-back-link {
     order: 0;
   }
@@ -968,24 +968,48 @@
     order: 2;
   }
 
-  .sidebar-posted-by {
+  .sidebar-reviews {
     order: 3;
   }
 
-  .sidebar-properties {
+  .sidebar-posted-by {
     order: 4;
   }
 
-  .sidebar-agents {
+  /* Posted By section - prevent overflow on mobile */
+  .sidebar-posted-by .p-3 {
+    overflow: hidden;
+  }
+
+  .sidebar-posted-by .flex.items-start {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .sidebar-posted-by .text-right {
+    text-align: left;
+    width: 100%;
+  }
+
+  .sidebar-posted-by .text-xs {
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+
+  .sidebar-properties {
     order: 5;
   }
 
-  .project-area-description {
+  .sidebar-agents {
     order: 6;
   }
 
-  .project-section:not(.project-area-description):not(.project-area-banner) {
+  .project-area-description {
     order: 7;
+  }
+
+  .project-section:not(.project-area-description):not(.project-area-banner) {
+    order: 8;
   }
 
   .sidebar-location {
@@ -1044,9 +1068,12 @@
   }
 
   .project-builder-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
   }
 
   .project-builder-name {
@@ -1126,6 +1153,15 @@
 
 .project-rating-display:hover {
   opacity: 0.8;
+}
+
+/* Desktop: show title row rating, hide builder row rating */
+.project-rating-display--desktop {
+  display: flex;
+}
+
+.project-rating-display--mobile {
+  display: none;
 }
 
 .stars-container {
@@ -1299,19 +1335,25 @@
 
 /* Mobile Responsiveness for Reviews */
 @media (max-width: 768px) {
-  .project-rating-display {
-    flex-direction: column;
-    align-items: flex-start;
+  /* Mobile: hide title row rating, show builder row rating */
+  .project-rating-display--desktop {
+    display: none;
+    pointer-events: none; /* Prevent click events on hidden element */
+  }
+
+  .project-rating-display--mobile {
+    display: flex;
+    margin-left: auto;
     gap: 0.25rem;
   }
 
-  .star-icon {
-    width: 14px;
-    height: 14px;
+  .project-rating-display--mobile .star-icon {
+    width: 12px;
+    height: 12px;
   }
 
-  .rating-text {
-    font-size: 0.75rem;
+  .project-rating-display--mobile .rating-text {
+    font-size: 0.6875rem;
   }
 
   .reviews-list-container {

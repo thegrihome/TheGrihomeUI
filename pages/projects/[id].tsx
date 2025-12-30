@@ -583,7 +583,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 </h1>
               </div>
 
-              {/* Star Rating Display */}
+              {/* Star Rating Display - Desktop version (in title row) */}
               <div
                 onClick={() => {
                   if (status === 'authenticated') {
@@ -593,7 +593,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                     router.push('/login')
                   }
                 }}
-                className="project-rating-display"
+                className="project-rating-display project-rating-display--desktop"
               >
                 <div className="stars-container">
                   {[1, 2, 3, 4, 5].map(star => {
@@ -630,22 +630,54 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   <Link href={`/builders/${project.builder.id}`} className="project-builder-name">
                     {project.builder.name}
                   </Link>
-                  <div className="project-type-tiles">
-                    {project.propertyType && (
-                      <>
-                        <span className="project-type-badge project-type-badge--type">
-                          {project.propertyType === 'SINGLE_FAMILY' && 'Villa'}
-                          {project.propertyType === 'CONDO' && 'Apartment'}
-                          {project.propertyType === 'LAND_RESIDENTIAL' && 'Residential Land'}
-                          {project.propertyType === 'LAND_AGRICULTURE' && 'Agriculture Land'}
-                          {project.propertyType === 'COMMERCIAL' && 'Commercial'}
-                        </span>
-                        <span className="project-type-badge project-type-badge--sale">
-                          For Sale
-                        </span>
-                      </>
-                    )}
+                  {/* Star Rating Display - Mobile version (in builder row) */}
+                  <div
+                    onClick={() => {
+                      if (status === 'authenticated') {
+                        router.push(`/projects/${project.id}/rating`)
+                      } else {
+                        toast.error('Please log in to write a review')
+                        router.push('/login')
+                      }
+                    }}
+                    className="project-rating-display project-rating-display--mobile"
+                  >
+                    <div className="stars-container">
+                      {[1, 2, 3, 4, 5].map(star => {
+                        const avgRating = reviewsData?.averageRating || 0
+                        const isFilled = star <= Math.floor(avgRating)
+                        const isHalfFilled = star === Math.ceil(avgRating) && avgRating % 1 >= 0.5
+
+                        return (
+                          <svg
+                            key={star}
+                            className={`star-icon ${isFilled ? 'filled' : isHalfFilled ? 'half-filled' : 'empty'}`}
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        )
+                      })}
+                    </div>
+                    <span className="rating-text">
+                      {reviewsData?.averageRating?.toFixed(1) || '0.0'}
+                    </span>
                   </div>
+                </div>
+                <div className="project-type-tiles">
+                  {project.propertyType && (
+                    <>
+                      <span className="project-type-badge project-type-badge--type">
+                        {project.propertyType === 'SINGLE_FAMILY' && 'Villa'}
+                        {project.propertyType === 'CONDO' && 'Apartment'}
+                        {project.propertyType === 'LAND_RESIDENTIAL' && 'Residential Land'}
+                        {project.propertyType === 'LAND_AGRICULTURE' && 'Agriculture Land'}
+                        {project.propertyType === 'COMMERCIAL' && 'Commercial'}
+                      </span>
+                      <span className="project-type-badge project-type-badge--sale">For Sale</span>
+                    </>
+                  )}
                 </div>
                 <span className="project-builder-location">
                   {project.location.locality && `${project.location.locality}, `}
