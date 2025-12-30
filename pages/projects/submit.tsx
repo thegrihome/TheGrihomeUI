@@ -674,7 +674,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
   if (accessResult.isProduction && !accessResult.canAccessAdmin) {
     return {
       redirect: {
-        destination: '/contactUs',
+        destination: '/contactUs/contact',
         permanent: false,
       },
     }
