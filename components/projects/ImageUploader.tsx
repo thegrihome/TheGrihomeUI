@@ -42,9 +42,9 @@ export default function ImageUploader({
         continue
       }
 
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(`${file.name} is too large (max 5MB)`)
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`${file.name} is too large (max 10MB)`)
         continue
       }
 
@@ -124,7 +124,7 @@ export default function ImageUploader({
           <p className="mt-2 text-sm text-gray-600">
             <span className="font-medium text-blue-600">Click to upload</span> or drag and drop
           </p>
-          <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
+          <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
           <p className="text-xs text-gray-500 mt-1">
             {images.length} / {maxImages} images
           </p>

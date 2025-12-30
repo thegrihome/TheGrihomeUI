@@ -3,13 +3,17 @@ import { prisma } from '@/lib/cockroachDB/prisma'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 import { geocodeAddress } from '@/lib/utils/geocoding'
-import { uploadProjectImage, uploadMultipleProjectImages } from '@/lib/utils/vercel-blob'
+import {
+  uploadProjectImage,
+  uploadMultipleProjectImages,
+  deleteBlobs,
+} from '@/lib/utils/vercel-blob'
 import { checkUserVerification } from '@/lib/utils/verify-user'
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '50mb', // For image and PDF uploads
+      sizeLimit: '1gb', // For image and PDF uploads (max 60 images at 10MB each + overhead)
     },
   },
 }
@@ -144,6 +148,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let siteLayoutUrls: string[] = []
     let brochurePdfUrl: string | null = null
 
+    // Helper to collect all uploaded URLs for cleanup
+    const getUploadedUrls = () => [
+      ...(bannerUrl ? [bannerUrl] : []),
+      ...(brochurePdfUrl ? [brochurePdfUrl] : []),
+      ...floorplanUrls,
+      ...clubhouseUrls,
+      ...galleryUrls,
+      ...siteLayoutUrls,
+    ]
+
     try {
       // Upload banner image
       if (bannerImageBase64) {
@@ -197,59 +211,75 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         siteLayoutUrls = await uploadMultipleProjectImages(name, 'sitelayout', siteLayoutImages)
       }
     } catch (uploadError) {
+      // Upload failed midway - clean up any already uploaded blobs
       // eslint-disable-next-line no-console
-      console.error('Upload error:', uploadError)
+      console.error('Upload error, cleaning up partial uploads:', uploadError)
+      await deleteBlobs(getUploadedUrls())
       return res.status(500).json({ message: 'Failed to upload files' })
     }
 
-    // Create project
-    const project = await prisma.project.create({
-      data: {
-        name,
-        description,
-        propertyType: propertyType || null,
-        builderId,
-        locationId: locationRecord.id,
-        postedByUserId: session.user.id,
-        brochureUrl: brochurePdfUrl || brochureUrl || null,
-        bannerImageUrl: bannerUrl,
-        googlePin: googleMapsUrl || null,
-        highlights: highlights || null,
-        amenities: amenities || null,
-        floorplanImageUrls: floorplanUrls,
-        clubhouseImageUrls: clubhouseUrls,
-        galleryImageUrls: galleryUrls,
-        siteLayoutImageUrls: siteLayoutUrls,
-        imageUrls: [...floorplanUrls, ...clubhouseUrls, ...galleryUrls, ...siteLayoutUrls],
-        thumbnailUrl: bannerUrl || galleryUrls[0] || null,
-        walkthroughVideoUrl:
-          walkthroughVideoUrls && walkthroughVideoUrls.length > 0 ? walkthroughVideoUrls[0] : null,
-        isArchived: false,
-      },
-      include: {
-        location: true,
-        builder: true,
-      },
-    })
+    // Create project - wrap in try-catch for cleanup on failure
+    try {
+      const project = await prisma.project.create({
+        data: {
+          name,
+          description,
+          propertyType: propertyType || null,
+          builderId,
+          locationId: locationRecord.id,
+          postedByUserId: session.user.id,
+          brochureUrl: brochurePdfUrl || brochureUrl || null,
+          bannerImageUrl: bannerUrl,
+          googlePin: googleMapsUrl || null,
+          highlights: highlights || null,
+          amenities: amenities || null,
+          floorplanImageUrls: floorplanUrls,
+          clubhouseImageUrls: clubhouseUrls,
+          galleryImageUrls: galleryUrls,
+          siteLayoutImageUrls: siteLayoutUrls,
+          imageUrls: [...floorplanUrls, ...clubhouseUrls, ...galleryUrls, ...siteLayoutUrls],
+          thumbnailUrl: bannerUrl || galleryUrls[0] || null,
+          walkthroughVideoUrl:
+            walkthroughVideoUrls && walkthroughVideoUrls.length > 0
+              ? walkthroughVideoUrls[0]
+              : null,
+          isArchived: false,
+        },
+        include: {
+          location: true,
+          builder: true,
+        },
+      })
 
-    res.status(201).json({
-      message: 'Project created successfully',
-      project,
-    })
+      res.status(201).json({
+        message: 'Project created successfully',
+        project,
+      })
+    } catch (dbError) {
+      // Database insert failed - clean up uploaded blobs
+      // eslint-disable-next-line no-console
+      console.error('Database insert failed, cleaning up uploaded blobs:', dbError)
+      await deleteBlobs(getUploadedUrls())
+
+      // Provide more specific error messages
+      if (dbError instanceof Error) {
+        if (dbError.message.includes('Unique constraint')) {
+          return res.status(400).json({ message: 'A project with this name may already exist' })
+        }
+        if (dbError.message.includes('Foreign key constraint')) {
+          return res.status(400).json({ message: 'Invalid builder or location reference' })
+        }
+      }
+
+      return res.status(500).json({
+        message: 'Failed to create project. Please try again.',
+        error: process.env.NODE_ENV === 'development' ? String(dbError) : undefined,
+      })
+    }
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
       console.error('Create project error:', error)
-    }
-
-    // Provide more specific error messages
-    if (error instanceof Error) {
-      if (error.message.includes('Unique constraint')) {
-        return res.status(400).json({ message: 'A project with this name may already exist' })
-      }
-      if (error.message.includes('Foreign key constraint')) {
-        return res.status(400).json({ message: 'Invalid builder or location reference' })
-      }
     }
 
     res.status(500).json({

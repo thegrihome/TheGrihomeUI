@@ -119,7 +119,7 @@ describe('ImageUploader Component', () => {
 
     it('renders file size information', () => {
       render(<ImageUploader images={[]} onChange={mockOnChange} label="Upload Photos" />)
-      expect(screen.getByText('PNG, JPG, GIF up to 5MB')).toBeInTheDocument()
+      expect(screen.getByText('PNG, JPG, GIF up to 10MB')).toBeInTheDocument()
     })
   })
 
@@ -293,13 +293,13 @@ describe('ImageUploader Component', () => {
       })
     })
 
-    it('rejects files larger than 5MB', async () => {
+    it('rejects files larger than 10MB', async () => {
       const { container } = render(
         <ImageUploader images={[]} onChange={mockOnChange} label="Upload Photos" />
       )
 
       const input = container.querySelector('input[type="file"]') as HTMLInputElement
-      const largeContent = new Array(6 * 1024 * 1024).fill('a').join('')
+      const largeContent = new Array(11 * 1024 * 1024).fill('a').join('')
       const file = new File([largeContent], 'large.png', { type: 'image/png' })
 
       Object.defineProperty(input, 'files', {

@@ -1,4 +1,4 @@
-import { put } from '@vercel/blob'
+import { put, del } from '@vercel/blob'
 
 export interface BlobUploadOptions {
   projectName: string
@@ -110,4 +110,24 @@ export async function uploadPropertyImage(
   })
 
   return blob.url
+}
+
+/**
+ * Delete multiple blobs from Vercel Blob storage
+ * Used for cleanup when project creation fails after upload
+ * @param urls Array of blob URLs to delete
+ */
+export async function deleteBlobs(urls: string[]): Promise<void> {
+  if (!urls || urls.length === 0) return
+
+  const validUrls = urls.filter(url => url && url.includes('blob.vercel-storage.com'))
+  if (validUrls.length === 0) return
+
+  try {
+    await Promise.all(validUrls.map(url => del(url)))
+  } catch (error) {
+    // Log but don't throw - cleanup is best effort
+    // eslint-disable-next-line no-console
+    console.error('Failed to cleanup blobs:', error)
+  }
 }

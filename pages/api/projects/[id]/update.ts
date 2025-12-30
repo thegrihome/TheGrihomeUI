@@ -8,7 +8,7 @@ import { uploadProjectImage, uploadMultipleProjectImages } from '@/lib/utils/ver
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '50mb',
+      sizeLimit: '1gb', // For image and PDF uploads (max 60 images at 10MB each + overhead)
     },
   },
 }
