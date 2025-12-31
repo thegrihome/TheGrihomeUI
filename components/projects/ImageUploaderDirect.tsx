@@ -3,11 +3,6 @@ import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { upload } from '@vercel/blob/client'
 
-// Generate a short unique ID
-const generateShortId = () => {
-  return Math.random().toString(36).substring(2, 10)
-}
-
 interface UploadedImage {
   url: string
   uploading?: boolean
@@ -39,19 +34,17 @@ export default function ImageUploaderDirect({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
-  // Generate a stable unique folder ID for this upload session
-  const folderId = useMemo(() => generateShortId(), [])
-
-  // Normalize project name for path and add unique ID to avoid collisions
+  // Normalize project name for path (no random suffix - timestamps in filenames prevent collisions)
   const normalizedProjectName = useMemo(() => {
-    const normalized = projectName
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '')
-      .replace(/-+/g, '-') // Replace multiple dashes with single dash
-      .replace(/^-|-$/g, '') // Remove leading/trailing dashes
-    return `${normalized || 'project'}-${folderId}`
-  }, [projectName, folderId])
+    return (
+      projectName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-') // Replace multiple dashes with single dash
+        .replace(/^-|-$/g, '') || 'project'
+    ) // Remove leading/trailing dashes
+  }, [projectName])
 
   const handleFileSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return

@@ -233,12 +233,7 @@ export default function EditProject({ project }: EditProjectProps) {
     setIsSubmitting(true)
 
     try {
-      // Filter out existing URLs from images (only send new base64 images)
-      const newFloorplans = floorplanImages.filter(img => img.startsWith('data:image'))
-      const newClubhouse = clubhouseImages.filter(img => img.startsWith('data:image'))
-      const newGallery = galleryImages.filter(img => img.startsWith('data:image'))
-      const newSiteLayout = siteLayoutImages.filter(img => img.startsWith('data:image'))
-
+      // Send ALL images (existing URLs + new base64) so API knows which to keep
       const response = await fetch('/api/projects/update', {
         method: 'PUT',
         headers: {
@@ -255,13 +250,14 @@ export default function EditProject({ project }: EditProjectProps) {
           brochurePdfBase64: brochurePdf || null,
           locationAddress: locationAddress.trim() || null,
           googleMapsUrl: googleMapsUrl.trim() || null,
-          bannerImageBase64: bannerImage[0]?.startsWith('data:image') ? bannerImage[0] : null,
+          // Send all images (URLs to keep + new base64 to upload)
+          bannerImages: bannerImage,
+          floorplanImages: floorplanImages,
+          clubhouseImages: clubhouseImages,
+          galleryImages: galleryImages,
+          siteLayoutImages: siteLayoutImages,
           highlights: highlights.length > 0 ? highlights : null,
           amenities: amenities.length > 0 ? amenities : null,
-          floorplanImagesBase64: newFloorplans,
-          clubhouseImagesBase64: newClubhouse,
-          galleryImagesBase64: newGallery,
-          siteLayoutImagesBase64: newSiteLayout,
           walkthroughVideoUrl: walkthroughVideoUrl.trim() || null,
         }),
       })

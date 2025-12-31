@@ -5,6 +5,41 @@ import { authOptions } from '../auth/[...nextauth]'
 import { geocodeAddress } from '@/lib/utils/geocoding'
 import { uploadProjectImage, uploadMultipleProjectImages } from '@/lib/utils/vercel-blob'
 import { checkUserVerification } from '@/lib/utils/verify-user'
+import { del } from '@vercel/blob'
+
+// Helper to process images: separate existing URLs from new base64, find orphaned images
+function processImages(
+  allImages: string[] | undefined,
+  existingDbUrls: string[]
+): {
+  urlsToKeep: string[]
+  newBase64: string[]
+  orphanedUrls: string[]
+} {
+  if (!allImages || !Array.isArray(allImages)) {
+    // If no images sent, all existing are orphaned
+    return { urlsToKeep: [], newBase64: [], orphanedUrls: existingDbUrls }
+  }
+
+  const urlsToKeep = allImages.filter(img => img.startsWith('http'))
+  const newBase64 = allImages.filter(img => img.startsWith('data:image'))
+  const orphanedUrls = existingDbUrls.filter(url => !urlsToKeep.includes(url))
+
+  return { urlsToKeep, newBase64, orphanedUrls }
+}
+
+// Helper to delete orphaned images from blob storage
+async function deleteOrphanedImages(urls: string[]): Promise<void> {
+  for (const url of urls) {
+    try {
+      await del(url)
+    } catch (error) {
+      // Log but don't fail - image might already be deleted
+      // eslint-disable-next-line no-console
+      console.warn('Failed to delete orphaned image:', url, error)
+    }
+  }
+}
 
 export const config = {
   api: {
@@ -43,13 +78,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       brochurePdfBase64,
       locationAddress,
       googleMapsUrl,
+      // New format: all images (URLs to keep + new base64)
+      bannerImages,
+      floorplanImages,
+      clubhouseImages,
+      galleryImages,
+      siteLayoutImages,
+      // Legacy format (for backwards compatibility)
       bannerImageBase64,
-      highlights,
-      amenities,
       floorplanImagesBase64,
       clubhouseImagesBase64,
       galleryImagesBase64,
       siteLayoutImagesBase64,
+      highlights,
+      amenities,
       walkthroughVideoUrl,
     } = req.body
 
@@ -157,9 +199,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let siteLayoutUrls: string[] = existingProject.siteLayoutImageUrls || []
     let brochurePdfUrl: string | null = null
 
+    // Collect all orphaned images to delete after successful update
+    const allOrphanedUrls: string[] = []
+
     try {
-      // Upload new banner image if provided
-      if (bannerImageBase64 && bannerImageBase64.startsWith('data:image')) {
+      // Handle banner image (new format or legacy)
+      if (bannerImages !== undefined) {
+        // New format: array of images (URLs to keep + new base64)
+        const bannerProcess = processImages(
+          bannerImages,
+          existingProject.bannerImageUrl ? [existingProject.bannerImageUrl] : []
+        )
+        allOrphanedUrls.push(...bannerProcess.orphanedUrls)
+
+        if (bannerProcess.newBase64.length > 0) {
+          // Upload new banner
+          bannerUrl = await uploadProjectImage({
+            projectName: name,
+            folder: 'banner',
+            base64Image: bannerProcess.newBase64[0],
+          })
+        } else if (bannerProcess.urlsToKeep.length > 0) {
+          // Keep existing banner
+          bannerUrl = bannerProcess.urlsToKeep[0]
+        } else {
+          // No banner - user removed it
+          bannerUrl = null
+        }
+      } else if (bannerImageBase64 && bannerImageBase64.startsWith('data:image')) {
+        // Legacy format: just base64
         bannerUrl = await uploadProjectImage({
           projectName: name,
           folder: 'banner',
@@ -186,12 +254,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         brochurePdfUrl = blob.url
       }
 
-      // Upload new floorplan images if provided
-      if (
-        floorplanImagesBase64 &&
-        Array.isArray(floorplanImagesBase64) &&
-        floorplanImagesBase64.length > 0
-      ) {
+      // Handle floorplan images (new format or legacy)
+      if (floorplanImages !== undefined) {
+        const floorplanProcess = processImages(
+          floorplanImages,
+          existingProject.floorplanImageUrls || []
+        )
+        allOrphanedUrls.push(...floorplanProcess.orphanedUrls)
+
+        let newUrls: string[] = []
+        if (floorplanProcess.newBase64.length > 0) {
+          newUrls = await uploadMultipleProjectImages(
+            name,
+            'floorplans',
+            floorplanProcess.newBase64.slice(0, 20)
+          )
+        }
+        floorplanUrls = [...floorplanProcess.urlsToKeep, ...newUrls].slice(0, 20)
+      } else if (floorplanImagesBase64?.length > 0) {
+        // Legacy format
         const newFloorplans = floorplanImagesBase64.filter((img: string) =>
           img.startsWith('data:image')
         )
@@ -205,12 +286,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Upload new clubhouse images if provided
-      if (
-        clubhouseImagesBase64 &&
-        Array.isArray(clubhouseImagesBase64) &&
-        clubhouseImagesBase64.length > 0
-      ) {
+      // Handle clubhouse images (new format or legacy)
+      if (clubhouseImages !== undefined) {
+        const clubhouseProcess = processImages(
+          clubhouseImages,
+          existingProject.clubhouseImageUrls || []
+        )
+        allOrphanedUrls.push(...clubhouseProcess.orphanedUrls)
+
+        let newUrls: string[] = []
+        if (clubhouseProcess.newBase64.length > 0) {
+          newUrls = await uploadMultipleProjectImages(
+            name,
+            'clubhouse',
+            clubhouseProcess.newBase64.slice(0, 10)
+          )
+        }
+        clubhouseUrls = [...clubhouseProcess.urlsToKeep, ...newUrls].slice(0, 10)
+      } else if (clubhouseImagesBase64?.length > 0) {
+        // Legacy format
         const newClubhouse = clubhouseImagesBase64.filter((img: string) =>
           img.startsWith('data:image')
         )
@@ -224,12 +318,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Upload new gallery images if provided
-      if (
-        galleryImagesBase64 &&
-        Array.isArray(galleryImagesBase64) &&
-        galleryImagesBase64.length > 0
-      ) {
+      // Handle gallery images (new format or legacy)
+      if (galleryImages !== undefined) {
+        const galleryProcess = processImages(galleryImages, existingProject.galleryImageUrls || [])
+        allOrphanedUrls.push(...galleryProcess.orphanedUrls)
+
+        let newUrls: string[] = []
+        if (galleryProcess.newBase64.length > 0) {
+          newUrls = await uploadMultipleProjectImages(
+            name,
+            'gallery',
+            galleryProcess.newBase64.slice(0, 20)
+          )
+        }
+        galleryUrls = [...galleryProcess.urlsToKeep, ...newUrls].slice(0, 20)
+      } else if (galleryImagesBase64?.length > 0) {
+        // Legacy format
         const newGallery = galleryImagesBase64.filter((img: string) => img.startsWith('data:image'))
         if (newGallery.length > 0) {
           const newUrls = await uploadMultipleProjectImages(
@@ -241,12 +345,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Upload new site layout images if provided
-      if (
-        siteLayoutImagesBase64 &&
-        Array.isArray(siteLayoutImagesBase64) &&
-        siteLayoutImagesBase64.length > 0
-      ) {
+      // Handle site layout images (new format or legacy)
+      if (siteLayoutImages !== undefined) {
+        const siteLayoutProcess = processImages(
+          siteLayoutImages,
+          existingProject.siteLayoutImageUrls || []
+        )
+        allOrphanedUrls.push(...siteLayoutProcess.orphanedUrls)
+
+        let newUrls: string[] = []
+        if (siteLayoutProcess.newBase64.length > 0) {
+          newUrls = await uploadMultipleProjectImages(
+            name,
+            'sitelayout',
+            siteLayoutProcess.newBase64.slice(0, 10)
+          )
+        }
+        siteLayoutUrls = [...siteLayoutProcess.urlsToKeep, ...newUrls].slice(0, 10)
+      } else if (siteLayoutImagesBase64?.length > 0) {
+        // Legacy format
         const newSiteLayout = siteLayoutImagesBase64.filter((img: string) =>
           img.startsWith('data:image')
         )
@@ -293,6 +410,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         builder: true,
       },
     })
+
+    // Delete orphaned images from blob storage (after successful DB update)
+    if (allOrphanedUrls.length > 0) {
+      // Run deletion in background - don't block the response
+      deleteOrphanedImages(allOrphanedUrls).catch(err => {
+        // eslint-disable-next-line no-console
+        console.error('Failed to delete some orphaned images:', err)
+      })
+    }
 
     res.status(200).json({
       message: 'Project updated successfully',
