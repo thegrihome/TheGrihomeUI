@@ -1,11 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/cockroachDB/prisma'
 import { sendProjectRequestEmail } from '@/lib/resend/email'
 import { checkUserVerification } from '@/lib/utils/verify-user'
-
-const prisma = new PrismaClient()
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -113,7 +111,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('Error submitting project request:', error)
     }
     res.status(500).json({ message: 'Internal server error' })
-  } finally {
-    await prisma.$disconnect()
   }
 }
