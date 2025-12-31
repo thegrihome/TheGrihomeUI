@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { NextSeo } from 'next-seo'
 import { GetServerSideProps } from 'next'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/cockroachDB/prisma'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
@@ -404,8 +404,6 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const prisma = new PrismaClient()
-
   try {
     const builderId = params?.id as string
 
@@ -450,7 +448,5 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
         builder: null,
       },
     }
-  } finally {
-    await prisma.$disconnect()
   }
 }

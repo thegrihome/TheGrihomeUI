@@ -249,16 +249,18 @@ export default function ProjectPage({ project }: ProjectPageProps) {
 
   if (!project) {
     return (
-      <div className="project-detail-container">
+      <div className="project-detail-container flex flex-col">
         <Header />
-        <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h1>
-          <p className="text-gray-600 mb-4">
-            The project you&apos;re looking for doesn&apos;t exist or has been removed.
-          </p>
-          <Link href="/projects" className="text-blue-600 hover:text-blue-800">
-            Browse All Projects
-          </Link>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h1>
+            <p className="text-gray-600 mb-4">
+              The project you&apos;re looking for doesn&apos;t exist or has been removed.
+            </p>
+            <Link href="/projects" className="text-blue-600 hover:text-blue-800">
+              Browse All Projects
+            </Link>
+          </div>
         </div>
         <Footer />
       </div>
