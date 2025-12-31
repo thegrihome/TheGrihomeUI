@@ -10,21 +10,22 @@ interface DatabaseConfig {
 
 /**
  * Get database configuration based on environment
- * - Main branch (production): Uses production CockroachDB cluster
- * - Other branches (preview/development): Uses development CockroachDB cluster
+ * - Main branch: Uses production CockroachDB cluster (grihome.com)
+ * - Other branches: Uses development CockroachDB cluster
  */
 export function getDatabaseConfig(): DatabaseConfig {
-  // Detect if this is a Vercel production deployment (main branch)
-  const isVercelProduction = process.env.VERCEL_ENV === 'production'
-
-  // Detect if this is a main branch deployment
+  // Use production database for main branch deployments (regardless of VERCEL_ENV)
+  // VERCEL_GIT_COMMIT_REF is set by Vercel to the branch name
   const isMainBranch = process.env.VERCEL_GIT_COMMIT_REF === 'main'
 
-  // Use production database only for main branch deployments
-  const isProduction = isVercelProduction && isMainBranch
+  // Also check VERCEL_ENV for production deployments (fallback)
+  const isVercelProduction = process.env.VERCEL_ENV === 'production'
 
-  if (isProduction) {
-    // Production environment - database URL comes from Vercel environment variables
+  // Use prod database if it's main branch OR production environment
+  const useProduction = isMainBranch || isVercelProduction
+
+  if (useProduction) {
+    // Production - use prod database
     const prodUrl = process.env.DATABASE_URL_PROD
     if (!prodUrl) {
       throw new Error('DATABASE_URL_PROD environment variable is required for production')
@@ -34,7 +35,7 @@ export function getDatabaseConfig(): DatabaseConfig {
       environment: 'production',
     }
   } else {
-    // Development/preview/local environment - use dev database
+    // Development/preview/local - use dev database
     const devUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_DEV
     if (!devUrl) {
       throw new Error(

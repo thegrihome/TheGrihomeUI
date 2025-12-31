@@ -300,9 +300,10 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
             {builder.projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                 {builder.projects.map(project => (
-                  <div
+                  <Link
                     key={project.id}
-                    className="project-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                    href={`/projects/${project.id}`}
+                    className="project-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer block"
                   >
                     {/* Project Image */}
                     <div className="project-image-container relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
@@ -367,15 +368,12 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                       </p>
 
                       <div className="flex justify-end">
-                        <Link
-                          href={`/projects/${project.id}`}
-                          className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs hover:bg-blue-700 transition-colors"
-                        >
+                        <span className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs hover:bg-blue-700 transition-colors">
                           View Details
-                        </Link>
+                        </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (

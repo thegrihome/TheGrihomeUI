@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -61,6 +62,8 @@ interface Pagination {
 export default function AgentProperties() {
   const router = useRouter()
   const { id } = router.query
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
 
   const [agent, setAgent] = useState<Agent | null>(null)
   const [properties, setProperties] = useState<Property[]>([])
@@ -181,8 +184,14 @@ export default function AgentProperties() {
               <h1 className="text-lg font-bold text-gray-900">{agent.name}</h1>
               {agent.companyName && <p className="text-sm text-gray-600">{agent.companyName}</p>}
               <div className="flex flex-wrap gap-3 text-xs text-gray-500 mt-1">
-                {agent.email && <span>📧 {agent.email}</span>}
-                {agent.phone && <span>📱 {agent.phone}</span>}
+                {isAuthenticated ? (
+                  <>
+                    {agent.email && <span>📧 {agent.email}</span>}
+                    {agent.phone && <span>📱 {agent.phone}</span>}
+                  </>
+                ) : (
+                  <span className="italic">Sign in to view email and mobile</span>
+                )}
               </div>
             </div>
           </div>
