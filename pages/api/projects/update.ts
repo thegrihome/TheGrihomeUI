@@ -75,10 +75,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       builderId,
       builderWebsiteLink,
       brochureUrl,
-      brochurePdfBase64,
+      brochurePdfBase64, // Legacy - kept for backwards compatibility
       locationAddress,
       googleMapsUrl,
-      // New format: all images (URLs to keep + new base64)
+      // New URL-based format (from direct blob uploads)
+      bannerImageUrl,
+      floorplanImageUrls,
+      clubhouseImageUrls,
+      galleryImageUrls,
+      siteLayoutImageUrls,
+      // Legacy format: all images (URLs to keep + new base64)
       bannerImages,
       floorplanImages,
       clubhouseImages,
@@ -203,9 +209,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const allOrphanedUrls: string[] = []
 
     try {
-      // Handle banner image (new format or legacy)
-      if (bannerImages !== undefined) {
-        // New format: array of images (URLs to keep + new base64)
+      // Prefer new URL-based format (from direct blob uploads)
+      if (bannerImageUrl !== undefined) {
+        // Track orphaned images for cleanup
+        if (existingProject.bannerImageUrl && existingProject.bannerImageUrl !== bannerImageUrl) {
+          allOrphanedUrls.push(existingProject.bannerImageUrl)
+        }
+        bannerUrl = bannerImageUrl
+      } else if (bannerImages !== undefined) {
+        // Legacy format: array of images (URLs to keep + new base64)
         const bannerProcess = processImages(
           bannerImages,
           existingProject.bannerImageUrl ? [existingProject.bannerImageUrl] : []
@@ -235,7 +247,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       }
 
-      // Upload brochure PDF if provided
+      // Upload brochure PDF if provided (legacy base64 format)
       if (brochurePdfBase64) {
         const { put } = await import('@vercel/blob')
         const base64Data = brochurePdfBase64.split(',')[1]
@@ -254,8 +266,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         brochurePdfUrl = blob.url
       }
 
-      // Handle floorplan images (new format or legacy)
-      if (floorplanImages !== undefined) {
+      // Handle floorplan images - prefer URL format, fall back to legacy
+      if (floorplanImageUrls !== undefined) {
+        // Track orphaned images
+        const existingUrls = existingProject.floorplanImageUrls || []
+        const orphaned = existingUrls.filter(url => !floorplanImageUrls.includes(url))
+        allOrphanedUrls.push(...orphaned)
+        floorplanUrls = floorplanImageUrls
+      } else if (floorplanImages !== undefined) {
         const floorplanProcess = processImages(
           floorplanImages,
           existingProject.floorplanImageUrls || []
@@ -286,8 +304,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Handle clubhouse images (new format or legacy)
-      if (clubhouseImages !== undefined) {
+      // Handle clubhouse images - prefer URL format, fall back to legacy
+      if (clubhouseImageUrls !== undefined) {
+        const existingUrls = existingProject.clubhouseImageUrls || []
+        const orphaned = existingUrls.filter(url => !clubhouseImageUrls.includes(url))
+        allOrphanedUrls.push(...orphaned)
+        clubhouseUrls = clubhouseImageUrls
+      } else if (clubhouseImages !== undefined) {
         const clubhouseProcess = processImages(
           clubhouseImages,
           existingProject.clubhouseImageUrls || []
@@ -318,8 +341,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Handle gallery images (new format or legacy)
-      if (galleryImages !== undefined) {
+      // Handle gallery images - prefer URL format, fall back to legacy
+      if (galleryImageUrls !== undefined) {
+        const existingUrls = existingProject.galleryImageUrls || []
+        const orphaned = existingUrls.filter(url => !galleryImageUrls.includes(url))
+        allOrphanedUrls.push(...orphaned)
+        galleryUrls = galleryImageUrls
+      } else if (galleryImages !== undefined) {
         const galleryProcess = processImages(galleryImages, existingProject.galleryImageUrls || [])
         allOrphanedUrls.push(...galleryProcess.orphanedUrls)
 
@@ -345,8 +373,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Handle site layout images (new format or legacy)
-      if (siteLayoutImages !== undefined) {
+      // Handle site layout images - prefer URL format, fall back to legacy
+      if (siteLayoutImageUrls !== undefined) {
+        const existingUrls = existingProject.siteLayoutImageUrls || []
+        const orphaned = existingUrls.filter(url => !siteLayoutImageUrls.includes(url))
+        allOrphanedUrls.push(...orphaned)
+        siteLayoutUrls = siteLayoutImageUrls
+      } else if (siteLayoutImages !== undefined) {
         const siteLayoutProcess = processImages(
           siteLayoutImages,
           existingProject.siteLayoutImageUrls || []

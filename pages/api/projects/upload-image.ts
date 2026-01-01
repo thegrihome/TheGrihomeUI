@@ -6,7 +6,7 @@ import { authOptions } from '../auth/[...nextauth]'
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '10mb',
+      sizeLimit: '100mb',
     },
   },
 }
@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             'image/webp',
             'application/pdf',
           ],
-          maximumSizeInBytes: 10 * 1024 * 1024, // 10MB
+          maximumSizeInBytes: 100 * 1024 * 1024, // 100MB
           tokenPayload: JSON.stringify({
             userId: session.user.id,
           }),

@@ -8,7 +8,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BuilderSelector from '@/components/projects/BuilderSelector'
 import DynamicList from '@/components/projects/DynamicList'
-import ImageUploader from '@/components/projects/ImageUploader'
+import ImageUploaderDirect from '@/components/projects/ImageUploaderDirect'
+import PDFUploaderDirect from '@/components/projects/PDFUploaderDirect'
 import toast from 'react-hot-toast'
 import { prisma } from '@/lib/cockroachDB/prisma'
 import { getServerSession } from 'next-auth/next'
@@ -40,6 +41,20 @@ interface EditProjectProps {
   project: ProjectData | null
 }
 
+interface UploadedImage {
+  url: string
+  uploading?: boolean
+  error?: boolean
+  localPreview?: string
+}
+
+interface UploadedPDF {
+  url: string
+  uploading?: boolean
+  error?: boolean
+  fileName?: string
+}
+
 export default function EditProject({ project }: EditProjectProps) {
   const router = useRouter()
   const { data: session, status } = useSession()
@@ -52,19 +67,19 @@ export default function EditProject({ project }: EditProjectProps) {
   const [builderId, setBuilderId] = useState<string | null>(null)
   const [builderWebsiteLink, setBuilderWebsiteLink] = useState('')
   const [brochureUrl, setBrochureUrl] = useState('')
-  const [brochurePdf, setBrochurePdf] = useState<string | null>(null)
+  const [brochurePdf, setBrochurePdf] = useState<UploadedPDF | null>(null)
   const [locationAddress, setLocationAddress] = useState('')
   const [googleMapsUrl, setGoogleMapsUrl] = useState('')
   const [highlights, setHighlights] = useState<string[]>([])
   const [amenities, setAmenities] = useState<string[]>([])
   const [walkthroughVideoUrl, setWalkthroughVideoUrl] = useState('')
 
-  // Image state (store URLs for existing images, base64 for new ones)
-  const [bannerImage, setBannerImage] = useState<string[]>([])
-  const [floorplanImages, setFloorplanImages] = useState<string[]>([])
-  const [clubhouseImages, setClubhouseImages] = useState<string[]>([])
-  const [galleryImages, setGalleryImages] = useState<string[]>([])
-  const [siteLayoutImages, setSiteLayoutImages] = useState<string[]>([])
+  // Image state - now stores URLs from direct blob uploads
+  const [bannerImage, setBannerImage] = useState<UploadedImage[]>([])
+  const [floorplanImages, setFloorplanImages] = useState<UploadedImage[]>([])
+  const [clubhouseImages, setClubhouseImages] = useState<UploadedImage[]>([])
+  const [galleryImages, setGalleryImages] = useState<UploadedImage[]>([])
+  const [siteLayoutImages, setSiteLayoutImages] = useState<UploadedImage[]>([])
 
   // Google Maps autocomplete refs
   const locationInputRef = useRef<HTMLInputElement>(null)
@@ -78,19 +93,26 @@ export default function EditProject({ project }: EditProjectProps) {
       setType(project.type)
       setBuilderId(project.builderId)
       setBuilderWebsiteLink(project.builderWebsiteLink || '')
-      setBrochureUrl(project.brochureUrl || '')
+      // If existing brochure URL is from blob storage, set it as uploaded PDF
+      if (project.brochureUrl?.includes('blob.vercel-storage.com')) {
+        setBrochurePdf({ url: project.brochureUrl, uploading: false })
+        setBrochureUrl('')
+      } else {
+        setBrochureUrl(project.brochureUrl || '')
+        setBrochurePdf(null)
+      }
       setLocationAddress(project.location.formattedAddress || '')
       setGoogleMapsUrl(project.googlePin || '')
       setHighlights(project.highlights || [])
       setAmenities(project.amenities || [])
       setWalkthroughVideoUrl(project.walkthroughVideoUrl || '')
 
-      // Set existing images (URLs)
-      if (project.bannerImageUrl) setBannerImage([project.bannerImageUrl])
-      setFloorplanImages(project.floorplanImageUrls || [])
-      setClubhouseImages(project.clubhouseImageUrls || [])
-      setGalleryImages(project.galleryImageUrls || [])
-      setSiteLayoutImages(project.siteLayoutImageUrls || [])
+      // Set existing images (URLs) - convert to UploadedImage format
+      if (project.bannerImageUrl) setBannerImage([{ url: project.bannerImageUrl }])
+      setFloorplanImages((project.floorplanImageUrls || []).map(url => ({ url })))
+      setClubhouseImages((project.clubhouseImageUrls || []).map(url => ({ url })))
+      setGalleryImages((project.galleryImageUrls || []).map(url => ({ url })))
+      setSiteLayoutImages((project.siteLayoutImageUrls || []).map(url => ({ url })))
     }
   }, [project])
 
@@ -188,26 +210,14 @@ export default function EditProject({ project }: EditProjectProps) {
     )
   }
 
-  const handleBrochurePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (file.type !== 'application/pdf') {
-      toast.error('Please upload a PDF file')
-      return
-    }
-
-    if (file.size > 100 * 1024 * 1024) {
-      toast.error('PDF file size must not exceed 100MB')
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setBrochurePdf(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-  }
+  // Check if any images or PDF are still uploading
+  const isAnyImageUploading =
+    bannerImage.some(img => img.uploading) ||
+    floorplanImages.some(img => img.uploading) ||
+    clubhouseImages.some(img => img.uploading) ||
+    galleryImages.some(img => img.uploading) ||
+    siteLayoutImages.some(img => img.uploading) ||
+    brochurePdf?.uploading
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -230,10 +240,22 @@ export default function EditProject({ project }: EditProjectProps) {
       return
     }
 
+    // Check for pending uploads
+    if (isAnyImageUploading) {
+      toast.error('Please wait for all uploads to complete')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
-      // Send ALL images (existing URLs + new base64) so API knows which to keep
+      // Extract URLs from uploaded images
+      const bannerUrl = bannerImage[0]?.url || null
+      const floorplanUrls = floorplanImages.filter(img => img.url).map(img => img.url)
+      const clubhouseUrls = clubhouseImages.filter(img => img.url).map(img => img.url)
+      const galleryUrls = galleryImages.filter(img => img.url).map(img => img.url)
+      const siteLayoutUrls = siteLayoutImages.filter(img => img.url).map(img => img.url)
+
       const response = await fetch('/api/projects/update', {
         method: 'PUT',
         headers: {
@@ -246,16 +268,15 @@ export default function EditProject({ project }: EditProjectProps) {
           type,
           builderId,
           builderWebsiteLink: builderWebsiteLink.trim() || null,
-          brochureUrl: brochureUrl.trim() || null,
-          brochurePdfBase64: brochurePdf || null,
+          brochureUrl: brochurePdf?.url || brochureUrl.trim() || null,
           locationAddress: locationAddress.trim() || null,
           googleMapsUrl: googleMapsUrl.trim() || null,
-          // Send all images (URLs to keep + new base64 to upload)
-          bannerImages: bannerImage,
-          floorplanImages: floorplanImages,
-          clubhouseImages: clubhouseImages,
-          galleryImages: galleryImages,
-          siteLayoutImages: siteLayoutImages,
+          // Send pre-uploaded image URLs
+          bannerImageUrl: bannerUrl,
+          floorplanImageUrls: floorplanUrls,
+          clubhouseImageUrls: clubhouseUrls,
+          galleryImageUrls: galleryUrls,
+          siteLayoutImageUrls: siteLayoutUrls,
           highlights: highlights.length > 0 ? highlights : null,
           amenities: amenities.length > 0 ? amenities : null,
           walkthroughVideoUrl: walkthroughVideoUrl.trim() || null,
@@ -408,55 +429,15 @@ export default function EditProject({ project }: EditProjectProps) {
                   onChange={e => setBrochureUrl(e.target.value)}
                   placeholder="https://example.com/brochure.pdf"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                  disabled={!!brochurePdf}
+                  disabled={!!brochurePdf?.url}
                 />
                 <div className="text-center text-gray-500 text-sm my-2">OR</div>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  <label className="cursor-pointer block text-center">
-                    {brochurePdf ? (
-                      <div className="space-y-2">
-                        <div className="text-green-600">✓ PDF Uploaded</div>
-                        <button
-                          type="button"
-                          onClick={() => setBrochurePdf(null)}
-                          className="text-sm text-red-600 hover:underline"
-                        >
-                          Remove PDF
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <svg
-                          className="mx-auto h-12 w-12 text-gray-400"
-                          stroke="currentColor"
-                          fill="none"
-                          viewBox="0 0 48 48"
-                        >
-                          <path
-                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                        <div className="text-sm text-gray-600 mt-2">
-                          <span className="text-blue-600 hover:text-blue-700 font-medium">
-                            Upload PDF
-                          </span>{' '}
-                          or drag and drop
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">PDF up to 100MB</p>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      onChange={handleBrochurePdfUpload}
-                      className="hidden"
-                      disabled={!!brochureUrl.trim()}
-                    />
-                  </label>
-                </div>
+                <PDFUploaderDirect
+                  pdf={brochurePdf}
+                  onChange={setBrochurePdf}
+                  projectName={name || 'temp-project'}
+                  disabled={!!brochureUrl.trim()}
+                />
                 <p className="text-xs text-gray-500 mt-2">
                   Provide either a direct link to the brochure or upload a PDF file
                 </p>
@@ -499,37 +480,53 @@ export default function EditProject({ project }: EditProjectProps) {
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">Images</h2>
 
-              <ImageUploader
+              {!name.trim() && (
+                <p className="text-amber-600 text-sm">
+                  Please enter a project name before uploading images
+                </p>
+              )}
+
+              <ImageUploaderDirect
                 images={bannerImage}
                 onChange={setBannerImage}
+                projectName={name || 'temp-project'}
+                folder="banner"
                 maxImages={1}
                 label="Banner Image"
               />
 
-              <ImageUploader
+              <ImageUploaderDirect
                 images={floorplanImages}
                 onChange={setFloorplanImages}
+                projectName={name || 'temp-project'}
+                folder="floorplans"
                 maxImages={50}
                 label="Floor Plans (up to 50 images)"
               />
 
-              <ImageUploader
+              <ImageUploaderDirect
                 images={clubhouseImages}
                 onChange={setClubhouseImages}
+                projectName={name || 'temp-project'}
+                folder="clubhouse"
                 maxImages={50}
                 label="Clubhouse Images (up to 50 images)"
               />
 
-              <ImageUploader
+              <ImageUploaderDirect
                 images={galleryImages}
                 onChange={setGalleryImages}
+                projectName={name || 'temp-project'}
+                folder="gallery"
                 maxImages={50}
                 label="Gallery Images (up to 50 images)"
               />
 
-              <ImageUploader
+              <ImageUploaderDirect
                 images={siteLayoutImages}
                 onChange={setSiteLayoutImages}
+                projectName={name || 'temp-project'}
+                folder="sitelayout"
                 maxImages={50}
                 label="Site Layout Images (up to 50 images)"
               />
@@ -547,10 +544,38 @@ export default function EditProject({ project }: EditProjectProps) {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg font-medium text-sm hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  disabled={isSubmitting || isAnyImageUploading}
+                  className="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg font-medium text-sm hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? 'Updating Project...' : 'Update Project'}
+                  {isAnyImageUploading ? (
+                    <>
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Uploading...
+                    </>
+                  ) : isSubmitting ? (
+                    'Updating Project...'
+                  ) : (
+                    'Update Project'
+                  )}
                 </button>
               </div>
             </div>

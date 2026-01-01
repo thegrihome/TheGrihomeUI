@@ -11,6 +11,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BuilderSelector from '@/components/projects/BuilderSelector'
 import ImageUploaderDirect from '@/components/projects/ImageUploaderDirect'
+import PDFUploaderDirect from '@/components/projects/PDFUploaderDirect'
 import SimpleRichTextEditor from '@/components/common/SimpleRichTextEditor'
 import toast from 'react-hot-toast'
 
@@ -19,6 +20,13 @@ interface UploadedImage {
   uploading?: boolean
   error?: boolean
   localPreview?: string
+}
+
+interface UploadedPDF {
+  url: string
+  uploading?: boolean
+  error?: boolean
+  fileName?: string
 }
 
 export default function SubmitProject() {
@@ -32,7 +40,7 @@ export default function SubmitProject() {
   const [propertyType, setPropertyType] = useState('')
   const [builderId, setBuilderId] = useState<string | null>(null)
   const [brochureUrl, setBrochureUrl] = useState('')
-  const [brochurePdf, setBrochurePdf] = useState<string | null>(null)
+  const [brochurePdf, setBrochurePdf] = useState<UploadedPDF | null>(null)
   const [locationAddress, setLocationAddress] = useState('')
   const [googleMapsUrl, setGoogleMapsUrl] = useState('')
   const [highlightsText, setHighlightsText] = useState('')
@@ -178,34 +186,14 @@ export default function SubmitProject() {
     }
   }
 
-  const handleBrochurePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (file.type !== 'application/pdf') {
-      toast.error('Please upload a PDF file')
-      return
-    }
-
-    if (file.size > 100 * 1024 * 1024) {
-      toast.error('PDF file size must not exceed 100MB')
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setBrochurePdf(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-  }
-
-  // Check if any images are still uploading
+  // Check if any images or PDF are still uploading
   const isAnyImageUploading =
     bannerImage.some(img => img.uploading) ||
     floorplanImages.some(img => img.uploading) ||
     clubhouseImages.some(img => img.uploading) ||
     galleryImages.some(img => img.uploading) ||
-    siteLayoutImages.some(img => img.uploading)
+    siteLayoutImages.some(img => img.uploading) ||
+    brochurePdf?.uploading
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -264,8 +252,7 @@ export default function SubmitProject() {
           description: description.trim(),
           propertyType: propertyType || null,
           builderId,
-          brochureUrl: brochureUrl.trim() || null,
-          brochurePdfBase64: brochurePdf || null,
+          brochureUrl: brochurePdf?.url || brochureUrl.trim() || null,
           locationAddress: locationAddress.trim(),
           googleMapsUrl: googleMapsUrl.trim() || null,
           bannerImageUrl: bannerUrl,
@@ -461,55 +448,15 @@ export default function SubmitProject() {
                   onChange={e => setBrochureUrl(e.target.value)}
                   placeholder="https://example.com/brochure.pdf"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                  disabled={!!brochurePdf}
+                  disabled={!!brochurePdf?.url}
                 />
                 <div className="text-center text-gray-500 text-sm my-2">OR</div>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  <label className="cursor-pointer block text-center">
-                    {brochurePdf ? (
-                      <div className="space-y-2">
-                        <div className="text-green-600">✓ PDF Uploaded</div>
-                        <button
-                          type="button"
-                          onClick={() => setBrochurePdf(null)}
-                          className="text-sm text-red-600 hover:underline"
-                        >
-                          Remove PDF
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <svg
-                          className="mx-auto h-12 w-12 text-gray-400"
-                          stroke="currentColor"
-                          fill="none"
-                          viewBox="0 0 48 48"
-                        >
-                          <path
-                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                        <div className="text-sm text-gray-600 mt-2">
-                          <span className="text-blue-600 hover:text-blue-700 font-medium">
-                            Upload PDF
-                          </span>{' '}
-                          or drag and drop
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">PDF up to 100MB</p>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      onChange={handleBrochurePdfUpload}
-                      className="hidden"
-                      disabled={!!brochureUrl.trim()}
-                    />
-                  </label>
-                </div>
+                <PDFUploaderDirect
+                  pdf={brochurePdf}
+                  onChange={setBrochurePdf}
+                  projectName={name || 'temp-project'}
+                  disabled={!!brochureUrl.trim()}
+                />
                 <p className="text-xs text-gray-500 mt-2">
                   Provide either a direct link to the brochure or upload a PDF file
                 </p>
