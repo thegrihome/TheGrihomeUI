@@ -330,7 +330,10 @@ export default function ProjectsPage() {
 
                       {/* Builder Column */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
+                        <Link
+                          href={`/builders/${project.builder.id}`}
+                          className="flex items-center hover:opacity-80 transition-opacity"
+                        >
                           <div className="flex-shrink-0">
                             {project.builder.logoUrl ? (
                               <Image
@@ -349,11 +352,11 @@ export default function ProjectsPage() {
                             )}
                           </div>
                           <div className="ml-3">
-                            <div className="text-sm text-gray-900 font-medium">
+                            <div className="text-sm text-blue-600 hover:text-blue-800 font-medium">
                               {project.builder.name}
                             </div>
                           </div>
-                        </div>
+                        </Link>
                       </td>
 
                       {/* Location Column */}
