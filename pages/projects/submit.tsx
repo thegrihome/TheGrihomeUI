@@ -187,8 +187,8 @@ export default function SubmitProject() {
       return
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('PDF file size must not exceed 10MB')
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error('PDF file size must not exceed 100MB')
       return
     }
 
@@ -498,7 +498,7 @@ export default function SubmitProject() {
                           </span>{' '}
                           or drag and drop
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">PDF up to 10MB</p>
+                        <p className="text-xs text-gray-500 mt-1">PDF up to 100MB</p>
                       </>
                     )}
                     <input
