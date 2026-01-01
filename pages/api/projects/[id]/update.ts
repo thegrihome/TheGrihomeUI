@@ -149,9 +149,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const newFloorplans = await uploadMultipleProjectImages(
           name,
           'floorplans',
-          floorplanImagesBase64.slice(0, 20)
+          floorplanImagesBase64.slice(0, 50)
         )
-        floorplanUrls = [...floorplanUrls, ...newFloorplans].slice(0, 20)
+        floorplanUrls = [...floorplanUrls, ...newFloorplans].slice(0, 50)
       }
 
       // Upload new clubhouse images if provided
@@ -163,9 +163,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const newClubhouse = await uploadMultipleProjectImages(
           name,
           'clubhouse',
-          clubhouseImagesBase64.slice(0, 10)
+          clubhouseImagesBase64.slice(0, 50)
         )
-        clubhouseUrls = [...clubhouseUrls, ...newClubhouse].slice(0, 10)
+        clubhouseUrls = [...clubhouseUrls, ...newClubhouse].slice(0, 50)
       }
 
       // Upload new gallery images if provided
@@ -177,9 +177,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const newGallery = await uploadMultipleProjectImages(
           name,
           'gallery',
-          galleryImagesBase64.slice(0, 20)
+          galleryImagesBase64.slice(0, 50)
         )
-        galleryUrls = [...galleryUrls, ...newGallery].slice(0, 20)
+        galleryUrls = [...galleryUrls, ...newGallery].slice(0, 50)
       }
     } catch (uploadError) {
       // eslint-disable-next-line no-console

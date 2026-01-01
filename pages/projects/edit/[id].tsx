@@ -509,29 +509,29 @@ export default function EditProject({ project }: EditProjectProps) {
               <ImageUploader
                 images={floorplanImages}
                 onChange={setFloorplanImages}
-                maxImages={20}
-                label="Floor Plans (up to 20 images)"
+                maxImages={50}
+                label="Floor Plans (up to 50 images)"
               />
 
               <ImageUploader
                 images={clubhouseImages}
                 onChange={setClubhouseImages}
-                maxImages={10}
-                label="Clubhouse Images (up to 10 images)"
+                maxImages={50}
+                label="Clubhouse Images (up to 50 images)"
               />
 
               <ImageUploader
                 images={galleryImages}
                 onChange={setGalleryImages}
-                maxImages={20}
-                label="Gallery Images (up to 20 images)"
+                maxImages={50}
+                label="Gallery Images (up to 50 images)"
               />
 
               <ImageUploader
                 images={siteLayoutImages}
                 onChange={setSiteLayoutImages}
-                maxImages={10}
-                label="Site Layout Images (up to 10 images)"
+                maxImages={50}
+                label="Site Layout Images (up to 50 images)"
               />
             </div>
 

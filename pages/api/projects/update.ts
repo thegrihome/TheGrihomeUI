@@ -267,10 +267,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           newUrls = await uploadMultipleProjectImages(
             name,
             'floorplans',
-            floorplanProcess.newBase64.slice(0, 20)
+            floorplanProcess.newBase64.slice(0, 50)
           )
         }
-        floorplanUrls = [...floorplanProcess.urlsToKeep, ...newUrls].slice(0, 20)
+        floorplanUrls = [...floorplanProcess.urlsToKeep, ...newUrls].slice(0, 50)
       } else if (floorplanImagesBase64?.length > 0) {
         // Legacy format
         const newFloorplans = floorplanImagesBase64.filter((img: string) =>
@@ -280,9 +280,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const newUrls = await uploadMultipleProjectImages(
             name,
             'floorplans',
-            newFloorplans.slice(0, 20)
+            newFloorplans.slice(0, 50)
           )
-          floorplanUrls = [...floorplanUrls, ...newUrls].slice(0, 20)
+          floorplanUrls = [...floorplanUrls, ...newUrls].slice(0, 50)
         }
       }
 
@@ -299,10 +299,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           newUrls = await uploadMultipleProjectImages(
             name,
             'clubhouse',
-            clubhouseProcess.newBase64.slice(0, 10)
+            clubhouseProcess.newBase64.slice(0, 50)
           )
         }
-        clubhouseUrls = [...clubhouseProcess.urlsToKeep, ...newUrls].slice(0, 10)
+        clubhouseUrls = [...clubhouseProcess.urlsToKeep, ...newUrls].slice(0, 50)
       } else if (clubhouseImagesBase64?.length > 0) {
         // Legacy format
         const newClubhouse = clubhouseImagesBase64.filter((img: string) =>
@@ -312,9 +312,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const newUrls = await uploadMultipleProjectImages(
             name,
             'clubhouse',
-            newClubhouse.slice(0, 10)
+            newClubhouse.slice(0, 50)
           )
-          clubhouseUrls = [...clubhouseUrls, ...newUrls].slice(0, 10)
+          clubhouseUrls = [...clubhouseUrls, ...newUrls].slice(0, 50)
         }
       }
 
@@ -328,10 +328,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           newUrls = await uploadMultipleProjectImages(
             name,
             'gallery',
-            galleryProcess.newBase64.slice(0, 20)
+            galleryProcess.newBase64.slice(0, 50)
           )
         }
-        galleryUrls = [...galleryProcess.urlsToKeep, ...newUrls].slice(0, 20)
+        galleryUrls = [...galleryProcess.urlsToKeep, ...newUrls].slice(0, 50)
       } else if (galleryImagesBase64?.length > 0) {
         // Legacy format
         const newGallery = galleryImagesBase64.filter((img: string) => img.startsWith('data:image'))
@@ -339,9 +339,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const newUrls = await uploadMultipleProjectImages(
             name,
             'gallery',
-            newGallery.slice(0, 20)
+            newGallery.slice(0, 50)
           )
-          galleryUrls = [...galleryUrls, ...newUrls].slice(0, 20)
+          galleryUrls = [...galleryUrls, ...newUrls].slice(0, 50)
         }
       }
 
@@ -358,10 +358,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           newUrls = await uploadMultipleProjectImages(
             name,
             'sitelayout',
-            siteLayoutProcess.newBase64.slice(0, 10)
+            siteLayoutProcess.newBase64.slice(0, 50)
           )
         }
-        siteLayoutUrls = [...siteLayoutProcess.urlsToKeep, ...newUrls].slice(0, 10)
+        siteLayoutUrls = [...siteLayoutProcess.urlsToKeep, ...newUrls].slice(0, 50)
       } else if (siteLayoutImagesBase64?.length > 0) {
         // Legacy format
         const newSiteLayout = siteLayoutImagesBase64.filter((img: string) =>
@@ -371,9 +371,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const newUrls = await uploadMultipleProjectImages(
             name,
             'sitelayout',
-            newSiteLayout.slice(0, 10)
+            newSiteLayout.slice(0, 50)
           )
-          siteLayoutUrls = [...siteLayoutUrls, ...newUrls].slice(0, 10)
+          siteLayoutUrls = [...siteLayoutUrls, ...newUrls].slice(0, 50)
         }
       }
     } catch (uploadError) {

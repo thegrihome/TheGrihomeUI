@@ -42,6 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       propertyType,
       builderId,
       brochureUrl,
+      brochurePdfBase64,
       locationAddress,
       googleMapsUrl,
       // URL-based fields (from direct blob uploads)
@@ -177,7 +178,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         floorplanImagesBase64 &&
         Array.isArray(floorplanImagesBase64)
       ) {
-        const floorplanImages = floorplanImagesBase64.slice(0, 20)
+        const floorplanImages = floorplanImagesBase64.slice(0, 50)
         floorplanUrls = await uploadMultipleProjectImages(name, 'floorplans', floorplanImages)
         base64UploadedUrls.push(...floorplanUrls)
       }
@@ -188,14 +189,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         clubhouseImagesBase64 &&
         Array.isArray(clubhouseImagesBase64)
       ) {
-        const clubhouseImages = clubhouseImagesBase64.slice(0, 10)
+        const clubhouseImages = clubhouseImagesBase64.slice(0, 50)
         clubhouseUrls = await uploadMultipleProjectImages(name, 'clubhouse', clubhouseImages)
         base64UploadedUrls.push(...clubhouseUrls)
       }
 
       // Upload gallery images (legacy base64 flow, max 20)
       if (galleryUrls.length === 0 && galleryImagesBase64 && Array.isArray(galleryImagesBase64)) {
-        const galleryImages = galleryImagesBase64.slice(0, 20)
+        const galleryImages = galleryImagesBase64.slice(0, 50)
         galleryUrls = await uploadMultipleProjectImages(name, 'gallery', galleryImages)
         base64UploadedUrls.push(...galleryUrls)
       }
@@ -206,7 +207,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         siteLayoutImagesBase64 &&
         Array.isArray(siteLayoutImagesBase64)
       ) {
-        const siteLayoutImages = siteLayoutImagesBase64.slice(0, 10)
+        const siteLayoutImages = siteLayoutImagesBase64.slice(0, 50)
         siteLayoutUrls = await uploadMultipleProjectImages(name, 'sitelayout', siteLayoutImages)
         base64UploadedUrls.push(...siteLayoutUrls)
       }
@@ -216,6 +217,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('Upload error, cleaning up partial uploads:', uploadError)
       await deleteBlobs(getUploadedUrls())
       return res.status(500).json({ message: 'Failed to upload files' })
+    }
+
+    // Upload brochure PDF if provided
+    let brochurePdfUrl: string | null = null
+    if (brochurePdfBase64) {
+      try {
+        const { put } = await import('@vercel/blob')
+        const base64Data = brochurePdfBase64.split(',')[1]
+        const buffer = Buffer.from(base64Data, 'base64')
+        const normalizedProjectName = name
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+        const filename = `projects/${normalizedProjectName}/brochure.pdf`
+
+        const blob = await put(filename, buffer, {
+          access: 'public',
+          contentType: 'application/pdf',
+        })
+
+        brochurePdfUrl = blob.url
+        base64UploadedUrls.push(brochurePdfUrl)
+      } catch (pdfError) {
+        // eslint-disable-next-line no-console
+        console.error('Brochure PDF upload error:', pdfError)
+        await deleteBlobs(getUploadedUrls())
+        return res.status(500).json({ message: 'Failed to upload brochure PDF' })
+      }
     }
 
     // Create project - wrap in try-catch for cleanup on failure
@@ -228,7 +257,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           builderId,
           locationId: locationRecord.id,
           postedByUserId: session.user.id,
-          brochureUrl: brochureUrl || null,
+          brochureUrl: brochurePdfUrl || brochureUrl || null,
           bannerImageUrl: bannerUrl,
           googlePin: googleMapsUrl || null,
           highlights: highlights || null,
