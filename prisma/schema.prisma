@@ -325,6 +325,10 @@ model ForumPost {
   @@index([createdAt])
   @@index([lastReplyAt])
   @@index([slug])
+  // Composite indexes for feed queries
+  @@index([categoryId, lastReplyAt])
+  @@index([categoryId, isSticky, lastReplyAt])
+  @@index([authorId, createdAt])
 }
 
 model ForumReply {
@@ -345,6 +349,8 @@ model ForumReply {
   @@index([authorId])
   @@index([parentId])
   @@index([createdAt])
+  // Composite index for paginated replies
+  @@index([postId, createdAt])
 }
 
 model PostReaction {
@@ -359,6 +365,8 @@ model PostReaction {
   @@unique([postId, userId, type])
   @@index([postId])
   @@index([userId])
+  // Index for reaction aggregation
+  @@index([postId, type])
 }
 
 model ReplyReaction {
@@ -373,6 +381,8 @@ model ReplyReaction {
   @@unique([replyId, userId, type])
   @@index([replyId])
   @@index([userId])
+  // Index for reaction aggregation
+  @@index([replyId, type])
 }
 
 model AdSlotConfig {

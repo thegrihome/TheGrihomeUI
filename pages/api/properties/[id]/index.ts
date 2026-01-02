@@ -40,6 +40,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
           },
         },
         interests: {
+          take: 100, // Limit to most recent 100 interests
           include: {
             user: {
               select: {

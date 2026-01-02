@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import React from 'react'
 
 interface PropertyCardProps {
   property: {
@@ -42,15 +43,16 @@ interface PropertyCardProps {
   processing?: boolean
 }
 
-const propertyTypes = [
+// Move constants outside component to prevent recreation on each render
+const PROPERTY_TYPES = [
   { value: 'SINGLE_FAMILY', label: 'Villas' },
   { value: 'CONDO', label: 'Apartments' },
   { value: 'LAND_RESIDENTIAL', label: 'Residential Lands' },
   { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands' },
   { value: 'COMMERCIAL', label: 'Commercial' },
-]
+] as const
 
-export default function PropertyCard({
+function PropertyCard({
   property,
   isOwner = false,
   isFavorited = false,
@@ -114,10 +116,11 @@ export default function PropertyCard({
           alt={`${getProjectName()} - ${property.propertyType}`}
           width={400}
           height={160}
+          loading="lazy"
           className="w-full h-full object-cover"
         />
         <div className="absolute top-1.5 left-1.5 bg-blue-600 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
-          {propertyTypes.find(t => t.value === property.propertyType)?.label}
+          {PROPERTY_TYPES.find(t => t.value === property.propertyType)?.label}
         </div>
         {property.listingStatus === 'SOLD' ? (
           <div className="absolute top-1.5 right-1.5 bg-red-600 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
@@ -220,3 +223,6 @@ export default function PropertyCard({
     </div>
   )
 }
+
+// Wrap with React.memo for performance - prevents re-renders when props haven't changed
+export default React.memo(PropertyCard)

@@ -2,12 +2,16 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]'
 import { prisma } from '@/lib/cockroachDB/prisma'
+import { applyRateLimit, RATE_LIMITS } from '@/lib/middleware/rate-limit'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     try {
       const { categoryId, page = '1', limit = '20' } = req.query
-      const skip = (parseInt(page as string) - 1) * parseInt(limit as string)
+      // Validate and cap pagination parameters
+      const pageNum = Math.max(1, parseInt(page as string) || 1)
+      const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 20))
+      const skip = (pageNum - 1) * limitNum
 
       const where = categoryId ? { categoryId: categoryId as string } : {}
 
@@ -39,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
           orderBy: [{ isSticky: 'desc' }, { lastReplyAt: 'desc' }, { createdAt: 'desc' }],
           skip,
-          take: parseInt(limit as string),
+          take: limitNum,
         }),
         prisma.forumPost.count({ where }),
       ])
@@ -47,8 +51,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).json({
         posts,
         totalCount,
-        currentPage: parseInt(page as string),
-        totalPages: Math.ceil(totalCount / parseInt(limit as string)),
+        currentPage: pageNum,
+        totalPages: Math.ceil(totalCount / limitNum),
       })
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -60,6 +64,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const session = await getServerSession(req, res, authOptions)
       if (!session?.user?.id) {
         return res.status(401).json({ error: 'Authentication required' })
+      }
+
+      // Apply rate limiting for post creation
+      if (!applyRateLimit(req, res, RATE_LIMITS.forumPost, session.user.id)) {
+        return // Response already sent by rate limiter
       }
 
       // Check if user has verified email or mobile

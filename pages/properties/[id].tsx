@@ -520,16 +520,17 @@ export default function PropertyDetailPage() {
                   )}
                 </div>
 
-                {/* Description */}
+                {/* Description - using safe text rendering instead of dangerouslySetInnerHTML */}
                 {property.description && (
                   <div className="property-description">
                     <h3 className="property-description__title">Description</h3>
-                    <div
-                      className="property-description__text"
-                      dangerouslySetInnerHTML={{
-                        __html: property.description.replace(/\n/g, '<br />'),
-                      }}
-                    />
+                    <div className="property-description__text">
+                      {property.description.split('\n').map((line, index) => (
+                        <p key={index} className="mb-2 last:mb-0">
+                          {line || '\u00A0'}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                 )}
 

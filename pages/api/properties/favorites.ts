@@ -15,11 +15,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ message: 'Unauthorized' })
     }
 
-    // Fetch all favorited properties with full details
+    // Parse and validate pagination parameters
+    const { page = '1', limit = '20' } = req.query
+    const pageNum = Math.max(1, parseInt(page as string) || 1)
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 20))
+    const skip = (pageNum - 1) * limitNum
+
+    // Get total count for pagination
+    const totalCount = await prisma.savedProperty.count({
+      where: { userId: session.user.id },
+    })
+
+    // Fetch paginated favorited properties with full details
     const favorites = await prisma.savedProperty.findMany({
       where: {
         userId: session.user.id,
       },
+      skip,
+      take: limitNum,
       include: {
         property: {
           include: {
@@ -43,6 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               orderBy: {
                 displayOrder: 'asc',
               },
+              take: 1, // Only need first image for thumbnail
             },
           },
         },
@@ -102,6 +116,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       favorites: transformedFavorites,
       count: transformedFavorites.length,
+      pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(totalCount / limitNum),
+        totalCount,
+        hasNextPage: pageNum < Math.ceil(totalCount / limitNum),
+        hasPrevPage: pageNum > 1,
+      },
     })
   } catch (error) {
     // eslint-disable-next-line no-console
