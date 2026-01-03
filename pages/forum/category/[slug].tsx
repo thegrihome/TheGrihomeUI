@@ -1,9 +1,8 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { GetServerSideProps } from 'next'
 import { NextSeo } from 'next-seo'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import Header from '@/components/Header'
@@ -72,6 +71,22 @@ export default function CategoryPage({
   const user = session?.user
   const isAuthenticated = status === 'authenticated'
   const [showNewPostModal, setShowNewPostModal] = useState(false)
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  useEffect(() => {
+    const handleStart = () => setIsNavigating(true)
+    const handleComplete = () => setIsNavigating(false)
+
+    router.events.on('routeChangeStart', handleStart)
+    router.events.on('routeChangeComplete', handleComplete)
+    router.events.on('routeChangeError', handleComplete)
+
+    return () => {
+      router.events.off('routeChangeStart', handleStart)
+      router.events.off('routeChangeComplete', handleComplete)
+      router.events.off('routeChangeError', handleComplete)
+    }
+  }, [router])
 
   // Category icons mapping
 
@@ -123,6 +138,11 @@ export default function CategoryPage({
 
   return (
     <div className="forum-container">
+      {isNavigating && (
+        <div className="forum-loading-overlay">
+          <div className="forum-loading-spinner"></div>
+        </div>
+      )}
       <NextSeo
         title={`${category.name} - Forum - Grihome`}
         description={category.description || `Discussion forum for ${category.name} on Grihome`}

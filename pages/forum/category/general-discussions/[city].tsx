@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { GetServerSideProps } from 'next'
 import { NextSeo } from 'next-seo'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ForumSearch from '@/components/forum/ForumSearch'
@@ -32,6 +33,24 @@ interface CityPageProps {
 }
 
 export default function CityPage({ city, propertyTypes, totalPosts }: CityPageProps) {
+  const router = useRouter()
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  useEffect(() => {
+    const handleStart = () => setIsNavigating(true)
+    const handleComplete = () => setIsNavigating(false)
+
+    router.events.on('routeChangeStart', handleStart)
+    router.events.on('routeChangeComplete', handleComplete)
+    router.events.on('routeChangeError', handleComplete)
+
+    return () => {
+      router.events.off('routeChangeStart', handleStart)
+      router.events.off('routeChangeComplete', handleComplete)
+      router.events.off('routeChangeError', handleComplete)
+    }
+  }, [router])
+
   // Smart title formatter - determines which words should be gradient
   const formatTitle = (title: string) => {
     const gradientWords = ['Forum', 'Introductions', 'News', 'Deals'] // Removed 'Discussions'
@@ -126,6 +145,11 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
 
   return (
     <div className="forum-container">
+      {isNavigating && (
+        <div className="forum-loading-overlay">
+          <div className="forum-loading-spinner"></div>
+        </div>
+      )}
       <NextSeo
         title={`${city.name} - General Discussions - Forum - Grihome`}
         description={`Real estate discussions and property insights for ${city.name} on Grihome community forum`}
