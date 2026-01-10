@@ -20,6 +20,7 @@ export default function Signup() {
     isAgent: false,
     companyName: '',
   })
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [countryCode, setCountryCode] = useState('+1')
   const [avatar, setAvatar] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string>('')
@@ -250,6 +251,12 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Check for terms acceptance
+    if (!termsAccepted) {
+      toast.error('Please accept the Terms and Conditions')
+      return
+    }
+
     // Check for validation errors
     if (validationErrors.username || validationErrors.email || validationErrors.mobileNumber) {
       toast.error('Please fix all validation errors before submitting')
@@ -405,6 +412,11 @@ export default function Signup() {
 
     // Check agent-specific field
     if (formData.isAgent && !formData.companyName.trim()) {
+      return false
+    }
+
+    // Check terms acceptance
+    if (!termsAccepted) {
       return false
     }
 
@@ -693,6 +705,27 @@ export default function Signup() {
                 </div>
               </div>
             )}
+
+            {/* Terms and Conditions */}
+            <div className="signup-form__field">
+              <label className="signup-form__checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={e => setTermsAccepted(e.target.checked)}
+                  className="signup-form__checkbox"
+                />
+                I agree to Grihome{' '}
+                <Link
+                  href="/legal/terms-and-conditions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="signup-form__terms-link"
+                >
+                  Terms and Conditions
+                </Link>
+              </label>
+            </div>
 
             {/* Submit Button */}
             <button

@@ -51,18 +51,21 @@
   display: flex;
   gap: 1rem;
   margin-top: 0.5rem;
+  flex: 1;
+  justify-content: center;
 }
 
 @media (min-width: 768px) {
   .footer-links {
     margin-top: 0;
-    margin-left: 2rem;
+    margin-left: 0;
   }
 }
 
 .footer-link {
   color: #000000;
   font-size: 0.875rem;
+  font-weight: 500;
   text-decoration: none;
   transition: opacity 0.2s ease;
 }

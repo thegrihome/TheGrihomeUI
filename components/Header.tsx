@@ -11,9 +11,11 @@ const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
+  const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false)
   const [userImage, setUserImage] = useState<string | null>(null)
   const [canAccessAdmin, setCanAccessAdmin] = useState<boolean>(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const moreMenuRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
   const { data: session, status, update } = useSession()
@@ -81,16 +83,19 @@ const Header: NextPage = () => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setUserMenuOpen(false)
       }
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setMoreMenuOpen(false)
+      }
     }
 
-    if (userMenuOpen) {
+    if (userMenuOpen || moreMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [userMenuOpen])
+  }, [userMenuOpen, moreMenuOpen])
 
   // Handle click outside mobile menu
   useEffect(() => {
@@ -155,7 +160,7 @@ const Header: NextPage = () => {
             </button>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Main Header Row */}
           <div className="desktop-nav">
             <Link href="/" className="header-logo">
               <GrihomeLogo size={40} className="header-logo-image" />
@@ -168,15 +173,59 @@ const Header: NextPage = () => {
               <Link href="/properties?type=rent" className="desktop-nav-link">
                 Rent
               </Link>
-              <Link href="/projects" className="desktop-nav-link">
-                Projects
-              </Link>
               <Link href="/forum" className="desktop-nav-link">
                 Forum
               </Link>
-              <Link href="/contactUs/contact" className="desktop-nav-link">
-                Contact Us
+              <Link href="/projects" className="desktop-nav-link">
+                Projects
               </Link>
+              {/* More Dropdown */}
+              <div className="more-menu" ref={moreMenuRef}>
+                <button
+                  onClick={() => setMoreMenuOpen(!moreMenuOpen)}
+                  className="desktop-nav-link more-menu-button"
+                >
+                  More
+                  <svg
+                    className={`more-menu-caret ${moreMenuOpen ? 'more-menu-caret-open' : ''}`}
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </button>
+                {moreMenuOpen && (
+                  <div className="more-menu-dropdown">
+                    <Link
+                      href="/builders"
+                      className="more-menu-link"
+                      onClick={() => setMoreMenuOpen(false)}
+                    >
+                      Builders
+                    </Link>
+                    <Link
+                      href="/agents"
+                      className="more-menu-link"
+                      onClick={() => setMoreMenuOpen(false)}
+                    >
+                      Agents
+                    </Link>
+                    <Link
+                      href="/contactUs/contact"
+                      className="more-menu-link"
+                      onClick={() => setMoreMenuOpen(false)}
+                    >
+                      Contact Us
+                    </Link>
+                  </div>
+                )}
+              </div>
               {status === 'loading' ? (
                 <div className="header-add-property-link opacity-50 cursor-not-allowed flex items-center gap-2">
                   <LoadingSpinner size="sm" />
@@ -341,6 +390,20 @@ const Header: NextPage = () => {
                     onClick={() => setNavbarOpen(false)}
                   >
                     Forum
+                  </Link>
+                  <Link
+                    href="/builders"
+                    className="mobile-nav-link"
+                    onClick={() => setNavbarOpen(false)}
+                  >
+                    Builders
+                  </Link>
+                  <Link
+                    href="/agents"
+                    className="mobile-nav-link"
+                    onClick={() => setNavbarOpen(false)}
+                  >
+                    Agents
                   </Link>
                   <Link
                     href="/contactUs/contact"

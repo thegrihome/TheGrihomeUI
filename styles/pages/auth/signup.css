@@ -369,3 +369,14 @@
   color: #6b7280;
   text-align: center;
 }
+
+/* Terms and Conditions Link */
+.signup-form__terms-link {
+  color: #3b82f6;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.signup-form__terms-link:hover {
+  color: #2563eb;
+}

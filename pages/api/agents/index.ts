@@ -47,20 +47,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         take: limitNum,
       })
 
-      // Get active properties count for each agent
+      // Get active properties count and projects for each agent
       const agentsWithCount = await Promise.all(
         agents.map(async agent => {
+          // Get active properties count
           const activeCount = await prisma.property.count({
             where: {
               userId: agent.id,
               listingStatus: 'ACTIVE',
             },
           })
+
+          // Get projects the agent is associated with (via ProjectAgent)
+          const projectAgents = await prisma.projectAgent.findMany({
+            where: {
+              userId: agent.id,
+            },
+            include: {
+              project: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+            orderBy: {
+              registeredAt: 'desc',
+            },
+          })
+
+          const projects = projectAgents.map(pa => ({
+            id: pa.project.id,
+            name: pa.project.name,
+            isPromoted: pa.isPromoted,
+          }))
+
           return {
             ...agent,
             _count: {
               listedProperties: activeCount,
             },
+            projects,
+            projectCount: projects.length,
           }
         })
       )

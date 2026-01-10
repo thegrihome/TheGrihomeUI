@@ -43,11 +43,14 @@ export async function searchProperties({
       ]
     }
   } else if (location) {
-    // Fallback: search across all location fields
+    // Fallback: search across all location fields including parentCity for hierarchical matching
+    // This allows searching "Hyderabad" to find properties in Gopanpally (where parentCity = Hyderabad)
     locationFilter.OR = [
       { location: { city: { contains: location, mode: 'insensitive' } } },
+      { location: { parentCity: { contains: location, mode: 'insensitive' } } },
       { location: { state: { contains: location, mode: 'insensitive' } } },
       { location: { locality: { contains: location, mode: 'insensitive' } } },
+      { location: { neighborhood: { contains: location, mode: 'insensitive' } } },
       { streetAddress: { contains: location, mode: 'insensitive' } },
     ]
   }
@@ -235,11 +238,13 @@ export async function countProperties(filters: {
       ]
     }
   } else if (filters.location) {
-    // Fallback: search across all location fields
+    // Fallback: search across all location fields including parentCity for hierarchical matching
     locationFilter.OR = [
       { location: { city: { contains: filters.location, mode: 'insensitive' } } },
+      { location: { parentCity: { contains: filters.location, mode: 'insensitive' } } },
       { location: { state: { contains: filters.location, mode: 'insensitive' } } },
       { location: { locality: { contains: filters.location, mode: 'insensitive' } } },
+      { location: { neighborhood: { contains: filters.location, mode: 'insensitive' } } },
       { streetAddress: { contains: filters.location, mode: 'insensitive' } },
     ]
   }

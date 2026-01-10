@@ -30,6 +30,7 @@ export function generateSearchText(
 ): string {
   const parts = [
     streetAddress,
+    location.formattedAddress,
     location.locality,
     location.neighborhood,
     location.city,

@@ -335,9 +335,22 @@ export default function PropertiesPage() {
     }))
     setCurrentPage(1) // Reset to first page when filters change
 
-    // Update URL when listingType changes
+    // Update URL when listingType changes - preserve all other filters
     if (key === 'listingType') {
-      const query: { type?: string } = {}
+      const query: Record<string, string> = {}
+
+      // Preserve existing filters
+      if (filters.location) query.location = filters.location
+      if (filters.propertyType) query.propertyType = filters.propertyType
+      if (filters.bedrooms) query.bedrooms = filters.bedrooms
+      if (filters.bathrooms) query.bathrooms = filters.bathrooms
+      if (filters.priceMin) query.priceMin = filters.priceMin
+      if (filters.priceMax) query.priceMax = filters.priceMax
+      if (filters.sizeMin) query.sizeMin = filters.sizeMin
+      if (filters.sizeMax) query.sizeMax = filters.sizeMax
+      if (filters.sortBy) query.sortBy = filters.sortBy
+
+      // Set the new listing type
       if (value === 'SALE') {
         query.type = 'buy'
       } else if (value === 'RENT') {

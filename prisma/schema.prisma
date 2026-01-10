@@ -80,26 +80,28 @@ model VerificationToken {
 }
 
 model Location {
-  id            String     @id @default(cuid())
-  country       String
-  state         String
-  city          String
-  zipcode       String?
-  locality      String?
-  neighborhood  String?
-  latitude      Float?
-  longitude     Float?
+  id               String     @id @default(cuid())
+  country          String
+  state            String
+  city             String
+  zipcode          String?
+  locality         String?
+  neighborhood     String?
+  parentCity       String?    // Parent city for hierarchical location (e.g., Hyderabad for Gopanpally)
+  latitude         Float?
+  longitude        Float?
   formattedAddress String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  projects      Project[]
-  properties    Property[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  projects         Project[]
+  properties       Property[]
 
   @@index([country, state, city])
   @@index([zipcode])
   @@index([latitude, longitude])
   @@index([locality])
   @@index([neighborhood])
+  @@index([parentCity])
 }
 
 model Builder {

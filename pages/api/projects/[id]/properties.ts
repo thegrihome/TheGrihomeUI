@@ -25,10 +25,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const now = new Date()
 
-    // Get only properties that have been explicitly linked via ProjectProperty
-    // AND have an active promotion (promotionEndDate > now)
-    // Properties with expired promotions will not appear
-    const projectProperties = await prisma.projectProperty.findMany({
+    // Get ALL properties that have projectId set to this project (auto-display)
+    const allProjectProperties = await prisma.property.findMany({
+      where: {
+        projectId,
+        listingStatus: 'ACTIVE',
+      },
+      include: {
+        location: {
+          select: {
+            city: true,
+            state: true,
+            locality: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            phone: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        postedDate: 'desc',
+      },
+    })
+
+    // Get actively promoted properties via ProjectProperty
+    const promotedProjectProperties = await prisma.projectProperty.findMany({
       where: {
         projectId,
         isPromoted: true,
@@ -36,67 +63,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           gt: now,
         },
       },
-      include: {
-        property: {
-          include: {
-            location: {
-              select: {
-                city: true,
-                state: true,
-                locality: true,
-              },
-            },
-            user: {
-              select: {
-                id: true,
-                name: true,
-                username: true,
-                phone: true,
-                email: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        addedAt: 'desc',
+      select: {
+        propertyId: true,
+        promotionEndDate: true,
+        id: true,
       },
     })
 
-    // Filter out properties that are not active
-    const properties = projectProperties
-      .filter(pp => pp.property.listingStatus === 'ACTIVE')
-      .map(pp => ({
-        ...pp.property,
-        projectProperty: pp,
-      }))
+    // Create a map of promoted property IDs for quick lookup
+    const promotedMap = new Map(
+      promotedProjectProperties.map(pp => [
+        pp.propertyId,
+        { promotionEndDate: pp.promotionEndDate, projectPropertyId: pp.id },
+      ])
+    )
 
-    // Format response - all properties here are actively promoted
-    const formattedProperties = properties.map(property => ({
-      id: property.id,
-      streetAddress: property.streetAddress,
-      propertyType: property.propertyType,
-      listingType: property.listingType,
-      sqFt: property.sqFt,
-      thumbnailUrl: property.thumbnailUrl,
-      thumbnailIndex: property.thumbnailIndex,
-      imageUrls: property.imageUrls,
-      propertyDetails: property.propertyDetails,
-      postedDate: property.postedDate,
-      location: property.location,
-      agent: property.user,
-      isFeatured: true, // All properties shown are featured (actively promoted)
-      promotionEndDate: property.projectProperty.promotionEndDate,
-      projectPropertyId: property.projectProperty.id,
-    }))
+    // Format all properties with promotion info
+    const formattedProperties = allProjectProperties.map(property => {
+      const promotionInfo = promotedMap.get(property.id)
+      return {
+        id: property.id,
+        streetAddress: property.streetAddress,
+        propertyType: property.propertyType,
+        listingType: property.listingType,
+        sqFt: property.sqFt,
+        thumbnailUrl: property.thumbnailUrl,
+        thumbnailIndex: property.thumbnailIndex,
+        imageUrls: property.imageUrls,
+        propertyDetails: property.propertyDetails,
+        postedDate: property.postedDate,
+        location: property.location,
+        agent: property.user,
+        isFeatured: !!promotionInfo,
+        promotionEndDate: promotionInfo?.promotionEndDate || null,
+        projectPropertyId: promotionInfo?.projectPropertyId || null,
+      }
+    })
 
-    // All properties are featured since we only fetch actively promoted ones
-    const featuredProperties = formattedProperties.slice(0, 5)
-    const regularProperties: typeof formattedProperties = [] // No regular properties anymore
+    // Separate featured (promoted) from regular properties
+    const featuredProperties = formattedProperties.filter(p => p.isFeatured).slice(0, 5)
+    const regularProperties = formattedProperties.filter(p => !p.isFeatured)
 
     return res.status(200).json({
       featuredProperties,
       regularProperties,
+      allProperties: formattedProperties,
       totalProperties: formattedProperties.length,
     })
   } catch (error) {

@@ -29,6 +29,7 @@ export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
   const [expiryDate, setExpiryDate] = useState<Date>(new Date())
   const [showDurationDropdown, setShowDurationDropdown] = useState(false)
   const [durationSearch, setDurationSearch] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const durationDropdownRef = useRef<HTMLDivElement>(null)
   const durationSearchRef = useRef<HTMLInputElement>(null)
 
@@ -104,6 +105,11 @@ export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
   const handlePurchase = async () => {
     if (!session?.user?.email) {
       toast.error('Please login to continue')
+      return
+    }
+
+    if (!termsAccepted) {
+      toast.error('Please accept the Terms and Conditions')
       return
     }
 
@@ -291,7 +297,7 @@ export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
             {/* Purchase Button */}
             <button
               onClick={handlePurchase}
-              disabled={isProcessing || duration < 1}
+              disabled={isProcessing || duration < 1 || !termsAccepted}
               className="w-full bg-blue-600 text-white py-4 px-6 rounded-md font-semibold text-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isProcessing ? (
@@ -332,9 +338,27 @@ export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
               )}
             </button>
 
-            <p className="text-xs text-center text-gray-500 mt-4">
-              By completing this purchase, you agree to our terms and conditions
-            </p>
+            <div className="mt-4">
+              <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={e => setTermsAccepted(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span>
+                  I agree to Grihome{' '}
+                  <Link
+                    href="/legal/terms-and-conditions"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline font-medium hover:text-blue-700"
+                  >
+                    Terms and Conditions
+                  </Link>
+                </span>
+              </label>
+            </div>
           </div>
         </div>
       </main>

@@ -23,6 +23,9 @@ interface Property {
   title: string
   streetAddress: string
   propertyType: string
+  projectId?: string | null
+  projectName?: string | null
+  isInCurrentProject?: boolean
 }
 
 interface PromotePropertyPageProps {
@@ -295,7 +298,7 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
                         className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    <ul className="max-h-48 overflow-y-auto">
+                    <ul className="max-h-60 overflow-y-auto">
                       {filteredProperties.length > 0 ? (
                         filteredProperties.map(property => (
                           <li
@@ -309,11 +312,28 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
                               selectedPropertyId === property.id ? 'bg-blue-50 font-medium' : ''
                             }`}
                           >
-                            {property.title} (
-                            {PROPERTY_TYPE_LABELS[
-                              property.propertyType as keyof typeof PROPERTY_TYPE_LABELS
-                            ] || property.propertyType}
-                            )
+                            <div className="flex items-center justify-between">
+                              <span>
+                                {property.title} (
+                                {PROPERTY_TYPE_LABELS[
+                                  property.propertyType as keyof typeof PROPERTY_TYPE_LABELS
+                                ] || property.propertyType}
+                                )
+                              </span>
+                              {property.isInCurrentProject ? (
+                                <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                                  This project
+                                </span>
+                              ) : property.projectName ? (
+                                <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                                  {property.projectName}
+                                </span>
+                              ) : (
+                                <span className="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full">
+                                  Independent
+                                </span>
+                              )}
+                            </div>
                           </li>
                         ))
                       ) : (
@@ -525,19 +545,30 @@ export const getServerSideProps: GetServerSideProps = async context => {
       })
 
       if (user) {
+        // Get ALL user properties (not just those tagged to this project)
         const propertiesFromDB = await prisma.property.findMany({
           where: {
             userId: user.id,
-            projectId: id,
+            listingStatus: 'ACTIVE',
           },
           select: {
             id: true,
             streetAddress: true,
             propertyType: true,
             propertyDetails: true,
+            projectId: true,
+            project: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+          orderBy: {
+            postedDate: 'desc',
           },
         })
-        // Transform to include title from propertyDetails
+        // Transform to include title from propertyDetails and project info
         userProperties = propertiesFromDB.map(p => {
           const details = p.propertyDetails as { title?: string } | null
           return {
@@ -545,6 +576,9 @@ export const getServerSideProps: GetServerSideProps = async context => {
             title: details?.title || p.streetAddress,
             streetAddress: p.streetAddress,
             propertyType: p.propertyType,
+            projectId: p.projectId,
+            projectName: p.project?.name || null,
+            isInCurrentProject: p.projectId === id,
           }
         })
       }

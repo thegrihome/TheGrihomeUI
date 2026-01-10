@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import validator from 'validator'
 import CountryCodeDropdown from '@/components/auth/CountryCodeDropdown'
 import Header from '@/components/Header'
@@ -25,6 +26,7 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
   const [toast, setToast] = useState<ToastState>({ show: false, message: '', type: 'success' })
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -93,6 +95,16 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!termsAccepted) {
+      setToast({
+        show: true,
+        message: 'Please accept the Terms and Conditions',
+        type: 'error',
+      })
+      setTimeout(() => setToast({ show: false, message: '', type: 'error' }), 5000)
+      return
+    }
 
     if (!validateForm()) {
       return
@@ -246,19 +258,43 @@ export default function ContactPage() {
                 {formErrors.message && <p className="contact-form__error">{formErrors.message}</p>}
               </div>
 
+              <div className="contact-form__terms">
+                <label className="contact-form__terms-label">
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={e => setTermsAccepted(e.target.checked)}
+                    className="contact-form__terms-checkbox"
+                  />
+                  <span>
+                    I agree to Grihome{' '}
+                    <Link
+                      href="/legal/terms-and-conditions"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="contact-form__terms-link"
+                    >
+                      Terms and Conditions
+                    </Link>
+                  </span>
+                </label>
+              </div>
+
               <button
                 type="submit"
                 disabled={
                   isSubmitting ||
                   !formData.name.trim() ||
                   !formData.email.trim() ||
-                  !formData.message.trim()
+                  !formData.message.trim() ||
+                  !termsAccepted
                 }
                 className={`contact-form__submit ${
                   isSubmitting ||
                   !formData.name.trim() ||
                   !formData.email.trim() ||
-                  !formData.message.trim()
+                  !formData.message.trim() ||
+                  !termsAccepted
                     ? 'contact-form__submit--disabled'
                     : 'contact-form__submit--active'
                 }`}

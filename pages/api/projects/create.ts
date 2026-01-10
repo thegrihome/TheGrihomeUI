@@ -117,6 +117,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               zipcode: geocodeResult.zipcode,
               locality: geocodeResult.locality,
               neighborhood: geocodeResult.neighborhood,
+              parentCity: geocodeResult.parentCity,
               latitude: geocodeResult.latitude,
               longitude: geocodeResult.longitude,
               formattedAddress: geocodeResult.formattedAddress,

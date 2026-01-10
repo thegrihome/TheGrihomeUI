@@ -67,11 +67,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where.listingType = listingType as ListingType
     }
 
-    // Location filter - use searchText for fast single-column search
+    // Location filter - search in searchText OR streetAddress
+    // Split location into words and require ALL words to be present (AND logic)
     if (location) {
-      where.searchText = {
-        contains: location.toLowerCase(),
-        mode: 'insensitive',
+      const words = location
+        .replace(/,/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase()
+        .split(' ')
+        .filter(word => word.length > 0)
+
+      // Each word must be present in searchText OR streetAddress
+      if (words.length > 0) {
+        where.AND = [
+          ...(where.AND || []),
+          ...words.map(word => ({
+            OR: [
+              {
+                searchText: {
+                  contains: word,
+                  mode: 'insensitive' as const,
+                },
+              },
+              {
+                streetAddress: {
+                  contains: word,
+                  mode: 'insensitive' as const,
+                },
+              },
+            ],
+          })),
+        ]
       }
     }
 

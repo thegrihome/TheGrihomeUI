@@ -64,6 +64,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               },
               {
                 location: {
+                  parentCity: {
+                    contains: searchQuery,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              },
+              {
+                location: {
                   zipcode: {
                     contains: searchQuery,
                     mode: 'insensitive' as const,

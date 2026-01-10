@@ -232,3 +232,40 @@
   color: #6b7280;
   cursor: not-allowed;
 }
+
+/* Terms and Conditions */
+.contact-form__terms {
+  margin-top: 0.5rem;
+}
+
+.contact-form__terms-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.contact-form__terms-checkbox {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.contact-form__terms-checkbox:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.contact-form__terms-link {
+  color: #3b82f6;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.contact-form__terms-link:hover {
+  color: #2563eb;
+}

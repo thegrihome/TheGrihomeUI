@@ -12,6 +12,7 @@ export interface GeocodeResult {
   zipcode?: string
   locality?: string
   neighborhood?: string
+  parentCity?: string // Parent city for hierarchical location (e.g., Hyderabad for areas like Gopanpally)
 }
 
 /**
@@ -49,15 +50,31 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
       return component?.long_name || ''
     }
 
+    // Extract city from locality (this is the main city like Hyderabad)
+    const mainLocality = getComponent(['locality'])
+    // Extract sub-locality/area (like Gopanpally, KPHB)
+    const subLocality =
+      getComponent(['sublocality_level_1']) ||
+      getComponent(['sublocality_level_2']) ||
+      getComponent(['sublocality'])
+    // If the city field is different from main locality, use locality as parent city
+    const city = mainLocality || getComponent(['administrative_area_level_2'])
+
+    // Determine parentCity: If locality/neighborhood is the same as city, no parent needed
+    // If locality is a subarea (like Gopanpally), then city (like Hyderabad) is the parent
+    let parentCity: string | undefined
+    if (subLocality && mainLocality && subLocality !== mainLocality) {
+      parentCity = mainLocality // e.g., Hyderabad is parent of Gopanpally
+    }
+
     return {
       latitude: lat,
       longitude: lng,
       formattedAddress: result.formatted_address,
-      neighborhood:
-        getComponent(['neighborhood', 'sublocality']) ||
-        getComponent(['sublocality_level_1', 'sublocality_level_2']),
-      locality: getComponent(['locality', 'sublocality']),
-      city: getComponent(['locality', 'administrative_area_level_2']),
+      neighborhood: getComponent(['neighborhood']) || subLocality,
+      locality: subLocality || mainLocality,
+      city,
+      parentCity,
       state: getComponent(['administrative_area_level_1']),
       country: getComponent(['country']),
       zipcode: getComponent(['postal_code']),
@@ -87,15 +104,29 @@ export function parsePlaceResult(place: any): Partial<GeocodeResult> {
     return component?.long_name || ''
   }
 
+  // Extract city from locality (this is the main city like Hyderabad)
+  const mainLocality = getComponent(['locality'])
+  // Extract sub-locality/area (like Gopanpally, KPHB)
+  const subLocality =
+    getComponent(['sublocality_level_1']) ||
+    getComponent(['sublocality_level_2']) ||
+    getComponent(['sublocality'])
+  const city = mainLocality || getComponent(['administrative_area_level_2'])
+
+  // Determine parentCity
+  let parentCity: string | undefined
+  if (subLocality && mainLocality && subLocality !== mainLocality) {
+    parentCity = mainLocality
+  }
+
   return {
     latitude: typeof location.lat === 'function' ? location.lat() : location.lat,
     longitude: typeof location.lng === 'function' ? location.lng() : location.lng,
     formattedAddress: place.formatted_address,
-    neighborhood:
-      getComponent(['neighborhood', 'sublocality']) ||
-      getComponent(['sublocality_level_1', 'sublocality_level_2']),
-    locality: getComponent(['locality', 'sublocality']),
-    city: getComponent(['locality', 'administrative_area_level_2']),
+    neighborhood: getComponent(['neighborhood']) || subLocality,
+    locality: subLocality || mainLocality,
+    city,
+    parentCity,
     state: getComponent(['administrative_area_level_1']),
     country: getComponent(['country']),
     zipcode: getComponent(['postal_code']),

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -40,6 +41,7 @@ export default function AddProperty() {
   const [showPropertySizeUnitDropdown, setShowPropertySizeUnitDropdown] = useState(false)
   const [showPlotSizeUnitDropdown, setShowPlotSizeUnitDropdown] = useState(false)
   const [walkthroughVideoUrls, setWalkthroughVideoUrls] = useState<string[]>([''])
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     propertyType: '',
@@ -319,6 +321,12 @@ export default function AddProperty() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Check for terms acceptance
+    if (!termsAccepted) {
+      toast.error('Please accept the Terms and Conditions')
+      return
+    }
 
     // Validate location
     if (!formData.location.address) {
@@ -985,6 +993,29 @@ export default function AddProperty() {
               </p>
             </div>
 
+            {/* Terms and Conditions */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <label className="add-property-terms-label">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={e => setTermsAccepted(e.target.checked)}
+                  className="add-property-terms-checkbox"
+                />
+                <span>
+                  I agree to Grihome{' '}
+                  <Link
+                    href="/legal/terms-and-conditions"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="add-property-terms-link"
+                  >
+                    Terms and Conditions
+                  </Link>
+                </span>
+              </label>
+            </div>
+
             {/* Submit */}
             <div className="flex justify-end gap-4">
               <button
@@ -996,7 +1027,7 @@ export default function AddProperty() {
               </button>
               <button
                 type="submit"
-                disabled={loading || !isVerified || isAnyImageUploading}
+                disabled={loading || !isVerified || isAnyImageUploading || !termsAccepted}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isAnyImageUploading

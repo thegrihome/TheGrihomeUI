@@ -1,18 +1,22 @@
-import { useRouter } from 'next/router'
 import Link from 'next/link'
 import type { NextPage } from 'next'
 
 const Footer: NextPage = () => {
-  const router = useRouter()
-  const githubEditLink =
-    router.pathname === '/'
-      ? 'https://github.com/minor/plutonium/edit/main/pages/index.js'
-      : `https://github.com/minor/plutonium/edit/main/pages${router.pathname}.js`
-
   return (
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-copyright">Copyright: © Grihome. All rights reserved</div>
+
+        <div className="footer-links">
+          <Link
+            href="/legal/terms-and-conditions"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-link"
+          >
+            Terms & Conditions
+          </Link>
+        </div>
 
         <div className="footer-social-links">
           <a
