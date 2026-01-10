@@ -15,6 +15,7 @@ interface PropertyCardProps {
     }
     builder?: string
     project: string | { id: string; name: string }
+    title?: string
     propertyType: string
     listingType: string
     sqFt: number | null
@@ -45,10 +46,10 @@ interface PropertyCardProps {
 
 // Move constants outside component to prevent recreation on each render
 const PROPERTY_TYPES = [
-  { value: 'SINGLE_FAMILY', label: 'Villas' },
-  { value: 'CONDO', label: 'Apartments' },
-  { value: 'LAND_RESIDENTIAL', label: 'Residential Lands' },
-  { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands' },
+  { value: 'VILLA', label: 'Villas' },
+  { value: 'APARTMENT', label: 'Apartments' },
+  { value: 'RESIDENTIAL_LAND', label: 'Residential Lands' },
+  { value: 'AGRICULTURE_LAND', label: 'Agriculture Lands' },
   { value: 'COMMERCIAL', label: 'Commercial' },
 ] as const
 
@@ -80,7 +81,12 @@ function PropertyCard({
     return num.toLocaleString('en-IN')
   }
 
-  const getProjectName = () => {
+  const getDisplayTitle = () => {
+    // First priority: property title
+    if (property.title) {
+      return property.title
+    }
+    // Second priority: project name
     if (typeof property.project === 'string') {
       return property.project
     }
@@ -113,7 +119,7 @@ function PropertyCard({
             property.imageUrls[0] ||
             'https://via.placeholder.com/400x160?text=Property'
           }
-          alt={`${getProjectName()} - ${property.propertyType}`}
+          alt={`${getDisplayTitle()} - ${property.propertyType}`}
           width={400}
           height={160}
           loading="lazy"
@@ -161,7 +167,7 @@ function PropertyCard({
       {/* Content */}
       <div className="p-3">
         <div className="flex items-start gap-2 mb-2">
-          <h3 className="font-semibold text-sm text-gray-900 break-words">{getProjectName()}</h3>
+          <h3 className="font-semibold text-sm text-gray-900 break-words">{getDisplayTitle()}</h3>
           {formattedPrice && (
             <span className="font-bold text-sm text-blue-600 whitespace-nowrap ml-auto">
               ₹{formattedPrice}

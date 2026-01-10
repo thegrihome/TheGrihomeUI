@@ -73,10 +73,10 @@ export default function PropertyDetailPage() {
   const [sendingMessage, setSendingMessage] = useState(false)
 
   const propertyTypes = [
-    { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
-    { value: 'CONDO', label: 'Apartments', icon: '🏢' },
-    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
-    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
+    { value: 'VILLA', label: 'Villas', icon: '🏡' },
+    { value: 'APARTMENT', label: 'Apartments', icon: '🏢' },
+    { value: 'RESIDENTIAL_LAND', label: 'Residential Lands', icon: '🏞️' },
+    { value: 'AGRICULTURE_LAND', label: 'Agriculture Lands', icon: '🌾' },
     { value: 'COMMERCIAL', label: 'Commercial', icon: '🏬' },
   ]
 
@@ -520,17 +520,14 @@ export default function PropertyDetailPage() {
                   )}
                 </div>
 
-                {/* Description - using safe text rendering instead of dangerouslySetInnerHTML */}
+                {/* Description */}
                 {property.description && (
                   <div className="property-description">
                     <h3 className="property-description__title">Description</h3>
-                    <div className="property-description__text">
-                      {property.description.split('\n').map((line, index) => (
-                        <p key={index} className="mb-2 last:mb-0">
-                          {line || '\u00A0'}
-                        </p>
-                      ))}
-                    </div>
+                    <div
+                      className="property-description__text"
+                      dangerouslySetInnerHTML={{ __html: property.description }}
+                    />
                   </div>
                 )}
 

@@ -27,10 +27,10 @@ interface SavedSearch {
 }
 
 const propertyTypeLabels: Record<string, string> = {
-  SINGLE_FAMILY: 'Villas',
-  CONDO: 'Apartments',
-  LAND_RESIDENTIAL: 'Residential Lands',
-  LAND_AGRICULTURE: 'Agriculture Lands',
+  VILLA: 'Villas',
+  APARTMENT: 'Apartments',
+  RESIDENTIAL_LAND: 'Residential Lands',
+  AGRICULTURE_LAND: 'Agriculture Lands',
   COMMERCIAL: 'Commercial',
 }
 

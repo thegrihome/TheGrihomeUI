@@ -63,10 +63,10 @@ export default function SubmitProject() {
 
   // Property type options - using standardized types
   const propertyTypeOptions = [
-    { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
-    { value: 'CONDO', label: 'Apartments', icon: '🏢' },
-    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
-    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
+    { value: 'VILLA', label: 'Villas', icon: '🏡' },
+    { value: 'APARTMENT', label: 'Apartments', icon: '🏢' },
+    { value: 'RESIDENTIAL_LAND', label: 'Residential Lands', icon: '🏞️' },
+    { value: 'AGRICULTURE_LAND', label: 'Agriculture Lands', icon: '🌾' },
     { value: 'COMMERCIAL', label: 'Commercial', icon: '🏬' },
   ]
 

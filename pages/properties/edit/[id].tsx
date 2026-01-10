@@ -73,10 +73,10 @@ export default function EditProperty() {
   const projectDropdownRef = useRef<HTMLDivElement>(null)
 
   const propertyTypes = [
-    { value: 'SINGLE_FAMILY', label: 'Villas', icon: '🏡' },
-    { value: 'CONDO', label: 'Apartments', icon: '🏢' },
-    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands', icon: '🏞️' },
-    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands', icon: '🌾' },
+    { value: 'VILLA', label: 'Villas', icon: '🏡' },
+    { value: 'APARTMENT', label: 'Apartments', icon: '🏢' },
+    { value: 'RESIDENTIAL_LAND', label: 'Residential Lands', icon: '🏞️' },
+    { value: 'AGRICULTURE_LAND', label: 'Agriculture Lands', icon: '🌾' },
     { value: 'COMMERCIAL', label: 'Commercial', icon: '🏬' },
   ]
 
@@ -479,9 +479,8 @@ export default function EditProperty() {
   }
 
   const showBedroomsBathrooms =
-    formData.propertyType === PROPERTY_TYPES.SINGLE_FAMILY ||
-    formData.propertyType === PROPERTY_TYPES.CONDO ||
-    formData.propertyType === PROPERTY_TYPES.TOWNHOUSE
+    formData.propertyType === PROPERTY_TYPES.VILLA ||
+    formData.propertyType === PROPERTY_TYPES.APARTMENT
 
   const showPlotSize = showBedroomsBathrooms
 

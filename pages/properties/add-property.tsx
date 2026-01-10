@@ -377,9 +377,8 @@ export default function AddProperty() {
   }
 
   const showBedroomsBathrooms =
-    formData.propertyType === PROPERTY_TYPES.SINGLE_FAMILY ||
-    formData.propertyType === PROPERTY_TYPES.CONDO ||
-    formData.propertyType === PROPERTY_TYPES.TOWNHOUSE
+    formData.propertyType === PROPERTY_TYPES.VILLA ||
+    formData.propertyType === PROPERTY_TYPES.APARTMENT
 
   const showPlotSize = showBedroomsBathrooms
 
@@ -994,7 +993,7 @@ export default function AddProperty() {
             </div>
 
             {/* Terms and Conditions */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div>
               <label className="add-property-terms-label">
                 <input
                   type="checkbox"

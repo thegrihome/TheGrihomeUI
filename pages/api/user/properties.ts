@@ -68,11 +68,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           fullAddress: `${property.location.locality ? property.location.locality + ', ' : ''}${property.location.city}, ${property.location.state} ${property.location.zipcode || ''}`,
         },
         builder: property.builder?.name || 'Independent',
-        project:
-          property.project?.name ||
-          propertyDetails?.title ||
-          propertyDetails?.projectName ||
-          'Individual Property',
+        project: property.project ? { id: property.project.id, name: property.project.name } : null,
+        title: propertyDetails?.title || null,
         propertyType: property.propertyType,
         sqFt: property.sqFt,
         thumbnailUrl: property.thumbnailUrl,

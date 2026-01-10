@@ -97,10 +97,10 @@ export default function PropertiesPage() {
   const [savingSearch, setSavingSearch] = useState(false)
 
   const propertyTypes = [
-    { value: 'SINGLE_FAMILY', label: 'Villas' },
-    { value: 'CONDO', label: 'Apartments' },
-    { value: 'LAND_RESIDENTIAL', label: 'Residential Lands' },
-    { value: 'LAND_AGRICULTURE', label: 'Agriculture Lands' },
+    { value: 'VILLA', label: 'Villas' },
+    { value: 'APARTMENT', label: 'Apartments' },
+    { value: 'RESIDENTIAL_LAND', label: 'Residential Lands' },
+    { value: 'AGRICULTURE_LAND', label: 'Agriculture Lands' },
     { value: 'COMMERCIAL', label: 'Commercial' },
   ]
 
@@ -647,8 +647,8 @@ export default function PropertiesPage() {
 
   const showBedroomsBathroomsFilters =
     !filters.propertyType ||
-    filters.propertyType === 'SINGLE_FAMILY' ||
-    filters.propertyType === 'CONDO'
+    filters.propertyType === 'VILLA' ||
+    filters.propertyType === 'APARTMENT'
 
   if (!mounted) return null
 

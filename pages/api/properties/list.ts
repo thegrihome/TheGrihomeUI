@@ -52,14 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Property type filter - map frontend values to database enum
     if (propertyType) {
-      let dbPropertyType = propertyType
-
-      // Map frontend land types to database LAND enum
-      if (propertyType === 'LAND_RESIDENTIAL' || propertyType === 'LAND_AGRICULTURE') {
-        dbPropertyType = 'LAND'
-      }
-
-      where.propertyType = dbPropertyType as PropertyType
+      where.propertyType = propertyType as PropertyType
     }
 
     // Listing type filter (SALE or RENT)

@@ -23,10 +23,10 @@ function generateSearchName(filters: Record<string, unknown>): string {
   // Property Type
   if (filters.propertyType) {
     const typeLabels: Record<string, string> = {
-      SINGLE_FAMILY: 'Villas',
-      CONDO: 'Apartments',
-      LAND_RESIDENTIAL: 'Residential Lands',
-      LAND_AGRICULTURE: 'Agriculture Lands',
+      VILLA: 'Villas',
+      APARTMENT: 'Apartments',
+      RESIDENTIAL_LAND: 'Residential Lands',
+      AGRICULTURE_LAND: 'Agriculture Lands',
       COMMERCIAL: 'Commercial',
     }
     parts.push(typeLabels[filters.propertyType as string] || (filters.propertyType as string))

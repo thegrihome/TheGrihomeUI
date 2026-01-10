@@ -671,10 +671,10 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   {project.propertyType && (
                     <>
                       <span className="project-type-badge project-type-badge--type">
-                        {project.propertyType === 'SINGLE_FAMILY' && 'Villa'}
-                        {project.propertyType === 'CONDO' && 'Apartment'}
-                        {project.propertyType === 'LAND_RESIDENTIAL' && 'Residential Land'}
-                        {project.propertyType === 'LAND_AGRICULTURE' && 'Agriculture Land'}
+                        {project.propertyType === 'VILLA' && 'Villa'}
+                        {project.propertyType === 'APARTMENT' && 'Apartment'}
+                        {project.propertyType === 'RESIDENTIAL_LAND' && 'Residential Land'}
+                        {project.propertyType === 'AGRICULTURE_LAND' && 'Agriculture Land'}
                         {project.propertyType === 'COMMERCIAL' && 'Commercial'}
                       </span>
                       <span className="project-type-badge project-type-badge--sale">For Sale</span>
@@ -1180,6 +1180,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
             </div>
 
             <div className="featured-items-container">
+              {/* Featured/Promoted properties first */}
               {featuredProperties.map(property => (
                 <Link key={property.id} href={`/properties/${property.id}`}>
                   <div className="featured-property-card p-2 border rounded-lg hover:shadow-md transition-shadow">
@@ -1207,21 +1208,17 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                           {property.listingType === 'RENT' ? 'Rent' : 'Sale'}
                         </span>
                         <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                          {property.propertyType === 'SINGLE_FAMILY'
+                          {property.propertyType === 'VILLA'
                             ? 'Villa'
-                            : property.propertyType === 'CONDO'
+                            : property.propertyType === 'APARTMENT'
                               ? 'Apt'
-                              : property.propertyType === 'LAND_RESIDENTIAL'
+                              : property.propertyType === 'RESIDENTIAL_LAND'
                                 ? 'Land'
-                                : property.propertyType === 'LAND_AGRICULTURE'
+                                : property.propertyType === 'AGRICULTURE_LAND'
                                   ? 'Agri'
                                   : property.propertyType === 'COMMERCIAL'
                                     ? 'Comm'
-                                    : property.propertyType === 'TOWNHOUSE'
-                                      ? 'Town'
-                                      : property.propertyType === 'MULTI_FAMILY'
-                                        ? 'Multi'
-                                        : 'Land'}
+                                    : 'Land'}
                         </span>
                       </div>
                     </div>
@@ -1239,9 +1236,54 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   </div>
                 </Link>
               ))}
-              {featuredProperties.length === 0 && (
+              {/* Regular (non-promoted) properties */}
+              {regularProperties.map(property => (
+                <Link key={property.id} href={`/properties/${property.id}`}>
+                  <div className="featured-property-card p-2 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <span className="font-medium text-gray-900 text-sm">
+                          {property.propertyDetails?.title || property.streetAddress}
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-1 flex-shrink-0">
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-xs font-medium ${property.listingType === 'RENT' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'}`}
+                        >
+                          {property.listingType === 'RENT' ? 'Rent' : 'Sale'}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          {property.propertyType === 'VILLA'
+                            ? 'Villa'
+                            : property.propertyType === 'APARTMENT'
+                              ? 'Apt'
+                              : property.propertyType === 'RESIDENTIAL_LAND'
+                                ? 'Land'
+                                : property.propertyType === 'AGRICULTURE_LAND'
+                                  ? 'Agri'
+                                  : property.propertyType === 'COMMERCIAL'
+                                    ? 'Comm'
+                                    : 'Land'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs text-gray-600">
+                        {property.location?.locality && `${property.location.locality}, `}
+                        {property.location?.city}
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {property.propertyDetails?.price
+                          ? `₹${(property.propertyDetails.price / 100000).toFixed(1)}L`
+                          : 'Price on Request'}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              {featuredProperties.length === 0 && regularProperties.length === 0 && (
                 <p className="text-sm text-gray-500 text-center py-4">
-                  No properties are promoted for this project yet.
+                  No properties are tagged to this project yet.
                 </p>
               )}
             </div>

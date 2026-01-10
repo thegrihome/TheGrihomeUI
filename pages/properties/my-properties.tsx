@@ -86,24 +86,24 @@ export default function MyPropertiesPage() {
 
   const propertyTypes = [
     {
-      value: PROPERTY_TYPES.SINGLE_FAMILY,
+      value: PROPERTY_TYPES.VILLA,
       label: 'Villas',
-      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.SINGLE_FAMILY],
+      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.VILLA],
     },
     {
-      value: PROPERTY_TYPES.CONDO,
+      value: PROPERTY_TYPES.APARTMENT,
       label: 'Apartments',
-      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.CONDO],
+      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.APARTMENT],
     },
     {
-      value: PROPERTY_TYPES.LAND_RESIDENTIAL,
+      value: PROPERTY_TYPES.RESIDENTIAL_LAND,
       label: 'Residential Lands',
-      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.LAND_RESIDENTIAL],
+      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.RESIDENTIAL_LAND],
     },
     {
-      value: PROPERTY_TYPES.LAND_AGRICULTURE,
+      value: PROPERTY_TYPES.AGRICULTURE_LAND,
       label: 'Agriculture Lands',
-      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.LAND_AGRICULTURE],
+      icon: PROPERTY_TYPE_ICONS[PROPERTY_TYPES.AGRICULTURE_LAND],
     },
     {
       value: PROPERTY_TYPES.COMMERCIAL,
@@ -413,12 +413,11 @@ export default function MyPropertiesPage() {
                   key={property.id}
                   property={{
                     ...property,
+                    title: property.title,
                     project:
-                      property.title ||
-                      (typeof property.project === 'string'
+                      typeof property.project === 'string'
                         ? property.project
-                        : property.project?.name) ||
-                      '',
+                        : property.project?.name || '',
                     listingType: 'SALE',
                     userId: user?.id || '',
                     userEmail: user?.email || '',
