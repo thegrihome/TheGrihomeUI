@@ -67,13 +67,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ message: 'Project not found' })
     }
 
-    // Verify user owns the property and it's part of the project
+    // Verify user owns the property and it's either independent or part of this project
     const property = await prisma.property.findFirst({
       where: {
         id: propertyId,
-        projectId,
         userId: user.id,
         listingStatus: 'ACTIVE',
+        OR: [
+          { projectId: null }, // Independent property
+          { projectId }, // Already part of this project
+        ],
       },
     })
 
@@ -81,6 +84,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res
         .status(403)
         .json({ message: 'Property not found or you do not have permission to promote it' })
+    }
+
+    // If property is independent, assign it to this project
+    if (!property.projectId) {
+      await prisma.property.update({
+        where: { id: propertyId },
+        data: { projectId },
+      })
     }
 
     // Calculate dates

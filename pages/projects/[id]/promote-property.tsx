@@ -322,15 +322,11 @@ export default function PromotePropertyPage({ project, userProperties }: Promote
                               </span>
                               {property.isInCurrentProject ? (
                                 <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                                  This project
-                                </span>
-                              ) : property.projectName ? (
-                                <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                                  {property.projectName}
+                                  Already in project
                                 </span>
                               ) : (
-                                <span className="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full">
-                                  Independent
+                                <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                  Will be added to project
                                 </span>
                               )}
                             </div>
@@ -545,11 +541,18 @@ export const getServerSideProps: GetServerSideProps = async context => {
       })
 
       if (user) {
-        // Get ALL user properties (not just those tagged to this project)
+        // Get user properties that are either:
+        // 1. Independent (no projectId) OR
+        // 2. Already tagged to this project (for re-promotion)
+        // Properties already linked to OTHER projects are excluded
         const propertiesFromDB = await prisma.property.findMany({
           where: {
             userId: user.id,
             listingStatus: 'ACTIVE',
+            OR: [
+              { projectId: null }, // Independent properties
+              { projectId: id }, // Properties in current project
+            ],
           },
           select: {
             id: true,
