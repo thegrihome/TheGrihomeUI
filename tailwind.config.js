@@ -30,6 +30,10 @@ module.exports = {
       ultrawide: '2560px',
     },
     extend: {
+      fontFamily: {
+        sans: ['Lexend', 'system-ui', 'sans-serif'],
+        lexend: ['Lexend', 'system-ui', 'sans-serif'],
+      },
       spacing: {
         18: '4.5rem',
         88: '22rem',
