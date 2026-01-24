@@ -12,7 +12,7 @@ import {
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM_EMAIL = 'TheGrihome <no-reply@grihome.com>'
+const FROM_EMAIL = 'Zillfin <no-reply@grihome.com>'
 const ADMIN_EMAIL = 'thegrihome@gmail.com'
 
 export interface SendEmailResult {
@@ -84,13 +84,13 @@ export async function sendOtpEmail(params: {
       <p>If you didn't request this code, please ignore this email.</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      <p style="color: #6b7280; font-size: 12px;">This is an automated message from TheGrihome platform.</p>
+      <p style="color: #6b7280; font-size: 12px;">This is an automated message from Zillfin platform.</p>
     </div>
   `
 
   return sendEmail({
     to,
-    subject: `${otp} is your Grihome verification code`,
+    subject: `${otp} is your Zillfin verification code`,
     html,
   })
 }
@@ -148,7 +148,7 @@ export async function sendInterestNotification(params: {
       <p style="margin-top: 20px;">Please reach out to the buyer at your earliest convenience.</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      <p style="color: #6b7280; font-size: 12px;">This is an automated message from TheGrihome platform.</p>
+      <p style="color: #6b7280; font-size: 12px;">This is an automated message from Zillfin platform.</p>
     </div>
   `
 
@@ -156,7 +156,7 @@ export async function sendInterestNotification(params: {
   if (seller.isEmailVerified && seller.email) {
     const sellerResult = await sendEmail({
       to: seller.email,
-      subject: `New Interest in ${propertyName} - Grihome`,
+      subject: `New Interest in ${propertyName} - Zillfin`,
       html: sellerHtml,
     })
     results.sellerEmailSent = sellerResult.success
@@ -170,7 +170,7 @@ export async function sendInterestNotification(params: {
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #2563eb;">Property Interest Notification</h2>
 
-      <p>A new interest has been expressed for a property on Grihome.</p>
+      <p>A new interest has been expressed for a property on Zillfin.</p>
 
       <h3 style="color: #1f2937;">Property</h3>
       <p style="margin: 5px 0;"><strong>Name:</strong> ${propertyName}</p>
@@ -186,7 +186,7 @@ export async function sendInterestNotification(params: {
       <p style="margin: 5px 0;"><strong>Mobile:</strong> ${buyerMobile}</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      <p style="color: #6b7280; font-size: 12px;">Automated notification from TheGrihome platform.</p>
+      <p style="color: #6b7280; font-size: 12px;">Automated notification from Zillfin platform.</p>
     </div>
   `
 
@@ -268,10 +268,10 @@ export async function sendProjectTransactionNotification(params: {
       <p style="margin: 5px 0;"><strong>Duration:</strong> ${transaction.duration}</p>
       <p style="margin: 5px 0;"><strong>Amount:</strong> ${transaction.amount}</p>
 
-      <p style="margin-top: 20px;">Thank you for using Grihome!</p>
+      <p style="margin-top: 20px;">Thank you for using Zillfin!</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      <p style="color: #6b7280; font-size: 12px;">This is an automated message from TheGrihome platform.</p>
+      <p style="color: #6b7280; font-size: 12px;">This is an automated message from Zillfin platform.</p>
     </div>
   `
 
@@ -301,7 +301,7 @@ export async function sendProjectTransactionNotification(params: {
       <p style="margin: 5px 0;"><strong>Mobile:</strong> ${userMobile}</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      <p style="color: #6b7280; font-size: 12px;">Automated notification from TheGrihome platform.</p>
+      <p style="color: #6b7280; font-size: 12px;">Automated notification from Zillfin platform.</p>
     </div>
   `
 
@@ -358,13 +358,13 @@ export async function sendContactEmail(params: {
       </div>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      <p style="color: #6b7280; font-size: 12px;">Contact form submission from Grihome.com</p>
+      <p style="color: #6b7280; font-size: 12px;">Contact form submission from Zillfin.com</p>
     </div>
   `
 
   return sendEmail({
     to: ADMIN_EMAIL,
-    subject: `[Contact] ${name} - Grihome`,
+    subject: `[Contact] ${name} - Zillfin`,
     html,
   })
 }
@@ -458,13 +458,13 @@ export async function sendProjectRequestEmail(params: {
         <h3 style="color: #065f46; margin-top: 0;">Next Steps</h3>
         <p style="color: #047857; margin: 5px 0;">1. Review the project request details</p>
         <p style="color: #047857; margin: 5px 0;">2. Contact the builder/requester for verification</p>
-        <p style="color: #047857; margin: 5px 0;">3. Add the project to Grihome database if approved</p>
+        <p style="color: #047857; margin: 5px 0;">3. Add the project to Zillfin database if approved</p>
         <p style="color: #047857; margin: 5px 0;">4. Update the request status in admin panel</p>
       </div>
 
       <div style="margin-top: 20px; padding: 15px; background-color: #f3f4f6; border-radius: 6px; text-align: center;">
         <p style="margin: 0; color: #6b7280; font-size: 14px;">
-          This email was generated automatically from Grihome project request system.
+          This email was generated automatically from Zillfin project request system.
         </p>
       </div>
     </div>
@@ -499,7 +499,7 @@ export async function sendProjectInterestNotification(params: {
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #2563eb;">Project Interest Notification</h2>
 
-      <p>Hello Grihome Admin,</p>
+      <p>Hello Zillfin Admin,</p>
 
       <p>The following user has expressed interest in project <strong>${projectName}</strong></p>
 
@@ -509,7 +509,7 @@ export async function sendProjectInterestNotification(params: {
       <p style="margin: 5px 0;"><strong>Mobile:</strong> ${userMobile}</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      <p style="color: #6b7280; font-size: 12px;">Automated notification from TheGrihome platform.</p>
+      <p style="color: #6b7280; font-size: 12px;">Automated notification from Zillfin platform.</p>
     </div>
   `
 
@@ -574,7 +574,7 @@ export async function sendAgentContactNotification(params: {
       <p style="margin-top: 20px;">Please reach out to the user at your earliest convenience.</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      <p style="color: #6b7280; font-size: 12px;">This is an automated message from TheGrihome platform.</p>
+      <p style="color: #6b7280; font-size: 12px;">This is an automated message from Zillfin platform.</p>
     </div>
   `
 
@@ -582,7 +582,7 @@ export async function sendAgentContactNotification(params: {
   if (agent.isEmailVerified && agent.email) {
     const agentResult = await sendEmail({
       to: agent.email,
-      subject: `New Interest in ${projectName} - Grihome`,
+      subject: `New Interest in ${projectName} - Zillfin`,
       html: agentHtml,
     })
     results.agentEmailSent = agentResult.success
@@ -596,7 +596,7 @@ export async function sendAgentContactNotification(params: {
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #2563eb;">Agent Contact Notification</h2>
 
-      <p>A user has contacted an agent about a project on Grihome.</p>
+      <p>A user has contacted an agent about a project on Zillfin.</p>
 
       <h3 style="color: #1f2937;">Project</h3>
       <p style="margin: 5px 0;"><strong>Name:</strong> ${projectName}</p>
@@ -612,7 +612,7 @@ export async function sendAgentContactNotification(params: {
       <p style="margin: 5px 0;"><strong>Mobile:</strong> ${userMobile}</p>
 
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      <p style="color: #6b7280; font-size: 12px;">Automated notification from TheGrihome platform.</p>
+      <p style="color: #6b7280; font-size: 12px;">Automated notification from Zillfin platform.</p>
     </div>
   `
 

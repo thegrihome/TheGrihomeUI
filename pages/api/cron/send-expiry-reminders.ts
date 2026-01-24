@@ -5,7 +5,7 @@ import { sendExpiryReminderWhatsApp } from '@/lib/msg91/whatsapp'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const ADMIN_EMAIL = 'thegrihome@gmail.com'
-const FROM_EMAIL = 'TheGrihome <no-reply@grihome.com>'
+const FROM_EMAIL = 'Zillfin <no-reply@grihome.com>'
 
 interface ExpiringAgent {
   id: string
@@ -283,10 +283,10 @@ async function sendAgentExpiryReminder(
 
     <p>To continue being displayed as a verified agent on this project, please renew your registration before it expires.</p>
 
-    <p><a href="${process.env.NEXTAUTH_URL || 'https://grihome.com'}/projects/${project.id}">View Project</a></p>
+    <p><a href="${process.env.NEXTAUTH_URL || 'https://grihome.vercel.app'}/projects/${project.id}">View Project</a></p>
 
     <hr>
-    <p><small>This is an automated reminder from TheGrihome platform.</small></p>
+    <p><small>This is an automated reminder from Zillfin platform.</small></p>
   `
 
   // Send to user if email is verified
@@ -313,7 +313,7 @@ async function sendAgentExpiryReminder(
     <p><strong>Days Remaining:</strong> ${daysRemaining}</p>
 
     <hr>
-    <p><small>Automated notification from TheGrihome platform.</small></p>
+    <p><small>Automated notification from Zillfin platform.</small></p>
   `
 
   await resend.emails.send({
@@ -368,10 +368,10 @@ async function sendPropertyExpiryReminder(
 
     <p>To continue having your property displayed as verified on this project, please renew your promotion before it expires.</p>
 
-    <p><a href="${process.env.NEXTAUTH_URL || 'https://grihome.com'}/projects/${project.id}">View Project</a></p>
+    <p><a href="${process.env.NEXTAUTH_URL || 'https://grihome.vercel.app'}/projects/${project.id}">View Project</a></p>
 
     <hr>
-    <p><small>This is an automated reminder from TheGrihome platform.</small></p>
+    <p><small>This is an automated reminder from Zillfin platform.</small></p>
   `
 
   // Send to user if email is verified
@@ -399,7 +399,7 @@ async function sendPropertyExpiryReminder(
     <p><strong>Days Remaining:</strong> ${daysRemaining}</p>
 
     <hr>
-    <p><small>Automated notification from TheGrihome platform.</small></p>
+    <p><small>Automated notification from Zillfin platform.</small></p>
   `
 
   await resend.emails.send({

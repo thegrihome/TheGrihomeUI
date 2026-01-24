@@ -301,8 +301,8 @@ export default function EditProject({ project }: EditProjectProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <NextSeo
-        title="Edit Project | Grihome"
-        description="Edit your real estate project on Grihome"
+        title="Edit Project | Zillfin"
+        description="Edit your real estate project on Zillfin"
       />
       <Header />
 

@@ -171,8 +171,8 @@ export default function SavedSearchesPage() {
   return (
     <div className="saved-searches-container">
       <NextSeo
-        title="Saved Searches - Grihome"
-        description="View and manage your saved property searches on Grihome"
+        title="Saved Searches - Zillfin"
+        description="View and manage your saved property searches on Zillfin"
         canonical="https://grihome.vercel.app/saved-searches"
       />
 

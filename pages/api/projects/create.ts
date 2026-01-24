@@ -248,6 +248,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    // Build searchText from location data (same as properties)
+    const searchTextParts = [
+      locationRecord.locality,
+      locationRecord.neighborhood,
+      locationRecord.city,
+      locationRecord.state,
+      locationRecord.country,
+      locationRecord.zipcode,
+      locationRecord.parentCity,
+      locationRecord.formattedAddress,
+    ].filter(Boolean)
+    const searchText = searchTextParts.join(' ').toLowerCase()
+
     // Create project - wrap in try-catch for cleanup on failure
     try {
       const project = await prisma.project.create({
@@ -274,6 +287,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               ? walkthroughVideoUrls[0]
               : null,
           isArchived: false,
+          searchText,
         },
         include: {
           location: true,

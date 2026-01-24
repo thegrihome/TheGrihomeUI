@@ -157,6 +157,7 @@ model Project {
   isArchived             Boolean           @default(false)
   averageRating          Float?            @default(0)
   reviewCount            Int               @default(0)
+  searchText             String?
   ads                    Ad[]
   interests              Interest[]
   builder                Builder           @relation(fields: [builderId], references: [id], onDelete: Cascade)
@@ -172,6 +173,7 @@ model Project {
   @@index([type])
   @@index([postedByUserId])
   @@index([isArchived])
+  @@index([searchText])
 }
 
 model Property {

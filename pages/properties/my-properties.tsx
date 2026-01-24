@@ -305,7 +305,7 @@ export default function MyPropertiesPage() {
   return (
     <div className={styles['my-properties-container']}>
       <NextSeo
-        title="My Properties - Grihome"
+        title="My Properties - Zillfin"
         description="Manage your property listings and view interested buyers"
         canonical="https://grihome.vercel.app/my-properties"
       />

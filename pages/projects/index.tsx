@@ -112,15 +112,15 @@ export default function ProjectsPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <NextSeo
-        title="Real Estate Projects - Grihome"
+        title="Real Estate Projects - Zillfin"
         description="Discover premium residential and commercial projects by trusted builders across major cities in India."
         canonical="https://grihome.vercel.app/projects"
         openGraph={{
           url: 'https://grihome.vercel.app/projects',
-          title: 'Real Estate Projects - Grihome',
+          title: 'Real Estate Projects - Zillfin',
           description:
             'Discover premium residential and commercial projects by trusted builders across major cities in India.',
-          site_name: 'Grihome',
+          site_name: 'Zillfin',
         }}
       />
       <Head>

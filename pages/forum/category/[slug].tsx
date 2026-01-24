@@ -144,8 +144,8 @@ export default function CategoryPage({
         </div>
       )}
       <NextSeo
-        title={`${category.name} - Forum - Grihome`}
-        description={category.description || `Discussion forum for ${category.name} on Grihome`}
+        title={`${category.name} - Forum - Zillfin`}
+        description={category.description || `Discussion forum for ${category.name} on Zillfin`}
         canonical={`https://grihome.vercel.app/forum/category/${category.slug}`}
       />
 

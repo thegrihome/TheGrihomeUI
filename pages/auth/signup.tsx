@@ -430,7 +430,7 @@ export default function Signup() {
         <div className="signup-content">
           <form onSubmit={handleSubmit} className="signup-form">
             <h1 className="signup-form__title">Create Account</h1>
-            <p className="signup-form__subtitle">Join Grihome to start your property journey</p>
+            <p className="signup-form__subtitle">Join Zillfin to start your property journey</p>
 
             {/* Name Fields */}
             <div className="signup-form__row">
@@ -715,7 +715,7 @@ export default function Signup() {
                   onChange={e => setTermsAccepted(e.target.checked)}
                   className="signup-form__checkbox"
                 />
-                I agree to Grihome{' '}
+                I agree to Zillfin{' '}
                 <Link
                   href="/legal/terms-and-conditions"
                   target="_blank"

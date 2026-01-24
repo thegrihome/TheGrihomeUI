@@ -151,22 +151,22 @@ export default function Home() {
   return (
     <div className="home-container">
       <NextSeo
-        title="Grihome"
-        description="Grihome — Redefining Real Estate with you."
+        title="Zillfin"
+        description="Zillfin — Redefining Real Estate with you."
         canonical="https://grihome.vercel.app/"
         openGraph={{
           url: 'https://grihome.vercel.app/',
-          title: 'Grihome',
-          description: 'Grihome — Redefining Real Estate with you.',
+          title: 'Zillfin',
+          description: 'Zillfin — Redefining Real Estate with you.',
           images: [
             {
-              url: 'https://grihome.vercel.app/images/grihome-logo.png',
+              url: 'https://grihome.vercel.app/images/zillfin-logo.png',
               width: 800,
               height: 600,
-              alt: 'Grihome Logo',
+              alt: 'Zillfin Logo',
             },
           ],
-          site_name: 'Grihome',
+          site_name: 'Zillfin',
         }}
         twitter={{
           handle: '@urstrulymahesh',
@@ -388,7 +388,7 @@ export default function Home() {
         <div className="mission-container">
           <h1 className="mission-heading">Mission</h1>
           <p className="mission-text">
-            Grihome redefines how India discovers and understands real estate by prioritizing
+            Zillfin redefines how India discovers and understands real estate by prioritizing
             openness, clarity, and user-first design. We are building a collaborative platform where
             people can explore properties without barriers and engage in meaningful discussions that
             empower smarter decisions. Our mission is to create the country&apos;s most transparent

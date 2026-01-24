@@ -5,7 +5,7 @@ const Footer: NextPage = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
-        <div className="footer-copyright">Copyright: © Grihome. All rights reserved</div>
+        <div className="footer-copyright">Copyright: © Zillfin. All rights reserved</div>
 
         <div className="footer-links">
           <Link
@@ -21,7 +21,7 @@ const Footer: NextPage = () => {
         <div className="footer-social-links">
           <a
             aria-label="mail"
-            href="mailto:thegrihome@gmail.com?subject=From Grihome!"
+            href="mailto:thegrihome@gmail.com?subject=From Zillfin!"
             className="footer-social-link"
           >
             <svg
@@ -40,7 +40,7 @@ const Footer: NextPage = () => {
           </a>
           <a
             aria-label="X"
-            href="https://x.com/grihome"
+            href="https://x.com/zillfin"
             target="_blank"
             rel="noreferrer"
             className="footer-social-link"

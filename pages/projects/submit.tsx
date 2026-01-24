@@ -284,8 +284,8 @@ export default function SubmitProject() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NextSeo
-        title="Submit Project | Grihome"
-        description="Submit a new real estate project to Grihome"
+        title="Submit Project | Zillfin"
+        description="Submit a new real estate project to Zillfin"
       />
       <Header />
 

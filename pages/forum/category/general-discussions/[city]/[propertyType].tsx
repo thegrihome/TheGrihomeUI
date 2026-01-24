@@ -202,8 +202,8 @@ export default function PropertyTypePage({
         </div>
       )}
       <NextSeo
-        title={`${category.name} in ${city.name} - General Discussions - Forum - Grihome`}
-        description={`Browse ${category.name.toLowerCase()} discussions and listings in ${city.name} on Grihome community forum`}
+        title={`${category.name} in ${city.name} - General Discussions - Forum - Zillfin`}
+        description={`Browse ${category.name.toLowerCase()} discussions and listings in ${city.name} on Zillfin community forum`}
         canonical={`https://grihome.vercel.app/forum/category/general-discussions/${city.city || city.slug}/${router.query.propertyType}`}
       />
 

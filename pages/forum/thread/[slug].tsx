@@ -207,7 +207,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
   return (
     <div className="forum-container">
       <NextSeo
-        title={`${post.title} - Forum - Grihome`}
+        title={`${post.title} - Forum - Zillfin`}
         description={post.content.substring(0, 160)}
         canonical={`https://grihome.vercel.app/forum/thread/${post.slug}`}
       />

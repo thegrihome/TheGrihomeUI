@@ -150,7 +150,7 @@ export default function AddBuilderPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NextSeo title="Add Builder | Grihome" description="Add a new builder to Grihome" />
+      <NextSeo title="Add Builder | Zillfin" description="Add a new builder to Zillfin" />
 
       <Header />
 

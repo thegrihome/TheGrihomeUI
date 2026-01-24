@@ -92,8 +92,8 @@ export default function BuildersPage() {
   return (
     <>
       <NextSeo
-        title="Builders | Grihome"
-        description="Browse all builders and real estate developers on Grihome"
+        title="Builders | Zillfin"
+        description="Browse all builders and real estate developers on Zillfin"
         canonical="https://grihome.vercel.app/builders"
       />
 

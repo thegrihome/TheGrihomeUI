@@ -267,7 +267,7 @@ export default function ContactPage() {
                     className="contact-form__terms-checkbox"
                   />
                   <span>
-                    I agree to Grihome{' '}
+                    I agree to Zillfin{' '}
                     <Link
                       href="/legal/terms-and-conditions"
                       target="_blank"

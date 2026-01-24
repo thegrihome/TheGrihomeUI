@@ -79,8 +79,8 @@ export default function Forum({ categories }: ForumProps) {
   return (
     <div className="forum-container">
       <NextSeo
-        title="Forum - Grihome"
-        description="Join the Grihome community forum to discuss real estate, share experiences, and connect with fellow property enthusiasts."
+        title="Forum - Zillfin"
+        description="Join the Zillfin community forum to discuss real estate, share experiences, and connect with fellow property enthusiasts."
         canonical="https://grihome.vercel.app/forum"
       />
 
@@ -98,7 +98,7 @@ export default function Forum({ categories }: ForumProps) {
           <div className="forum-header-content">
             <div className="forum-header-main">
               <div className="forum-header-text">
-                <h1 className="forum-title">{formatTitle('Grihome Community Forum')}</h1>
+                <h1 className="forum-title">{formatTitle('Zillfin Community Forum')}</h1>
                 <p className="forum-subtitle">
                   Connect with fellow property enthusiasts, share experiences, and get insights
                   about real estate across India.

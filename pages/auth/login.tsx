@@ -322,7 +322,7 @@ export default function Login() {
         <div className="login-content">
           <div className="login-card">
             <h1 className="login-title">Sign In</h1>
-            <p className="login-subtitle">Welcome back to Grihome</p>
+            <p className="login-subtitle">Welcome back to Zillfin</p>
 
             {/* Login Method Tabs */}
             <div className="login-tabs">

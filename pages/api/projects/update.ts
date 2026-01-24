@@ -136,6 +136,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let locationId = existingProject.locationId
     // Type assertion for included location relation
     const currentLocation = (existingProject as any).location
+    let updatedLocationRecord = currentLocation
 
     if (locationAddress && locationAddress !== currentLocation?.formattedAddress) {
       const geocodeResult = await geocodeAddress(locationAddress)
@@ -173,6 +174,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         locationId = locationRecord.id
+        updatedLocationRecord = locationRecord
       }
     } else if (!locationAddress && googleMapsUrl) {
       // Only Google Maps URL provided - create a basic location for Hyderabad if not exists
@@ -195,7 +197,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       locationId = locationRecord.id
+      updatedLocationRecord = locationRecord
     }
+
+    // Build searchText from location data (same as properties)
+    const searchTextParts = [
+      updatedLocationRecord?.locality,
+      updatedLocationRecord?.neighborhood,
+      updatedLocationRecord?.city,
+      updatedLocationRecord?.state,
+      updatedLocationRecord?.country,
+      updatedLocationRecord?.zipcode,
+      updatedLocationRecord?.parentCity,
+      updatedLocationRecord?.formattedAddress,
+    ].filter(Boolean)
+    const searchText = searchTextParts.join(' ').toLowerCase()
 
     // Handle image and PDF uploads
     let bannerUrl: string | null = existingProject.bannerImageUrl
@@ -437,6 +453,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         imageUrls: [...floorplanUrls, ...clubhouseUrls, ...galleryUrls, ...siteLayoutUrls],
         thumbnailUrl: bannerUrl || galleryUrls[0] || existingProject.thumbnailUrl,
         walkthroughVideoUrl: walkthroughVideoUrl || null,
+        searchText,
       },
       include: {
         location: true,

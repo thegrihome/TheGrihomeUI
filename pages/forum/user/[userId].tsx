@@ -146,8 +146,8 @@ export default function UserProfilePage({
   return (
     <div className="forum-container">
       <NextSeo
-        title={`${userStats.user.username} - User Profile - Forum - Grihome`}
-        description={`View ${userStats.user.username}'s forum profile and activity on Grihome community forum`}
+        title={`${userStats.user.username} - User Profile - Forum - Zillfin`}
+        description={`View ${userStats.user.username}'s forum profile and activity on Zillfin community forum`}
         canonical={`https://grihome.vercel.app/forum/user/${userStats.user.id}`}
       />
 

@@ -100,8 +100,8 @@ export default function GeneralDiscussionsPage({
   return (
     <div className="forum-container">
       <NextSeo
-        title="General Discussions - Forum - Grihome"
-        description="Browse real estate discussions by city across India on Grihome community forum"
+        title="General Discussions - Forum - Zillfin"
+        description="Browse real estate discussions by city across India on Zillfin community forum"
         canonical="https://grihome.vercel.app/forum/category/general-discussions"
       />
 

@@ -6,6 +6,7 @@ import { Loader } from '@googlemaps/js-api-loader'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import PropertyCard from '@/components/properties/PropertyCard'
+import ProjectCard from '@/components/projects/ProjectCard'
 import toast from 'react-hot-toast'
 
 interface Property {
@@ -54,6 +55,35 @@ interface Filters {
   sizeMax: string
 }
 
+interface ProjectFilters {
+  propertyType: string
+  projectType: string
+  location: string
+}
+
+interface Project {
+  id: string
+  name: string
+  description?: string
+  type: string
+  propertyType?: string | null
+  thumbnailUrl?: string | null
+  imageUrls?: string[]
+  location: {
+    city: string
+    state: string
+    zipcode?: string | null
+    locality?: string | null
+    fullAddress?: string
+  }
+  builder?: {
+    id: string
+    name: string
+    logoUrl?: string | null
+  } | null
+  createdAt: string
+}
+
 export default function PropertiesPage() {
   const router = useRouter()
   const { data: session } = useSession()
@@ -96,6 +126,21 @@ export default function PropertiesPage() {
   const [showSizeDropdown, setShowSizeDropdown] = useState(false)
   const [savingSearch, setSavingSearch] = useState(false)
 
+  // Projects tab state
+  const [activeTab, setActiveTab] = useState<'buy' | 'rent' | 'projects'>('buy')
+  const [projects, setProjects] = useState<Project[]>([])
+  const [projectFilters, setProjectFilters] = useState<ProjectFilters>({
+    propertyType: '',
+    projectType: '',
+    location: '',
+  })
+  const [showProjectTypeDropdown, setShowProjectTypeDropdown] = useState(false)
+  const [showProjectPropertyTypeDropdown, setShowProjectPropertyTypeDropdown] = useState(false)
+  const [projectCurrentPage, setProjectCurrentPage] = useState(1)
+  const [projectTotalPages, setProjectTotalPages] = useState(1)
+  const [projectTotalCount, setProjectTotalCount] = useState(0)
+  const projectsPerPage = 15
+
   const propertyTypes = [
     { value: 'VILLA', label: 'Villas' },
     { value: 'APARTMENT', label: 'Apartments' },
@@ -111,6 +156,13 @@ export default function PropertiesPage() {
     { value: 'price_desc', label: 'Price: High to Low' },
     { value: 'newest', label: 'Newest First' },
     { value: 'oldest', label: 'Oldest First' },
+  ]
+
+  const projectTypes = [
+    { value: 'RESIDENTIAL', label: 'Residential' },
+    { value: 'COMMERCIAL', label: 'Commercial' },
+    { value: 'MIXED_USE', label: 'Mixed Use' },
+    { value: 'INDUSTRIAL', label: 'Industrial' },
   ]
 
   // Temporary state for price/size inputs before applying
@@ -136,6 +188,7 @@ export default function PropertiesPage() {
         priceMax,
         sizeMin,
         sizeMax,
+        projectType,
       } = router.query
 
       // Build location string from city, state, locality or use location directly
@@ -150,33 +203,48 @@ export default function PropertiesPage() {
         locationString = location as string
       }
 
-      // Map 'buy' to 'SALE' and 'rent' to 'RENT'
-      let listingType = ''
-      if (type === 'buy') {
-        listingType = 'SALE'
-      } else if (type === 'rent') {
-        listingType = 'RENT'
+      // Handle tab type - 'projects' is now a separate tab
+      if (type === 'projects') {
+        setActiveTab('projects')
+        setProjectFilters({
+          propertyType: (propertyType as string) || '',
+          projectType: (projectType as string) || '',
+          location: locationString,
+        })
+      } else {
+        // Map 'buy' to 'SALE' and 'rent' to 'RENT'
+        let listingType = ''
+        if (type === 'buy') {
+          listingType = 'SALE'
+          setActiveTab('buy')
+        } else if (type === 'rent') {
+          listingType = 'RENT'
+          setActiveTab('rent')
+        } else {
+          setActiveTab('buy')
+          listingType = 'SALE'
+        }
+
+        setFilters(prev => ({
+          ...prev,
+          location: locationString,
+          propertyType: (propertyType as string) || '',
+          listingType,
+          bedrooms: (bedrooms as string) || '',
+          bathrooms: (bathrooms as string) || '',
+          sortBy: (sortBy as string) || '',
+          priceMin: (priceMin as string) || '',
+          priceMax: (priceMax as string) || '',
+          sizeMin: (sizeMin as string) || '',
+          sizeMax: (sizeMax as string) || '',
+        }))
+
+        // Also set temp values for price and size inputs
+        if (priceMin) setTempPriceMin(priceMin as string)
+        if (priceMax) setTempPriceMax(priceMax as string)
+        if (sizeMin) setTempSizeMin(sizeMin as string)
+        if (sizeMax) setTempSizeMax(sizeMax as string)
       }
-
-      setFilters(prev => ({
-        ...prev,
-        location: locationString,
-        propertyType: (propertyType as string) || '',
-        listingType,
-        bedrooms: (bedrooms as string) || '',
-        bathrooms: (bathrooms as string) || '',
-        sortBy: (sortBy as string) || '',
-        priceMin: (priceMin as string) || '',
-        priceMax: (priceMax as string) || '',
-        sizeMin: (sizeMin as string) || '',
-        sizeMax: (sizeMax as string) || '',
-      }))
-
-      // Also set temp values for price and size inputs
-      if (priceMin) setTempPriceMin(priceMin as string)
-      if (priceMax) setTempPriceMax(priceMax as string)
-      if (sizeMin) setTempSizeMin(sizeMin as string)
-      if (sizeMax) setTempSizeMax(sizeMax as string)
     }
   }, [router.isReady, router.query])
 
@@ -255,6 +323,12 @@ export default function PropertiesPage() {
       if (!target.closest('.size-dropdown')) {
         setShowSizeDropdown(false)
       }
+      if (!target.closest('.project-type-dropdown')) {
+        setShowProjectTypeDropdown(false)
+      }
+      if (!target.closest('.project-property-type-dropdown')) {
+        setShowProjectPropertyTypeDropdown(false)
+      }
     }
 
     if (
@@ -263,7 +337,9 @@ export default function PropertiesPage() {
       showBedroomsDropdown ||
       showBathroomsDropdown ||
       showPriceDropdown ||
-      showSizeDropdown
+      showSizeDropdown ||
+      showProjectTypeDropdown ||
+      showProjectPropertyTypeDropdown
     ) {
       document.addEventListener('mousedown', handleClickOutside)
     }
@@ -278,11 +354,13 @@ export default function PropertiesPage() {
     showBathroomsDropdown,
     showPriceDropdown,
     showSizeDropdown,
+    showProjectTypeDropdown,
+    showProjectPropertyTypeDropdown,
   ])
 
-  // Load properties from database
+  // Load properties from database (only when not on projects tab)
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || activeTab === 'projects') return
 
     const loadProperties = async () => {
       setLoading(true)
@@ -326,7 +404,101 @@ export default function PropertiesPage() {
     // Debounce API calls to avoid too many requests
     const timeoutId = setTimeout(loadProperties, 300)
     return () => clearTimeout(timeoutId)
-  }, [filters, mounted, currentPage, propertiesPerPage])
+  }, [filters, mounted, currentPage, propertiesPerPage, activeTab])
+
+  // Load projects from database (only when on projects tab)
+  useEffect(() => {
+    if (!mounted || activeTab !== 'projects') return
+
+    const loadProjects = async () => {
+      setLoading(true)
+      try {
+        const queryParams = new URLSearchParams()
+
+        if (projectFilters.propertyType)
+          queryParams.append('propertyType', projectFilters.propertyType)
+        if (projectFilters.projectType)
+          queryParams.append('projectType', projectFilters.projectType)
+        if (projectFilters.location) queryParams.append('location', projectFilters.location)
+        queryParams.append('page', projectCurrentPage.toString())
+        queryParams.append('limit', projectsPerPage.toString())
+
+        const response = await fetch(`/api/projects/list?${queryParams.toString()}`)
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects')
+        }
+
+        const data = await response.json()
+        setProjects(data.projects)
+        setProjectTotalPages(data.pagination.totalPages)
+        setProjectTotalCount(data.pagination.totalCount)
+      } catch (error) {
+        toast.error('Failed to load projects')
+        setProjects([])
+      } finally {
+        setLoading(false)
+        setIsInitialLoad(false)
+      }
+    }
+
+    // Debounce API calls to avoid too many requests
+    const timeoutId = setTimeout(loadProjects, 300)
+    return () => clearTimeout(timeoutId)
+  }, [projectFilters, mounted, projectCurrentPage, projectsPerPage, activeTab])
+
+  // Handle tab change
+  const handleTabChange = (tab: 'buy' | 'rent' | 'projects') => {
+    setActiveTab(tab)
+    setCurrentPage(1)
+    setProjectCurrentPage(1)
+
+    const query: Record<string, string> = {}
+
+    if (tab === 'projects') {
+      // When switching to projects, copy location and propertyType from properties filters
+      setProjectFilters(prev => ({
+        ...prev,
+        location: filters.location || prev.location,
+        propertyType: filters.propertyType || prev.propertyType,
+      }))
+
+      query.type = 'projects'
+      if (filters.location || projectFilters.location)
+        query.location = filters.location || projectFilters.location
+      if (filters.propertyType || projectFilters.propertyType)
+        query.propertyType = filters.propertyType || projectFilters.propertyType
+      if (projectFilters.projectType) query.projectType = projectFilters.projectType
+    } else {
+      // When switching between buy/rent, preserve all filters - only change listingType
+      // When coming back from projects, restore location/propertyType from project filters if properties filters are empty
+      const newListingType = tab === 'buy' ? 'SALE' : 'RENT'
+
+      setFilters(prev => ({
+        ...prev,
+        listingType: newListingType,
+        // Only update location/propertyType from projects if they're currently empty
+        location: prev.location || projectFilters.location,
+        propertyType: prev.propertyType || projectFilters.propertyType,
+      }))
+
+      query.type = tab
+      // Include all current filters in URL
+      if (filters.location || projectFilters.location)
+        query.location = filters.location || projectFilters.location
+      if (filters.propertyType || projectFilters.propertyType)
+        query.propertyType = filters.propertyType || projectFilters.propertyType
+    }
+
+    router.push(
+      {
+        pathname: '/properties',
+        query,
+      },
+      undefined,
+      { shallow: true }
+    )
+  }
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters(prev => ({
@@ -367,6 +539,63 @@ export default function PropertiesPage() {
         { shallow: true }
       )
     }
+  }
+
+  const handleProjectFilterChange = (key: keyof ProjectFilters, value: string) => {
+    setProjectFilters(prev => ({
+      ...prev,
+      [key]: value,
+    }))
+    setProjectCurrentPage(1) // Reset to first page when filters change
+
+    // Update URL
+    const query: Record<string, string> = { type: 'projects' }
+    const updatedFilters = { ...projectFilters, [key]: value }
+    if (updatedFilters.location) query.location = updatedFilters.location
+    if (updatedFilters.propertyType) query.propertyType = updatedFilters.propertyType
+    if (updatedFilters.projectType) query.projectType = updatedFilters.projectType
+
+    router.push(
+      {
+        pathname: '/properties',
+        query,
+      },
+      undefined,
+      { shallow: true }
+    )
+  }
+
+  const handleProjectLocationSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value
+    handleProjectFilterChange('location', query)
+
+    if (query.length > 2 && autocompleteService) {
+      autocompleteService.getPlacePredictions(
+        {
+          input: query,
+          types: ['(regions)'],
+          componentRestrictions: { country: 'IN' },
+        },
+        (predictions, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+            setPredictions(predictions)
+            setShowLocationPredictions(true)
+          } else {
+            setPredictions([])
+            setShowLocationPredictions(false)
+          }
+        }
+      )
+    } else {
+      setPredictions([])
+      setShowLocationPredictions(false)
+    }
+  }
+
+  const handleProjectLocationSelect = (prediction: google.maps.places.AutocompletePrediction) => {
+    handleProjectFilterChange('location', prediction.description)
+    setShowLocationPredictions(false)
+    setPredictions([])
   }
 
   const handleLocationSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -588,6 +817,9 @@ export default function PropertiesPage() {
 
   // Check if there are any active filters
   const hasActiveFilters = useCallback(() => {
+    if (activeTab === 'projects') {
+      return projectFilters.propertyType || projectFilters.projectType || projectFilters.location
+    }
     return (
       filters.propertyType ||
       filters.listingType ||
@@ -599,7 +831,7 @@ export default function PropertiesPage() {
       filters.sizeMin ||
       filters.sizeMax
     )
-  }, [filters])
+  }, [filters, projectFilters, activeTab])
 
   const handleSaveSearch = async () => {
     if (!session?.user?.id) {
@@ -612,15 +844,24 @@ export default function PropertiesPage() {
     try {
       // Build search query object from current filters
       const searchQuery: Record<string, unknown> = {}
-      if (filters.propertyType) searchQuery.propertyType = filters.propertyType
-      if (filters.listingType) searchQuery.listingType = filters.listingType
-      if (filters.bedrooms) searchQuery.bedrooms = filters.bedrooms
-      if (filters.bathrooms) searchQuery.bathrooms = filters.bathrooms
-      if (filters.location) searchQuery.location = filters.location
-      if (filters.priceMin) searchQuery.priceMin = filters.priceMin
-      if (filters.priceMax) searchQuery.priceMax = filters.priceMax
-      if (filters.sizeMin) searchQuery.sizeMin = filters.sizeMin
-      if (filters.sizeMax) searchQuery.sizeMax = filters.sizeMax
+
+      if (activeTab === 'projects') {
+        searchQuery.searchType = 'projects'
+        if (projectFilters.propertyType) searchQuery.propertyType = projectFilters.propertyType
+        if (projectFilters.projectType) searchQuery.projectType = projectFilters.projectType
+        if (projectFilters.location) searchQuery.location = projectFilters.location
+      } else {
+        searchQuery.searchType = 'properties'
+        if (filters.propertyType) searchQuery.propertyType = filters.propertyType
+        if (filters.listingType) searchQuery.listingType = filters.listingType
+        if (filters.bedrooms) searchQuery.bedrooms = filters.bedrooms
+        if (filters.bathrooms) searchQuery.bathrooms = filters.bathrooms
+        if (filters.location) searchQuery.location = filters.location
+        if (filters.priceMin) searchQuery.priceMin = filters.priceMin
+        if (filters.priceMax) searchQuery.priceMax = filters.priceMax
+        if (filters.sizeMin) searchQuery.sizeMin = filters.sizeMin
+        if (filters.sizeMax) searchQuery.sizeMax = filters.sizeMax
+      }
 
       const response = await fetch('/api/saved-searches', {
         method: 'POST',
@@ -670,8 +911,8 @@ export default function PropertiesPage() {
   return (
     <div className="properties-container">
       <NextSeo
-        title="Properties - Grihome"
-        description="Browse and search properties with advanced filters on Grihome"
+        title="Properties - Zillfin"
+        description="Browse and search properties with advanced filters on Zillfin"
         canonical="https://grihome.vercel.app/properties"
       />
 
@@ -683,7 +924,7 @@ export default function PropertiesPage() {
             <h1 className="text-2xl font-bold">
               <span className="text-gray-800">Browse</span>{' '}
               <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Properties
+                {activeTab === 'projects' ? 'Projects' : 'Properties'}
               </span>
             </h1>
           </div>
@@ -691,15 +932,15 @@ export default function PropertiesPage() {
           {/* Filters Section */}
           <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              {/* Buy/Rent/All Slider Toggle */}
-              <div className="relative inline-flex items-center bg-white border border-gray-300 rounded-full p-0.5 w-full xs:w-[160px] sm:w-[180px] flex-shrink-0">
+              {/* Buy/Rent/Projects Slider Toggle */}
+              <div className="relative inline-flex items-center bg-white border border-gray-300 rounded-full p-0.5 w-full xs:w-[180px] sm:w-[200px] flex-shrink-0">
                 <div
                   className="absolute top-0.5 bottom-0.5 bg-blue-600 rounded-full transition-all duration-300 ease-in-out"
                   style={{
                     left:
-                      filters.listingType === 'SALE'
+                      activeTab === 'buy'
                         ? '2px'
-                        : filters.listingType === 'RENT'
+                        : activeTab === 'rent'
                           ? 'calc(33.33% + 1px)'
                           : 'calc(66.66%)',
                     width: 'calc(33.33% - 2px)',
@@ -707,85 +948,193 @@ export default function PropertiesPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => handleFilterChange('listingType', 'SALE')}
+                  onClick={() => handleTabChange('buy')}
                   className={`flex-1 py-1.5 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
-                    filters.listingType === 'SALE' ? 'text-white' : 'text-gray-700'
+                    activeTab === 'buy' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
                   Buy
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleFilterChange('listingType', 'RENT')}
+                  onClick={() => handleTabChange('rent')}
                   className={`flex-1 py-1.5 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
-                    filters.listingType === 'RENT' ? 'text-white' : 'text-gray-700'
+                    activeTab === 'rent' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
                   Rent
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleFilterChange('listingType', '')}
+                  onClick={() => handleTabChange('projects')}
                   className={`flex-1 py-1.5 px-2 rounded-full font-medium text-xs transition-colors relative z-10 ${
-                    filters.listingType === '' ? 'text-white' : 'text-gray-700'
+                    activeTab === 'projects' ? 'text-white' : 'text-gray-700'
                   }`}
                 >
-                  All
+                  Projects
                 </button>
               </div>
 
-              {/* Property Type Filter */}
-              <div className="relative property-type-dropdown w-full xs:w-auto flex-shrink-0">
-                <button
-                  onClick={() => setShowPropertyTypeDropdown(!showPropertyTypeDropdown)}
-                  className="w-full xs:w-auto px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 xs:min-w-[160px] sm:min-w-[180px] text-left"
-                >
-                  {filters.propertyType
-                    ? propertyTypes.find(t => t.value === filters.propertyType)?.label
-                    : 'All Types'}
-                </button>
-                <svg
-                  className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-                {showPropertyTypeDropdown && (
-                  <div className="absolute z-10 w-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                    <div
-                      className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
-                      onClick={() => {
-                        handleFilterChange('propertyType', '')
-                        setShowPropertyTypeDropdown(false)
-                      }}
-                    >
-                      All Types
-                    </div>
-                    {propertyTypes.map(type => (
+              {/* Property Type Filter (for properties tabs) */}
+              {activeTab !== 'projects' && (
+                <div className="relative property-type-dropdown w-full xs:w-auto flex-shrink-0">
+                  <button
+                    onClick={() => setShowPropertyTypeDropdown(!showPropertyTypeDropdown)}
+                    className="w-full xs:w-auto px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 xs:min-w-[160px] sm:min-w-[180px] text-left"
+                  >
+                    {filters.propertyType
+                      ? propertyTypes.find(t => t.value === filters.propertyType)?.label
+                      : 'All Types'}
+                  </button>
+                  <svg
+                    className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  {showPropertyTypeDropdown && (
+                    <div className="absolute z-10 w-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                       <div
-                        key={type.value}
                         className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
                         onClick={() => {
-                          handleFilterChange('propertyType', type.value)
+                          handleFilterChange('propertyType', '')
                           setShowPropertyTypeDropdown(false)
                         }}
                       >
-                        {type.label}
+                        All Types
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      {propertyTypes.map(type => (
+                        <div
+                          key={type.value}
+                          className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                          onClick={() => {
+                            handleFilterChange('propertyType', type.value)
+                            setShowPropertyTypeDropdown(false)
+                          }}
+                        >
+                          {type.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
-              {/* Bedrooms Filter */}
-              {showBedroomsBathroomsFilters && (
+              {/* Project Type Filter (for projects tab) */}
+              {activeTab === 'projects' && (
+                <div className="relative project-type-dropdown w-full xs:w-auto flex-shrink-0">
+                  <button
+                    onClick={() => setShowProjectTypeDropdown(!showProjectTypeDropdown)}
+                    className="w-full xs:w-auto px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 xs:min-w-[140px] sm:min-w-[160px] text-left"
+                  >
+                    {projectFilters.projectType
+                      ? projectTypes.find(t => t.value === projectFilters.projectType)?.label
+                      : 'Project Type'}
+                  </button>
+                  <svg
+                    className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  {showProjectTypeDropdown && (
+                    <div className="absolute z-10 w-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      <div
+                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                        onClick={() => {
+                          handleProjectFilterChange('projectType', '')
+                          setShowProjectTypeDropdown(false)
+                        }}
+                      >
+                        All Types
+                      </div>
+                      {projectTypes.map(type => (
+                        <div
+                          key={type.value}
+                          className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                          onClick={() => {
+                            handleProjectFilterChange('projectType', type.value)
+                            setShowProjectTypeDropdown(false)
+                          }}
+                        >
+                          {type.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Property Type Filter (for projects tab) */}
+              {activeTab === 'projects' && (
+                <div className="relative project-property-type-dropdown w-full xs:w-auto flex-shrink-0">
+                  <button
+                    onClick={() =>
+                      setShowProjectPropertyTypeDropdown(!showProjectPropertyTypeDropdown)
+                    }
+                    className="w-full xs:w-auto px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 xs:min-w-[140px] sm:min-w-[160px] text-left"
+                  >
+                    {projectFilters.propertyType
+                      ? propertyTypes.find(t => t.value === projectFilters.propertyType)?.label
+                      : 'Property Type'}
+                  </button>
+                  <svg
+                    className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  {showProjectPropertyTypeDropdown && (
+                    <div className="absolute z-10 w-full mt-0 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      <div
+                        className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                        onClick={() => {
+                          handleProjectFilterChange('propertyType', '')
+                          setShowProjectPropertyTypeDropdown(false)
+                        }}
+                      >
+                        All Types
+                      </div>
+                      {propertyTypes.map(type => (
+                        <div
+                          key={type.value}
+                          className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                          onClick={() => {
+                            handleProjectFilterChange('propertyType', type.value)
+                            setShowProjectPropertyTypeDropdown(false)
+                          }}
+                        >
+                          {type.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Bedrooms Filter (properties only) */}
+              {activeTab !== 'projects' && showBedroomsBathroomsFilters && (
                 <div className="relative bedrooms-dropdown flex-shrink-0">
                   <button
                     onClick={() => setShowBedroomsDropdown(!showBedroomsDropdown)}
@@ -834,8 +1183,8 @@ export default function PropertiesPage() {
                 </div>
               )}
 
-              {/* Bathrooms Filter */}
-              {showBedroomsBathroomsFilters && (
+              {/* Bathrooms Filter (properties only) */}
+              {activeTab !== 'projects' && showBedroomsBathroomsFilters && (
                 <div className="relative bathrooms-dropdown flex-shrink-0">
                   <button
                     onClick={() => setShowBathroomsDropdown(!showBathroomsDropdown)}
@@ -888,8 +1237,10 @@ export default function PropertiesPage() {
               <div className="relative flex-1 min-w-full xs:min-w-[180px] sm:min-w-[200px] md:min-w-[250px]">
                 <input
                   type="text"
-                  value={filters.location}
-                  onChange={handleLocationSearch}
+                  value={activeTab === 'projects' ? projectFilters.location : filters.location}
+                  onChange={
+                    activeTab === 'projects' ? handleProjectLocationSearch : handleLocationSearch
+                  }
                   placeholder="Location..."
                   className="w-full px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   onFocus={() => predictions.length > 0 && setShowLocationPredictions(true)}
@@ -901,7 +1252,11 @@ export default function PropertiesPage() {
                       <div
                         key={prediction.place_id}
                         className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
-                        onClick={() => handleLocationSelect(prediction)}
+                        onClick={() =>
+                          activeTab === 'projects'
+                            ? handleProjectLocationSelect(prediction)
+                            : handleLocationSelect(prediction)
+                        }
                       >
                         <svg
                           className="w-4 h-4 text-gray-400"
@@ -936,122 +1291,132 @@ export default function PropertiesPage() {
                 )}
               </div>
 
-              {/* Price Filter */}
-              <div className="relative price-dropdown flex-shrink-0">
-                <button
-                  onClick={handlePriceDropdownToggle}
-                  className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[100px] sm:min-w-[140px] text-left whitespace-nowrap"
-                >
-                  {getPriceLabel()}
-                </button>
-                <svg
-                  className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-                {showPriceDropdown && (
-                  <div className="absolute z-10 w-64 mt-0 bg-white border border-gray-300 rounded-md shadow-lg p-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Min Price</label>
-                        <input
-                          type="number"
-                          value={tempPriceMin}
-                          onChange={e => setTempPriceMin(e.target.value)}
-                          placeholder="No Min"
-                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
+              {/* Price Filter (properties only) */}
+              {activeTab !== 'projects' && (
+                <div className="relative price-dropdown flex-shrink-0">
+                  <button
+                    onClick={handlePriceDropdownToggle}
+                    className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[100px] sm:min-w-[140px] text-left whitespace-nowrap"
+                  >
+                    {getPriceLabel()}
+                  </button>
+                  <svg
+                    className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  {showPriceDropdown && (
+                    <div className="absolute z-10 w-64 mt-0 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Min Price</label>
+                          <input
+                            type="number"
+                            value={tempPriceMin}
+                            onChange={e => setTempPriceMin(e.target.value)}
+                            placeholder="No Min"
+                            className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Max Price</label>
+                          <input
+                            type="number"
+                            value={tempPriceMax}
+                            onChange={e => setTempPriceMax(e.target.value)}
+                            placeholder="No Max"
+                            className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Max Price</label>
-                        <input
-                          type="number"
-                          value={tempPriceMax}
-                          onChange={e => setTempPriceMax(e.target.value)}
-                          placeholder="No Max"
-                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
+                      <button
+                        onClick={applyPriceFilter}
+                        className="mt-3 w-full py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                      >
+                        Apply
+                      </button>
                     </div>
-                    <button
-                      onClick={applyPriceFilter}
-                      className="mt-3 w-full py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
 
-              {/* Size Filter */}
-              <div className="relative size-dropdown flex-shrink-0">
-                <button
-                  onClick={handleSizeDropdownToggle}
-                  className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[100px] sm:min-w-[160px] text-left whitespace-nowrap"
-                >
-                  {getSizeLabel()}
-                </button>
-                <svg
-                  className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-                {showSizeDropdown && (
-                  <div className="absolute z-10 w-64 mt-0 bg-white border border-gray-300 rounded-md shadow-lg p-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Min Size (sq.ft)</label>
-                        <input
-                          type="number"
-                          value={tempSizeMin}
-                          onChange={e => setTempSizeMin(e.target.value)}
-                          placeholder="No Min"
-                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
+              {/* Size Filter (properties only) */}
+              {activeTab !== 'projects' && (
+                <div className="relative size-dropdown flex-shrink-0">
+                  <button
+                    onClick={handleSizeDropdownToggle}
+                    className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white pr-8 min-w-[100px] sm:min-w-[160px] text-left whitespace-nowrap"
+                  >
+                    {getSizeLabel()}
+                  </button>
+                  <svg
+                    className="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  {showSizeDropdown && (
+                    <div className="absolute z-10 w-64 mt-0 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">
+                            Min Size (sq.ft)
+                          </label>
+                          <input
+                            type="number"
+                            value={tempSizeMin}
+                            onChange={e => setTempSizeMin(e.target.value)}
+                            placeholder="No Min"
+                            className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">
+                            Max Size (sq.ft)
+                          </label>
+                          <input
+                            type="number"
+                            value={tempSizeMax}
+                            onChange={e => setTempSizeMax(e.target.value)}
+                            placeholder="No Max"
+                            className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Max Size (sq.ft)</label>
-                        <input
-                          type="number"
-                          value={tempSizeMax}
-                          onChange={e => setTempSizeMax(e.target.value)}
-                          placeholder="No Max"
-                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
+                      <button
+                        onClick={applySizeFilter}
+                        className="mt-3 w-full py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                      >
+                        Apply
+                      </button>
                     </div>
-                    <button
-                      onClick={applySizeFilter}
-                      className="mt-3 w-full py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Results Summary and Sort */}
           <div className="mb-4 sm:mb-6 flex flex-col xs:flex-row justify-between items-start xs:items-center gap-3">
             <p className="text-xs sm:text-sm text-gray-600 flex-shrink-0">
-              Showing {filteredProperties.length} of {properties.length} properties
+              {activeTab === 'projects'
+                ? `Showing ${projects.length} of ${projectTotalCount} projects`
+                : `Showing ${filteredProperties.length} of ${totalCount} properties`}
             </p>
             <div className="flex items-center gap-2 sm:gap-4 w-full xs:w-auto">
               {/* Save Search Button */}
@@ -1074,69 +1439,94 @@ export default function PropertiesPage() {
                 </span>
                 <span className="sm:hidden">{savingSearch ? '...' : 'Save'}</span>
               </button>
-              {/* Sort Dropdown */}
-              <div className="relative sort-dropdown flex-1 xs:flex-initial">
-                <button
-                  onClick={() => setShowSortDropdown(!showSortDropdown)}
-                  className="w-full xs:w-auto flex items-center gap-2 px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors justify-between xs:justify-start"
-                >
-                  Sort: {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Default'}
-                  <svg
-                    className={`w-4 h-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              {/* Sort Dropdown (properties only) */}
+              {activeTab !== 'projects' && (
+                <div className="relative sort-dropdown flex-1 xs:flex-initial">
+                  <button
+                    onClick={() => setShowSortDropdown(!showSortDropdown)}
+                    className="w-full xs:w-auto flex items-center gap-2 px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors justify-between xs:justify-start"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
-
-                {showSortDropdown && (
-                  <div className="absolute right-0 mt-0 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
-                    <button
-                      onClick={() => {
-                        handleFilterChange('sortBy', '')
-                        setShowSortDropdown(false)
-                      }}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                        !filters.sortBy ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
-                      }`}
+                    Sort:{' '}
+                    {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Default'}
+                    <svg
+                      className={`w-4 h-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      Default
-                    </button>
-                    {sortOptions.map(option => (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+
+                  {showSortDropdown && (
+                    <div className="absolute right-0 mt-0 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
                       <button
-                        key={option.value}
                         onClick={() => {
-                          handleFilterChange('sortBy', option.value)
+                          handleFilterChange('sortBy', '')
                           setShowSortDropdown(false)
                         }}
                         className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                          filters.sortBy === option.value
-                            ? 'bg-blue-50 text-blue-700'
-                            : 'text-gray-700'
+                          !filters.sortBy ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
                         }`}
                       >
-                        {option.label}
+                        Default
                       </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      {sortOptions.map(option => (
+                        <button
+                          key={option.value}
+                          onClick={() => {
+                            handleFilterChange('sortBy', option.value)
+                            setShowSortDropdown(false)
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
+                            filters.sortBy === option.value
+                              ? 'bg-blue-50 text-blue-700'
+                              : 'text-gray-700'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Properties Grid */}
+          {/* Content Grid */}
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
-          ) : filteredProperties.length === 0 ? (
+          ) : activeTab === 'projects' ? (
+            // Projects Grid
+            projects.length === 0 ? (
+              <div className="text-center py-16">
+                <h2 className="text-4xl font-bold mb-4">
+                  <span className="text-gray-800">No Projects</span>{' '}
+                  <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    Found
+                  </span>
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  Try adjusting your search criteria to find more projects
+                </p>
+              </div>
+            ) : (
+              <div className="properties-grid">
+                {projects.map(project => (
+                  <ProjectCard key={project.id} project={project} />
+                ))}
+              </div>
+            )
+          ) : // Properties Grid
+          filteredProperties.length === 0 ? (
             <div className="text-center py-16">
               <h2 className="text-4xl font-bold mb-4">
                 <span className="text-gray-800">No Properties</span>{' '}
@@ -1173,62 +1563,86 @@ export default function PropertiesPage() {
           )}
 
           {/* Pagination */}
-          {!loading && filteredProperties.length > 0 && totalPages > 1 && (
-            <div className="mt-6 sm:mt-8 flex flex-col xs:flex-row items-center justify-center gap-2 sm:gap-3">
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="px-3 sm:px-4 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed w-full xs:w-auto"
-              >
-                Previous
-              </button>
+          {!loading &&
+            ((activeTab === 'projects' && projects.length > 0 && projectTotalPages > 1) ||
+              (activeTab !== 'projects' && filteredProperties.length > 0 && totalPages > 1)) && (
+              <div className="mt-6 sm:mt-8 flex flex-col xs:flex-row items-center justify-center gap-2 sm:gap-3">
+                <button
+                  onClick={() =>
+                    activeTab === 'projects'
+                      ? setProjectCurrentPage(prev => Math.max(1, prev - 1))
+                      : setCurrentPage(prev => Math.max(1, prev - 1))
+                  }
+                  disabled={activeTab === 'projects' ? projectCurrentPage === 1 : currentPage === 1}
+                  className="px-3 sm:px-4 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed w-full xs:w-auto"
+                >
+                  Previous
+                </button>
 
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter(page => {
-                    // Show first page, last page, current page, and pages around current
-                    return (
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1)
-                    )
-                  })
-                  .map((page, index, array) => {
-                    // Add ellipsis if there's a gap
-                    const prevPage = array[index - 1]
-                    const showEllipsis = prevPage && page - prevPage > 1
+                <div className="flex items-center gap-1">
+                  {Array.from(
+                    { length: activeTab === 'projects' ? projectTotalPages : totalPages },
+                    (_, i) => i + 1
+                  )
+                    .filter(page => {
+                      const currPage = activeTab === 'projects' ? projectCurrentPage : currentPage
+                      const totPages = activeTab === 'projects' ? projectTotalPages : totalPages
+                      return (
+                        page === 1 ||
+                        page === totPages ||
+                        (page >= currPage - 1 && page <= currPage + 1)
+                      )
+                    })
+                    .map((page, index, array) => {
+                      const prevPage = array[index - 1]
+                      const showEllipsis = prevPage && page - prevPage > 1
+                      const currPage = activeTab === 'projects' ? projectCurrentPage : currentPage
 
-                    return (
-                      <React.Fragment key={page}>
-                        {showEllipsis && <span className="px-2 text-gray-400">...</span>}
-                        <button
-                          onClick={() => setCurrentPage(page)}
-                          className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-md ${
-                            currentPage === page
-                              ? 'bg-blue-600 text-white'
-                              : 'border border-gray-300 hover:bg-gray-50'
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      </React.Fragment>
-                    )
-                  })}
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsis && <span className="px-2 text-gray-400">...</span>}
+                          <button
+                            onClick={() =>
+                              activeTab === 'projects'
+                                ? setProjectCurrentPage(page)
+                                : setCurrentPage(page)
+                            }
+                            className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-md ${
+                              currPage === page
+                                ? 'bg-blue-600 text-white'
+                                : 'border border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      )
+                    })}
+                </div>
+
+                <button
+                  onClick={() =>
+                    activeTab === 'projects'
+                      ? setProjectCurrentPage(prev => Math.min(projectTotalPages, prev + 1))
+                      : setCurrentPage(prev => Math.min(totalPages, prev + 1))
+                  }
+                  disabled={
+                    activeTab === 'projects'
+                      ? projectCurrentPage === projectTotalPages
+                      : currentPage === totalPages
+                  }
+                  className="px-3 sm:px-4 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed w-full xs:w-auto"
+                >
+                  Next
+                </button>
+
+                <span className="text-xs sm:text-sm text-gray-600 text-center xs:ml-4 w-full xs:w-auto">
+                  {activeTab === 'projects'
+                    ? `Page ${projectCurrentPage} of ${projectTotalPages} (${projectTotalCount} projects)`
+                    : `Page ${currentPage} of ${totalPages} (${totalCount} properties)`}
+                </span>
               </div>
-
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="px-3 sm:px-4 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed w-full xs:w-auto"
-              >
-                Next
-              </button>
-
-              <span className="text-xs sm:text-sm text-gray-600 text-center xs:ml-4 w-full xs:w-auto">
-                Page {currentPage} of {totalPages} ({totalCount} properties)
-              </span>
-            </div>
-          )}
+            )}
         </div>
       </main>
 

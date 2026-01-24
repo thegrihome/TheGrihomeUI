@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { NextPage } from 'next'
-import GrihomeLogo from './GrihomeLogo'
+import ZillfinLogo from './ZillfinLogo'
 import LoadingSpinner from './common/LoadingSpinner'
 
 const Header: NextPage = () => {
@@ -133,8 +133,8 @@ const Header: NextPage = () => {
         <div className="header-container">
           <div className="header-top">
             <Link href="/" className="header-logo">
-              <GrihomeLogo size={32} className="header-logo-image" />
-              <span className="header-logo-text">GRIHOME</span>
+              <ZillfinLogo size={32} className="header-logo-image" />
+              <span className="header-logo-text">ZILLFIN</span>
             </Link>
             <button
               className="mobile-menu-button"
@@ -163,8 +163,8 @@ const Header: NextPage = () => {
           {/* Desktop Navigation - Main Header Row */}
           <div className="desktop-nav">
             <Link href="/" className="header-logo">
-              <GrihomeLogo size={40} className="header-logo-image" />
-              <span className="header-logo-text">GRIHOME</span>
+              <ZillfinLogo size={40} className="header-logo-image" />
+              <span className="header-logo-text">ZILLFIN</span>
             </Link>
             <div className="desktop-nav-links">
               <Link href="/properties?type=buy" className="desktop-nav-link">
@@ -348,7 +348,7 @@ const Header: NextPage = () => {
               <div className="mobile-modal-content">
                 <div className="mobile-modal-header">
                   <Link href="/" className="mobile-modal-logo">
-                    GRIHOME
+                    ZILLFIN
                   </Link>
                   <button onClick={() => setNavbarOpen(false)} className="mobile-modal-close">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

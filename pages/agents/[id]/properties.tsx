@@ -240,7 +240,7 @@ export default function AgentProperties() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <NextSeo
-        title={`Properties by ${agent.name} | Grihome`}
+        title={`Properties by ${agent.name} | Zillfin`}
         description={`Browse all properties listed by ${agent.name}${agent.companyName ? ` from ${agent.companyName}` : ''}`}
       />
       <Header />

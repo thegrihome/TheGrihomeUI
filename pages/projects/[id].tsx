@@ -457,7 +457,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
   return (
     <div className="project-detail-container">
       <NextSeo
-        title={`${project.name} - ${project.builder.name} | Grihome`}
+        title={`${project.name} - ${project.builder.name} | Zillfin`}
         description={project.description}
         canonical={`https://grihome.vercel.app/projects/${project.id}`}
         openGraph={{
@@ -474,7 +474,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                 },
               ]
             : [],
-          site_name: 'Grihome',
+          site_name: 'Zillfin',
         }}
       />
       <Head>
@@ -716,7 +716,7 @@ export default function ProjectPage({ project }: ProjectPageProps) {
                   </button>
                   <div className="absolute left-0 top-full mt-2 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
                     <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
-                    ℹ️ Grihome will contact you and ensure your interest is submitted to the builder
+                    ℹ️ Zillfin will contact you and ensure your interest is submitted to the builder
                     to help you finalize a deal.
                   </div>
                 </div>

@@ -378,7 +378,7 @@ export default function PurchaseAdPage() {
   return (
     <div className="purchase-ad-container">
       <NextSeo
-        title="Purchase Ad Slots - Grihome"
+        title="Purchase Ad Slots - Zillfin"
         description="Purchase advertisement slots for your properties"
         canonical="https://grihome.vercel.app/purchase-ad"
       />

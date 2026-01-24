@@ -104,30 +104,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Bedrooms and bathrooms filters (from propertyDetails JSON)
-    if (bedrooms || bathrooms) {
-      const propertyDetailsFilters = []
-
-      if (bedrooms) {
-        propertyDetailsFilters.push({
-          path: ['bedrooms'],
-          equals: bedrooms,
-        })
-      }
-
-      if (bathrooms) {
-        propertyDetailsFilters.push({
-          path: ['bathrooms'],
-          equals: bathrooms,
-        })
-      }
-
-      if (propertyDetailsFilters.length > 0) {
-        where.propertyDetails = {
-          AND: propertyDetailsFilters,
-        }
-      }
-    }
+    // Note: Bedrooms and bathrooms filters are applied in-memory after fetching
+    // because CockroachDB doesn't support Prisma's JSON path filtering
 
     // Build order clause based on sortBy
     let orderBy: any = { createdAt: 'desc' } // default newest first
@@ -145,7 +123,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       priceMin ||
       priceMax ||
       sizeMin ||
-      sizeMax
+      sizeMax ||
+      bedrooms ||
+      bathrooms
 
     // Run count and findMany in parallel for better performance
     const [totalCount, properties] = await Promise.all([
@@ -231,10 +211,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     })
 
-    // Apply price and size filters (in-memory since Prisma doesn't support JSON field filtering well)
-    const hasPriceOrSizeFilter = priceMin || priceMax || sizeMin || sizeMax
-    if (hasPriceOrSizeFilter) {
+    // Apply bedrooms/bathrooms/price/size filters (in-memory since CockroachDB doesn't support JSON path filtering)
+    const hasInMemoryFilter = bedrooms || bathrooms || priceMin || priceMax || sizeMin || sizeMax
+    if (hasInMemoryFilter) {
       transformedProperties = transformedProperties.filter(property => {
+        // Bedrooms filter - handle "5+" case and type coercion
+        if (bedrooms) {
+          const propertyBedrooms = property.bedrooms ? Number(property.bedrooms) : null
+          if (propertyBedrooms === null) return false
+          if (bedrooms.endsWith('+')) {
+            const minBedrooms = parseInt(bedrooms.replace('+', ''), 10)
+            if (propertyBedrooms < minBedrooms) return false
+          } else {
+            if (propertyBedrooms !== parseInt(bedrooms, 10)) return false
+          }
+        }
+
+        // Bathrooms filter - handle "5+" case and type coercion
+        if (bathrooms) {
+          const propertyBathrooms = property.bathrooms ? Number(property.bathrooms) : null
+          if (propertyBathrooms === null) return false
+          if (bathrooms.endsWith('+')) {
+            const minBathrooms = parseInt(bathrooms.replace('+', ''), 10)
+            if (propertyBathrooms < minBathrooms) return false
+          } else {
+            if (propertyBathrooms !== parseInt(bathrooms, 10)) return false
+          }
+        }
+
         // Price filter
         if (priceMin || priceMax) {
           const propertyPrice = property.price ? parseFloat(property.price) : null
@@ -266,8 +270,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    // Calculate filtered count for pagination when using price/size filters
-    const filteredCount = hasPriceOrSizeFilter ? transformedProperties.length : totalCount
+    // Calculate filtered count for pagination when using in-memory filters
+    const filteredCount = hasInMemoryFilter ? transformedProperties.length : totalCount
 
     // Apply pagination after filtering/sorting when using in-memory processing
     if (needsInMemoryProcessing) {
@@ -284,8 +288,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         hasPrevPage: pageNum > 1,
       },
     })
-  } catch (error) {
-    // Error handled by API response
+  } catch {
     res.status(500).json({ message: 'Internal server error' })
   }
 }

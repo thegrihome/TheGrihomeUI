@@ -151,8 +151,8 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
         </div>
       )}
       <NextSeo
-        title={`${city.name} - General Discussions - Forum - Grihome`}
-        description={`Real estate discussions and property insights for ${city.name} on Grihome community forum`}
+        title={`${city.name} - General Discussions - Forum - Zillfin`}
+        description={`Real estate discussions and property insights for ${city.name} on Zillfin community forum`}
         canonical={`https://grihome.vercel.app/forum/category/general-discussions/${city.city || city.slug}`}
       />
 

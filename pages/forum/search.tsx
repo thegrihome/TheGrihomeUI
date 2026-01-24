@@ -135,8 +135,8 @@ export default function SearchPage({ results, error }: SearchPageProps) {
   return (
     <div className="forum-container">
       <NextSeo
-        title={`Search Results for "${query}" - Forum - Grihome`}
-        description={`Search results for "${query}" in Grihome community forum`}
+        title={`Search Results for "${query}" - Forum - Zillfin`}
+        description={`Search results for "${query}" in Zillfin community forum`}
         canonical={`https://grihome.vercel.app/forum/search?q=${query}`}
       />
 

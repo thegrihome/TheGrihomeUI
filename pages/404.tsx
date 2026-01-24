@@ -18,7 +18,7 @@ export default function Error() {
         </div>
         <div className="max-w-md">
           <p className="mb-4 text-xl font-bold leading-normal md:text-2xl">
-            You&apos;ve reached an invalid page in Grihome
+            You&apos;ve reached an invalid page in Zillfin
           </p>
           <p className="max-w-sm mb-8 text-md">
             The page you&apos;re looking for doesn&apos;t exist or has been moved.

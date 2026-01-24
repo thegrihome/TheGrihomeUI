@@ -209,7 +209,7 @@ export default function PurchaseAdSlotPage() {
   return (
     <div className="purchase-ad-container">
       <NextSeo
-        title={`${isRenewal ? 'Renew' : 'Purchase'} Ad Slot ${slotConfig.slotNumber} - Grihome`}
+        title={`${isRenewal ? 'Renew' : 'Purchase'} Ad Slot ${slotConfig.slotNumber} - Zillfin`}
         description={`${isRenewal ? 'Renew your' : 'Purchase an'} advertisement slot for your property`}
         canonical={`https://grihome.vercel.app/purchase-ad-slot-${slotConfig.slotNumber}`}
       />

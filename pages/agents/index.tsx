@@ -140,7 +140,7 @@ export default function AgentsPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <NextSeo
-        title="Real Estate Agents - Grihome"
+        title="Real Estate Agents - Zillfin"
         description="Find qualified real estate agents in India. Connect with experienced professionals to help you buy, sell, or rent properties."
         canonical="https://grihome.vercel.app/agents"
       />

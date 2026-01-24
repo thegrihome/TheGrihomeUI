@@ -34,8 +34,8 @@ export default function StatesPage({ states, totalPosts }: StatesPageProps) {
   return (
     <div className="forum-container">
       <NextSeo
-        title="States and Union Territories - Forum - Grihome"
-        description="Browse real estate discussions across Indian states and union territories on Grihome community forum"
+        title="States and Union Territories - Forum - Zillfin"
+        description="Browse real estate discussions across Indian states and union territories on Zillfin community forum"
         canonical="https://grihome.vercel.app/forum/category/general-discussions/states"
       />
 

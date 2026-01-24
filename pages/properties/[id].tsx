@@ -243,7 +243,7 @@ export default function PropertyDetailPage() {
   return (
     <div className="property-detail-container">
       <NextSeo
-        title={`${property.project} - ${propertyTypeInfo?.label} in ${property.location.city} - Grihome`}
+        title={`${property.project} - ${propertyTypeInfo?.label} in ${property.location.city} - Zillfin`}
         description={
           property.description ||
           `${propertyTypeInfo?.label} property in ${property.location.fullAddress}`

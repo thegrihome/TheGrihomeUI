@@ -6,10 +6,10 @@ const TermsAndConditions = () => {
   return (
     <>
       <Head>
-        <title>Terms and Conditions | Grihome</title>
+        <title>Terms and Conditions | Zillfin</title>
         <meta
           name="description"
-          content="Terms and Conditions for using Grihome - India's trusted real estate platform"
+          content="Terms and Conditions for using Zillfin - India's trusted real estate platform"
         />
       </Head>
 
@@ -26,12 +26,12 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>1. Acceptance of Terms</h2>
             <p>
-              Welcome to Grihome. By accessing or using our website, mobile application, or any of
+              Welcome to Zillfin. By accessing or using our website, mobile application, or any of
               our services, you agree to be bound by these Terms and Conditions. If you do not agree
               to these terms, please do not use our services.
             </p>
             <p>
-              Grihome reserves the right to modify these terms at any time. Continued use of the
+              Zillfin reserves the right to modify these terms at any time. Continued use of the
               platform after changes constitutes acceptance of the modified terms.
             </p>
           </section>
@@ -39,7 +39,7 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>2. Description of Services</h2>
             <p>
-              Grihome is an online real estate platform that enables users to list, search, and
+              Zillfin is an online real estate platform that enables users to list, search, and
               discover properties for sale or rent. Our services include:
             </p>
             <ul>
@@ -73,7 +73,7 @@ const TermsAndConditions = () => {
 
           <section className="terms-section">
             <h2>4. Property Listings</h2>
-            <p>Users who list properties on Grihome represent and warrant that:</p>
+            <p>Users who list properties on Zillfin represent and warrant that:</p>
             <ul>
               <li>They have the legal right to list the property</li>
               <li>All information provided is accurate and not misleading</li>
@@ -83,7 +83,7 @@ const TermsAndConditions = () => {
               <li>RERA registration details (where applicable) are valid and current</li>
             </ul>
             <p>
-              Grihome reserves the right to remove any listing that violates these terms, contains
+              Zillfin reserves the right to remove any listing that violates these terms, contains
               inaccurate information, or is deemed inappropriate.
             </p>
           </section>
@@ -107,16 +107,16 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>6. Intellectual Property</h2>
             <p>
-              All content on Grihome, including but not limited to text, graphics, logos, images,
-              and software, is the property of Grihome or its content suppliers and is protected by
+              All content on Zillfin, including but not limited to text, graphics, logos, images,
+              and software, is the property of Zillfin or its content suppliers and is protected by
               intellectual property laws.
             </p>
             <p>
               Users may not reproduce, distribute, modify, or create derivative works from any
-              content without prior written consent from Grihome.
+              content without prior written consent from Zillfin.
             </p>
             <p>
-              By posting content on Grihome, users grant us a non-exclusive, royalty-free license to
+              By posting content on Zillfin, users grant us a non-exclusive, royalty-free license to
               use, display, and distribute such content on our platform.
             </p>
           </section>
@@ -124,7 +124,7 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>7. Privacy and Data Protection</h2>
             <p>
-              Your use of Grihome is also governed by our Privacy Policy. By using our services, you
+              Your use of Zillfin is also governed by our Privacy Policy. By using our services, you
               consent to our collection and use of personal information as described in the Privacy
               Policy.
             </p>
@@ -141,7 +141,7 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>8. Third-Party Links and Services</h2>
             <p>
-              Grihome may contain links to third-party websites or services. We are not responsible
+              Zillfin may contain links to third-party websites or services. We are not responsible
               for the content, privacy policies, or practices of these third parties. Users access
               third-party sites at their own risk.
             </p>
@@ -150,7 +150,7 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>9. Disclaimer of Warranties</h2>
             <p>
-              Grihome provides its services on an &quot;as is&quot; and &quot;as available&quot;
+              Zillfin provides its services on an &quot;as is&quot; and &quot;as available&quot;
               basis. We make no warranties, express or implied, regarding:
             </p>
             <ul>
@@ -168,7 +168,7 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>10. Limitation of Liability</h2>
             <p>
-              To the fullest extent permitted by law, Grihome and its affiliates, officers,
+              To the fullest extent permitted by law, Zillfin and its affiliates, officers,
               directors, employees, and agents shall not be liable for:
             </p>
             <ul>
@@ -179,7 +179,7 @@ const TermsAndConditions = () => {
               <li>Any disputes between users</li>
             </ul>
             <p>
-              Grihome acts solely as an intermediary platform and is not a party to any transaction
+              Zillfin acts solely as an intermediary platform and is not a party to any transaction
               between users.
             </p>
           </section>
@@ -187,7 +187,7 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>11. Indemnification</h2>
             <p>
-              You agree to indemnify and hold harmless Grihome, its affiliates, and their respective
+              You agree to indemnify and hold harmless Zillfin, its affiliates, and their respective
               officers, directors, employees, and agents from any claims, damages, losses, or
               expenses arising from:
             </p>
@@ -202,7 +202,7 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>12. Dispute Resolution</h2>
             <p>
-              Any disputes arising from or relating to these terms or your use of Grihome shall be
+              Any disputes arising from or relating to these terms or your use of Zillfin shall be
               resolved through:
             </p>
             <ul>
@@ -219,7 +219,7 @@ const TermsAndConditions = () => {
           <section className="terms-section">
             <h2>13. Termination</h2>
             <p>
-              Grihome may terminate or suspend your access to our services at any time, without
+              Zillfin may terminate or suspend your access to our services at any time, without
               prior notice, for any reason including breach of these terms. Upon termination:
             </p>
             <ul>
@@ -234,7 +234,7 @@ const TermsAndConditions = () => {
             <p>For questions about these Terms and Conditions, please contact us at:</p>
             <div className="terms-contact">
               <p>
-                <strong>Grihome</strong>
+                <strong>Zillfin</strong>
               </p>
               <p>Email: thegrihome@gmail.com</p>
             </div>
@@ -252,7 +252,7 @@ const TermsAndConditions = () => {
             <h2>16. Entire Agreement</h2>
             <p>
               These Terms and Conditions, together with our Privacy Policy, constitute the entire
-              agreement between you and Grihome regarding your use of our services and supersede any
+              agreement between you and Zillfin regarding your use of our services and supersede any
               prior agreements.
             </p>
           </section>

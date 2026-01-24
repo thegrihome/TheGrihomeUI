@@ -131,7 +131,7 @@ export default function AdDetailPage({ ad, isOwner }: AdDetailProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <NextSeo
-        title={`Ad #${ad.id} - Grihome`}
+        title={`Ad #${ad.id} - Zillfin`}
         description="Advertisement details"
         canonical={`https://grihome.vercel.app/ads/${ad.id}`}
       />

@@ -163,8 +163,8 @@ export default function NewPostPage({
   return (
     <div className="forum-container">
       <NextSeo
-        title="New Thread - Forum - Grihome"
-        description="Start a new discussion in the Grihome community forum"
+        title="New Thread - Forum - Zillfin"
+        description="Start a new discussion in the Zillfin community forum"
         canonical="https://grihome.vercel.app/forum/new-post"
       />
 

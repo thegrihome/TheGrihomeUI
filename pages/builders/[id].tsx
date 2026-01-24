@@ -65,7 +65,7 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
   return (
     <>
       <NextSeo
-        title={`${builder.name} - Builder Profile | Grihome`}
+        title={`${builder.name} - Builder Profile | Zillfin`}
         description={
           builder.description ||
           `Explore projects by ${builder.name}, a trusted real estate developer`
@@ -87,7 +87,7 @@ export default function BuilderPage({ builder }: BuilderPageProps) {
                 },
               ]
             : [],
-          site_name: 'Grihome',
+          site_name: 'Zillfin',
         }}
       />
       <Head>

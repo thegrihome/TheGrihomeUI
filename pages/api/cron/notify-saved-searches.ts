@@ -4,7 +4,7 @@ import { Resend } from 'resend'
 import { sendSellerInterestWhatsApp } from '@/lib/msg91/whatsapp'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = 'TheGrihome <no-reply@grihome.com>'
+const FROM_EMAIL = 'Zillfin <no-reply@grihome.com>'
 
 interface PropertyMatch {
   id: string
@@ -222,7 +222,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
               <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
               <p style="font-size: 12px; color: #9ca3af;">
-                You're receiving this because you have saved searches enabled on TheGrihome.
+                You're receiving this because you have saved searches enabled on Zillfin.
                 <a href="${baseUrl}/saved-searches">Manage your saved searches</a>
               </p>
             `

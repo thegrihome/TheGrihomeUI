@@ -115,12 +115,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       <p><strong>Date:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
 
       <hr>
-      <p><small>This is an automated message from TheGrihome platform. Only verified contact information is included.</small></p>
+      <p><small>This is an automated message from Zillfin platform. Only verified contact information is included.</small></p>
     `
 
     try {
       await resend.emails.send({
-        from: 'TheGrihome <noreply@grihome.com>',
+        from: 'Zillfin <noreply@grihome.com>',
         to: ['thegrihome@gmail.com'],
         subject: emailSubject,
         html: emailBody,

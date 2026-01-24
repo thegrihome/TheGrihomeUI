@@ -270,8 +270,8 @@ export default function AddProjectPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NextSeo
-        title="Add Project Request - Grihome"
-        description="Request to add a new project to Grihome"
+        title="Add Project Request - Zillfin"
+        description="Request to add a new project to Zillfin"
         canonical="https://grihome.vercel.app/projects/add-project"
       />
 
@@ -296,7 +296,7 @@ export default function AddProjectPage() {
             </button>
             <h1 className="text-3xl font-bold text-gray-900">Add Project Request</h1>
             <p className="text-gray-600 mt-2">
-              Submit a request to add a new project to Grihome. Our team will review and contact
+              Submit a request to add a new project to Zillfin. Our team will review and contact
               you.
             </p>
           </div>
@@ -577,7 +577,7 @@ export default function AddProjectPage() {
               </button>
             </div>
             <p className="text-sm text-gray-500 text-center">
-              By submitting this request, you agree that Grihome admins will review and contact you
+              By submitting this request, you agree that Zillfin admins will review and contact you
               for further details.
             </p>
           </form>

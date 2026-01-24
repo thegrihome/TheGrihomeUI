@@ -347,7 +347,7 @@ export default function PromoteAgentPage({ project }: PromoteAgentPageProps) {
                   className="w-4 h-4 rounded border-gray-300"
                 />
                 <span>
-                  I agree to Grihome{' '}
+                  I agree to Zillfin{' '}
                   <Link
                     href="/legal/terms-and-conditions"
                     target="_blank"
