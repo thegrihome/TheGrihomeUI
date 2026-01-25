@@ -79,7 +79,9 @@ export default function CountryCodeDropdown({
             <span className="text-sm font-medium text-gray-900 flex-shrink-0">
               {selectedCountry.dialCode}
             </span>
-            <span className="text-sm text-gray-600 flex-shrink-0">{selectedCountry.code3}</span>
+            <span className="text-sm text-gray-600 flex-shrink-0 hidden sm:inline">
+              {selectedCountry.code3}
+            </span>
           </div>
           <svg
             className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-1 ${isOpen ? 'rotate-180' : ''}`}

@@ -265,4 +265,14 @@
   .login-form__actions {
     flex-direction: column;
   }
+
+  .login-form__phone-group {
+    grid-template-columns: 120px 1fr;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-form__phone-group {
+    grid-template-columns: 100px 1fr;
+  }
 }
