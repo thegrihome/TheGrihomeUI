@@ -120,7 +120,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       await resend.emails.send({
-        from: 'Zillfin <noreply@grihome.com>',
+        from: 'Zillfin <no-reply@zillfin.com>',
         to: ['thegrihome@gmail.com'],
         subject: emailSubject,
         html: emailBody,

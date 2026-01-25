@@ -12,7 +12,7 @@ import {
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM_EMAIL = 'Zillfin <no-reply@grihome.com>'
+const FROM_EMAIL = 'Zillfin <no-reply@zillfin.com>'
 const ADMIN_EMAIL = 'thegrihome@gmail.com'
 
 export interface SendEmailResult {

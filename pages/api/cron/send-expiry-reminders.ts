@@ -5,7 +5,7 @@ import { sendExpiryReminderWhatsApp } from '@/lib/msg91/whatsapp'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const ADMIN_EMAIL = 'thegrihome@gmail.com'
-const FROM_EMAIL = 'Zillfin <no-reply@grihome.com>'
+const FROM_EMAIL = 'Zillfin <no-reply@zillfin.com>'
 
 interface ExpiringAgent {
   id: string
