@@ -932,18 +932,13 @@ export default function PropertiesPage() {
           {/* Filters Section */}
           <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              {/* Buy/Rent/Projects Slider Toggle */}
-              <div className="relative inline-flex items-center bg-white border border-gray-300 rounded-full p-0.5 w-full xs:w-[180px] sm:w-[200px] flex-shrink-0">
+              {/* Buy/Rent Slider Toggle - Projects hidden for now */}
+              <div className="relative inline-flex items-center bg-white border border-gray-300 rounded-full p-0.5 w-full xs:w-[120px] sm:w-[140px] flex-shrink-0">
                 <div
                   className="absolute top-0.5 bottom-0.5 bg-blue-600 rounded-full transition-all duration-300 ease-in-out"
                   style={{
-                    left:
-                      activeTab === 'buy'
-                        ? '2px'
-                        : activeTab === 'rent'
-                          ? 'calc(33.33% + 1px)'
-                          : 'calc(66.66%)',
-                    width: 'calc(33.33% - 2px)',
+                    left: activeTab === 'buy' ? '2px' : 'calc(50% + 1px)',
+                    width: 'calc(50% - 2px)',
                   }}
                 />
                 <button
@@ -964,6 +959,7 @@ export default function PropertiesPage() {
                 >
                   Rent
                 </button>
+                {/* Projects tab hidden - will be released later
                 <button
                   type="button"
                   onClick={() => handleTabChange('projects')}
@@ -973,6 +969,7 @@ export default function PropertiesPage() {
                 >
                   Projects
                 </button>
+                */}
               </div>
 
               {/* Property Type Filter (for properties tabs) */}
