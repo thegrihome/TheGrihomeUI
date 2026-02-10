@@ -176,9 +176,6 @@ const Header: NextPage = () => {
               <Link href="/forum" className="desktop-nav-link">
                 Forum
               </Link>
-              <Link href="/projects" className="desktop-nav-link">
-                Projects
-              </Link>
               {/* More Dropdown */}
               <div className="more-menu" ref={moreMenuRef}>
                 <button
@@ -202,13 +199,6 @@ const Header: NextPage = () => {
                 </button>
                 {moreMenuOpen && (
                   <div className="more-menu-dropdown">
-                    <Link
-                      href="/builders"
-                      className="more-menu-link"
-                      onClick={() => setMoreMenuOpen(false)}
-                    >
-                      Builders
-                    </Link>
                     <Link
                       href="/agents"
                       className="more-menu-link"
@@ -378,25 +368,11 @@ const Header: NextPage = () => {
                     Rent
                   </Link>
                   <Link
-                    href="/projects"
-                    className="mobile-nav-link"
-                    onClick={() => setNavbarOpen(false)}
-                  >
-                    Projects
-                  </Link>
-                  <Link
                     href="/forum"
                     className="mobile-nav-link"
                     onClick={() => setNavbarOpen(false)}
                   >
                     Forum
-                  </Link>
-                  <Link
-                    href="/builders"
-                    className="mobile-nav-link"
-                    onClick={() => setNavbarOpen(false)}
-                  >
-                    Builders
                   </Link>
                   <Link
                     href="/agents"

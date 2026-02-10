@@ -571,8 +571,8 @@ export default function AddProperty() {
               </div>
             </div>
 
-            {/* Project */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            {/* Project - Hidden for now, will be released later */}
+            {/* <div className="bg-white rounded-lg shadow-md p-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Project</label>
               <div className="relative" ref={projectDropdownRef}>
                 <div className="relative">
@@ -652,7 +652,7 @@ export default function AddProperty() {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Bedrooms & Bathrooms */}
             {showBedroomsBathrooms && (

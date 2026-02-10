@@ -21,7 +21,7 @@ const Footer: NextPage = () => {
         <div className="footer-social-links">
           <a
             aria-label="mail"
-            href="mailto:thegrihome@gmail.com?subject=From Zillfin!"
+            href="mailto:thezillfin@gmail.com?subject=From Zillfin!"
             className="footer-social-link"
           >
             <svg
@@ -40,7 +40,7 @@ const Footer: NextPage = () => {
           </a>
           <a
             aria-label="X"
-            href="https://x.com/zillfin"
+            href="https://x.com/thezillfin"
             target="_blank"
             rel="noreferrer"
             className="footer-social-link"
@@ -58,7 +58,7 @@ const Footer: NextPage = () => {
           </a>
           <a
             aria-label="instagram"
-            href="https://instagram.com/gri.home"
+            href="https://www.instagram.com/zill.fin/"
             target="_blank"
             rel="noreferrer"
             className="footer-social-link"
@@ -78,7 +78,7 @@ const Footer: NextPage = () => {
           </a>
           <a
             aria-label="facebook"
-            href="https://www.facebook.com/profile.php?id=61579380794505"
+            href="https://www.facebook.com/people/Zillfin/61579380794505/"
             target="_blank"
             rel="noreferrer"
             className="footer-social-link"

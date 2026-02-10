@@ -260,9 +260,6 @@ export default function AgentsPage() {
                       Properties Listed
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      Projects
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                       Joined
                     </th>
                   </tr>
@@ -290,12 +287,6 @@ export default function AgentsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-1">
-                          <div className="h-5 bg-gray-200 rounded-full w-16 animate-pulse"></div>
-                          <div className="h-5 bg-gray-200 rounded-full w-12 animate-pulse"></div>
-                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
@@ -343,9 +334,6 @@ export default function AgentsPage() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                       Properties Listed
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      Projects
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                       Joined
@@ -445,35 +433,6 @@ export default function AgentsPage() {
                           </button>
                         ) : (
                           <div className="text-sm text-gray-400">0</div>
-                        )}
-                      </td>
-
-                      {/* Projects Column */}
-                      <td className="px-6 py-4">
-                        {agent.projects && agent.projects.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {agent.projects.slice(0, 2).map(project => (
-                              <Link
-                                key={project.id}
-                                href={`/projects/${project.id}`}
-                                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors"
-                              >
-                                {project.name.length > 15
-                                  ? `${project.name.slice(0, 15)}...`
-                                  : project.name}
-                              </Link>
-                            ))}
-                            {agent.projects.length > 2 && (
-                              <Link
-                                href={`/agents/${agent.id}/properties?tab=projects`}
-                                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer"
-                              >
-                                +{agent.projects.length - 2} more
-                              </Link>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-sm text-gray-400">No projects</span>
                         )}
                       </td>
 
