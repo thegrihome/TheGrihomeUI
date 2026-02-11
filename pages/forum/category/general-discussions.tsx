@@ -277,7 +277,7 @@ export const getStaticProps: GetStaticProps = async () => {
     }))
 
     // Calculate total posts across all cities
-    const totalPosts = citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0)
+    const citiesTotalPosts = citiesWithTotals.reduce((sum, city) => sum + city.totalPosts, 0)
 
     // Calculate total posts for all states by summing posts from all property type children
     const statesTotalPosts = states.reduce(
@@ -285,6 +285,9 @@ export const getStaticProps: GetStaticProps = async () => {
         sum + state.children.reduce((childSum, child) => childSum + child._count.posts, 0),
       0
     )
+
+    // Total posts includes both cities and states
+    const totalPosts = citiesTotalPosts + statesTotalPosts
 
     // Get count of states for the States & UTs entry
     const statesCount = states.length
