@@ -11,11 +11,9 @@ const Header: NextPage = () => {
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false)
   const [mounted, setMounted] = useState<boolean>(false)
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
-  const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false)
   const [userImage, setUserImage] = useState<string | null>(null)
   const [canAccessAdmin, setCanAccessAdmin] = useState<boolean>(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
-  const moreMenuRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
   const { data: session, status, update } = useSession()
@@ -83,19 +81,16 @@ const Header: NextPage = () => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setUserMenuOpen(false)
       }
-      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
-        setMoreMenuOpen(false)
-      }
     }
 
-    if (userMenuOpen || moreMenuOpen) {
+    if (userMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [userMenuOpen, moreMenuOpen])
+  }, [userMenuOpen])
 
   // Handle click outside mobile menu
   useEffect(() => {
@@ -176,46 +171,12 @@ const Header: NextPage = () => {
               <Link href="/forum" className="desktop-nav-link">
                 Forum
               </Link>
-              {/* More Dropdown */}
-              <div className="more-menu" ref={moreMenuRef}>
-                <button
-                  onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-                  className="desktop-nav-link more-menu-button"
-                >
-                  More
-                  <svg
-                    className={`more-menu-caret ${moreMenuOpen ? 'more-menu-caret-open' : ''}`}
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                </button>
-                {moreMenuOpen && (
-                  <div className="more-menu-dropdown">
-                    <Link
-                      href="/agents"
-                      className="more-menu-link"
-                      onClick={() => setMoreMenuOpen(false)}
-                    >
-                      Agents
-                    </Link>
-                    <Link
-                      href="/contactUs/contact"
-                      className="more-menu-link"
-                      onClick={() => setMoreMenuOpen(false)}
-                    >
-                      Contact Us
-                    </Link>
-                  </div>
-                )}
-              </div>
+              <Link href="/agents" className="desktop-nav-link">
+                Agents
+              </Link>
+              <Link href="/contactUs/contact" className="desktop-nav-link">
+                Contact Us
+              </Link>
               {status === 'loading' ? (
                 <div className="header-add-property-link opacity-50 cursor-not-allowed flex items-center gap-2">
                   <LoadingSpinner size="sm" />
