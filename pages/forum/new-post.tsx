@@ -54,6 +54,11 @@ export default function NewPostPage({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
+  // Custom dropdown state
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
+  const [categorySearch, setCategorySearch] = useState('')
+  const categoryDropdownRef = useRef<HTMLDivElement>(null)
+
   // Configure rich text editor modules
   const modules = useMemo(
     () => ({
@@ -76,6 +81,21 @@ export default function NewPostPage({
       return
     }
   }, [session, status, router])
+
+  // Close category dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target as Node)
+      ) {
+        setCategoryDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -160,8 +180,19 @@ export default function NewPostPage({
   const isUserVerified = session?.user?.isEmailVerified || session?.user?.isMobileVerified
   const selectableCategories = getSelectableCategories(categories)
 
+  // Filter categories based on search
+  const filteredCategories = selectableCategories.filter(category =>
+    category.name.toLowerCase().includes(categorySearch.toLowerCase())
+  )
+
+  // Get selected category name
+  const selectedCategoryName = selectableCategories.find(cat => cat.id === categoryId)?.name || ''
+
   return (
     <div className="forum-container">
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       <NextSeo
         title="New Thread - Forum - Zillfin"
         description="Start a new discussion in the Zillfin community forum"
@@ -170,7 +201,7 @@ export default function NewPostPage({
 
       <Header />
 
-      <main className="forum-main">
+      <main id="main-content" className="forum-main">
         <div className="forum-breadcrumb">
           <Link href="/forum" className="forum-breadcrumb-link">
             Forum
@@ -250,20 +281,95 @@ export default function NewPostPage({
                     style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
                   />
                 ) : (
-                  <select
-                    id="category"
-                    value={categoryId}
-                    onChange={e => setCategoryId(e.target.value)}
-                    className="forum-select"
-                    required
-                  >
-                    <option value="">Select a category</option>
-                    {selectableCategories.map(category => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="forum-dropdown-container" ref={categoryDropdownRef}>
+                    <button
+                      type="button"
+                      id="category"
+                      onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                      className="forum-dropdown-trigger"
+                      aria-expanded={categoryDropdownOpen}
+                      aria-haspopup="listbox"
+                      aria-label="Select a category"
+                    >
+                      <span className={categoryId ? '' : 'forum-dropdown-placeholder'}>
+                        {selectedCategoryName || 'Select a category'}
+                      </span>
+                      <svg
+                        className={`forum-dropdown-arrow ${categoryDropdownOpen ? 'forum-dropdown-arrow--open' : ''}`}
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                    {categoryDropdownOpen && (
+                      <div className="forum-dropdown-menu">
+                        <div className="forum-dropdown-search-container">
+                          <input
+                            type="text"
+                            value={categorySearch}
+                            onChange={e => setCategorySearch(e.target.value)}
+                            placeholder="Search categories..."
+                            className="forum-dropdown-search"
+                            aria-label="Search categories"
+                          />
+                        </div>
+                        <ul
+                          role="listbox"
+                          className="forum-dropdown-list"
+                          aria-label="Category options"
+                        >
+                          {filteredCategories.length === 0 ? (
+                            <li className="forum-dropdown-no-results">No categories found</li>
+                          ) : (
+                            filteredCategories.map(category => (
+                              <li
+                                key={category.id}
+                                role="option"
+                                aria-selected={categoryId === category.id}
+                                className={`forum-dropdown-item ${categoryId === category.id ? 'forum-dropdown-item--selected' : ''}`}
+                                onClick={() => {
+                                  setCategoryId(category.id)
+                                  setCategoryDropdownOpen(false)
+                                  setCategorySearch('')
+                                }}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault()
+                                    setCategoryId(category.id)
+                                    setCategoryDropdownOpen(false)
+                                    setCategorySearch('')
+                                  }
+                                }}
+                                tabIndex={0}
+                              >
+                                {category.name}
+                                {categoryId === category.id && (
+                                  <svg
+                                    className="forum-dropdown-check"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                )}
+                              </li>
+                            ))
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 

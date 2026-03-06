@@ -276,3 +276,23 @@
     grid-template-columns: 100px 1fr;
   }
 }
+
+/* Focus-visible styles for accessibility */
+.login-tab:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.login-form__input:focus-visible {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.login-form__submit:focus-visible,
+.login-form__send-otp:focus-visible,
+.login-form__back:focus-visible,
+.login-form__resend:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}

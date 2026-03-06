@@ -317,17 +317,22 @@ export default function Login() {
 
   return (
     <div className="login-container">
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       <Header />
-      <main className="login-main">
+      <main id="main-content" className="login-main">
         <div className="login-content">
           <div className="login-card">
             <h1 className="login-title">Sign In</h1>
             <p className="login-subtitle">Welcome back to Zillfin</p>
 
             {/* Login Method Tabs */}
-            <div className="login-tabs">
+            <div className="login-tabs" role="tablist" aria-label="Login method selection">
               <button
                 type="button"
+                role="tab"
+                aria-selected={loginMethod === 'email'}
                 onClick={() => handleMethodChange('email')}
                 className={`login-tab ${loginMethod === 'email' ? 'login-tab--active' : ''}`}
               >
@@ -335,6 +340,8 @@ export default function Login() {
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={loginMethod === 'mobile'}
                 onClick={() => handleMethodChange('mobile')}
                 className={`login-tab ${loginMethod === 'mobile' ? 'login-tab--active' : ''}`}
               >
@@ -342,6 +349,8 @@ export default function Login() {
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={loginMethod === 'password'}
                 onClick={() => handleMethodChange('password')}
                 className={`login-tab ${loginMethod === 'password' ? 'login-tab--active' : ''}`}
               >

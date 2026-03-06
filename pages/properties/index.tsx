@@ -916,9 +916,13 @@ export default function PropertiesPage() {
         canonical="https://grihome.vercel.app/properties"
       />
 
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main id="main-content" className="min-h-screen bg-gray-50">
         <div className="properties-main-content">
           <div className="mb-6">
             <h1 className="text-2xl font-bold">

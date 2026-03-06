@@ -37,6 +37,64 @@
    - 4xl: 2560px (2K/Ultra-wide)
    ============================================ */
 
+:root {
+  /* === COLORS - Clean & Minimal Design System === */
+  /* Primary - Single blue tone */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-light: #eff6ff;
+
+  /* Neutrals - Simplified gray scale */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #f3f4f6;
+
+  /* Status colors */
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  /* === SHADOWS - Subtle, modern === */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.04), 0 4px 6px rgba(0, 0, 0, 0.02);
+
+  /* === BORDER RADIUS - Consistent scale === */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* === SPACING === */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* === TRANSITIONS === */
+  --transition-fast: 150ms;
+  --transition-normal: 200ms;
+  --transition-smooth: 250ms;
+  --transition-slow: 300ms;
+
+  /* Easing functions */
+  --ease-default: ease;
+  --ease-smooth: ease-in-out;
+
+  /* Focus ring */
+  --focus-ring-color: rgba(59, 130, 246, 0.5);
+  --focus-ring-width: 3px;
+}
+
 html {
   min-width: 360px;
   scroll-behavior: smooth;
@@ -54,7 +112,7 @@ body {
   /* Prevent horizontal overflow */
   overflow-x: hidden;
   width: 100%;
-  background-color: white;
+  background-color: var(--color-bg-secondary);
   min-height: 100vh;
 }
 
@@ -121,7 +179,7 @@ body {
   z-index: 50;
   top: 0;
   backdrop-filter: saturate(180%) blur(20px) !important;
-  transition: background-color 0.1 ease-in-out !important;
+  transition: background-color 0.2s ease-in-out !important;
 }
 
 /* ============================================
@@ -395,5 +453,100 @@ body::-webkit-scrollbar-track {
 
   .print-only {
     display: block !important;
+  }
+}
+
+/* ============================================
+   SKIP TO CONTENT LINK
+   ============================================ */
+
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #1e40af;
+  color: white;
+  padding: 0.5rem 1rem;
+  z-index: 100;
+  transition: top var(--transition-normal) var(--ease-default);
+  border-radius: 0 0 0.5rem 0;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.skip-to-content:focus {
+  top: 0;
+  outline: none;
+}
+
+/* ============================================
+   ENHANCED FOCUS STATES FOR ACCESSIBILITY
+   ============================================ */
+
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Remove default focus when using mouse */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   UTILITY CLASSES FOR UI/UX PRO MAX
+   ============================================ */
+
+/* Clickable card utility */
+.clickable-card {
+  cursor: pointer;
+}
+
+/* SVG icon base styles */
+.svg-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.svg-icon-sm {
+  width: 1rem;
+  height: 1rem;
+}
+.svg-icon-md {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.svg-icon-lg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.svg-icon-xl {
+  width: 2rem;
+  height: 2rem;
+}
+.svg-icon-2xl {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* ============================================
+   REDUCED MOTION PREFERENCES
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

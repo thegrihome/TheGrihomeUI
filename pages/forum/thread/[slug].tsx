@@ -206,6 +206,9 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
 
   return (
     <div className="forum-container">
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       <NextSeo
         title={`${post.title} - Forum - Zillfin`}
         description={post.content.substring(0, 160)}
@@ -214,7 +217,7 @@ export default function ThreadPage({ post: initialPost }: ThreadPageProps) {
 
       <Header />
 
-      <main className="forum-main">
+      <main id="main-content" className="forum-main">
         <div className="forum-breadcrumb">
           <Link href="/forum" className="forum-breadcrumb-link">
             Forum

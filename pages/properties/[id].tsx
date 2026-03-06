@@ -251,12 +251,20 @@ export default function PropertyDetailPage() {
         canonical={`https://grihome.vercel.app/properties/${property.id}`}
       />
 
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+
       <Header />
 
-      <main className="property-detail-main">
+      <main id="main-content" className="property-detail-main">
         <div className="property-detail-content">
           {/* Back Button */}
-          <button onClick={() => router.back()} className="property-detail-back">
+          <button
+            onClick={() => router.back()}
+            className="property-detail-back"
+            aria-label="Go back to previous page"
+          >
             <svg
               className="property-detail-back__icon"
               fill="none"

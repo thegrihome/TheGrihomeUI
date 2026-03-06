@@ -906,11 +906,16 @@ export default function UserInfoPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       <Header />
 
       {/* Toast Notification */}
       {toast.show && (
         <div
+          role="alert"
+          aria-live="polite"
           className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-md shadow-lg text-white ${
             toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
           }`}
@@ -919,7 +924,7 @@ export default function UserInfoPage() {
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex-1">
+      <main id="main-content" className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex-1">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">My Information</h1>
@@ -1814,7 +1819,7 @@ export default function UserInfoPage() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
   )

@@ -111,3 +111,19 @@
     max-width: calc(100vw - 1rem);
   }
 }
+
+/* Focus-visible styles for accessibility */
+.property-filter-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.property-card:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 4px;
+}
+
+.pagination-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}

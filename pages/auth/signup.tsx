@@ -425,8 +425,11 @@ export default function Signup() {
 
   return (
     <div className="signup-container">
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       <Header />
-      <main className="signup-main">
+      <main id="main-content" className="signup-main">
         <div className="signup-content">
           <form onSubmit={handleSubmit} className="signup-form">
             <h1 className="signup-form__title">Create Account</h1>

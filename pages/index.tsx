@@ -175,9 +175,13 @@ export default function Home() {
         }}
       />
 
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+
       <Header />
 
-      <section className="home-main-section">
+      <section id="main-content" className="home-main-section">
         <div className="home-content-wrapper">
           <div className="home-content-container">
             <div className="home-content-max-width">
@@ -190,6 +194,7 @@ export default function Home() {
                 <Link
                   href="/forum/category/general-discussions/bengaluru"
                   className="home-city-item"
+                  aria-label="Browse properties in Bengaluru"
                 >
                   <div className="home-city-icon">
                     <Image
@@ -202,7 +207,11 @@ export default function Home() {
                   </div>
                   <span className="home-city-name">Bengaluru</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/chennai" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/chennai"
+                  className="home-city-item"
+                  aria-label="Browse properties in Chennai"
+                >
                   <div className="home-city-icon">
                     <Image
                       src="/images/cities/Chennai.png"
@@ -214,7 +223,11 @@ export default function Home() {
                   </div>
                   <span className="home-city-name">Chennai</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/delhi" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/delhi"
+                  className="home-city-item"
+                  aria-label="Browse properties in Delhi"
+                >
                   <div className="home-city-icon">
                     <Image
                       src="/images/cities/Delhi.png"
@@ -226,7 +239,11 @@ export default function Home() {
                   </div>
                   <span className="home-city-name">Delhi</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/gurgaon" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/gurgaon"
+                  className="home-city-item"
+                  aria-label="Browse properties in Gurgaon"
+                >
                   <div className="home-city-icon">
                     <Image
                       src="/images/cities/Gurgaon.png"
@@ -241,6 +258,7 @@ export default function Home() {
                 <Link
                   href="/forum/category/general-discussions/hyderabad"
                   className="home-city-item"
+                  aria-label="Browse properties in Hyderabad"
                 >
                   <div className="home-city-icon">
                     <Image
@@ -253,7 +271,11 @@ export default function Home() {
                   </div>
                   <span className="home-city-name">Hyderabad</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/kolkata" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/kolkata"
+                  className="home-city-item"
+                  aria-label="Browse properties in Kolkata"
+                >
                   <div className="home-city-icon">
                     <Image
                       src="/images/cities/Kolkata.png"
@@ -265,7 +287,11 @@ export default function Home() {
                   </div>
                   <span className="home-city-name">Kolkata</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/mumbai" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/mumbai"
+                  className="home-city-item"
+                  aria-label="Browse properties in Mumbai"
+                >
                   <div className="home-city-icon">
                     <Image
                       src="/images/cities/Mumbai.png"
@@ -277,7 +303,11 @@ export default function Home() {
                   </div>
                   <span className="home-city-name">Mumbai</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/noida" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/noida"
+                  className="home-city-item"
+                  aria-label="Browse properties in Noida"
+                >
                   <div className="home-city-icon">
                     <Image
                       src="/images/cities/Noida.png"
@@ -289,7 +319,11 @@ export default function Home() {
                   </div>
                   <span className="home-city-name">Noida</span>
                 </Link>
-                <Link href="/forum/category/general-discussions/pune" className="home-city-item">
+                <Link
+                  href="/forum/category/general-discussions/pune"
+                  className="home-city-item"
+                  aria-label="Browse properties in Pune"
+                >
                   <div className="home-city-icon">
                     <Image
                       src="/images/cities/Pune.png"
@@ -303,8 +337,36 @@ export default function Home() {
                 </Link>
 
                 {/* States */}
-                <Link href="/forum/category/general-discussions/states" className="home-city-item">
-                  <div className="home-city-icon home-city-icon-emoji">🇮🇳</div>
+                <Link
+                  href="/forum/category/general-discussions/states"
+                  className="home-city-item"
+                  aria-label="Browse properties in all Indian States and Union Territories"
+                >
+                  <div className="home-city-icon home-city-icon-svg">
+                    <svg
+                      viewBox="0 0 64 64"
+                      fill="none"
+                      className="home-city-svg-icon"
+                      aria-hidden="true"
+                    >
+                      <rect
+                        x="4"
+                        y="12"
+                        width="56"
+                        height="40"
+                        rx="4"
+                        fill="#f8f9fa"
+                        stroke="#e5e7eb"
+                        strokeWidth="2"
+                      />
+                      <rect x="4" y="12" width="56" height="13.33" fill="#FF9933" />
+                      <rect x="4" y="25.33" width="56" height="13.33" fill="#ffffff" />
+                      <rect x="4" y="38.66" width="56" height="13.34" fill="#138808" />
+                      <circle cx="32" cy="32" r="5" fill="#000080" />
+                      <circle cx="32" cy="32" r="4" fill="#ffffff" />
+                      <circle cx="32" cy="32" r="2" fill="#000080" />
+                    </svg>
+                  </div>
                   <span className="home-city-name">States & UTs</span>
                 </Link>
               </div>
@@ -334,14 +396,33 @@ export default function Home() {
                     onChange={handleSearchInput}
                     onFocus={() => predictions.length > 0 && setShowPredictions(true)}
                     onBlur={() => setTimeout(() => setShowPredictions(false), 200)}
+                    aria-label="Search for properties by location"
+                    aria-expanded={showPredictions && predictions.length > 0}
+                    aria-controls="search-predictions"
+                    aria-autocomplete="list"
+                    role="combobox"
                   />
                   {showPredictions && predictions.length > 0 && (
-                    <div className="home-search-predictions">
+                    <div
+                      id="search-predictions"
+                      className="home-search-predictions"
+                      role="listbox"
+                      aria-label="Location suggestions"
+                    >
                       {predictions.map(prediction => (
                         <div
                           key={prediction.place_id}
                           className="home-search-prediction-item"
                           onClick={() => handlePredictionSelect(prediction)}
+                          role="option"
+                          aria-selected={false}
+                          tabIndex={0}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              handlePredictionSelect(prediction)
+                            }
+                          }}
                         >
                           <div className="home-search-prediction-icon">
                             <svg
@@ -349,6 +430,7 @@ export default function Home() {
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"

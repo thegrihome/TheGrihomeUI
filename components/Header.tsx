@@ -128,8 +128,7 @@ const Header: NextPage = () => {
         <div className="header-container">
           <div className="header-top">
             <Link href="/" className="header-logo">
-              <ZillfinLogo size={32} className="header-logo-image" />
-              <span className="header-logo-text">ZILLFIN</span>
+              <ZillfinLogo size={44} className="header-logo-image" />
             </Link>
             <button
               className="mobile-menu-button"
@@ -158,8 +157,7 @@ const Header: NextPage = () => {
           {/* Desktop Navigation - Main Header Row */}
           <div className="desktop-nav">
             <Link href="/" className="header-logo">
-              <ZillfinLogo size={40} className="header-logo-image" />
-              <span className="header-logo-text">ZILLFIN</span>
+              <ZillfinLogo size={52} className="header-logo-image" />
             </Link>
             <div className="desktop-nav-links">
               <Link href="/properties?type=buy" className="desktop-nav-link">

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ForumSearch from '@/components/forum/ForumSearch'
+import { FORUM_CATEGORY_ICONS } from '@/components/common/PropertyTypeIcon'
 import { prisma } from '@/lib/cockroachDB/prisma'
 
 interface ForumCategory {
@@ -23,12 +24,18 @@ interface ForumProps {
   categories: ForumCategory[]
 }
 
-const categoryIcons: { [key: string]: string } = {
-  'member-introductions': '👋',
-  'latest-news': '📰',
-  'grihome-latest-deals': '💰',
-  'general-discussions': '💬',
-}
+// Default folder icon SVG for categories without custom icons
+const DefaultCategoryIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" className="w-full h-full" aria-hidden="true">
+    <path
+      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
 
 export default function Forum({ categories }: ForumProps) {
   // Smart title formatter - determines which words should be gradient
@@ -78,6 +85,9 @@ export default function Forum({ categories }: ForumProps) {
 
   return (
     <div className="forum-container">
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       <NextSeo
         title="Forum - Zillfin"
         description="Join the Zillfin community forum to discuss real estate, share experiences, and connect with fellow property enthusiasts."
@@ -86,7 +96,7 @@ export default function Forum({ categories }: ForumProps) {
 
       <Header />
 
-      <main className="forum-main">
+      <main id="main-content" className="forum-main">
         <div className="forum-breadcrumb-container">
           <div></div>
           <div className="forum-breadcrumb-search">
@@ -114,8 +124,8 @@ export default function Forum({ categories }: ForumProps) {
               <div key={category.id} className="forum-category-card">
                 <div className="forum-category-header">
                   <div className="forum-category-info">
-                    <div className="forum-category-icon">
-                      {categoryIcons[category.slug] || '📂'}
+                    <div className="forum-category-icon" aria-hidden="true">
+                      {FORUM_CATEGORY_ICONS[category.slug] || <DefaultCategoryIcon />}
                     </div>
                     <div className="forum-category-details">
                       <h3 className="forum-category-name">

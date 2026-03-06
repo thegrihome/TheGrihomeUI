@@ -134,6 +134,9 @@ export default function SearchPage({ results, error }: SearchPageProps) {
 
   return (
     <div className="forum-container">
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       <NextSeo
         title={`Search Results for "${query}" - Forum - Zillfin`}
         description={`Search results for "${query}" in Zillfin community forum`}
@@ -142,7 +145,7 @@ export default function SearchPage({ results, error }: SearchPageProps) {
 
       <Header />
 
-      <main className="forum-main">
+      <main id="main-content" className="forum-main">
         <div className="forum-breadcrumb">
           <Link href="/forum" className="forum-breadcrumb-link">
             Forum

@@ -396,8 +396,13 @@ export default function AddProperty() {
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+
       <Header />
-      <main className="container mx-auto px-4 py-8">
+
+      <main id="main-content" className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold mb-6">
             <span className="text-gray-800">Add New</span>{' '}
