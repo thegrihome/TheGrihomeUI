@@ -157,7 +157,7 @@ const Header: NextPage = () => {
           {/* Desktop Navigation - Main Header Row */}
           <div className="desktop-nav">
             <Link href="/" className="header-logo">
-              <ZillfinLogo size={52} className="header-logo-image" />
+              <ZillfinLogo size={44} className="header-logo-image" />
             </Link>
             <div className="desktop-nav-links">
               <Link href="/properties?type=buy" className="desktop-nav-link">

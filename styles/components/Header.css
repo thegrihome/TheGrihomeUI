@@ -3,13 +3,11 @@
 /* Header Container */
 .header {
   width: 100%;
-  border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(255, 255, 255, 0.97);
+  background: rgba(251, 251, 253, 0.92);
   backdrop-filter: saturate(180%) blur(20px);
-  box-shadow: var(--shadow-xs);
 }
 
 .header-container {
@@ -30,25 +28,25 @@
 @media (min-width: 768px) and (max-width: 1023px) {
   .header-container {
     flex-direction: row;
-    padding: 0.875rem 1.5rem;
+    padding: 0.625rem 1.5rem;
     align-items: center;
-    min-height: 64px;
+    min-height: 56px;
   }
 }
 
 @media (min-width: 1024px) {
   .header-container {
     flex-direction: row;
-    padding: 1rem 2rem;
+    padding: 0.75rem 2rem;
     align-items: center;
-    min-height: 68px;
+    min-height: 60px;
   }
 }
 
 @media (min-width: 1280px) {
   .header-container {
-    padding: 1rem 2.5rem;
-    min-height: 70px;
+    padding: 0.75rem 2.5rem;
+    min-height: 64px;
   }
 }
 
@@ -155,7 +153,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  border: 2px solid var(--color-primary);
+  border: 1.5px solid var(--color-primary);
   border-radius: var(--radius-full);
   transition: all var(--transition-fast) var(--ease-default);
   white-space: nowrap;
@@ -167,7 +165,7 @@
 .header-add-property-link:hover {
   background-color: var(--color-primary);
   color: white;
-  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -412,13 +410,13 @@
 }
 
 .desktop-nav-link {
-  color: var(--color-text-secondary);
+  color: #1d1d1f;
   transition: color var(--transition-fast) var(--ease-default);
   text-decoration: none;
   position: relative;
   padding: 0.5rem 0.75rem;
-  font-size: 0.9375rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 400;
   line-height: 1.5;
   display: inline-block;
   white-space: nowrap;
@@ -427,8 +425,7 @@
 }
 
 .desktop-nav-link:hover {
-  color: var(--color-text-primary);
-  background-color: var(--color-bg-tertiary);
+  color: var(--color-primary);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -656,7 +653,7 @@
   transition: all var(--transition-fast) var(--ease-default);
   margin-right: 0.5rem;
   color: var(--color-primary);
-  border: 2px solid var(--color-primary);
+  border: 1.5px solid var(--color-primary);
   padding: 0.5rem 1rem;
   border-radius: var(--radius-full);
   font-size: 0.875rem;
@@ -674,7 +671,7 @@
 .signin-button:hover {
   background-color: var(--color-primary);
   color: white;
-  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
