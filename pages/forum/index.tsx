@@ -106,14 +106,20 @@ export default function Forum({ categories }: ForumProps) {
 
         <div className="forum-header">
           <div className="forum-header-content">
-            <div className="forum-header-main">
-              <div className="forum-header-text">
+            <div className="forum-city-header-section">
+              <div>
                 <h1 className="forum-title">{formatTitle('Zillfin Community Forum')}</h1>
-                <p className="forum-subtitle">
-                  Connect with fellow property enthusiasts, share experiences, and get insights
-                  about real estate across India.
-                </p>
+                <div className="forum-stats-summary">
+                  <span className="forum-stat">
+                    {categories.reduce((sum, cat) => sum + cat._count.posts, 0)} discussions
+                  </span>
+                  <span className="forum-stat-separator">•</span>
+                  <span className="forum-stat">{categories.length} categories</span>
+                </div>
               </div>
+              <Link href="/forum/category/general-discussions" className="forum-all-india-btn">
+                All India Forums →
+              </Link>
             </div>
           </div>
         </div>
