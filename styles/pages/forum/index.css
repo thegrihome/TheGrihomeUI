@@ -195,6 +195,9 @@
 }
 
 .forum-category-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
   border-radius: 12px;
@@ -205,6 +208,7 @@
   overflow: hidden;
   transition: all 0.3s ease;
   position: relative;
+  cursor: pointer;
 }
 
 .forum-category-card::before {

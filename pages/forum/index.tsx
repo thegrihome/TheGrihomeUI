@@ -127,24 +127,22 @@ export default function Forum({ categories }: ForumProps) {
         <div className="forum-content">
           <div className="forum-categories">
             {categories.map(category => (
-              <div key={category.id} className="forum-category-card">
+              <Link
+                key={category.id}
+                href={
+                  category.slug === 'general-discussions'
+                    ? `/forum/category/general-discussions`
+                    : `/forum/category/${category.slug}`
+                }
+                className="forum-category-card"
+              >
                 <div className="forum-category-header">
                   <div className="forum-category-info">
                     <div className="forum-category-icon" aria-hidden="true">
                       {FORUM_CATEGORY_ICONS[category.slug] || <DefaultCategoryIcon />}
                     </div>
                     <div className="forum-category-details">
-                      <h3 className="forum-category-name">
-                        <Link
-                          href={
-                            category.slug === 'general-discussions'
-                              ? `/forum/category/general-discussions`
-                              : `/forum/category/${category.slug}`
-                          }
-                        >
-                          {category.name}
-                        </Link>
-                      </h3>
+                      <h3 className="forum-category-name">{category.name}</h3>
                       {category.description && (
                         <p className="forum-category-description">{category.description}</p>
                       )}
@@ -157,7 +155,7 @@ export default function Forum({ categories }: ForumProps) {
                     <div className="forum-expand-icon">→</div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
