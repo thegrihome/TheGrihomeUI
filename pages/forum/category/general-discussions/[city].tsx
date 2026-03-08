@@ -200,6 +200,12 @@ export default function CityPage({ city, propertyTypes, totalPosts }: CityPagePr
                   <span className="forum-stat">{propertyTypes.length} property categories</span>
                 </div>
               </div>
+              <Link
+                href={`/properties?${city.isState ? 'state' : 'city'}=${encodeURIComponent(city.name)}&type=buy`}
+                className="forum-browse-properties-btn"
+              >
+                Browse Properties in {city.name} →
+              </Link>
             </div>
           </div>
         </div>
